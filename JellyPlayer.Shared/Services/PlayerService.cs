@@ -261,6 +261,26 @@ public sealed class PlayerService : IPlayerService, IDisposable
     }
 
     /// <summary>
+    /// Check if we have next track to play
+    /// </summary>
+    /// <returns>True, if has</returns>
+    public bool HasNextTrack()
+    {
+        var nextTrack = _tracks.Reverse().SkipWhile(t => t != _selectedTrack).Skip(1).FirstOrDefault();
+        return nextTrack != null;
+    }
+
+    /// <summary>
+    /// Check if we have previous track to play
+    /// </summary>
+    /// <returns>True, if has</returns>
+    public bool HasPreviousTrack()
+    {
+        var previousTrack = _tracks.SkipWhile(t => t != _selectedTrack).Skip(1).FirstOrDefault();
+        return previousTrack != null;
+    }
+    
+    /// <summary>
     /// Pause playing track
     /// </summary>
     public void PauseTrack()
