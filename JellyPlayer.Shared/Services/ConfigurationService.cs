@@ -7,13 +7,11 @@ using JellyPlayer.Shared.Models;
 
 namespace JellyPlayer.Shared.Services;
 
-public class ConfigurationService(IFileSystem fileSystem) : IConfigurationService
+public class ConfigurationService(IFileSystem fileSystem, string applicationId) : IConfigurationService
 {
     private readonly IFileSystem _fileSystem = fileSystem;
     private readonly Configuration _configuration = new();
 
-    private readonly string _appId = "org.bacmanni.JellyPlayer";
-    
     /// <summary>
     /// Occurs when the configuration object is saved
     /// </summary>
@@ -42,8 +40,7 @@ public class ConfigurationService(IFileSystem fileSystem) : IConfigurationServic
     public void Load()
     {
         var filename = GetFilename();
-        CreateConfigurationFile(filename);
-        if (!File.Exists(filename))
+        if (!_fileSystem.File.Exists(filename))
         {
             CreateConfigurationFile(filename);
         }
@@ -80,7 +77,7 @@ public class ConfigurationService(IFileSystem fileSystem) : IConfigurationServic
             if (string.IsNullOrEmpty(configHome))
             {
                 var home = Environment.GetEnvironmentVariable("HOME");
-                configHome = Path.Combine(home, ".config", _appId);
+                configHome = Path.Combine(home, ".config", applicationId);
             }
 
             return configHome;
@@ -106,7 +103,7 @@ public class ConfigurationService(IFileSystem fileSystem) : IConfigurationServic
             if (string.IsNullOrEmpty(configHome))
             {
                 var home = Environment.GetEnvironmentVariable("HOME");
-                configHome = Path.Combine(home, ".cache", _appId);
+                configHome = Path.Combine(home, ".cache", applicationId);
             }
 
             return configHome;
@@ -126,6 +123,16 @@ public class ConfigurationService(IFileSystem fileSystem) : IConfigurationServic
     public Configuration Get()
     {
         return _configuration;
+    }
+
+    /// <summary>
+    /// Is currently running platform
+    /// </summary>
+    /// <param name="platform"></param>
+    /// <returns></returns>
+    public bool IsPlatform(OSPlatform platform)
+    {
+        return platform == GetOsPlatform();
     }
 
     /// <summary>

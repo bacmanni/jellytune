@@ -88,7 +88,7 @@ class Program
             }
         
             _mainWindow = new Views.MainWindow((Adw.Application) sender, _mainWindowController, _application);
-            _mainWindow.StartAsync();
+            _ = _mainWindow.StartAsync();
         };
         
         _application.OnShutdown += ApplicationOnOnShutdown;
@@ -138,11 +138,13 @@ class Program
         serviceCollection.AddScoped<JellyfinApiClient>();
 
         // Project related
+        serviceCollection.AddSingleton<IConfigurationService, ConfigurationService>(
+            serviceProvider => new ConfigurationService(fileSystem: serviceProvider.GetRequiredService<IFileSystem>(), applicationId: _applicationInfo.Id)
+        );
         serviceCollection.AddSingleton<IFileSystem, FileSystem>();
         serviceCollection.AddSingleton<IJellyPlayerApiService, JellyPlayerApiService>();
         serviceCollection.AddSingleton<IPlayerService, PlayerService>();
         serviceCollection.AddSingleton<IFileService, FileService>();
-        serviceCollection.AddSingleton<IConfigurationService, ConfigurationService>();
         serviceCollection.AddSingleton<MainWindowController>();
     }
 }

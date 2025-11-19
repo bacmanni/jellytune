@@ -1,6 +1,8 @@
+using System.Runtime.InteropServices;
 using Gio;
 using Gtk;
 using JellyPlayer.Gnome.Helpers;
+using JellyPlayer.Gnome.MediaPlayer;
 using JellyPlayer.Shared.Controls;
 using JellyPlayer.Shared.Enums;
 using JellyPlayer.Shared.Events;
@@ -18,6 +20,8 @@ public partial class MainWindow : Adw.ApplicationWindow
     
     private readonly StartupController _startupController;
 
+    private readonly MediaPlayerController _mediaPlayerController;
+    
     private readonly PlayerController _playerController;
     private readonly PlayerView  _playerView;
     
@@ -141,6 +145,9 @@ public partial class MainWindow : Adw.ApplicationWindow
         // Startup
         _startupController = new StartupController(_controller.GetJellyPlayerApiService(), _controller.GetConfigurationService());
 
+        // Media controls
+        _mediaPlayerController = new MediaPlayerController(_controller.GetPlayerService(), _controller.ApplicationInfo.Id);
+        
         //Audio player
         _playerController = new PlayerController(_controller.GetJellyPlayerApiService(), _controller.GetConfigurationService(), _controller.GetPlayerService());
         _playerController.OnShowPlaylistClicked += PlayerControllerOnShowPlaylistClicked;
@@ -375,7 +382,11 @@ public partial class MainWindow : Adw.ApplicationWindow
 
         _spinner.SetVisible(false);
         _album_view.SetVisible(true);
-        _albumListController.RefreshAlbums();
+        
+        if(_controller.GetConfigurationService().IsPlatform(OSPlatform.Linux))
+            await _mediaPlayerController.ConnectAsync();
+        
+        _ = _albumListController.RefreshAlbums();
     }
 
     public override void Dispose()
@@ -386,6 +397,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         _searchController.Dispose();
         _playlistController.Dispose();
         _startupController.Dispose();
+        _mediaPlayerController.Dispose();
         _queueListController.Dispose();
         base.Dispose();
     }

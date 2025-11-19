@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using JellyPlayer.Shared.Models;
 
 namespace JellyPlayer.Shared.Services;
@@ -11,5 +12,6 @@ public interface IConfigurationService
     public string GetConfigurationDirectory();
     public string GetCacheDirectory();
     Configuration Get();
+    public bool IsPlatform(OSPlatform platform);
     void Set(Configuration configuration);
 }

@@ -21,7 +21,9 @@ public sealed class PlayerService : IPlayerService, IDisposable
     private readonly MiniAudioEngine _engine = new();
     private readonly AudioFormat _format = AudioFormat.Dvd;
     private readonly AudioPlaybackDevice _device;
+    private NetworkDataProvider? _networkDataProvider;
     private SoundPlayer? _player;
+    private string _streamingUrl = string.Empty;
     
     /// <summary>
     /// Currently selected album
@@ -121,15 +123,25 @@ public sealed class PlayerService : IPlayerService, IDisposable
 
         var trackId = _selectedTrack.Id;
 
+        // Stores previus playback position, if session died
+        int? position = null;
+        
         // Check player status
         if (_player != null)
         {
             // Still same as selected, so we keep playing
             if (trackId == _playingTrack?.Id)
             {
-                _ = _jellyPlayerApiService.ResumePlaybackAsync(trackId);
-                _player.Play();
-                return;
+                // If stream url changes, the connection was previously lost
+                var url = _jellyPlayerApiService.GetAudioStreamUrl(trackId);
+                if (_streamingUrl == url)
+                {
+                    _ = _jellyPlayerApiService.ResumePlaybackAsync(trackId);
+                    _player.Play();
+                    return;
+                }
+
+                position = _networkDataProvider?.Position;
             }
 
             StopPlaying();
@@ -140,10 +152,15 @@ public sealed class PlayerService : IPlayerService, IDisposable
         _playingTrack = _tracks.FirstOrDefault(t => t.Id == trackId);
 
         // Get stream url and start playing
-        var url = _jellyPlayerApiService.GetAudioStreamUrl(trackId);
-        _player = new SoundPlayer(_engine, _device.Format, new NetworkDataProvider(_engine, _format, url));
+        _streamingUrl = _jellyPlayerApiService.GetAudioStreamUrl(trackId);
+        _networkDataProvider = new NetworkDataProvider(_engine, _format, _streamingUrl);
+        _player = new SoundPlayer(_engine, _device.Format, _networkDataProvider);
         _device.MasterMixer.AddComponent(_player);
         _player.IsLooping = false;
+        
+        if (position.HasValue)
+            _networkDataProvider.Seek(position.Value);
+        
         _player.Play();
         _player.PlaybackEnded += async (_, args) => await OnPlaybackEnded(_, args);
         // (sender, args) => { NextTrack(); };  async (_, args) => await ControllerOnOnAlbumListChanged(_, args);
@@ -169,8 +186,10 @@ public sealed class PlayerService : IPlayerService, IDisposable
             _player?.Stop();
             _device.MasterMixer.RemoveComponent(_player);
             _player.Dispose();
+            _networkDataProvider?.Dispose();
             _player = null;
             _playingTrack = null;
+            _networkDataProvider = null;
         }
     }
 
@@ -241,6 +260,26 @@ public sealed class PlayerService : IPlayerService, IDisposable
         PlayerStateChanged(new PlayerStateArgs(PlayerState.Playing, _album, _tracks.ToList(), _selectedTrack));
     }
 
+    /// <summary>
+    /// Check if we have next track to play
+    /// </summary>
+    /// <returns>True, if has</returns>
+    public bool HasNextTrack()
+    {
+        var nextTrack = _tracks.Reverse().SkipWhile(t => t != _selectedTrack).Skip(1).FirstOrDefault();
+        return nextTrack != null;
+    }
+
+    /// <summary>
+    /// Check if we have previous track to play
+    /// </summary>
+    /// <returns>True, if has</returns>
+    public bool HasPreviousTrack()
+    {
+        var previousTrack = _tracks.SkipWhile(t => t != _selectedTrack).Skip(1).FirstOrDefault();
+        return previousTrack != null;
+    }
+    
     /// <summary>
     /// Pause playing track
     /// </summary>
