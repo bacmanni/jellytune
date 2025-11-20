@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Jellyfin.Sdk" Version="2024.10.28" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.4" />
+      <PackageReference Include="SoundFlow" Version="1.2.1" />
+      <PackageReference Include="System.IO.Abstractions" Version="22.0.16" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="JellyTune.Shared">
+        <HintPath>..\JellyTune.Gnome\bin\Debug\net9.0\JellyTune.Shared.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+    
+</Project>

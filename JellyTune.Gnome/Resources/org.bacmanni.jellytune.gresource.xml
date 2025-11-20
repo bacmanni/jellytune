@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/org/bacmanni/jellytune">
+    <file alias="style.css">org.bacmanni.jellytune.css</file>
+    <file alias="style-dark.css">org.bacmanni.jellytune-dark.css</file>
+  </gresource>
+    <gresource prefix="/org/bacmanni/jellytune/icons/scalable/status/">
+        <file preprocess="xml-stripblanks">jellytune-icon.svg</file>
+    </gresource>
+</gresources>

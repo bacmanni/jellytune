@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<interface>
+    <object class="AdwDialog" id="_root">
+        <property name="follows-content-size">true</property>
+        <property name="content-width">360</property>
+        <property name="can-close">false</property>
+        <property name="child">
+            <object class="AdwCarousel" id="_carousel">
+                <property name="interactive">false</property>
+                <child>
+                    <object class="GtkBox">
+                        <property name="hexpand">true</property>
+                        <property name="vexpand">true</property>
+                        <property name="orientation">1</property>
+                        <property name="margin-top">24</property>
+                        <property name="margin-bottom">24</property>
+                        <property name="margin-start">24</property>
+                        <property name="margin-end">24</property>
+                        <child>
+                            <object class="AdwStatusPage">
+                                <property name="title">Welcome to JellyTune</property>
+                                <property name="description">Start by adding your Jellyfin server and account</property>
+                                <property name="icon-name">media-playback-start-symbolic</property>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkBox">
+                                <property name="hexpand">true</property>
+                                <property name="vexpand">true</property>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkButton" id="_continue0">
+                                <property name="label">Continue</property>
+                                <style>
+                                    <class name="suggested-action"/>
+                                </style>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkBox" id="_accountBox">
+                        <property name="hexpand">true</property>
+                        <property name="vexpand">true</property>
+                        <property name="orientation">1</property>
+                        <property name="margin-bottom">24</property>
+                        <property name="margin-start">24</property>
+                        <property name="margin-end">24</property>
+                        <child>
+                            <object class="GtkBox">
+                                <property name="hexpand">true</property>
+                                <property name="vexpand">true</property>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkButton" id="_continue1">
+                                <property name="sensitive">false</property>
+                                <property name="margin-top">24</property>
+                                <property name="label">Continue</property>
+                                <style>
+                                    <class name="suggested-action"/>
+                                </style>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+            </object>
+        </property>
+    </object>
+</interface>
