@@ -34,7 +34,7 @@ jobs:
         run: pupnet --runtime linux-x64 --kind appimage
 
       - name: Upload AppImage artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v5
         with:
           name: JellyTune-AppImage
           path: Deploy/JellyTune*.AppImage
@@ -43,7 +43,7 @@ jobs:
         run: pupnet --runtime linux-x64 --kind flatpak
 
       - name: Upload flatpak artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v5
         with:
           name: JellyTune-AppImage
           path: Deploy/JellyTune-*.flatpak
