@@ -296,7 +296,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
         }
         else
         {
-            return StartTrackAsync();
+            return StartTrackAsync(_selectedTrack?.Id);
         }
     }
 

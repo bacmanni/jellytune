@@ -6,13 +6,6 @@ using Tmds.DBus;
 
 namespace JellyTune.Gnome.MediaPlayer;
 
-class Subscription : IDisposable
-{
-    private readonly Action _unsubscribe;
-    public Subscription(Action unsubscribe) => _unsubscribe = unsubscribe;
-    public void Dispose() => _unsubscribe();
-}
-
 public class MediaPlayer : IMediaPlayer2, IPlayer, IDisposable
 {
     private readonly IFileService _fileService;
@@ -20,6 +13,7 @@ public class MediaPlayer : IMediaPlayer2, IPlayer, IDisposable
     private readonly ApplicationInfo  _applicationInfo;
     private readonly Dictionary<string, object> _metadata = new();
     private readonly List<Action<PropertyChanges>> _playerSubscribers = new();
+    private Dictionary<string, object>? _playerProperties;
     
     public ObjectPath ObjectPath => new ObjectPath("/org/mpris/MediaPlayer2");
 
@@ -28,6 +22,15 @@ public class MediaPlayer : IMediaPlayer2, IPlayer, IDisposable
         _fileService = fileService;
         _playerService = playerService;
         _applicationInfo = applicationInfo;
+        _playerProperties = new Dictionary<string, object>
+        {
+            { "PlaybackStatus", GetPlaybackStatus() },
+            { "Metadata", _metadata },
+            { "CanPlay", _playerService.IsPaused() },
+            { "CanPause", _playerService.IsPlaying() },
+            { "CanGoNext", _playerService.HasNextTrack() },
+            { "CanGoPrevious", _playerService.HasPreviousTrack() }
+        };
     }
 
     private string GetPlaybackStatus()
@@ -62,8 +65,10 @@ public class MediaPlayer : IMediaPlayer2, IPlayer, IDisposable
             _metadata["mpris:length"] = "0";
         
         var metadata = new KeyValuePair<string, object>("Metadata",_metadata);
-
-        NotifyPropertiesChanged(new [] { metadata }, Array.Empty<string>());
+        var status = new KeyValuePair<string, object>("PlaybackStatus", GetPlaybackStatus());
+        var hasPrevious = new KeyValuePair<string, object>("CanGoPrevious", _playerService.HasPreviousTrack());
+        var hasNext = new KeyValuePair<string, object>("CanGoNext", _playerService.HasNextTrack());
+        NotifyPropertiesChanged(new [] { metadata, status, hasPrevious, hasNext }, Array.Empty<string>());
     }
     
     Task<IDictionary<string, object>> IMediaPlayer2.GetAllAsync()
