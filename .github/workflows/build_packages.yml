@@ -30,8 +30,8 @@ jobs:
       - name: Install PupNet
         run: dotnet tool update -g KuiperZone.PupNet
 
-      - name: Create Flatpak
-        run: pupnet --runtime linux-x64 --kind flatpak
-
       - name: Create x64 Appimage
         run: pupnet --runtime linux-x64 --kind appimage
+
+      - name: Create Flatpak
+        run: pupnet --runtime linux-x64 --kind flatpak
