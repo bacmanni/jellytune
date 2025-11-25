@@ -22,3 +22,9 @@ jobs:
       
       - name: Verify PupNet installation
         run: pupnet --version
+
+      - name: Create x64 Appimage
+        run: pupnet --runtime linux-x64 --kind appimage
+
+      - name: Create Flatpak
+        run: pupnet --runtime linux-x64 --kind flatpak

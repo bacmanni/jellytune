@@ -13,8 +13,7 @@ public class MediaPlayer : IMediaPlayer2, IPlayer, IDisposable
     private readonly ApplicationInfo  _applicationInfo;
     private readonly Dictionary<string, object> _metadata = new();
     private readonly List<Action<PropertyChanges>> _playerSubscribers = new();
-    private Dictionary<string, object>? _playerProperties;
-    
+
     public ObjectPath ObjectPath => new ObjectPath("/org/mpris/MediaPlayer2");
 
     public MediaPlayer(IFileService fileService, IPlayerService playerService, ApplicationInfo applicationInfo)
@@ -22,15 +21,6 @@ public class MediaPlayer : IMediaPlayer2, IPlayer, IDisposable
         _fileService = fileService;
         _playerService = playerService;
         _applicationInfo = applicationInfo;
-        _playerProperties = new Dictionary<string, object>
-        {
-            { "PlaybackStatus", GetPlaybackStatus() },
-            { "Metadata", _metadata },
-            { "CanPlay", _playerService.IsPaused() },
-            { "CanPause", _playerService.IsPlaying() },
-            { "CanGoNext", _playerService.HasNextTrack() },
-            { "CanGoPrevious", _playerService.HasPreviousTrack() }
-        };
     }
 
     private string GetPlaybackStatus()
