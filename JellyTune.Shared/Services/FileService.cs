@@ -81,4 +81,22 @@ public class FileService : IFileService
             _semaphore.Release();
         }
     }
+
+    /// <summary>
+    /// Get file url
+    /// </summary>
+    /// <param name="type">File type</param>
+    /// <param name="id">Item id</param>
+    /// <returns></returns>
+    public Uri? GetFileUrl(FileType type, Guid id)
+    {
+        var key = $"{type.ToString()}-{id.ToString()}";
+        var filename = GetFilename(type, id);
+        
+        if (_configurationService.Get().CacheAlbumArt)
+            if (_fileSystem.File.Exists(filename))
+                return new Uri(filename);
+        
+        return _jellyTuneApiService.GetPrimaryArtUrl(id);
+    }
 }

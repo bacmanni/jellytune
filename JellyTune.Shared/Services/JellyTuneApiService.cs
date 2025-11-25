@@ -677,6 +677,23 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     }
 
     /// <summary>
+    /// Get url for primary art
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public Uri? GetPrimaryArtUrl(Guid id)
+    {
+        var information = _jellyfinApiClient.Items[id].Images[ImageType.Primary.ToString()]
+            .ToGetRequestInformation(configuration =>
+            {
+                configuration.QueryParameters.Height = 200;
+                configuration.QueryParameters.Width = 200;
+            });
+        
+        return _jellyfinApiClient.BuildUri(information);
+    }
+
+    /// <summary>
     /// Send server information about stopping playback
     /// </summary>
     /// <param name="trackId"></param>

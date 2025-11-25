@@ -3,6 +3,7 @@ namespace JellyTune.Shared.Models;
 public class ApplicationInfo
 {
     public string Id { get; set; }
+    public string ApplicationId { get; set; }
     public string Name { get; set; }
     public string? Version { get; set; }
     public string? Developer { get; set; }

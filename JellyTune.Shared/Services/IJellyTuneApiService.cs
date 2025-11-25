@@ -30,4 +30,5 @@ public interface IJellyTuneApiService
     public Task StopPlaybackAsync(Guid trackId);
     public Task ResumePlaybackAsync(Guid trackId);
     public Task<List<Playlist>> GetPlaylistsAsync(Guid collectionId);
+    Uri? GetPrimaryArtUrl(Guid id);
 }

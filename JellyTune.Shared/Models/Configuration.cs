@@ -45,4 +45,9 @@ public class Configuration
     /// Should list separator be visible
     /// </summary>
     public bool ShowListSeparator {  get; set; } = false;
+    
+    /// <summary>
+    /// How many retries request tries if failed
+    /// </summary>
+    public int RetryCount {  get; set; } = 3;
 }

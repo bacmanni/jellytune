@@ -25,6 +25,7 @@ class Program
     private readonly ApplicationInfo _applicationInfo = new()
     {
         Id = "org.bacmanni.jellytune",
+        ApplicationId = "jellytune",
         Developer = "Joni Bäckström",
         Email = "joni.j.backstrom@gmail.com",
         Name = "JellyTune",

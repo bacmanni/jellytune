@@ -146,7 +146,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         _startupController = new StartupController(_controller.GetJellyTuneApiService(), _controller.GetConfigurationService());
 
         // Media controls
-        _mediaPlayerController = new MediaPlayerController(_controller.GetPlayerService(), _controller.ApplicationInfo.Id);
+        _mediaPlayerController = new MediaPlayerController(_controller.GetFileService(), _controller.GetPlayerService(), _controller.ApplicationInfo);
         
         //Audio player
         _playerController = new PlayerController(_controller.GetJellyTuneApiService(), _controller.GetConfigurationService(), _controller.GetPlayerService());

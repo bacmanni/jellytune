@@ -14,21 +14,28 @@ public class HttpClientExceptionHandler : DelegatingHandler
     
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        try
+        var totalRetries = _configurationService.Get().RetryCount;
+        var tries = 0;
+        
+        while (tries <= totalRetries)
         {
-            var response = await base.SendAsync(request, cancellationToken);
-            if (!response.IsSuccessStatusCode)
+            try
             {
-                Console.WriteLine($"Request failed with status code {response.StatusCode}");
-                throw new HttpRequestException($"Request failed with status code {response.StatusCode}");
+                var response = await base.SendAsync(request, cancellationToken);
+                if (!response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine($"Request failed with status code {response.StatusCode}");
+                    throw new HttpRequestException($"Request failed with status code {response.StatusCode}");
+                }
+
+                return response;
             }
-            
-            return response;
+            catch
+            {
+                tries++;
+            }
         }
-        catch (Exception ex)
-        {
-            Console.Write(ex);
-            throw new ApplicationException("HTTP request failed", ex);
-        }
+
+        throw new ApplicationException("HTTP request failed");
     }
 }

@@ -33,4 +33,6 @@ public interface IPlayerService
     public PlayerState GetTrackState(Guid trackId);
     public bool HasNextTrack();
     public bool HasPreviousTrack();
+    public Task StartOrPauseTrackAsync();
+    public PlayerState GetPlaybackState();
 }

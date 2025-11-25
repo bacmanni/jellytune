@@ -126,6 +126,9 @@ public sealed class PlayerService : IPlayerService, IDisposable
         // Stores previus playback position, if session died
         int? position = null;
         
+        if (!_device.IsRunning)
+            _device.Start();
+            
         // Check player status
         if (_player != null)
         {
@@ -279,7 +282,37 @@ public sealed class PlayerService : IPlayerService, IDisposable
         var previousTrack = _tracks.SkipWhile(t => t != _selectedTrack).Skip(1).FirstOrDefault();
         return previousTrack != null;
     }
-    
+
+    /// <summary>
+    /// Start or pause playing track
+    /// </summary>
+    /// <returns></returns>
+    public Task StartOrPauseTrackAsync()
+    {
+        if (IsPlaying())
+        {
+            PauseTrack();
+            return Task.CompletedTask;
+        }
+        else
+        {
+            return StartTrackAsync();
+        }
+    }
+
+    /// <summary>
+    /// Get current player state
+    /// </summary>
+    /// <returns></returns>
+    public PlayerState GetPlaybackState()
+    {
+        if (IsPlaying())
+            return PlayerState.Playing;
+        if (IsPaused())
+            return PlayerState.Paused;
+        return PlayerState.Stopped;
+    }
+
     /// <summary>
     /// Pause playing track
     /// </summary>
