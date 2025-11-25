@@ -45,5 +45,5 @@ jobs:
       - name: Upload flatpak artifact
         uses: actions/upload-artifact@v5
         with:
-          name: JellyTune-AppImage
+          name: JellyTune-flatpak
           path: Deploy/JellyTune-*.flatpak
