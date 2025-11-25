@@ -24,8 +24,8 @@ jobs:
           wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
           chmod +x appimagetool-x86_64.AppImage
           sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          sudo flatpak install flathub org.gnome.Platform//47
-          sudo flatpak install flathub org.gnome.Sdk//47
+          sudo flatpak install flathub org.gnome.Platform//47 -y
+          sudo flatpak install flathub org.gnome.Sdk//47 -y
 
       - name: Install PupNet
         run: dotnet tool update -g KuiperZone.PupNet
