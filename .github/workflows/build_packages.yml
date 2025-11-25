@@ -33,5 +33,17 @@ jobs:
       - name: Create x64 Appimage
         run: pupnet --runtime linux-x64 --kind appimage
 
+      - name: Upload AppImage artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: JellyTune-AppImage
+          path: Deploy/JellyTune*.AppImage
+
       - name: Create Flatpak
         run: pupnet --runtime linux-x64 --kind flatpak
+
+      - name: Upload flatpak artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: JellyTune-AppImage
+          path: Deploy/JellyTune-*.flatpak
