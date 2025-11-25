@@ -20,15 +20,18 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libglib2.0-dev
+          sudo apt-get install -y libglib2.0-dev libfuse2 libfuse3-3 flatpak
           wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
           chmod +x appimagetool-x86_64.AppImage
+          flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          flatpak install flathub org.gnome.Platform//47
+          flatpak install flathub org.gnome.Sdk//47
 
       - name: Install PupNet
         run: dotnet tool update -g KuiperZone.PupNet
 
-      - name: Create x64 Appimage
-        run: pupnet --runtime linux-x64 --kind appimage
-
       - name: Create Flatpak
         run: pupnet --runtime linux-x64 --kind flatpak
+
+      - name: Create x64 Appimage
+        run: pupnet --runtime linux-x64 --kind appimage
