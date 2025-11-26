@@ -1,5 +1,4 @@
 using JellyTune.Shared.Enums;
-using JellyTune.Shared.Events;
 using JellyTune.Shared.Models;
 using JellyTune.Shared.Services;
 using Tmds.DBus;
@@ -66,7 +65,7 @@ public class MediaPlayer : IMediaPlayer2, IPlayer, IDisposable
         return Task.FromResult<IDictionary<string, object>>(new Dictionary<string, object>
         {
             { "Identity", _applicationInfo.Name },
-            { "DesktopEntry", _applicationInfo.ApplicationId },
+            { "DesktopEntry", _applicationInfo.Name },
             { "CanQuit", false },
             { "CanRaise", false },
             { "HasTrackList", false }

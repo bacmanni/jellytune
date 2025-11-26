@@ -9,15 +9,13 @@ For now, it only supports one audio collection at the time. That is the way I us
 Oh, and the whole reason for this all is that I like to buy records and have them locally. I don't use streaming services for music :)
 
 ## Requirements
-JellyTune for Gnome requires at least libadwaita 1.6. So everything above Gnome 45 should be fine. Only Linux is supported, but I have run the app on MacOS.
+JellyTune for Gnome requires at least Gnome 45. Only Linux is supported, but I have run the app on MacOS.
 
 ## Packages
 There will only be two ways to get JellyTune. Downloading appimage or fetching it through flatpak.
 
 ## Project
-Project is written in C# and uses following libraries: Gir.Core, SoundFlow and Jellyfin-Api
-
-JellyTune is separated in two projects.
+Project is written in C#. It is separated in two projects:
 JellyTune.Shared - Can be used for shared functionality if there will be similiar player for example KDE.
 JellyTune.Gnome - Gnome UI of JellyTune
 
@@ -33,19 +31,13 @@ Last mention to [Jetbrains](https://www.jetbrains.com/) for providing open sourc
 
 ## Planned versions:
 
-**1.0 Beta (Only source code)**
+**1.0**
 - Startup wizard for creating Jellyfin server configuration
 - Basic functionality for playing Jellyfin audio from single album and single collection
 - Basic support for playlist and collections
-
-**1.0 (Release packages)**
-- Flatpack support
-- Appimage support
+- Basic MPRIS support
 
 **1.1**
-- MPRIS support
-
-**1.2**
 - User can add/modify/delete collection/playlists
 
 **1.3**

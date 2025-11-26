@@ -25,11 +25,11 @@ class Program
     private readonly ApplicationInfo _applicationInfo = new()
     {
         Id = "org.bacmanni.jellytune",
-        ApplicationId = "jellytune",
+        //ApplicationId = "jellytune",
         Developer = "Joni Bäckström",
         Email = "joni.j.backstrom@gmail.com",
         Name = "JellyTune",
-        Version = "1.0.0-beta",
+        Version = "1.0",
         Website = "https://github.com/bacmanni/jellytune",
         IssueUrl = "https://github.com/bacmanni/jellytune/issues/new",
         Icon = "jellytune-icon",

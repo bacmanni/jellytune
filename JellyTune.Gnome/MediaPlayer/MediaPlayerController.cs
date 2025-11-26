@@ -24,7 +24,7 @@ public class MediaPlayerController : IDisposable
         _fileService = fileService;
         _playerService = playerService;
         _applicationInfo = applicationInfo;
-        _serviceName = $"org.mpris.MediaPlayer2.{_applicationInfo.ApplicationId}";
+        _serviceName = $"org.mpris.MediaPlayer2.{_applicationInfo.Id}";
         
         _playerService.OnPlayerStateChanged += PlayerServiceOnPlayerStateChanged;
     }
