@@ -25,7 +25,7 @@ public class MediaPlayerController : IDisposable
         _playerService = playerService;
         _applicationInfo = applicationInfo;
         _serviceName = $"org.mpris.MediaPlayer2.{_applicationInfo.Id}";
-        
+
         _playerService.OnPlayerStateChanged += PlayerServiceOnPlayerStateChanged;
     }
 
@@ -36,7 +36,7 @@ public class MediaPlayerController : IDisposable
         
         if (e.State == PlayerState.Stopped)
             if (!_playerService.HasNextTrack())
-                UnRegisterPlayer();
+                _ = UnRegisterPlayer();
 
         if (e.SelectedTrack != null && _registerState == RegisterState.Registered)
             _mediaPlayer?.UpdateMetadata();
@@ -50,6 +50,7 @@ public class MediaPlayerController : IDisposable
         try
         {
             await _connection.ConnectAsync();
+            
             _mediaPlayer = new MediaPlayer(_fileService, _playerService, _applicationInfo);
         }
         catch (Exception e)
@@ -72,11 +73,13 @@ public class MediaPlayerController : IDisposable
         _registerState = RegisterState.Registered;
     }
 
-    private void UnRegisterPlayer()
+    private async Task UnRegisterPlayer()
     {
         if (_mediaPlayer == null || _registerState != RegisterState.Registered)
             return;
         
+        var dbus = _connection.CreateProxy<IFreedesktopDbus>("org.freedesktop.DBus", "/org/freedesktop/DBus");
+        await dbus.ReleaseNameAsync(_serviceName);
         _connection.UnregisterObject(_mediaPlayer);
     }
     

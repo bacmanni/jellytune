@@ -42,8 +42,7 @@ public class MediaPlayer : IMediaPlayer2, IPlayer, IDisposable
         _metadata["xesam:title"] = track.Name;
         _metadata["xesam:artist"] = new string[] { track.Artist };
         _metadata["xesam:album"] = track.Album;
-        _metadata["xesam:trackNumber"] = track.Number;
-        
+
         var url = _fileService.GetFileUrl(FileType.AlbumArt, track.AlbumId);
         if (url != null)
             _metadata["mpris:artUrl"] = url.ToString();
@@ -51,7 +50,7 @@ public class MediaPlayer : IMediaPlayer2, IPlayer, IDisposable
         if (track.RunTime.HasValue)
             _metadata["mpris:length"] = track.RunTime.Value.TotalMicroseconds;
         else
-            _metadata["mpris:length"] = "0";
+            _metadata["mpris:length"] = 0;
         
         var metadata = new KeyValuePair<string, object>("Metadata",_metadata);
         var status = new KeyValuePair<string, object>("PlaybackStatus", GetPlaybackStatus());

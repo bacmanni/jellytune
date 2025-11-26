@@ -24,6 +24,7 @@ My thanks for the people who have and are working with these:
 [Gir.Core](https://github.com/gircore/gir.core),
 [SoundFlow](https://github.com/LSXPrime/SoundFlow) and
 [Jellyfin](https://jellyfin.org)
+[Tmds.DBus](https://github.com/tmds/Tmds.DBus)
  
 Also special thanks to Ruut Kiiskilä for providing the logo to JellyTune. Nice job!
 
@@ -34,11 +35,9 @@ Last mention to [Jetbrains](https://www.jetbrains.com/) for providing open sourc
 **1.0**
 - Startup wizard for creating Jellyfin server configuration
 - Basic functionality for playing Jellyfin audio from single album and single collection
-- Basic support for playlist and collections
-- Basic MPRIS support
+- Support for playlist and collections
+- Gnome integration (MPRIS)
 
 **1.1**
 - User can add/modify/delete collection/playlists
-
-**1.3**
 - Feel free to suggest features

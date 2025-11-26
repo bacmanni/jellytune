@@ -6,4 +6,5 @@ namespace JellyTune.Gnome.MediaPlayer;
 public interface IFreedesktopDbus : IDBusObject
 {
     Task<uint> RequestNameAsync(string name, uint flags);
+    Task<uint> ReleaseNameAsync(string name);
 }
