@@ -66,17 +66,7 @@ public class PlayerView : Gtk.CenterBox
     
     private void PlayerPlayOnClicked(Gtk.Button sender, EventArgs args)
     {
-        if (!_controller.GetPlayerService().IsSelectedTrack()) return;
-
-        if (_controller.GetPlayerService().IsPlaying())
-        {
-            _controller.GetPlayerService().PauseTrack();
-        }
-        else
-        {
-            var trackId = _controller.GetPlayerService().GetSelectedTrackId();
-            _controller.GetPlayerService().StartTrackAsync(trackId);
-        }
+        _controller.GetPlayerService().StartOrPauseTrackAsync();
     }
 
     public PlayerView(Gtk.Widget mainWindow, PlayerController controller) : this(Blueprint.BuilderFromFile("player"))
