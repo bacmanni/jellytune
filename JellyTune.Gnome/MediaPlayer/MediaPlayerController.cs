@@ -31,7 +31,7 @@ public class MediaPlayerController : IDisposable
 
     private void PlayerServiceOnPlayerStateChanged(object? sender, PlayerStateArgs e)
     {
-        if (e.State == PlayerState.Playing)
+        if (e.State is PlayerState.Playing)
             _ = RegisterPlayer();
         
         if (e.State == PlayerState.Stopped)
@@ -62,7 +62,7 @@ public class MediaPlayerController : IDisposable
 
     private async Task RegisterPlayer()
     {
-        if (_mediaPlayer == null || _registerState is RegisterState.Registering or RegisterState.Registered)
+        if (_mediaPlayer == null || _registerState is RegisterState.Registering or RegisterState.Registered or RegisterState.Unregistering)
             return;
         
         _registerState = RegisterState.Registering;
@@ -75,12 +75,14 @@ public class MediaPlayerController : IDisposable
 
     private async Task UnRegisterPlayer()
     {
-        if (_mediaPlayer == null || _registerState != RegisterState.Registered)
+        if (_mediaPlayer == null || _registerState is RegisterState.Unregistered or RegisterState.Unregistering)
             return;
         
+        _registerState = RegisterState.Unregistering;
         var dbus = _connection.CreateProxy<IFreedesktopDbus>("org.freedesktop.DBus", "/org/freedesktop/DBus");
         await dbus.ReleaseNameAsync(_serviceName);
         _connection.UnregisterObject(_mediaPlayer);
+        _registerState = RegisterState.Unregistered;
     }
     
     public void Dispose()
