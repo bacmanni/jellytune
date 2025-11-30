@@ -25,7 +25,6 @@ class Program
     private readonly ApplicationInfo _applicationInfo = new()
     {
         Id = "org.bacmanni.jellytune",
-        //ApplicationId = "jellytune",
         Developer = "Joni Bäckström",
         Email = "joni.j.backstrom@gmail.com",
         Name = "JellyTune",
@@ -66,13 +65,14 @@ class Program
         var configurationService = _serviceProvider.GetService<IConfigurationService>();
         
         configurationService.Load();
+        var configuration = configurationService.Get();
         
         var sdkClientSettings = _serviceProvider.GetRequiredService<JellyfinSdkSettings>();
         sdkClientSettings.Initialize(
             _applicationInfo.Name,
             _applicationInfo.Version,
             "JellyTune Gnome",
-            $"jellytune-{Guid.NewGuid():N}");
+            $"jellytune-{configuration.DeviceId}");
         
         var resourceFile = Path.GetFullPath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)) + "/org.bacmanni.jellytune.gresource";
         Gio.Functions.ResourcesRegister(Gio.Functions.ResourceLoad(resourceFile));
