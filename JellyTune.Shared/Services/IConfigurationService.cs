@@ -13,5 +13,5 @@ public interface IConfigurationService
     public string GetCacheDirectory();
     Configuration Get();
     public bool IsPlatform(OSPlatform platform);
-    void Set(Configuration configuration);
+    public void Set(Configuration configuration);
 }

@@ -60,7 +60,7 @@ public class ConfigurationService(IFileSystem fileSystem, string applicationId) 
                 }
             }
         }
-        
+
         Loaded?.Invoke(this, EventArgs.Empty);
     }
 
@@ -159,6 +159,7 @@ public class ConfigurationService(IFileSystem fileSystem, string applicationId) 
             if (!_fileSystem.File.Exists(filename))
             {
                 _fileSystem.File.CreateText(filename).Close();
+                _configuration.DeviceId = Guid.NewGuid().ToString();
                 Save();
             }
         }

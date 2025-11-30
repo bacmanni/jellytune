@@ -50,4 +50,19 @@ public class Configuration
     /// How many retries request tries if failed
     /// </summary>
     public int RetryCount {  get; set; } = 3;
+
+    /// <summary>
+    /// Device id. This specifies the current device. Is generated at startup, if not found
+    /// </summary>
+    public string DeviceId { get; set; }
+    
+    /// <summary>
+    /// Application window width
+    /// </summary>
+    public int? WindowWidth {  get; set; }
+    
+    /// <summary>
+    /// Application window height
+    /// </summary>
+    public int? WindowHeight { get; set; }
 }
