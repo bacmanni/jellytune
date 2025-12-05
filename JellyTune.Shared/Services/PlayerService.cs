@@ -1,5 +1,6 @@
 
 using System.Collections.Concurrent;
+using System.Net.NetworkInformation;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
 using JellyTune.Shared.Models;
@@ -24,6 +25,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     private NetworkDataProvider? _networkDataProvider;
     private SoundPlayer? _player;
     private string _streamingUrl = string.Empty;
+    private bool _networkDisconnected;
     
     /// <summary>
     /// Currently selected album
@@ -49,6 +51,11 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// Currently started track
     /// </summary>
     private Track? _playingTrack;
+
+    /// <summary>
+    /// Currently active play session
+    /// </summary>
+    private string? _playSessionId;
     
     /// <summary>
     /// Event for all playing related changes
@@ -64,10 +71,18 @@ public sealed class PlayerService : IPlayerService, IDisposable
     public PlayerService(IJellyTuneApiService jellyTuneApiService)
     {
         _jellyTuneApiService = jellyTuneApiService;
-
+        NetworkChange.NetworkAvailabilityChanged += NetworkChangeOnNetworkAvailabilityChanged;
+        
         var defaultDevice = _engine.PlaybackDevices.FirstOrDefault(x => x.IsDefault);
         _device = _engine.InitializePlaybackDevice(defaultDevice, _format);
         _device.Start();
+    }
+
+    private void NetworkChangeOnNetworkAvailabilityChanged(object? sender, NetworkAvailabilityEventArgs e)
+    {
+        if (!e.IsAvailable)
+            if (!_networkDisconnected)
+                _networkDisconnected = true;
     }
 
     private async Task OpenAlbumWithoutTracks(Guid albumId)
@@ -122,51 +137,50 @@ public sealed class PlayerService : IPlayerService, IDisposable
             return;
 
         var trackId = _selectedTrack.Id;
-
-        // Stores previus playback position, if session died
         int? position = null;
         
-        if (!_device.IsRunning)
-            _device.Start();
-            
+        // Create session
+        if (string.IsNullOrWhiteSpace(_playSessionId)) 
+            _playSessionId = await _jellyTuneApiService.StartPlaybackAsync(trackId);
+        
         // Check player status
         if (_player != null)
         {
             // Still same as selected, so we keep playing
             if (trackId == _playingTrack?.Id)
             {
-                // If stream url changes, the connection was previously lost
-                var url = _jellyTuneApiService.GetAudioStreamUrl(trackId);
-                if (_streamingUrl == url)
+                if (_networkDataProvider != null)
                 {
-                    _ = _jellyTuneApiService.ResumePlaybackAsync(trackId);
+                    position = _networkDataProvider.Position;
+                }
+
+                if (!string.IsNullOrWhiteSpace(_playSessionId))
+                    _ = _jellyTuneApiService.ResumePlaybackAsync(_playSessionId, trackId, position);
+
+                
+                if (!_networkDisconnected)
+                {
                     _player.Play();
                     return;
                 }
-
-                position = _networkDataProvider?.Position;
+                
+                _networkDisconnected = false;
             }
 
-            StopPlaying();
+            StopPlaying(false);    
         }
         
-        // Start new play session
-        _ = _jellyTuneApiService.StartPlaybackAsync(trackId);
         _playingTrack = _tracks.FirstOrDefault(t => t.Id == trackId);
 
         // Get stream url and start playing
-        _streamingUrl = _jellyTuneApiService.GetAudioStreamUrl(trackId);
+        _streamingUrl = _jellyTuneApiService.GetAudioStreamUrl(_playSessionId, trackId, position) ?? throw new Exception($"Streaming url for track with id {trackId} not found");
         _networkDataProvider = new NetworkDataProvider(_engine, _format, _streamingUrl);
         _player = new SoundPlayer(_engine, _device.Format, _networkDataProvider);
         _device.MasterMixer.AddComponent(_player);
         _player.IsLooping = false;
-        
-        if (position.HasValue)
-            _networkDataProvider.Seek(position.Value);
-        
         _player.Play();
+
         _player.PlaybackEnded += async (_, args) => await OnPlaybackEnded(_, args);
-        // (sender, args) => { NextTrack(); };  async (_, args) => await ControllerOnOnAlbumListChanged(_, args);
     }
 
     private Task OnPlaybackEnded(object? sender, EventArgs args)
@@ -175,7 +189,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
         return Task.CompletedTask;
     }
 
-    private void StopPlaying()
+    private void StopPlaying(bool endPlayback = true)
     {
         if (_playingTrack == null)
             return;
@@ -185,7 +199,10 @@ public sealed class PlayerService : IPlayerService, IDisposable
         if (_player != null)
         {
             _player.PlaybackEnded -= async (_, args) => await OnPlaybackEnded(_, args);
-            _jellyTuneApiService.StopPlaybackAsync(trackId);
+            
+            if (endPlayback && !string.IsNullOrWhiteSpace(_playSessionId))
+                _jellyTuneApiService.StopPlaybackAsync(_playSessionId, trackId);
+            
             _player?.Stop();
             _device.MasterMixer.RemoveComponent(_player);
             _player.Dispose();
@@ -205,7 +222,11 @@ public sealed class PlayerService : IPlayerService, IDisposable
         
         if (_player != null)
         {
-            _jellyTuneApiService.PausePlaybackAsync(trackId);
+            var position = _networkDataProvider?.Position ?? null;
+            
+            if (!string.IsNullOrWhiteSpace(_playSessionId))
+                _jellyTuneApiService.PausePlaybackAsync(_playSessionId, trackId, position);
+            
             _player.Pause();
         }
     }
@@ -599,6 +620,8 @@ public sealed class PlayerService : IPlayerService, IDisposable
 
     public void Dispose()
     {
+        NetworkChange.NetworkAvailabilityChanged -= NetworkChangeOnNetworkAvailabilityChanged;
+        
         if (_player != null)
         {
             _player.PlaybackEnded -= async (_, args) => await OnPlaybackEnded(_, args);

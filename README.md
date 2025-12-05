@@ -39,5 +39,5 @@ Last mention to [Jetbrains](https://www.jetbrains.com/) for providing open sourc
 - Gnome integration (MPRIS)
 
 **1.1**
-- User can add/modify/delete collection/playlists
+- Audio book support
 - Feel free to suggest features

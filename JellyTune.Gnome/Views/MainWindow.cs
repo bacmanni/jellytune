@@ -84,7 +84,8 @@ public partial class MainWindow : Adw.ApplicationWindow
         _controller = controller;
         _application = application;
         SetIconName(_controller.ApplicationInfo.Icon);
-        
+        SetWindowSize(360, 600);
+
         //Build UI
         builder.Connect(this);
 
@@ -233,6 +234,45 @@ public partial class MainWindow : Adw.ApplicationWindow
         AddController(ctrlEvent);
     }
 
+    private void SetWindowSize(int width, int height)
+    {
+        if (Display == null)
+            return;
+        
+        var monitors = Display.GetMonitors();
+        Gdk.Rectangle? geometry = null;
+        
+        for (uint n = 0; n < monitors.GetNItems(); n++)
+        {
+            var monitor = monitors.GetObject(n) as Gdk.Monitor;
+            
+            if (monitor == null)
+                continue;
+
+            geometry = monitor.Geometry;
+        }
+
+        // Monitor size found. Check if stored size fits
+        if (geometry != null)
+        {
+            var screenWidth = geometry.Width;
+            var screenHeight = geometry.Height;
+
+            var savedSize = _controller.GetWindowSize();
+            if (savedSize != null)
+            {
+                if (savedSize.Value.Item1 <= screenWidth && savedSize.Value.Item2 <= screenHeight)
+                {
+                    SetSizeRequest(savedSize.Value.Item1, savedSize.Value.Item2);
+                    return;
+                }
+            }
+        }
+
+        // Couldn't get monitor size. Use default size
+        SetSizeRequest(width, height);
+    }
+    
     private void PlaylistControllerOnPlaylistClicked(object? sender, PlaylistStateArgs e)
     {
         var visiblePageName = _album_view.GetVisiblePage()?.Tag;

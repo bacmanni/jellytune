@@ -2,6 +2,7 @@ using System.Net;
 using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Audio.Item.Universal;
 using Jellyfin.Sdk.Generated.Models;
+using Jellyfin.Sdk.Generated.Sessions.Item.Playing;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Models;
 using Microsoft.Kiota.Abstractions;
@@ -15,7 +16,10 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
 
     private readonly int _searchCount = 30;
     private Guid? _collectionId;
-
+    private string? _sessionId;
+    private Guid? _userId;
+    private string? _deviceId;
+    
     public JellyTuneApiService(JellyfinSdkSettings sdkClientSettings, JellyfinApiClient jellyfinApiClient)
     {
         _sdkClientSettings = sdkClientSettings;
@@ -73,7 +77,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
         {
             _sdkClientSettings.SetServerUrl(serverUrl);
             var systemInfo = await _jellyfinApiClient.System.Info.Public.GetAsync()
-                .ConfigureAwait(false);
+                .ConfigureAwait(true);
 
             return true;
         }
@@ -107,9 +111,12 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
                     Username = username,
                     Pw = password
                 }).ConfigureAwait(false);
-
+            
             if (authenticationResult != null)
             {
+                _sessionId = authenticationResult.SessionInfo?.Id;
+                _userId = authenticationResult.User?.Id;
+                _deviceId = authenticationResult.SessionInfo?.DeviceId;
                 _sdkClientSettings.SetAccessToken(authenticationResult.AccessToken);
                 return true;
             }
@@ -568,52 +575,84 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// <summary>
     /// Get url for audio streaming
     /// </summary>
+    /// <param name="sessiondId"></param>
     /// <param name="trackId"></param>
+    /// <param name="position"></param>
     /// <returns></returns>
-    public string? GetAudioStreamUrl(Guid trackId)
+    public string GetAudioStreamUrl(string sessiondId, Guid trackId, int? position)
     {
+        long? ticks = position.HasValue ? TimeSpan.FromMilliseconds(position.Value).Ticks : null;
+
         var information = _jellyfinApiClient.Audio[trackId].Universal.ToGetRequestInformation(configuration =>
         {
             configuration.QueryParameters.TranscodingContainer = "mp4";
             configuration.QueryParameters.TranscodingProtocol = MediaStreamProtocol.Hls;
             configuration.QueryParameters.AudioCodec = "aac";
-            configuration.QueryParameters.Container = ["opus", "webm|opus", "ts|mp3", "mp3", "aac", "m4a|aac", "m4b|aac", "flac", "webma", "webm|webma", "wav", "ogg"];
+            configuration.QueryParameters.Container = ["opus", "webm|opus", "mp3", "aac", "m4a|aac", "m4b|aac", "flac", "wav", "ogg", "mp4", "flac"];
             configuration.QueryParameters.EnableAudioVbrEncoding = true;
-            configuration.QueryParameters.EnableRedirection = true;
-            configuration.QueryParameters.EnableRemoteMedia = false;
-            configuration.QueryParameters.StartTimeTicks = 0;
+            configuration.QueryParameters.EnableRedirection = false;
+            configuration.QueryParameters.EnableRemoteMedia = true;
+            configuration.QueryParameters.UserId = _userId;
+            configuration.QueryParameters.StartTimeTicks = ticks;
         });
-        
+
+        // PlaySessionId is part of the api, but not updated to library
         var url = _jellyfinApiClient.BuildUri(information);
-        return $"{url}&api_key={_sdkClientSettings.AccessToken}";
+        return $"{url}&api_key={_sdkClientSettings.AccessToken}&PlaySessionId={sessiondId}";
     }
     
     /// <summary>
     /// Send server information about starting playback
     /// </summary>
     /// <param name="trackId"></param>
-    public async Task StartPlaybackAsync(Guid trackId)
+    public async Task<string> StartPlaybackAsync(Guid trackId)
     {
-        var body = new PlaybackStartInfo()
+        var body1 = new PlaybackInfoDto()
         {
-            ItemId = trackId,
-            PlayMethod = PlaybackStartInfo_PlayMethod.Transcode
+            UserId = _userId,
+            StartTimeTicks = TimeSpan.FromSeconds(0).Ticks,
+            AllowAudioStreamCopy = true,
+            EnableTranscoding = true,
         };
         
-        await _jellyfinApiClient.Sessions.Playing.PostAsync(body).ConfigureAwait(true);
+        var result = await _jellyfinApiClient.Items[trackId].PlaybackInfo.PostAsync(body1).ConfigureAwait(true);
+        
+        if (result == null)
+            throw new Exception("Could not get PlaySessionId");
+        
+        var body2 = new PlaybackStartInfo()
+        {
+            ItemId = trackId,
+            PlayMethod = PlaybackStartInfo_PlayMethod.Transcode,
+            PositionTicks = 0,
+            CanSeek = true,
+            SessionId = _sessionId,
+            PlaySessionId = result.PlaySessionId
+        };
+
+        await _jellyfinApiClient.Sessions.Playing.PostAsync(body2).ConfigureAwait(true);
+        return result.PlaySessionId;
     }
-    
+
     /// <summary>
     /// Send server information about pausing playback 
     /// </summary>
+    /// <param name="sessiondId"></param>
     /// <param name="trackId"></param>
-    public async Task PausePlaybackAsync(Guid trackId)
+    /// <param name="position"></param>
+    public async Task PausePlaybackAsync(string sessiondId, Guid trackId, int? position)
     {
+        long? ticks = position.HasValue ? TimeSpan.FromMilliseconds(position.Value).Ticks : null;
+
         var body = new PlaybackStartInfo()
         {
             ItemId = trackId,
             PlayMethod = PlaybackStartInfo_PlayMethod.Transcode,
-            IsPaused = true
+            IsPaused = true,
+            PositionTicks = ticks,
+            CanSeek = true,
+            PlaySessionId = sessiondId,
+            SessionId = _sessionId,
         };
         
         await _jellyfinApiClient.Sessions.Playing.PostAsync(body).ConfigureAwait(true);
@@ -622,16 +661,24 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// <summary>
     /// Send server information about resuming playback 
     /// </summary>
+    /// <param name="sessiondId"></param>
     /// <param name="trackId"></param>
-    public async Task ResumePlaybackAsync(Guid trackId)
+    /// <param name="position"></param>
+    public async Task ResumePlaybackAsync(string sessiondId, Guid trackId, int? position)
     {
+        long? ticks = position.HasValue ? TimeSpan.FromMilliseconds(position.Value).Ticks : null;
+        
         var body = new PlaybackStartInfo()
         {
             ItemId = trackId,
             PlayMethod = PlaybackStartInfo_PlayMethod.Transcode,
-            IsPaused = false
+            IsPaused = false,
+            PositionTicks = ticks,
+            CanSeek = true,
+            PlaySessionId = sessiondId,
+            SessionId = _sessionId,
         };
-        
+
         await _jellyfinApiClient.Sessions.Playing.PostAsync(body).ConfigureAwait(true);
     }
 
@@ -694,18 +741,51 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     }
 
     /// <summary>
+    /// Get url used for websocket connection
+    /// </summary>
+    /// <returns></returns>
+    public string GetWebsocketUrl()
+    {
+        var root = _sdkClientSettings.ServerUrl.StartsWith("http") ? "ws" :  "wss";
+        var rootUrl = _sdkClientSettings.ServerUrl.Replace("http", root).Replace("https", root);
+        
+        return $"{rootUrl}/socket?api_key={_sdkClientSettings.AccessToken}&deviceId={_deviceId}";
+    }
+
+    public async Task SeekPlaybackAsync(string sessiondId, Guid trackId, int? position)
+    {
+        var body = new GeneralCommand()
+        {
+            Name = GeneralCommand_Name.Play,
+            ControllingUserId = _userId,
+            Arguments = new GeneralCommand_Arguments()
+            {
+                AdditionalData =  new Dictionary<string, object>()
+                {
+                    { "ItemIds", new[] { trackId } },
+                    { "PlayCommand", "PlayNow" },
+                    { "StartPositionTicks", position ?? 0 }   
+                }
+            }
+        };
+
+        await _jellyfinApiClient.Sessions[sessiondId].Command.PostAsync(body).ConfigureAwait(false);
+    }
+
+    /// <summary>
     /// Send server information about stopping playback
     /// </summary>
+    /// <param name="sessiondId"></param>
     /// <param name="trackId"></param>
-    public async Task StopPlaybackAsync(Guid trackId)
+    public async Task StopPlaybackAsync(string sessiondId, Guid trackId)
     {
-        var body = new PlaybackStartInfo()
+        var body = new PlaybackStopInfo()
         {
             ItemId = trackId,
-            PlayMethod = PlaybackStartInfo_PlayMethod.Transcode,
-            IsPaused = false,
+            PlaySessionId = sessiondId,
+            SessionId = _sessionId,
         };
         
-        await _jellyfinApiClient.Sessions.Playing.PostAsync(body).ConfigureAwait(true);
+        await _jellyfinApiClient.Sessions.Playing.Stopped.PostAsync(body).ConfigureAwait(true);
     }
 }

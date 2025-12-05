@@ -3,8 +3,6 @@
   <requires lib="gtk" version="4.0"/>
   <requires lib="adw" version="1.0"/>
   <object class="AdwApplicationWindow" id="_root">
-    <property name="default-width">360</property>
-    <property name="default-height">600</property>
     <property name="content">
       <object class="GtkBox">
         <property name="hexpand">true</property>

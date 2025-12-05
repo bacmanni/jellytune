@@ -28,4 +28,16 @@ public sealed class MainWindowController : IDisposable
     public void Dispose()
     {
     }
+
+    public (int, int)? GetWindowSize()
+    {
+        var configuration = _configurationService.Get();
+
+        if (configuration is { WindowWidth: not null, WindowHeight: not null })
+        {
+            return (configuration.WindowWidth.Value, configuration.WindowHeight.Value);
+        }
+
+        return null;
+    }
 }
