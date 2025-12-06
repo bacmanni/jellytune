@@ -12,6 +12,8 @@ public sealed class AlbumController : IDisposable
     private readonly IPlayerService _playerService;
     private readonly IFileService _fileService;
     
+    private CancellationTokenSource? _cancellationTokenSource;
+    
     public IPlayerService GetPlayerService() => _playerService;
     public IFileService GetFileService() => _fileService;
 
@@ -56,25 +58,44 @@ public sealed class AlbumController : IDisposable
     {
         OnAlbumChanged?.Invoke(this, args);
     }
-    
+
     /// <summary>
     /// Open album
     /// </summary>
     /// <param name="albumId"></param>
+    /// <param name="selectedTrackId"></param>
     public async Task Open(Guid albumId, Guid? selectedTrackId = null)
     {
         AlbumChanged(new AlbumStateArgs());
-        Album = await _jellyTuneApiService.GetAlbumAsync(albumId);
-        Tracks = await _jellyTuneApiService.GetTracksAsync(albumId);
+        
+        _cancellationTokenSource?.Cancel();
+        _cancellationTokenSource?.Dispose();
+        _cancellationTokenSource = new CancellationTokenSource();
+        
+        Album = await _jellyTuneApiService.GetAlbumAsync(albumId, _cancellationTokenSource.Token);
+        Tracks = await _jellyTuneApiService.GetTracksAsync(albumId,  _cancellationTokenSource.Token);
+        
         AlbumChanged(new AlbumStateArgs() { UpdateAlbum = true, UpdateTracks = true, SelectedTrackId = selectedTrackId });
 
+        if (_cancellationTokenSource.IsCancellationRequested)
+            return;
+        
         if (Album.HasArtwork)
         {
-            Artwork = await _fileService.GetFileAsync(FileType.AlbumArt, albumId);
+            Artwork = await _fileService.GetFileAsync(FileType.AlbumArt, albumId, _cancellationTokenSource.Token);
             AlbumChanged(new AlbumStateArgs() { UpdateArtwork = true});    
         }
     }
 
+    /// <summary>
+    /// Close album
+    /// </summary>
+    public async Task Close()
+    {
+        _cancellationTokenSource?.Cancel();
+        _cancellationTokenSource?.Dispose();
+    }
+    
     /// <summary>
     /// Play track. If already playing, then pause track
     /// </summary>

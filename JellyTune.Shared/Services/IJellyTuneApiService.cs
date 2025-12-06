@@ -16,11 +16,11 @@ public interface IJellyTuneApiService
     public Task<List<Collection>> GetCollectionsAsync(CollectionType type);
     public Task<List<Models.Album>> GetArtistsAndAlbumsAsync(int? startIndex = null,
         int? count = null);
-    public Task<Models.Album> GetAlbumAsync(Guid albumId);
-    public Task<List<Models.Search>> SearchAlbum(string value);
-    public Task<List<Models.Search>> SearchArtistAlbums(string value);
-    public Task<List<Models.Search>> SearchTrack(string value);
-    public Task<List<Models.Track>> GetTracksAsync(Guid albumId);
+    public Task<Album> GetAlbumAsync(Guid albumId, CancellationToken cancellationToken = default);
+    public Task<List<Search>> SearchAlbum(string value, CancellationToken cancellationToken = default);
+    public Task<List<Models.Search>> SearchArtistAlbums(string value, CancellationToken cancellationToken = default);
+    public Task<List<Models.Search>> SearchTrack(string value, CancellationToken cancellationToken = default);
+    public Task<List<Track>> GetTracksAsync(Guid albumId, CancellationToken cancellationToken = default);
     public Task<Models.Track> GetTrackAsync(Guid trackId);
     public Task<byte[]?> GetPrimaryArtAsync(Guid albumId);
     public Task<Stream?> GetAudioStreamAsync(Guid trackId);

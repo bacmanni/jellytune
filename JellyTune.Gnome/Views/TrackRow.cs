@@ -42,7 +42,7 @@ public partial class TrackRow : Adw.ActionRow
             SetSubtitle(_track.Artist);
             
             if (_track.HasArtwork)
-                UpdateArtwork();
+                _ = UpdateArtwork();
         }
         else
         {
@@ -79,7 +79,7 @@ public partial class TrackRow : Adw.ActionRow
                 break;
         }
     }
-    
+
     private void StartTrack()
     {
         _status.SetFromIconName("media-playback-start-symbolic");

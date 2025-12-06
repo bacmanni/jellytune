@@ -135,8 +135,9 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// Search available albums by search criteria
     /// </summary>
     /// <param name="value"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<List<Models.Search>> SearchAlbum(string value)
+    public async Task<List<Search>> SearchAlbum(string value, CancellationToken cancellationToken = default)
     {
         var searchResults = new List<Models.Search>();
 
@@ -151,7 +152,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
             configuration.QueryParameters.EnableTotalRecordCount = false;
             configuration.QueryParameters.SearchTerm = value;
             configuration.QueryParameters.IncludeItemTypes = [ BaseItemKind.MusicAlbum ];
-        }).ConfigureAwait(false);
+        }, cancellationToken).ConfigureAwait(false);
         
         if (queryResult?.Items == null)
             return searchResults;
@@ -182,7 +183,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
-    public async Task<List<Models.Search>> SearchArtistAlbums(string value)
+    public async Task<List<Models.Search>> SearchArtistAlbums(string value, CancellationToken cancellationToken = default)
     {
         var searchResults = new List<Models.Search>();
         var queryResult = await _jellyfinApiClient.Artists.GetAsync(configuration =>
@@ -191,7 +192,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
             configuration.QueryParameters.Fields = [ItemFields.SortName];
             configuration.QueryParameters.ImageTypeLimit = 1;
             configuration.QueryParameters.SearchTerm = value;
-        }).ConfigureAwait(false);
+        }, cancellationToken).ConfigureAwait(false);
         
         if (queryResult?.Items == null || queryResult.Items.Count == 0)
             return searchResults;
@@ -209,7 +210,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
                configuration.QueryParameters.ImageTypeLimit = 1;
                configuration.QueryParameters.EnableTotalRecordCount = false;
                configuration.QueryParameters.IncludeItemTypes = [ BaseItemKind.MusicAlbum ];
-           }).ConfigureAwait(false);
+           }, cancellationToken).ConfigureAwait(false);
         
         if (queryResult2?.Items == null)
             return searchResults;
@@ -240,7 +241,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
-    public async Task<List<Models.Search>> SearchTrack(string value)
+    public async Task<List<Models.Search>> SearchTrack(string value, CancellationToken cancellationToken = default)
     {
         var searchResults = new List<Models.Search>();
 
@@ -255,7 +256,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
             configuration.QueryParameters.EnableTotalRecordCount = false;
             configuration.QueryParameters.SearchTerm = value;
             configuration.QueryParameters.IncludeItemTypes = [ BaseItemKind.Audio ];
-        }).ConfigureAwait(false);
+        }, cancellationToken).ConfigureAwait(false);
         
         if (queryResult?.Items == null)
             return searchResults;
@@ -358,9 +359,10 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// Get single album
     /// </summary>
     /// <param name="albumId"></param>
+    /// <param name="token"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    public async Task<Models.Album> GetAlbumAsync(Guid albumId)
+    public async Task<Album> GetAlbumAsync(Guid albumId, CancellationToken token)
     {
         var baseItem = await _jellyfinApiClient.Items[albumId].GetAsync().ConfigureAwait(false);
 
@@ -384,8 +386,9 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// Get all tracks from album
     /// </summary>
     /// <param name="albumId"></param>
+    /// <param name="token"></param>
     /// <returns></returns>
-    public async Task<List<Models.Track>> GetTracksAsync(Guid albumId)
+    public async Task<List<Track>> GetTracksAsync(Guid albumId, CancellationToken token)
     {
         var trackResult = new List<Models.Track>();
         var queryResult = await _jellyfinApiClient.Items.GetAsync(configuration =>

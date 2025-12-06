@@ -36,8 +36,9 @@ public class FileService : IFileService
     /// </summary>
     /// <param name="type"></param>
     /// <param name="id"></param>
+    /// <param name="token"></param>
     /// <returns></returns>
-    public async Task<byte[]?> GetFileAsync(FileType type, Guid id)
+    public async Task<byte[]?> GetFileAsync(FileType type, Guid id, CancellationToken cancellationToken = default)
     {
         await _semaphore.WaitAsync();
         try
@@ -58,12 +59,18 @@ public class FileService : IFileService
 
                 if (_fileSystem.File.Exists(filename))
                 {
+                    if (cancellationToken.IsCancellationRequested)
+                        return null;
+                    
                     var fileBytes = await _fileSystem.File.ReadAllBytesAsync(filename);
                     _artWork.TryAdd(key, fileBytes);
                     return fileBytes;
                 }
             }
 
+            if (cancellationToken.IsCancellationRequested)
+                return null;
+            
             var primaryArt = await _jellyTuneApiService.GetPrimaryArtAsync(id);
             if (primaryArt == null)
                 return null;
