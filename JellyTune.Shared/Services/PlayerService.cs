@@ -156,7 +156,6 @@ public sealed class PlayerService : IPlayerService, IDisposable
 
                 if (!string.IsNullOrWhiteSpace(_playSessionId))
                     _ = _jellyTuneApiService.ResumePlaybackAsync(_playSessionId, trackId, position);
-
                 
                 if (!_networkDisconnected)
                 {

@@ -1,3 +1,4 @@
+using JellyTune.Gnome.Views;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
 using JellyTune.Shared.Models;
@@ -14,16 +15,18 @@ public class MediaPlayerController : IDisposable
     private readonly IFileService _fileService;
     private readonly IPlayerService _playerService;
     private readonly ApplicationInfo _applicationInfo;
+    private readonly MainWindow _mainWindow;
     private readonly Connection _connection = new Connection(Address.Session);
     private readonly string _serviceName;
     private MediaPlayer? _mediaPlayer;
     private RegisterState _registerState = RegisterState.Unregistered;
-    
-    public MediaPlayerController(IFileService fileService, IPlayerService playerService, ApplicationInfo applicationInfo)
+
+    public MediaPlayerController(MainWindow mainWindow, IFileService fileService, IPlayerService playerService, ApplicationInfo applicationInfo)
     {
         _fileService = fileService;
         _playerService = playerService;
         _applicationInfo = applicationInfo;
+        _mainWindow = mainWindow;
         _serviceName = $"org.mpris.MediaPlayer2.{_applicationInfo.Id}";
 
         _playerService.OnPlayerStateChanged += PlayerServiceOnPlayerStateChanged;
@@ -50,8 +53,7 @@ public class MediaPlayerController : IDisposable
         try
         {
             await _connection.ConnectAsync();
-            
-            _mediaPlayer = new MediaPlayer(_fileService, _playerService, _applicationInfo);
+            _mediaPlayer = new MediaPlayer(_mainWindow, _fileService, _playerService, _applicationInfo);
         }
         catch (Exception e)
         {

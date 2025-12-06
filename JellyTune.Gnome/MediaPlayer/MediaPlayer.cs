@@ -1,3 +1,4 @@
+using JellyTune.Gnome.Views;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Models;
 using JellyTune.Shared.Services;
@@ -5,21 +6,23 @@ using Tmds.DBus;
 
 namespace JellyTune.Gnome.MediaPlayer;
 
-public class MediaPlayer : IMediaPlayer2, IPlayer, IDisposable
+public class MediaPlayer : IMediaPlayer2, IPlayer
 {
     private readonly IFileService _fileService;
     private readonly IPlayerService _playerService;
     private readonly ApplicationInfo  _applicationInfo;
+    private readonly MainWindow _mainWindow;
     private readonly Dictionary<string, object> _metadata = new();
     private readonly List<Action<PropertyChanges>> _playerSubscribers = new();
 
     public ObjectPath ObjectPath => new ObjectPath("/org/mpris/MediaPlayer2");
 
-    public MediaPlayer(IFileService fileService, IPlayerService playerService, ApplicationInfo applicationInfo)
+    public MediaPlayer(MainWindow mainWindow, IFileService fileService, IPlayerService playerService, ApplicationInfo applicationInfo)
     {
         _fileService = fileService;
         _playerService = playerService;
         _applicationInfo = applicationInfo;
+        _mainWindow = mainWindow;
     }
 
     private string GetPlaybackStatus()
@@ -58,7 +61,16 @@ public class MediaPlayer : IMediaPlayer2, IPlayer, IDisposable
         var hasNext = new KeyValuePair<string, object>("CanGoNext", _playerService.HasNextTrack());
         NotifyPropertiesChanged(new [] { metadata, status, hasPrevious, hasNext }, Array.Empty<string>());
     }
-    
+
+    public Task RaiseAsync()
+    {
+        // Use token when PresentWithToken is found in window
+        var token = Environment.GetEnvironmentVariable("XDG_ACTIVATION_TOKEN");
+        
+        _mainWindow.PresentWithTime(0);
+        return Task.CompletedTask;
+    }
+
     Task<IDictionary<string, object>> IMediaPlayer2.GetAllAsync()
     {
         return Task.FromResult<IDictionary<string, object>>(new Dictionary<string, object>
@@ -66,7 +78,7 @@ public class MediaPlayer : IMediaPlayer2, IPlayer, IDisposable
             { "Identity", _applicationInfo.Name },
             { "DesktopEntry", _applicationInfo.Name },
             { "CanQuit", false },
-            { "CanRaise", false },
+            { "CanRaise", true },
             { "HasTrackList", false }
         });
     }
@@ -142,10 +154,5 @@ public class MediaPlayer : IMediaPlayer2, IPlayer, IDisposable
                 // Ignore subscriber exceptions
             }
         }
-    }
-    
-    public void Dispose()
-    {
-
     }
 }
