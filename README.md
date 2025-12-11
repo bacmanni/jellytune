@@ -40,4 +40,5 @@ Last mention to [Jetbrains](https://www.jetbrains.com/) for providing open sourc
 
 **1.1**
 - Audio book support
+- Support for keyring(?)
 - Feel free to suggest features

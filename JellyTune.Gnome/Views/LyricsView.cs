@@ -9,7 +9,7 @@ public partial class LyricsView : Adw.Dialog
     private LyricsController  _controller;
 
     [Gtk.Connect] private readonly Adw.Spinner _spinner;
-    [Gtk.Connect] private readonly Gtk.Box _results;
+    [Gtk.Connect] private readonly Adw.ToolbarView _results;
     
     [Gtk.Connect] private readonly Gtk.Label _lyrics;
     [Gtk.Connect] private readonly Gtk.Image _albumArt;
