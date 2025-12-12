@@ -45,7 +45,6 @@ public class AlbumGridItem : Gtk.Box
 
     private async Task UpdateImage(Guid id)
     {
-        await Task.Delay(500);
         if (_cancellationTokenSource is { IsCancellationRequested: true })
         {
             return;
