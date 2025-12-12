@@ -122,4 +122,11 @@ public class PlayerView : Gtk.CenterBox
                 break;
         }
     }
+
+    public override void Dispose()
+    {
+        _controller.GetPlayerService().OnPlayerStateChanged -= OnOnPlayerStateChanged;
+        
+        base.Dispose();
+    }
 }

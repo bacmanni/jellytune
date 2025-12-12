@@ -2,6 +2,8 @@ using Gtk.Internal;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
 using JellyTune.Gnome.Helpers;
+using JellyTune.Shared.Events;
+using ListBox = Gtk.ListBox;
 
 namespace JellyTune.Gnome.Views;
 
@@ -28,9 +30,9 @@ public class SearchView : Gtk.ScrolledWindow
         if (!show.HasValue)
         {
             _startup.SetVisible(true);
-            _noresults.Hide();
-            _results.Hide();
-            _spinner.Hide();
+            _noresults.SetVisible(false);
+            _results.SetVisible(false);
+            _spinner.SetVisible(false);
             return;
         }
             
@@ -38,45 +40,48 @@ public class SearchView : Gtk.ScrolledWindow
         
         if (show.Value)
         {
-            _noresults.Hide();
-            _results.Hide();
-            _spinner.Show();
+            _noresults.SetVisible(false);
+            _results.SetVisible(false);
+            _spinner.SetVisible(true);
         }
         else
         {
-            _spinner.Hide();
+            _spinner.SetVisible(false);
             
             if (results.HasValue && results.Value > 0)
-                _results.Show();
+                _results.SetVisible(true);
             else
-                _noresults.Show();
+                _noresults.SetVisible(true);
         }
     }
     
     public SearchView(SearchController controller) : this(Blueprint.BuilderFromFile("search"))
     {
         _controller = controller;
-        _controller.OnSearchStateChanged += (sender, args) =>
-        {
-            if (args.Open)
-                SetSpinner();
-            
-            if (args.Start)
-                SetSpinner(true);
+        _controller.OnSearchStateChanged += ControllerOnOnSearchStateChanged;
+        _searchList.OnRowActivated += SearchListOnOnRowActivated;
+    }
 
-            if (args.Updated)
-                UpdateSearch();
-        };
-
-        _searchList.OnRowActivated += (sender, args) =>
+    private void SearchListOnOnRowActivated(ListBox sender, ListBox.RowActivatedSignalArgs args)
+    {
+        var row = args.Row as SearchRow;
+        if (row != null)
         {
-            var row = args.Row as SearchRow;
-            if (row != null)
-            {
-                Guid? trackId = row.Type == SearchType.Track ? row.Id : null;
-                _controller.OpenAlbum(row.AlbumId, trackId);
-            }
-        };
+            Guid? trackId = row.Type == SearchType.Track ? row.Id : null;
+            _controller.OpenAlbum(row.AlbumId, trackId);
+        }
+    }
+
+    private void ControllerOnOnSearchStateChanged(object? sender, SearchStateArgs args)
+    {
+        if (args.Open)
+            SetSpinner();
+        
+        if (args.Start)
+            SetSpinner(true);
+
+        if (args.Updated)
+            UpdateSearch();
     }
 
     private void UpdateSearch()
@@ -91,5 +96,12 @@ public class SearchView : Gtk.ScrolledWindow
         }
         
         SetSpinner(false, _controller.Results.Count);
+    }
+
+    public override void Dispose()
+    {
+        _controller.OnSearchStateChanged -= ControllerOnOnSearchStateChanged;
+        _searchList.OnRowActivated -= SearchListOnOnRowActivated;
+        base.Dispose();
     }
 }
