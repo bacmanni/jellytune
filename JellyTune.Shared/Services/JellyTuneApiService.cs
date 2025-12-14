@@ -313,20 +313,18 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
 
         return collectionResult;
     }
-    
+
     /// <summary>
     /// Get all available artists/albums from collection
     /// </summary>
-    /// <param name="startIndex">Start index for list</param>
-    /// <param name="count">Count of items to get from list</param>
     /// <returns></returns>
-    public async Task<List<Models.Album>> GetArtistsAndAlbumsAsync(int? startIndex = null, int? count = null)
+    public async Task<List<Models.Album>> GetArtistsAndAlbumsAsync()
     {
         var albumResult = new List<Models.Album>();
         var queryResult = await _jellyfinApiClient.Items.GetAsync(configuration =>
         {
-            configuration.QueryParameters.StartIndex = startIndex;
-            configuration.QueryParameters.Limit = count;
+            configuration.QueryParameters.StartIndex = 0;
+            configuration.QueryParameters.Limit = int.MaxValue;
             configuration.QueryParameters.Recursive = true;
             configuration.QueryParameters.Fields = [ItemFields.PrimaryImageAspectRatio, ItemFields.SortName];
             configuration.QueryParameters.ParentId = _collectionId;

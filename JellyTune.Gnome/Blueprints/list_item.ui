@@ -4,7 +4,7 @@
     <property name="margin-top">6</property>
     <property name="margin-bottom">6</property>
     <child>
-      <object class="GtkImage" id="_albumArt">
+      <object class="GtkImage" id="_art">
       <property name="overflow">hidden</property>
       <style>
           <class name="icon-dropshadow"/>
@@ -21,7 +21,7 @@
         <property name="vexpand">true</property>
         <property name="orientation">1</property>
         <child>
-          <object class="GtkLabel" id="_album">
+          <object class="GtkLabel" id="_title">
             <style>
               <class name="heading"/>
             </style>
@@ -34,7 +34,7 @@
           </object>
         </child>
         <child>
-          <object class="GtkLabel" id="_artist">
+          <object class="GtkLabel" id="_description">
             <property name="halign">1</property>
             <property name="valign">1</property>
             <property name="wrap">true</property>

@@ -34,7 +34,7 @@
                     <property name="top-bar-style">raised</property>
                     <property name="bottom-bar-style">raised</property>
                     <child type="top">
-                      <object class="AdwHeaderBar">
+                      <object class="AdwHeaderBar" id="_main_view_headerbar">
                         <child type="start">
                           <object class="GtkToggleButton" id="_searchButton">
                             <property name="tooltip-text">Search albums</property>
@@ -50,7 +50,9 @@
                           </object>
                         </child>
                         <property name="title-widget">
-                          <object class="AdwWindowTitle">
+                          <object class="AdwViewSwitcher" id="switcher_title">
+                            <property name="stack">_main_stack</property>
+                            <property name="policy">1</property>
                           </object>
                         </property>
                       </object>
@@ -61,6 +63,40 @@
                         <property name="height-request">1</property>
                       </object>
                     </child>
+                    <property name="content">
+                      <object class="AdwViewStack" id="_main_stack">
+                        <property name="hexpand">true</property>
+                        <property name="vexpand">true</property>
+                        <child>
+                          <object class="AdwViewStackPage">
+                            <property name="name">page1</property>
+                            <property name="title" translatable="yes">Music</property>
+                            <property name="icon-name">folder-music-symbolic</property>
+                            <property name="use-underline">true</property>
+                            <property name="child">
+                              <object class="GtkBox" id="_main_stack_music">
+                                <property name="hexpand">true</property>
+                                <property name="vexpand">true</property>
+                              </object>
+                            </property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="AdwViewStackPage">
+                            <property name="name">page2</property>
+                            <property name="title" translatable="yes">Playlist</property>
+                            <property name="icon-name">view-list-bullet-symbolic</property>
+                            <property name="use-underline">true</property>
+                            <property name="child">
+                              <object class="GtkBox" id="_main_stack_playlist">
+                                <property name="hexpand">true</property>
+                                <property name="vexpand">true</property>
+                              </object>
+                            </property>
+                          </object>
+                        </child>
+                      </object>
+                    </property>
                   </object>
                 </property>
               </object>
@@ -149,28 +185,6 @@
               </object>
             </child>
             <child>
-            <object class="AdwNavigationPage" id="_playlist">
-                <property name="tag">_playlist</property>
-                <property name="child">
-                    <object class="AdwToolbarView" id="_playlist_view">
-                        <property name="bottom-bar-style">raised</property>
-                        <child type="top">
-                            <object class="AdwHeaderBar">
-                              <property name="title-widget">
-                                <object class="AdwWindowTitle">
-                                </object>
-                              </property>
-                            </object>
-                        </child>
-                        <child type="bottom">
-                            <object class="GtkBox" id="_playlist_footer">
-                                <property name="visible">false</property>
-                                <property name="height-request">1</property>
-                            </object>
-                        </child>
-                    </object>
-                </property>
-            </object>
             </child>
             <child>
               <object class="AdwNavigationPage" id="_playlist_tracks">
@@ -207,21 +221,19 @@
     </property>
   </object>
   <menu id="main_menu">
-    <item>
-      <attribute name="label" translatable="true">Refresh</attribute>
-      <attribute name="action">win.refresh</attribute>
-    </item>
-    <item>
-      <attribute name="label" translatable="true">Playlists</attribute>
-      <attribute name="action">win.playlist</attribute>
-    </item>
-    <item>
-      <attribute name="label" translatable="true">Preferences</attribute>
-      <attribute name="action">win.preferences</attribute>
-    </item>
-    <item>
-      <attribute name="label" translatable="true">About JellyTune</attribute>
-      <attribute name="action">win.about</attribute>
-    </item>
+    <section>
+      <item>
+        <attribute name="label" translatable="true">Refresh</attribute>
+        <attribute name="action">win.refresh</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">Preferences</attribute>
+        <attribute name="action">win.preferences</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">About JellyTune</attribute>
+        <attribute name="action">win.about</attribute>
+      </item>
+    </section>
   </menu>
 </interface>

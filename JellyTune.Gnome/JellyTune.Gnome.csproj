@@ -21,9 +21,11 @@
     </ItemGroup>
 
     <ItemGroup>
+      <EmbeddedResource Include="Blueprints\grid_item.ui" />
+      <EmbeddedResource Include="Blueprints\list.ui" />
+      <EmbeddedResource Include="Blueprints\list_item.ui" />
       <EmbeddedResource Include="Resources\jellytune-icon.svg" />
       <None Remove="Blueprints\window.blp" />
-      <EmbeddedResource Include="Blueprints\album_grid_item.ui" />
       <EmbeddedResource Include="Blueprints\window.ui" />
       <None Remove="Blueprints\album_row.ui" />
       <None Remove="Blueprints\album_details.ui" />
@@ -38,9 +40,7 @@
       <None Remove="Blueprints\preferences.ui" />
       <EmbeddedResource Include="Blueprints\preferences.ui" />
       <None Remove="Blueprints\album_list.ui" />
-      <EmbeddedResource Include="Blueprints\album_list.ui" />
       <None Remove="Blueprints\album_list_item.ui" />
-      <EmbeddedResource Include="Blueprints\album_list_item.ui" />
       <None Remove="Blueprints\lyrics.ui" />
       <EmbeddedResource Include="Blueprints\lyrics.ui" />
       <None Remove="Blueprints\search.ui" />
@@ -78,6 +78,8 @@
       <None Remove="Blueprints\playlist_tracks.ui" />
       <EmbeddedResource Include="Blueprints\playlist_tracks.ui" />
       <None Remove="Blueprints\playlist_tracks_row.ui" />
+      <None Remove="Blueprints\albumlist.ui" />
+      <EmbeddedResource Include="Blueprints\albumlist.ui" />
     </ItemGroup>
 
     <ItemGroup>

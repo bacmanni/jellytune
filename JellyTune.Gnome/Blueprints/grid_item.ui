@@ -9,7 +9,7 @@
     <property name="width-request">120</property>
     <property name="height-request">90</property>
     <child>
-      <object class="GtkImage" id="_albumArt">
+      <object class="GtkImage" id="_art">
         <property name="overflow">hidden</property>
         <style>
           <class name="icon-dropshadow"/>
@@ -20,7 +20,7 @@
       </object>
     </child>
     <child>
-      <object class="GtkLabel" id="_album">
+      <object class="GtkLabel" id="_title">
           <property name="margin-top">6</property>
         <property name="halign">3</property>
         <style>
@@ -31,7 +31,7 @@
       </object>
     </child>
     <child>
-      <object class="GtkLabel" id="_artist">
+      <object class="GtkLabel" id="_description">
         <property name="halign">3</property>
         <property name="ellipsize">3</property>
         <property name="lines">1</property>

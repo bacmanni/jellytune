@@ -14,8 +14,7 @@ public interface IJellyTuneApiService
     public Task PausePlaybackAsync(string sessiondId, Guid trackId, int? position);
     public Task<string?> GetTrackLyricsAsync(Guid trackId);
     public Task<List<Collection>> GetCollectionsAsync(CollectionType type);
-    public Task<List<Models.Album>> GetArtistsAndAlbumsAsync(int? startIndex = null,
-        int? count = null);
+    public Task<List<Album>> GetArtistsAndAlbumsAsync();
     public Task<Album> GetAlbumAsync(Guid albumId, CancellationToken cancellationToken = default);
     public Task<List<Search>> SearchAlbum(string value, CancellationToken cancellationToken = default);
     public Task<List<Models.Search>> SearchArtistAlbums(string value, CancellationToken cancellationToken = default);

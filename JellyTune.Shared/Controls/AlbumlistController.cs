@@ -6,7 +6,7 @@ using JellyTune.Shared.Services;
 
 namespace JellyTune.Shared.Controls;
 
-public class PlaylistController : IDisposable
+public class AlbumlistController : IDisposable
 {
     private readonly ListController _listController;
     
@@ -14,15 +14,16 @@ public class PlaylistController : IDisposable
     private readonly IConfigurationService _configurationService;
     private readonly IPlayerService _playerService;
     private readonly IFileService _fileService;
-    private ConcurrentBag<Playlist> _playlists = [];
-    
-    public IFileService GetFileService() => _fileService;
-    
+    private ConcurrentBag<Album> _albums = [];
+
     public ListController GetListController() => _listController;
     
-    public event EventHandler<Guid> OnPlaylistClicked;
-
-    public PlaylistController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService, IPlayerService playerService, IFileService fileService)
+    /// <summary>
+    /// Called when album is clicked on the list
+    /// </summary>
+    public event EventHandler<Guid>? OnAlbumClicked;
+    
+    public AlbumlistController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService, IPlayerService playerService, IFileService fileService)
     {
         _listController = new ListController(jellyTuneApiService, configurationService, playerService, fileService);
         _jellyTuneApiService = jellyTuneApiService;
@@ -35,27 +36,28 @@ public class PlaylistController : IDisposable
 
     private void ListControllerOnItemClicked(object? sender, Guid e)
     {
-        OnPlaylistClicked?.Invoke(this, e);
+        OnAlbumClicked?.Invoke(this,e);
     }
 
     /// <summary>
-    /// Refresh playlist data
+    /// Refresh albumlist data
     /// </summary>
     /// <param name="reload"></param>
     public async Task Refresh(bool reload = false)
     {
-        if (Guid.TryParse(_configurationService.Get().PlaylistCollectionId, out var playlistCollectionId))
+        var collectionId = _jellyTuneApiService.GetCollectionId();
+        if (collectionId.HasValue)
         {
             _listController.SetLoading(true);
             _listController.RemoveItems();
-            
-            var playlists = await _jellyTuneApiService.GetPlaylistsAsync(playlistCollectionId);
-            foreach (var playlist in playlists)
+
+            var albums = await _jellyTuneApiService.GetArtistsAndAlbumsAsync();
+            foreach (var album in albums)
             {
-                _playlists.Add(playlist);
+                _albums.Add(album);
             }
             
-            _listController.AddItems(playlistCollectionId, GetListItem(playlists));
+            _listController.AddItems(collectionId.Value, GetListItem(albums));
         }
         else
         {
@@ -64,25 +66,24 @@ public class PlaylistController : IDisposable
         }
     }
     
-    private List<ListItem> GetListItem(List<Playlist> playlists)
+    private List<ListItem> GetListItem(List<Album> albums)
     {
         var listItems = new List<ListItem>();
-        foreach (var playlist in playlists)
+        foreach (var album in albums)
         {
             listItems.Add(new ListItem()
             {
-                Id = playlist.Id,
-                Title = playlist.Name,
-                Description = $"{playlist.TrackCount} tracks, duration: {playlist.Duration.Value.TotalHours.ToString("m\\:ss")}",
-                HasArtwork = playlist.HasArtwork,
-                ArtworkFiletype = FileType.Playlist
+                Id = album.Id,
+                Title = album.Name,
+                Description = album.Artist,
+                HasArtwork = album.HasArtwork,
+                ArtworkFiletype = FileType.AlbumArt
             });
-
         }
         
         return listItems;
     }
-    
+
     public void Dispose()
     {
         _listController.OnItemClicked -= ListControllerOnItemClicked;
