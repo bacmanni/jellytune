@@ -14,7 +14,6 @@ public class AlbumlistController : IDisposable
     private readonly IConfigurationService _configurationService;
     private readonly IPlayerService _playerService;
     private readonly IFileService _fileService;
-    private ConcurrentBag<Album> _albums = [];
 
     public ListController GetListController() => _listController;
     
@@ -52,11 +51,6 @@ public class AlbumlistController : IDisposable
             _listController.RemoveItems();
 
             var albums = await _jellyTuneApiService.GetArtistsAndAlbumsAsync();
-            foreach (var album in albums)
-            {
-                _albums.Add(album);
-            }
-            
             _listController.AddItems(collectionId.Value, GetListItem(albums));
         }
         else

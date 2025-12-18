@@ -14,8 +14,7 @@ public class PlaylistController : IDisposable
     private readonly IConfigurationService _configurationService;
     private readonly IPlayerService _playerService;
     private readonly IFileService _fileService;
-    private ConcurrentBag<Playlist> _playlists = [];
-    
+
     public IFileService GetFileService() => _fileService;
     
     public ListController GetListController() => _listController;
@@ -50,11 +49,6 @@ public class PlaylistController : IDisposable
             _listController.RemoveItems();
             
             var playlists = await _jellyTuneApiService.GetPlaylistsAsync(playlistCollectionId);
-            foreach (var playlist in playlists)
-            {
-                _playlists.Add(playlist);
-            }
-            
             _listController.AddItems(playlistCollectionId, GetListItem(playlists));
         }
         else
@@ -73,11 +67,10 @@ public class PlaylistController : IDisposable
             {
                 Id = playlist.Id,
                 Title = playlist.Name,
-                Description = $"{playlist.TrackCount} tracks, duration: {playlist.Duration.Value.TotalHours.ToString("m\\:ss")}",
+                Description = $"{playlist.TrackCount} tracks, {playlist.Duration.Value.TotalHours:N1}h",
                 HasArtwork = playlist.HasArtwork,
                 ArtworkFiletype = FileType.Playlist
             });
-
         }
         
         return listItems;

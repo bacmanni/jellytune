@@ -515,7 +515,15 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// </summary>
     public void ClearTracks()
     {
+       var playingTrack = _tracks.FirstOrDefault(t => t.Id == _playingTrack?.Id);
         _tracks.Clear();
+
+        if (playingTrack != null)
+            _tracks.Add(playingTrack);
+        
+        // Send update with current state as previous/next track need to be updated
+        var currentState = GetPlaybackState();
+        PlayerStateChanged(new PlayerStateArgs(currentState, _album, _tracks.ToList(), _selectedTrack));
     }
 
     /// <summary>
