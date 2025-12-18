@@ -45,6 +45,8 @@ public partial class MainWindow : Adw.ApplicationWindow
     private readonly PlaylistTracksController _playlistTracksController;
     private readonly PlaylistTracksView _playlistTracksView;
 
+    private readonly int _breakpoint = 500;
+    
     [Gtk.Connect] private readonly Gtk.Button _searchButton;
     [Gtk.Connect] private readonly Gtk.SearchEntry _search_field;
     
@@ -209,7 +211,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         
         AddAction(viewAction);
         OnNotify += OnOnNotify;
-        UpdateMainMenu();
+        _ = UpdateMainMenu();
     }
 
     private void PlaylistControllerOnPlaylistClicked(object? sender, Guid id)
@@ -223,14 +225,30 @@ public partial class MainWindow : Adw.ApplicationWindow
 
     private void OnOnNotify(Object sender, NotifySignalArgs args)
     {
-        if (args.Pspec.GetName() != "default-width") return;
-        UpdateMainMenu();
+        if (args.Pspec.GetName() != "default-width" && args.Pspec.GetName() != "maximized") return;
+        _ = UpdateMainMenu(args.Pspec.GetName() == "maximized");
     }
 
-    private void UpdateMainMenu()
+    private async Task UpdateMainMenu(bool maximized = false)
     {
-        var width = DefaultWidth;
-        var show = width <= 500;
+        var width = GetAllocatedWidth();
+        var show = width < _breakpoint;
+        
+        // Maximizing. We determine
+        if (maximized)
+        {
+            var monitorWidth = GetScreenSize()?.Width;
+            
+            // Was already maximized
+            if (width == monitorWidth)
+            {
+                show = DefaultWidth < _breakpoint;
+            }
+            else
+            {
+                show = monitorWidth < _breakpoint;
+            }
+        }
         
         var mainMenu = _menuButton.MenuModel as Gio.Menu;
         var existingSection = mainMenu.GetItemLink(0, "section") as Gio.Menu;
@@ -304,14 +322,9 @@ public partial class MainWindow : Adw.ApplicationWindow
         _ = _searchController.SearchAlbums(sender.GetText());
     }
 
-    private void SetWindowSize(int width, int height)
+    private Gdk.Rectangle? GetScreenSize()
     {
-        if (Display == null)
-            return;
-        
         var monitors = Display.GetMonitors();
-        Gdk.Rectangle? geometry = null;
-        
         for (uint n = 0; n < monitors.GetNItems(); n++)
         {
             var monitor = monitors.GetObject(n) as Gdk.Monitor;
@@ -319,9 +332,19 @@ public partial class MainWindow : Adw.ApplicationWindow
             if (monitor == null)
                 continue;
 
-            geometry = monitor.Geometry;
+            return monitor.Geometry;
         }
+        
+        return null;
+    }
+    
+    private void SetWindowSize(int width, int height)
+    {
+        if (Display == null)
+            return;
 
+        var geometry = GetScreenSize();
+        
         // Monitor size found. Check if stored size fits
         if (geometry != null)
         {
