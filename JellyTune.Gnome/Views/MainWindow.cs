@@ -237,8 +237,9 @@ public partial class MainWindow : Adw.ApplicationWindow
         // Maximizing. We determine
         if (maximized)
         {
-            var monitorWidth = GetScreenSize()?.Width;
             
+            var monitorWidth = GetScreenSize()?.Width;
+
             // Was already maximized
             if (width == monitorWidth)
             {

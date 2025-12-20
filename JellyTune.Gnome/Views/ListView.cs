@@ -22,6 +22,7 @@ public class ListView : Gtk.Box
     private readonly Gtk.SignalListItemFactory _gridFactory;
     
     private readonly Gio.ListStore _listItems;
+    private readonly List<JellyTune.Shared.Models.ListItem> _items = [];
     
     private ListView(Gtk.Builder builder) : base(
         new BoxHandle(builder.GetPointer("_root"), false))
@@ -37,7 +38,7 @@ public class ListView : Gtk.Box
         var configuration = _controller.GetConfigurationService().Get();
         _list.SetShowSeparators(configuration.ShowListSeparator);
         _controller.GetConfigurationService().Saved += OnSaved;
-
+        
         _listItems = Gio.ListStore.New(ListRow.GetGType());
         var selectionModel = Gtk.NoSelection.New(_listItems);
         
@@ -106,10 +107,45 @@ public class ListView : Gtk.Box
     {
         if (args.Items is not null)
         {
-            _listItems.RemoveAll();
-            foreach (var item in args.Items)
+            // Updates list store
+            if (args.UpdateOnly)
             {
-                _listItems.Append(new ListRow(item));   
+                var updateIds = _controller.GetItems().Select(item => item.Id).ToList();
+                var currentIds = _items.Select(item => item.Id).ToList();
+
+                var addedIds = updateIds.Except(currentIds).ToList();
+                var removedIds = currentIds.Except(updateIds).ToList();
+
+                if (removedIds.Any())
+                {
+                    for (var i = _listItems.GetNItems() - 1; i >= 0; i--)
+                    {
+                        var item = _listItems.GetObject(i) as ListRow;
+                        if  (item is null) continue;
+                    
+                        if (removedIds.Contains(item.Id))
+                            _listItems.Remove(i);
+                    }
+                }
+
+                if (addedIds.Any())
+                {
+                    var added = _controller.GetItems().Where(x => addedIds.Contains(x.Id)).ToList();
+                    foreach (var item in added)
+                    {
+                        _listItems.Append(new ListRow(item));   
+                    }
+                }
+            }
+            else
+            {
+                _listItems.RemoveAll();
+                foreach (var item in args.Items)
+                {
+                    _listItems.Append(new ListRow(item));   
+                }
+
+                _items.AddRange(args.Items);
             }
         }
             

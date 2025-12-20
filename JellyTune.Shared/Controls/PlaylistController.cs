@@ -6,30 +6,25 @@ using JellyTune.Shared.Services;
 
 namespace JellyTune.Shared.Controls;
 
-public class PlaylistController : IDisposable
+public class PlaylistController : ListController, IDisposable
 {
-    private readonly ListController _listController;
-    
     private readonly IJellyTuneApiService _jellyTuneApiService;
     private readonly IConfigurationService _configurationService;
     private readonly IPlayerService _playerService;
     private readonly IFileService _fileService;
 
     public IFileService GetFileService() => _fileService;
-    
-    public ListController GetListController() => _listController;
-    
+
     public event EventHandler<Guid> OnPlaylistClicked;
 
-    public PlaylistController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService, IPlayerService playerService, IFileService fileService)
+    public PlaylistController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService, IPlayerService playerService, IFileService fileService) : base(jellyTuneApiService, configurationService, playerService, fileService)
     {
-        _listController = new ListController(jellyTuneApiService, configurationService, playerService, fileService);
         _jellyTuneApiService = jellyTuneApiService;
         _configurationService = configurationService;
         _playerService = playerService;
         _fileService = fileService;
         
-        _listController.OnItemClicked += ListControllerOnItemClicked;
+        OnItemClicked += ListControllerOnItemClicked;
     }
 
     private void ListControllerOnItemClicked(object? sender, Guid e)
@@ -45,16 +40,23 @@ public class PlaylistController : IDisposable
     {
         if (Guid.TryParse(_configurationService.Get().PlaylistCollectionId, out var playlistCollectionId))
         {
-            _listController.SetLoading(true);
-            _listController.RemoveItems();
+            SetCollectionId(playlistCollectionId);
+            
+            if (reload)
+                ClearCache();
+            
+            SetLoading(true);
+            SetCollectionId(playlistCollectionId); 
+            await GetFromCache();
             
             var playlists = await _jellyTuneApiService.GetPlaylistsAsync(playlistCollectionId);
-            _listController.AddItems(playlistCollectionId, GetListItem(playlists));
+            AddOrUpdateItems(GetListItem(playlists));
+            SetToCache();
         }
         else
         {
-            _listController.RemoveItems();
-            _listController.SetLoading(false);
+            RemoveItems();
+            SetLoading(false);
         }
     }
     
@@ -78,6 +80,6 @@ public class PlaylistController : IDisposable
     
     public void Dispose()
     {
-        _listController.OnItemClicked -= ListControllerOnItemClicked;
+        OnItemClicked -= ListControllerOnItemClicked;
     }
 }

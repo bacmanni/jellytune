@@ -1,6 +1,8 @@
 using System.Collections.Concurrent;
 using System.IO.Abstractions;
+using System.Text.Json;
 using JellyTune.Shared.Enums;
+using JellyTune.Shared.Models;
 
 namespace JellyTune.Shared.Services;
 
@@ -89,6 +91,75 @@ public class FileService : IFileService
         }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="cancellationToken"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    public async Task<T?> GetCacheFile<T>(string id, CancellationToken cancellationToken = default)
+    {
+        var filename = GetCacheFileName(id);
+        if (_fileSystem.File.Exists(filename))
+        {
+            try
+            {
+                var json = await _fileSystem.File.ReadAllTextAsync(filename, cancellationToken);
+                if (!string.IsNullOrEmpty(json))
+                {
+                    var data = JsonSerializer.Deserialize<T>(json);
+                    return data;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return default;
+            }
+        }
+        
+        return default;
+    }
+
+    /// <summary>
+    /// Write cache file
+    /// </summary>
+    /// <param name="id">Id for the data</param>
+    /// <param name="data">Data that is parsed as json</param>
+    /// <typeparam name="T"></typeparam>
+    public async Task WriteCacheFile<T>(string id, T data)
+    {
+        var filename = GetCacheFileName(id);
+        var json = JsonSerializer.Serialize(data);
+        
+        var dir = _fileSystem.Path.GetDirectoryName(filename);
+        if (!_fileSystem.Directory.Exists(dir))
+            _fileSystem.Directory.CreateDirectory(dir);
+        
+        if (!_fileSystem.File.Exists(filename))
+            _fileSystem.File.CreateText(filename).Close();
+        
+        await _fileSystem.File.WriteAllTextAsync(filename, json);  
+    }
+
+    /// <summary>
+    /// Removes cache file
+    /// </summary>
+    /// <param name="id"></param>
+    public void ClearCacheFile(string id)
+    {
+        var filename = GetCacheFileName(id);
+        
+        if (_fileSystem.File.Exists(filename))
+            _fileSystem.File.Delete(filename);
+    }
+
+    private string GetCacheFileName(string id)
+    {
+        return $"{_configurationService.GetCacheDirectory()}/cache/{id}.json";
+    }
+    
     /// <summary>
     /// Get file url
     /// </summary>

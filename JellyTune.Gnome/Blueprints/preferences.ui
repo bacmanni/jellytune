@@ -16,7 +16,12 @@
                             </object>
                         </child>
                         <child>
-                            <object class="AdwSwitchRow" id="_useLocalMemory">
+                            <object class="AdwSwitchRow" id="_cacheList">
+                                <property name="title" translatable="yes">Store artwork to device memory</property>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="AdwSwitchRow" id="_cacheArtwork">
                                 <property name="title" translatable="yes">Store artwork to device memory</property>
                             </object>
                         </child>

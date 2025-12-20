@@ -6,31 +6,26 @@ using JellyTune.Shared.Services;
 
 namespace JellyTune.Shared.Controls;
 
-public class AlbumlistController : IDisposable
+public class AlbumlistController : ListController, IDisposable
 {
-    private readonly ListController _listController;
-    
     private readonly IJellyTuneApiService _jellyTuneApiService;
     private readonly IConfigurationService _configurationService;
     private readonly IPlayerService _playerService;
     private readonly IFileService _fileService;
 
-    public ListController GetListController() => _listController;
-    
     /// <summary>
     /// Called when album is clicked on the list
     /// </summary>
     public event EventHandler<Guid>? OnAlbumClicked;
     
-    public AlbumlistController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService, IPlayerService playerService, IFileService fileService)
+    public AlbumlistController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService, IPlayerService playerService, IFileService fileService) : base(jellyTuneApiService, configurationService, playerService, fileService)
     {
-        _listController = new ListController(jellyTuneApiService, configurationService, playerService, fileService);
         _jellyTuneApiService = jellyTuneApiService;
         _configurationService = configurationService;
         _playerService = playerService;
         _fileService = fileService;
         
-        _listController.OnItemClicked += ListControllerOnItemClicked;
+        OnItemClicked += ListControllerOnItemClicked;
     }
 
     private void ListControllerOnItemClicked(object? sender, Guid e)
@@ -47,16 +42,23 @@ public class AlbumlistController : IDisposable
         var collectionId = _jellyTuneApiService.GetCollectionId();
         if (collectionId.HasValue)
         {
-            _listController.SetLoading(true);
-            _listController.RemoveItems();
-
+            SetCollectionId(collectionId.Value);
+            
+            if (reload)
+                ClearCache();
+                
+            SetLoading(true);
+            RemoveItems();
+            await GetFromCache();
+            
             var albums = await _jellyTuneApiService.GetArtistsAndAlbumsAsync();
-            _listController.AddItems(collectionId.Value, GetListItem(albums));
+            AddOrUpdateItems(GetListItem(albums));
+            SetToCache();
         }
         else
         {
-            _listController.RemoveItems();
-            _listController.SetLoading(false);
+            RemoveItems();
+            SetLoading(false);
         }
     }
     
@@ -80,6 +82,6 @@ public class AlbumlistController : IDisposable
 
     public void Dispose()
     {
-        _listController.OnItemClicked -= ListControllerOnItemClicked;
+        OnItemClicked -= ListControllerOnItemClicked;
     }
 }

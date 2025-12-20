@@ -16,7 +16,8 @@ public partial class PreferencesView : Adw.PreferencesDialog
     
     [Gtk.Connect] private readonly Adw.PreferencesPage _preferencesPage1;
 
-    [Gtk.Connect] private readonly Adw.SwitchRow _useLocalMemory;
+    [Gtk.Connect] private readonly Adw.SwitchRow _cacheList;
+    [Gtk.Connect] private readonly Adw.SwitchRow _cacheArtwork;
     [Gtk.Connect] private readonly Adw.SwitchRow _showListSeparator;
     
     public bool Refresh { get; set; } = false;
@@ -35,7 +36,8 @@ public partial class PreferencesView : Adw.PreferencesDialog
         if (_accountController.IsValid())
         {
             var configuration = _configurationService.Get();
-            configuration.CacheAlbumArt = _useLocalMemory.GetActive();
+            configuration.CacheListData = _cacheList.GetActive();
+            configuration.CacheAlbumArt = _cacheArtwork.GetActive();
             configuration.ShowListSeparator = _showListSeparator.GetActive();
             
             Refresh = _accountController.HasChanges();
@@ -86,7 +88,8 @@ public partial class PreferencesView : Adw.PreferencesDialog
         
         var configuration =  _configurationService.Get();
         _accountController.OpenConfiguration(configuration, true);
-        _useLocalMemory.SetActive(configuration.CacheAlbumArt);
+        _cacheList.SetActive(configuration.CacheListData);
+        _cacheArtwork.SetActive(configuration.CacheAlbumArt);
         _showListSeparator.SetActive(configuration.ShowListSeparator);
     }
 

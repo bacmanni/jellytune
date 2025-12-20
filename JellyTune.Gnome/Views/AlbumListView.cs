@@ -22,6 +22,6 @@ public class AlbumListView : Gtk.Box
     public AlbumListView(AlbumlistController controller) : this(Blueprint.BuilderFromFile("albumlist"))
     {
         _controller = controller;
-        Append(new Views.ListView(_controller.GetListController()));
+        Append(new Views.ListView(_controller));
     }
 }

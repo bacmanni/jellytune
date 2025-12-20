@@ -15,6 +15,11 @@ public class ListStateArgs(Guid? id = null, List<ListItem>? items = null, bool i
     public List<ListItem>? Items { get; set; } = items;
     
     /// <summary>
+    /// Should items be updated only
+    /// </summary>
+    public bool UpdateOnly { get; set; }
+    
+    /// <summary>
     /// Is list loading
     /// </summary>
     public bool IsLoading { get; set; } = isLoading;

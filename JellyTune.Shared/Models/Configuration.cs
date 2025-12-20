@@ -42,6 +42,11 @@ public class Configuration
     public bool CacheAlbumArt { get; set; } = false;
     
     /// <summary>
+    /// Should list data be cached
+    /// </summary>
+    public bool CacheListData { get; set; } = false;
+    
+    /// <summary>
     /// Should list separator be visible
     /// </summary>
     public bool ShowListSeparator {  get; set; } = false;

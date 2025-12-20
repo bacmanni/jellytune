@@ -64,16 +64,77 @@ public class ListController
     }
 
     /// <summary>
-    /// Add items
+    /// Set actiuve collection
     /// </summary>
     /// <param name="collectionId"></param>
-    /// <param name="listItems"></param>
-    public void AddItems(Guid collectionId, List<ListItem> listItems)
+    public void SetCollectionId(Guid collectionId)
     {
-        Items.AddRange(listItems);
-        ListChanged(new ListStateArgs(_collectionId, Items, false));
+        _collectionId = collectionId;
     }
 
+    /// <summary>
+    /// Get list from cache if setting is on
+    /// </summary>
+    public async Task GetFromCache()
+    {
+        if (_collectionId == null) return;
+        if (_configurationService.Get().CacheListData)
+        {
+            var cacheList = await _fileService.GetCacheFile<List<ListItem>>($"collection-{_collectionId.Value}");
+            if (cacheList == null) return;
+            
+            Items.Clear();
+            Items.AddRange(cacheList);
+            SetLoading(false);
+        }
+    }
+
+    public void ClearCache()
+    {
+        if (_collectionId == null) return;
+        _fileService.ClearCacheFile($"collection-{_collectionId.Value}");
+    }
+    
+    /// <summary>
+    /// Write list to cache if setting is on
+    /// </summary>
+    public void SetToCache()
+    {
+        if (_collectionId == null) return;
+        if (_configurationService.Get().CacheListData)
+        {
+            _fileService.WriteCacheFile($"collection-{_collectionId.Value}", Items);
+        }
+    }
+    
+    /// <summary>
+    /// Add items
+    /// </summary>
+    /// <param name="listItems"></param>
+    public void AddOrUpdateItems(List<ListItem> listItems)
+    {
+        if (Items.Any())
+        {
+            Items.Clear();
+            Items.AddRange(listItems);
+            ListChanged(new ListStateArgs(_collectionId, Items, false) { UpdateOnly =  true });
+        }
+        else
+        {
+            Items.AddRange(listItems);
+            ListChanged(new ListStateArgs(_collectionId, Items, false));
+        }
+    }
+
+    /// <summary>
+    /// Get all items
+    /// </summary>
+    /// <returns></returns>
+    public List<ListItem> GetItems()
+    {
+        return Items;
+    }
+    
     /// <summary>
     /// Remove all items
     /// </summary>
