@@ -17,7 +17,7 @@
                         </child>
                         <child>
                             <object class="AdwSwitchRow" id="_cacheList">
-                                <property name="title" translatable="yes">Store artwork to device memory</property>
+                                <property name="title" translatable="yes">Store list data to device memory</property>
                             </object>
                         </child>
                         <child>
