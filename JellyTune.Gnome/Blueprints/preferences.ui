@@ -11,6 +11,12 @@
                     <object class="AdwPreferencesGroup" id="_generalGroup">
                         <property name="title" translatable="yes">General</property>
                         <child>
+                            <object class="AdwSwitchRow" id="_useAutoRefresh">
+                                <property name="title" translatable="yes">Fetch list data automatically</property>
+                                <property name="subtitle" translatable="yes">You can always fetch data using refresh from the main menu</property>
+                            </object>
+                        </child>
+                        <child>
                             <object class="AdwSwitchRow" id="_showListSeparator">
                                 <property name="title" translatable="yes">Show list separator</property>
                             </object>

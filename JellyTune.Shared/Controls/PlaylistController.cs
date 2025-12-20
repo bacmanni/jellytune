@@ -48,10 +48,13 @@ public class PlaylistController : ListController, IDisposable
             SetLoading(true);
             SetCollectionId(playlistCollectionId); 
             await GetFromCache();
-            
-            var playlists = await _jellyTuneApiService.GetPlaylistsAsync(playlistCollectionId);
-            AddOrUpdateItems(GetListItem(playlists));
-            SetToCache();
+
+            if (UpdateFromServer() || reload)
+            {
+                var playlists = await _jellyTuneApiService.GetPlaylistsAsync(playlistCollectionId);
+                AddOrUpdateItems(GetListItem(playlists));
+                SetToCache();
+            }
         }
         else
         {

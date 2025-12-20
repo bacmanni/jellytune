@@ -208,7 +208,7 @@ public partial class MainWindow : Adw.ApplicationWindow
             if (_main_stack.VisibleChildName != newState)
                 _main_stack.SetVisibleChildName(newState);
         };
-        
+
         AddAction(viewAction);
         OnNotify += OnOnNotify;
         _ = UpdateMainMenu();

@@ -50,10 +50,13 @@ public class AlbumlistController : ListController, IDisposable
             SetLoading(true);
             RemoveItems();
             await GetFromCache();
-            
-            var albums = await _jellyTuneApiService.GetArtistsAndAlbumsAsync();
-            AddOrUpdateItems(GetListItem(albums));
-            SetToCache();
+
+            if (UpdateFromServer() || reload)
+            {
+                var albums = await _jellyTuneApiService.GetArtistsAndAlbumsAsync();
+                AddOrUpdateItems(GetListItem(albums));
+                SetToCache();
+            }
         }
         else
         {

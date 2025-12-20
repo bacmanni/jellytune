@@ -39,12 +39,17 @@ public class Configuration
     /// <summary>
     /// Should album art be stored on disk
     /// </summary>
-    public bool CacheAlbumArt { get; set; } = false;
+    public bool CacheAlbumArt { get; set; } = true;
     
     /// <summary>
     /// Should list data be cached
     /// </summary>
-    public bool CacheListData { get; set; } = false;
+    public bool CacheListData { get; set; } = true;
+    
+    /// <summary>
+    /// Automatically refresh lists at start
+    /// </summary>
+    public bool AutoRefresh { get; set; } = true;
     
     /// <summary>
     /// Should list separator be visible

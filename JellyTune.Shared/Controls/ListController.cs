@@ -89,6 +89,9 @@ public class ListController
         }
     }
 
+    /// <summary>
+    /// Clear list cache
+    /// </summary>
     public void ClearCache()
     {
         if (_collectionId == null) return;
@@ -126,6 +129,18 @@ public class ListController
         }
     }
 
+    /// <summary>
+    /// Check if list should be fetched from the server
+    /// </summary>
+    /// <returns></returns>
+    public bool UpdateFromServer()
+    {
+        if (Items.Count == 0)
+            return true;
+
+        return _configurationService.Get().AutoRefresh;
+    }
+    
     /// <summary>
     /// Get all items
     /// </summary>
