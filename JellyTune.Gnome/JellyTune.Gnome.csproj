@@ -80,6 +80,8 @@
       <None Remove="Blueprints\playlist_tracks_row.ui" />
       <None Remove="Blueprints\albumlist.ui" />
       <EmbeddedResource Include="Blueprints\albumlist.ui" />
+      <None Remove="Blueprints\status.ui" />
+      <EmbeddedResource Include="Blueprints\process_button.ui" />
     </ItemGroup>
 
     <ItemGroup>

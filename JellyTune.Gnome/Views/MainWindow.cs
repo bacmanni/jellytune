@@ -46,7 +46,9 @@ public partial class MainWindow : Adw.ApplicationWindow
     private readonly PlaylistTracksView _playlistTracksView;
 
     private readonly int _breakpoint = 500;
-    
+
+    private readonly Gio.SimpleAction _refreshAction;
+
     [Gtk.Connect] private readonly Gtk.Button _searchButton;
     [Gtk.Connect] private readonly Gtk.SearchEntry _search_field;
     
@@ -84,7 +86,7 @@ public partial class MainWindow : Adw.ApplicationWindow
     [Gtk.Connect] private readonly Gtk.Box _playlist_tracks_footer;
     
     [Gtk.Connect] private readonly Gtk.Button _queue_list_shuffle;
-
+    
     private MainWindow(Gtk.Builder builder, MainWindowController controller, Adw.Application application) : base(new Adw.Internal.ApplicationWindowHandle(builder.GetPointer("_root"), false))
     {
         //Window Settings
@@ -151,9 +153,9 @@ public partial class MainWindow : Adw.ApplicationWindow
         _playlist_tracks_view.SetContent(_playlistTracksView);
 
         //Refresh application
-        var actRefresh = Gio.SimpleAction.New("refresh", null);
-        actRefresh.OnActivate += ActRefreshOnActivate;
-        AddAction(actRefresh);
+        _refreshAction = Gio.SimpleAction.New("refresh", null);
+        _refreshAction.OnActivate += ActRefreshOnActivate;
+        AddAction(_refreshAction);
         application.SetAccelsForAction("win.refresh", new string[] { "<Ctrl>r" });
 
         //Preferences Action
@@ -229,6 +231,14 @@ public partial class MainWindow : Adw.ApplicationWindow
         _ = UpdateMainMenu(args.Pspec.GetName() == "maximized");
     }
 
+    private async Task RefreshLists(bool reload = false)
+    {
+        _refreshAction.SetEnabled(false);
+        await _albumlistController.Refresh(reload);
+        await _playlistController.Refresh(reload);
+        _refreshAction.SetEnabled(true);
+    }
+    
     private async Task UpdateMainMenu(bool maximized = false)
     {
         var width = GetAllocatedWidth();
@@ -264,7 +274,6 @@ public partial class MainWindow : Adw.ApplicationWindow
                 var section = new Gio.Menu();
                 section.Insert(0, "Music", "win.view('page1')");
                 section.Insert(1, "Playlist", "win.view('page2')");
-                //section.Insert(1, "Books", "win.view('page3')");
                 mainMenu.InsertSection(0, null, section);
             }
         }
@@ -408,8 +417,7 @@ public partial class MainWindow : Adw.ApplicationWindow
 
     private void ActRefreshOnActivate(Gio.SimpleAction sender, Gio.SimpleAction.ActivateSignalArgs args)
     {
-        _ = _albumlistController.Refresh(true);
-        _ = _playlistController.Refresh(true);
+        _ = RefreshLists(true);
     }
 
     private void ActAboutOnOnActivate(Gio.SimpleAction sender, Gio.SimpleAction.ActivateSignalArgs args)
@@ -443,8 +451,7 @@ public partial class MainWindow : Adw.ApplicationWindow
             if (preferences.Refresh)
             {
                 await _startupController.StartAsync(preferences.Password);
-                await _albumlistController.Refresh(true);
-                await _playlistController.Refresh(true);
+                await RefreshLists();
             }
         };
     }
@@ -502,11 +509,10 @@ public partial class MainWindow : Adw.ApplicationWindow
         
         if(_controller.GetConfigurationService().IsPlatform(OSPlatform.Linux))
             await _mediaPlayerController.ConnectAsync();
-        
-        await _albumlistController.Refresh();
-        await _playlistController.Refresh();
-    }
 
+        await RefreshLists();
+    }
+    
     public override void Dispose()
     {
         _controller.GetPlayerService().OnPlayerStateChanged -= OnPlayerStateChanged;
