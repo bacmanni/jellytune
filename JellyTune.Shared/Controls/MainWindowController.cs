@@ -40,4 +40,13 @@ public sealed class MainWindowController : IDisposable
 
         return null;
     }
+    
+    public void UpdateWindowSize(int width, int height)
+    {
+        var configuration = _configurationService.Get();
+        configuration.WindowWidth = width;
+        configuration.WindowHeight = height;
+        _configurationService.Set(configuration);
+        _configurationService.Save();
+    }
 }

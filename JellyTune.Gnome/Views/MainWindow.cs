@@ -46,9 +46,11 @@ public partial class MainWindow : Adw.ApplicationWindow
     private readonly PlaylistTracksView _playlistTracksView;
 
     private readonly int _breakpoint = 500;
-
+    
     private readonly Gio.SimpleAction _refreshAction;
 
+    private CancellationTokenSource? _menuUpdateCancellationTokenSource;
+    
     [Gtk.Connect] private readonly Gtk.Button _searchButton;
     [Gtk.Connect] private readonly Gtk.SearchEntry _search_field;
     
@@ -210,8 +212,10 @@ public partial class MainWindow : Adw.ApplicationWindow
             if (_main_stack.VisibleChildName != newState)
                 _main_stack.SetVisibleChildName(newState);
         };
-
         AddAction(viewAction);
+        application.SetAccelsForAction("win.view('page1')", new string[] { "<Ctrl>1" });
+        application.SetAccelsForAction("win.view('page2')", new string[] { "<Ctrl>2" });
+        
         OnNotify += OnOnNotify;
         _ = UpdateMainMenu();
     }
@@ -239,28 +243,28 @@ public partial class MainWindow : Adw.ApplicationWindow
         _refreshAction.SetEnabled(true);
     }
     
-    private async Task UpdateMainMenu(bool maximized = false)
+    private async Task UpdateMainMenu(bool delay = false)
     {
-        var width = GetAllocatedWidth();
-        var show = width < _breakpoint;
+        _menuUpdateCancellationTokenSource?.Cancel();
+        _menuUpdateCancellationTokenSource = new CancellationTokenSource();
+        var width1 = GetAllocatedWidth();
         
-        // Maximizing. We determine
-        if (maximized)
+        if (delay)
         {
-            
-            var monitorWidth = GetScreenSize()?.Width;
+            await Task.Delay(50, _menuUpdateCancellationTokenSource.Token);
+            var width2 = GetAllocatedWidth();
 
-            // Was already maximized
-            if (width == monitorWidth)
+            while (width1 != width2)
             {
-                show = DefaultWidth < _breakpoint;
+                width1 = GetAllocatedWidth();
+                await Task.Delay(50, _menuUpdateCancellationTokenSource.Token);
+                width2 = GetAllocatedWidth();
             }
-            else
-            {
-                show = monitorWidth < _breakpoint;
-            }
+        
+            if (_menuUpdateCancellationTokenSource.IsCancellationRequested) return;
         }
         
+        var show = width1 < _breakpoint;
         var mainMenu = _menuButton.MenuModel as Gio.Menu;
         var existingSection = mainMenu.GetItemLink(0, "section") as Gio.Menu;
         var hasSection = existingSection.GetItemAttributeValue(0, "action", VariantType.String).Print(false)
@@ -328,12 +332,20 @@ public partial class MainWindow : Adw.ApplicationWindow
             _searchController.StartSearch();
             return;
         }
-            
+        
         _ = _searchController.SearchAlbums(sender.GetText());
     }
-
-    private Gdk.Rectangle? GetScreenSize()
+    
+    public (int, int) GetScreenSize()
     {
+        return (DefaultWidth, DefaultHeight);
+    }
+
+    
+    private Gdk.Rectangle? GetScreenRectangle()
+    {
+        if (Display == null) return null;
+        
         var monitors = Display.GetMonitors();
         for (uint n = 0; n < monitors.GetNItems(); n++)
         {
@@ -350,30 +362,16 @@ public partial class MainWindow : Adw.ApplicationWindow
     
     private void SetWindowSize(int width, int height)
     {
-        if (Display == null)
-            return;
-
-        var geometry = GetScreenSize();
-        
-        // Monitor size found. Check if stored size fits
-        if (geometry != null)
+        var savedSize = _controller.GetWindowSize();
+        if (savedSize.HasValue)
         {
-            var screenWidth = geometry.Width;
-            var screenHeight = geometry.Height;
-
-            var savedSize = _controller.GetWindowSize();
-            if (savedSize != null)
-            {
-                if (savedSize.Value.Item1 <= screenWidth && savedSize.Value.Item2 <= screenHeight)
-                {
-                    SetSizeRequest(savedSize.Value.Item1, savedSize.Value.Item2);
-                    return;
-                }
-            }
+            
+            SetDefaultSize(savedSize.Value.Item1, savedSize.Value.Item2);
+            return;
         }
 
         // Couldn't get monitor size. Use default size
-        SetSizeRequest(width, height);
+        SetDefaultSize(width, height);
     }
 
     private void PlayerControllerOnShowShowLyricsClicked(object? sender, AlbumArgs e)

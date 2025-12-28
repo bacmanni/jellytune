@@ -97,6 +97,12 @@ class Program
 
     private void ApplicationOnOnShutdown(Gio.Application sender, EventArgs args)
     {
+        if (_mainWindow != null)
+        {
+            var screenSize = _mainWindow.GetScreenSize();
+            _mainWindowController.UpdateWindowSize(screenSize.Item1, screenSize.Item2);
+        }
+        
         _mainWindow?.Dispose();
         _mainWindowController.Dispose();
         
