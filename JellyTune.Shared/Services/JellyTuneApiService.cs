@@ -153,7 +153,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
             configuration.QueryParameters.SearchTerm = value;
             configuration.QueryParameters.IncludeItemTypes = [ BaseItemKind.MusicAlbum ];
         }, cancellationToken).ConfigureAwait(false);
-        
+
         if (queryResult?.Items == null)
             return searchResults;
         

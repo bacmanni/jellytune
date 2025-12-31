@@ -49,4 +49,10 @@ public sealed class MainWindowController : IDisposable
         _configurationService.Set(configuration);
         _configurationService.Save();
     }
+
+    public bool HasMultipleCollections()
+    {
+        var configuration = _configurationService.Get();
+        return !string.IsNullOrWhiteSpace(configuration.PlaylistCollectionId);
+    }
 }

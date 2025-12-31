@@ -4,6 +4,7 @@ public enum PlayerState
 {
     None,
     Selected,
+    Starting,
     Playing,
     Stopped,
     Paused,

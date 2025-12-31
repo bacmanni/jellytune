@@ -245,25 +245,26 @@ public partial class MainWindow : Adw.ApplicationWindow
     
     private async Task UpdateMainMenu(bool delay = false)
     {
+        if (!_controller.HasMultipleCollections()) return;
+        
         _menuUpdateCancellationTokenSource?.Cancel();
         _menuUpdateCancellationTokenSource = new CancellationTokenSource();
         var width1 = GetAllocatedWidth();
         
         if (delay)
         {
-            await Task.Delay(50, _menuUpdateCancellationTokenSource.Token);
-            var width2 = GetAllocatedWidth();
-
-            while (width1 != width2)
+            int? width2;
+            
+            do
             {
                 width1 = GetAllocatedWidth();
                 await Task.Delay(50, _menuUpdateCancellationTokenSource.Token);
                 width2 = GetAllocatedWidth();
-            }
-        
+            } while (width1 != width2);
+            
             if (_menuUpdateCancellationTokenSource.IsCancellationRequested) return;
         }
-        
+
         var show = width1 < _breakpoint;
         var mainMenu = _menuButton.MenuModel as Gio.Menu;
         var existingSection = mainMenu.GetItemLink(0, "section") as Gio.Menu;

@@ -30,7 +30,7 @@ public class HttpClientExceptionHandler : DelegatingHandler
 
                 return response;
             }
-            catch
+            catch (Exception ex)
             {
                 tries++;
             }

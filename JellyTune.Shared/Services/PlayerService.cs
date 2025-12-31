@@ -258,7 +258,8 @@ public sealed class PlayerService : IPlayerService, IDisposable
         // Can't start anything :(
         if (!trackId.HasValue)
             return;
-
+        
+        PlayerStateChanged(new PlayerStateArgs(PlayerState.Starting));
         var track = _tracks.FirstOrDefault(t => t.Id == trackId.Value);
         
         // Null when trying to start from album details

@@ -30,8 +30,8 @@ public class AlbumGridItem : Gtk.Box
 
     public async Task Bind(AlbumRow row)
     {
-        _artist.SetLabel(row.Artist);
-        _album.SetLabel(row.Album);
+        _artist.SetLabel(GLib.Markup.EscapeText(row.Artist));
+        _album.SetLabel(GLib.Markup.EscapeText(row.Album));
         
         _albumArt.Clear();
         _texture?.RunDispose();

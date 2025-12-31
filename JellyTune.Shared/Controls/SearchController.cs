@@ -63,6 +63,8 @@ public sealed class SearchController : IDisposable
         
         await GetSearchResults(value, _cancellationTokenSource.Token);
         
+        if (_cancellationTokenSource.IsCancellationRequested) return;
+        
         SearchStateChanged(new SearchStateArgs() { Updated = true });
     }
 
@@ -70,21 +72,15 @@ public sealed class SearchController : IDisposable
     {
         await Task.Delay(500, token);
 
-        if (token.IsCancellationRequested)
-        {
-            return;
-        }
+        if (token.IsCancellationRequested) return;
         
         var results = await Task.WhenAll([
-            _jellyTuneApiService.SearchAlbum(value),
-            _jellyTuneApiService.SearchArtistAlbums(value),
-            _jellyTuneApiService.SearchTrack(value),
+            _jellyTuneApiService.SearchAlbum(value, token),
+            _jellyTuneApiService.SearchArtistAlbums(value, token),
+            _jellyTuneApiService.SearchTrack(value,  token),
         ]);
         
-        if (token.IsCancellationRequested)
-        {
-            return;
-        }
+        if (token.IsCancellationRequested) return;
         
         var sortList = new List<Search>();
         foreach (var result in results)

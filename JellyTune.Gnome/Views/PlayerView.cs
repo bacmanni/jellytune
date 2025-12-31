@@ -30,7 +30,7 @@ public class PlayerView : Gtk.CenterBox
     {
         if (_controller.SelectedTrack != null)
         {
-            _track.SetText(_controller.SelectedTrack.Name);
+            _track.SetText(GLib.Markup.EscapeText(_controller.SelectedTrack.Name));
             _lyrics.SetSensitive(_controller.SelectedTrack.HasLyrics);
             _skipForward.SetSensitive(_controller.GetPlayerService().HasNextTrack());
             _skipBackward.SetSensitive(_controller.GetPlayerService().HasPreviousTrack());
@@ -39,7 +39,7 @@ public class PlayerView : Gtk.CenterBox
 
     private void UpdateAlbum()
     {
-        _artist.SetText(_controller.Album.Artist);
+        _artist.SetText(GLib.Markup.EscapeText(_controller.Album.Artist));
         _albumArt.Clear();
         UpdateTrack();
     }

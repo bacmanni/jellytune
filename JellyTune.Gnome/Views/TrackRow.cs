@@ -83,19 +83,20 @@ public partial class TrackRow : Adw.ActionRow
     private void StartTrack()
     {
         _status.SetFromIconName("media-playback-start-symbolic");
-        SetTitle($"<b>{HtmlEncoder.Default.Encode(_track.Name)}</b>");
+        SetTitle($"<b>{GLib.Markup.EscapeText(_track.Name)}</b>");
     }
 
     private void ClearTrack()
     {
         _status.SetFromIconName(null);
-        SetTitle(HtmlEncoder.Default.Encode(_track.Name));
+        SetTitle(GLib.Markup.EscapeText(_track.Name));
     }
 
     private void StopTrack()
     {
+        var tst = _status.HasCssClass("spinner-rotate");
         _status.SetFromIconName("media-playback-pause-symbolic");
-        SetTitle($"<b>{HtmlEncoder.Default.Encode(_track.Name)}</b>");
+        SetTitle($"<b>{GLib.Markup.EscapeText(_track.Name)}</b>");
     }
 
     public override void Dispose()

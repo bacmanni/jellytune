@@ -31,7 +31,7 @@ public partial class PlaylistRow : Adw.ActionRow
         
         Activatable = true;
         
-        _playlist_item_title.SetText(_playlist.Name);
+        _playlist_item_title.SetText(GLib.Markup.EscapeText(_playlist.Name));
 
         var description = $"{_playlist.TrackCount.ToString()} tracks";
         if (_playlist.Duration.HasValue)

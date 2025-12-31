@@ -32,16 +32,16 @@ public class SearchRow : Adw.ActionRow
         switch (row.Type)
         {
             case SearchType.Album or SearchType.Artist:
-                SetTitle(row.AlbumName);
+                SetTitle(GLib.Markup.EscapeText(row.AlbumName));
                 break;
             default:
-                SetTitle(row.TrackName);
+                SetTitle(GLib.Markup.EscapeText(row.TrackName));
                 break;
         }
         
-        var description = $"by {row.ArtistName}";
+        var description = $"by {GLib.Markup.EscapeText(row.ArtistName)}";
         if (row.Type == SearchType.Track)
-            description += $" on {row.AlbumName}";
+            description += $" on {GLib.Markup.EscapeText(row.AlbumName)}";
         
         SetSubtitle(description);
         

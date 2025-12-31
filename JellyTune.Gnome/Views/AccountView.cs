@@ -125,7 +125,7 @@ public class AccountView : Adw.PreferencesGroup
         }
 
         if (listItem.Item is CollectionRow item)
-            template.SetText(item.Name);
+            template.SetText(GLib.Markup.EscapeText(item.Name));
     }
 
     private async void ControllerOnOnConfigurationLoaded(object? sender, AccountArgs args)

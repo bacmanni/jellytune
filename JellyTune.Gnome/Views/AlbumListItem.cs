@@ -33,8 +33,8 @@ public class AlbumListItem : Gtk.Box
         _cancellationTokenSource?.Dispose();
         _cancellationTokenSource = new CancellationTokenSource();
         
-        _album.SetLabel(row.Album);
-        _artist.SetLabel(row.Artist);
+        _album.SetLabel(GLib.Markup.EscapeText(row.Album));
+        _artist.SetLabel(GLib.Markup.EscapeText(row.Artist));
         
         _albumArt.Clear();
         _texture?.RunDispose();
