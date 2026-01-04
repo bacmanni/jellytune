@@ -1,6 +1,5 @@
 using Adw.Internal;
 using JellyTune.Shared.Models;
-using System.Text.Encodings.Web;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Services;
 using JellyTune.Gnome.Helpers;
@@ -13,6 +12,7 @@ public partial class TrackRow : Adw.ActionRow
     private readonly Track _track;
     
     [Gtk.Connect] private readonly Gtk.Image _status;
+    [Gtk.Connect] private readonly Adw.Spinner _spinner;
     [Gtk.Connect] private readonly Gtk.Image _albumArt;
     [Gtk.Connect] private readonly Gtk.Label _runtime;
     [Gtk.Connect] private readonly Gtk.Label _number;
@@ -68,6 +68,9 @@ public partial class TrackRow : Adw.ActionRow
     {
         switch (state)
         {
+            case PlayerState.Selected:
+                LoadingTrack();
+                break;
             case PlayerState.Playing:
                 StartTrack();
                 break;
@@ -80,21 +83,33 @@ public partial class TrackRow : Adw.ActionRow
         }
     }
 
+    private void LoadingTrack()
+    {
+        _status.SetVisible(false);
+        _spinner.SetVisible(true);
+        SetTitle($"<b>{GLib.Markup.EscapeText(_track.Name)}</b>");
+    }
+    
     private void StartTrack()
     {
+        _spinner.SetVisible(false);
+        _status.SetVisible(true);
         _status.SetFromIconName("media-playback-start-symbolic");
         SetTitle($"<b>{GLib.Markup.EscapeText(_track.Name)}</b>");
     }
 
     private void ClearTrack()
     {
+        _spinner.SetVisible(false);
+        _status.SetVisible(true);
         _status.SetFromIconName(null);
         SetTitle(GLib.Markup.EscapeText(_track.Name));
     }
 
     private void StopTrack()
     {
-        var tst = _status.HasCssClass("spinner-rotate");
+        _spinner.SetVisible(false);
+        _status.SetVisible(true);
         _status.SetFromIconName("media-playback-pause-symbolic");
         SetTitle($"<b>{GLib.Markup.EscapeText(_track.Name)}</b>");
     }

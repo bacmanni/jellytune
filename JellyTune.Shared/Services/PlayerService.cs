@@ -41,7 +41,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// Album artwork if found
     /// </summary>
     private byte[]? _artwork { get; set; }
-    
+
     /// <summary>
     /// Currently selected track
     /// </summary>
@@ -257,7 +257,10 @@ public sealed class PlayerService : IPlayerService, IDisposable
         
         // Can't start anything :(
         if (!trackId.HasValue)
+        {
+            Console.WriteLine("Could not find track to play");
             return;
+        }
         
         PlayerStateChanged(new PlayerStateArgs(PlayerState.Starting));
         var track = _tracks.FirstOrDefault(t => t.Id == trackId.Value);
