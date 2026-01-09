@@ -85,7 +85,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
                 _networkDisconnected = true;
     }
 
-    private async Task OpenAlbumWithoutTracks(Guid albumId)
+    private async Task OpenAlbumWithoutTracksAsync(Guid albumId)
     {
         PlayerStateChanged(new PlayerStateArgs(PlayerState.Loading));
 
@@ -102,7 +102,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
         }
     }
 
-    private async Task OpenAlbum(Guid albumId)
+    private async Task OpenAlbumAsync(Guid albumId)
     {
         PlayerStateChanged(new PlayerStateArgs(PlayerState.Loading));
 
@@ -131,7 +131,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
         OnPlayerStateChanged?.Invoke(this, e);
     }
     
-    private async Task PlayTrack()
+    private async Task PlayTrackAsync()
     {
         if (_selectedTrack == null)
             return;
@@ -184,7 +184,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
 
     private Task OnPlaybackEnded(object? sender, EventArgs args)
     {
-        _ = NextTrack();
+        _ = NextTrackAsync();
         return Task.CompletedTask;
     }
 
@@ -271,12 +271,12 @@ public sealed class PlayerService : IPlayerService, IDisposable
         {
             PlayerStateChanged(new PlayerStateArgs(PlayerState.Loading));
             track = await _jellyTuneApiService.GetTrackAsync(trackId.Value);
-            await OpenAlbum(track.AlbumId);
+            await OpenAlbumAsync(track.AlbumId);
         }
         // Invalid id when trying to start from queue
         else if (track.AlbumId != _album?.Id)
         {
-            await OpenAlbumWithoutTracks(track.AlbumId);
+            await OpenAlbumWithoutTracksAsync(track.AlbumId);
         }
         
         if (_selectedTrack == null || _selectedTrack.Id != trackId.Value)
@@ -284,7 +284,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
             SelectTrack(trackId.Value);
         }
         
-        await PlayTrack();
+        await PlayTrackAsync();
         PlayerStateChanged(new PlayerStateArgs(PlayerState.Playing, _album, _tracks.ToList(), _selectedTrack));
     }
 
@@ -394,7 +394,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <summary>
     /// Select next track from album tracks
     /// </summary>
-    public async Task NextTrack()
+    public async Task NextTrackAsync()
     {
         if (_selectedTrack != null)
         {
@@ -420,7 +420,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <summary>
     /// Select previous track from album tracks
     /// </summary>
-    public async Task PreviousTrack()
+    public async Task PreviousTrackAsync()
     {
         if (_selectedTrack != null)
         {

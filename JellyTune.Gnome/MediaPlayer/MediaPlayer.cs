@@ -131,12 +131,12 @@ public class MediaPlayer : IMediaPlayer2, IPlayer
 
     public Task NextAsync()
     {
-        return _playerService.NextTrack();
+        return _playerService.NextTrackAsync();
     }
 
     public Task PreviousAsync()
     {
-        return _playerService.PreviousTrack();
+        return _playerService.PreviousTrackAsync();
     }
 
     private void NotifyPropertiesChanged(KeyValuePair<string, object>[] changed, string[] invalidated)

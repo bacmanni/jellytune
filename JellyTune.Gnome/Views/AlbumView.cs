@@ -69,7 +69,7 @@ public class AlbumView : Gtk.ScrolledWindow
             }
             else
             {
-                _controller.PlayOrPauseTrack(row.TrackId);
+                _controller.PlayOrPauseTrackAsync(row.TrackId);
             }
         }
     }

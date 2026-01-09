@@ -48,16 +48,6 @@ public sealed class PlayerController : IDisposable
     {
         _playerService.OnPlayerStateChanged -= PlayerServiceOnPlayerStateChanged;
     }
-    
-    /// <summary>
-    /// Get lyrics for track
-    /// </summary>
-    /// <param name="trackId"></param>
-    /// <returns></returns>
-    public async Task<string?> GetLyrics(Guid trackId)
-    {
-         return await _jellyTuneApiService.GetTrackLyricsAsync(trackId);
-    }
 
     /// <summary>
     /// Open currently playing/stopped album

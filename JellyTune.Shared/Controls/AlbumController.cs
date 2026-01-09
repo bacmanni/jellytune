@@ -64,7 +64,7 @@ public sealed class AlbumController : IDisposable
     /// </summary>
     /// <param name="albumId"></param>
     /// <param name="selectedTrackId"></param>
-    public async Task Open(Guid albumId, Guid? selectedTrackId = null)
+    public async Task OpenAsync(Guid albumId, Guid? selectedTrackId = null)
     {
         AlbumChanged(new AlbumStateArgs());
         
@@ -90,7 +90,7 @@ public sealed class AlbumController : IDisposable
     /// <summary>
     /// Close album
     /// </summary>
-    public async Task Close()
+    public async Task CloseAsync()
     {
         _cancellationTokenSource?.Cancel();
         _cancellationTokenSource?.Dispose();
@@ -100,7 +100,7 @@ public sealed class AlbumController : IDisposable
     /// Play track. If already playing, then pause track
     /// </summary>
     /// <param name="trackId"></param>
-    public async Task PlayOrPauseTrack(Guid trackId)
+    public async Task PlayOrPauseTrackAsync(Guid trackId)
     {
         if (_playerService.IsPlaying() && _playerService.IsPlayingTrack(trackId))
         {

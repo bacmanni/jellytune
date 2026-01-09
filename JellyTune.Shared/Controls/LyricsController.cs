@@ -42,7 +42,7 @@ public sealed class LyricsController
         _playerService = playerService;
     }
 
-    public async Task Update()
+    public async Task UpdateAsync()
     {
         var track = _playerService.GetSelectedTrack();
         if (track == null)

@@ -52,7 +52,7 @@ public sealed class SearchController : IDisposable
     /// Begin searching for value
     /// </summary>
     /// <param name="value"></param>
-    public async Task SearchAlbums(string value)
+    public async Task SearchAlbumsAsync(string value)
     {
         SearchStateChanged(new SearchStateArgs() { Start = true });
         Results.Clear();
@@ -61,14 +61,14 @@ public sealed class SearchController : IDisposable
         _cancellationTokenSource?.Dispose();
         _cancellationTokenSource = new CancellationTokenSource();
         
-        await GetSearchResults(value, _cancellationTokenSource.Token);
+        await GetSearchResultsAsync(value, _cancellationTokenSource.Token);
         
         if (_cancellationTokenSource.IsCancellationRequested) return;
         
         SearchStateChanged(new SearchStateArgs() { Updated = true });
     }
 
-    private async Task GetSearchResults(string value, CancellationToken token)
+    private async Task GetSearchResultsAsync(string value, CancellationToken token)
     {
         await Task.Delay(500, token);
 

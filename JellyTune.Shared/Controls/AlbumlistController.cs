@@ -49,7 +49,7 @@ public class AlbumlistController : ListController, IDisposable
                 
             SetLoading(true);
             RemoveItems();
-            await GetFromCache();
+            await GetFromCacheAsync();
 
             if (UpdateFromServer() || reload)
             {

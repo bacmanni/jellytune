@@ -56,12 +56,12 @@ public class PlayerView : Gtk.CenterBox
     
     private void SkipForwardOnClicked(Gtk.Button sender, EventArgs args)
     {
-        _controller.GetPlayerService().NextTrack();
+        _controller.GetPlayerService().NextTrackAsync();
     }
 
     private void SkipBackwardOnClicked(Gtk.Button sender, EventArgs args)
     {
-        _controller.GetPlayerService().PreviousTrack();
+        _controller.GetPlayerService().PreviousTrackAsync();
     }
     
     private void PlayerPlayOnClicked(Gtk.Button sender, EventArgs args)

@@ -75,7 +75,7 @@ public class ListController
     /// <summary>
     /// Get list from cache if setting is on
     /// </summary>
-    public async Task GetFromCache()
+    public async Task GetFromCacheAsync()
     {
         if (_collectionId == null) return;
         if (_configurationService.Get().CacheListData)

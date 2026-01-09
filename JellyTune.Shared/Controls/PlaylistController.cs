@@ -36,7 +36,7 @@ public class PlaylistController : ListController, IDisposable
     /// Refresh playlist data
     /// </summary>
     /// <param name="reload"></param>
-    public async Task Refresh(bool reload = false)
+    public async Task RefreshAsync(bool reload = false)
     {
         if (Guid.TryParse(_configurationService.Get().PlaylistCollectionId, out var playlistCollectionId))
         {
@@ -47,7 +47,7 @@ public class PlaylistController : ListController, IDisposable
             
             SetLoading(true);
             SetCollectionId(playlistCollectionId); 
-            await GetFromCache();
+            await GetFromCacheAsync();
 
             if (UpdateFromServer() || reload)
             {

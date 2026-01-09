@@ -17,8 +17,8 @@ public interface IPlayerService
     public bool IsPaused();
     public void ShuffleTracks();
     public bool HasTracks(bool countSelected = true);
-    public Task NextTrack();
-    public Task PreviousTrack();
+    public Task NextTrackAsync();
+    public Task PreviousTrackAsync();
     public Guid? GetSelectedTrackId();
     public bool IsPlayingTrack(Guid? trackId, Guid? albumId = null);
     byte[]? GetArtwork();

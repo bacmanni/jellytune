@@ -188,7 +188,7 @@ public class AccountView : Adw.PreferencesGroup
         {
             _serverLoading.SetVisible(true);
             var serverUrl = _server.GetText();
-            _isServerValid = await _controller.IsValidServer(serverUrl);
+            _isServerValid = await _controller.IsValidServerAsync(serverUrl);
             _serverLoading.SetVisible(false);
 
             if (_isServerValid)
@@ -226,7 +226,7 @@ public class AccountView : Adw.PreferencesGroup
         if (!string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password))
         {
             _audioCollection.SetSensitive(false);
-            _isAccountValid = await _controller.IsValidAccount(username, password);
+            _isAccountValid = await _controller.IsValidAccountAsync(username, password);
             _usernameLoading.SetVisible(false);
             _passwordLoading.SetVisible(false);
             
@@ -266,7 +266,7 @@ public class AccountView : Adw.PreferencesGroup
             
             var selectedIndex = -1;
             var collectionId = _controller.GetSelectedAudioCollectionId();
-            var collections = await _controller.GetCollections(CollectionType.Audio);
+            var collections = await _controller.GetCollectionsAsync(CollectionType.Audio);
             
             for (var index = 0; index < collections.Count; index++)
             {
@@ -314,7 +314,7 @@ public class AccountView : Adw.PreferencesGroup
             
             var selectedIndex = -1;
             var collectionId = _controller.GetSelectedPlaylistCollectionId();
-            var collections = await _controller.GetCollections(CollectionType.Playlist);
+            var collections = await _controller.GetCollectionsAsync(CollectionType.Playlist);
             for (var index = 0; index < collections.Count; index++)
             {
                 var collection = collections[index];

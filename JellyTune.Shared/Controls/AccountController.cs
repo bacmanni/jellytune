@@ -34,7 +34,7 @@ public sealed class AccountController
     /// </summary>
     /// <param name="serverUrl"></param>
     /// <returns></returns>
-    public async Task<bool> IsValidServer(string serverUrl)
+    public async Task<bool> IsValidServerAsync(string serverUrl)
     {
         if (Uri.IsWellFormedUriString(serverUrl, UriKind.Absolute))
         {
@@ -50,7 +50,7 @@ public sealed class AccountController
     /// <param name="username"></param>
     /// <param name="password"></param>
     /// <returns></returns>
-    public async Task<bool> IsValidAccount(string username, string password)
+    public async Task<bool> IsValidAccountAsync(string username, string password)
     {
         if (!string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password))
         {
@@ -64,7 +64,7 @@ public sealed class AccountController
     /// Get available collections
     /// </summary>
     /// <returns></returns>
-    public async Task<List<Collection>> GetCollections(CollectionType type)
+    public async Task<List<Collection>> GetCollectionsAsync(CollectionType type)
     {
         return await _jellyTuneApiService.GetCollectionsAsync(type);
     }

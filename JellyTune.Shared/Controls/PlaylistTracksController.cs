@@ -56,7 +56,7 @@ public sealed class PlaylistTracksController : IDisposable
     /// Start playing track from playlist. Adds playlist to queue if empty
     /// </summary>
     /// <param name="trackId"></param>
-    public async Task PlayOrPauseTrack(Guid trackId)
+    public async Task PlayOrPauseTrackAsync(Guid trackId)
     {
         _playerService.ClearTracks();
         _playerService.AddTracksFromPlaylist(Tracks);

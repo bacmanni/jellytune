@@ -239,7 +239,7 @@ public partial class MainWindow : Adw.ApplicationWindow
     {
         _refreshAction.SetEnabled(false);
         await _albumlistController.Refresh(reload);
-        await _playlistController.Refresh(reload);
+        await _playlistController.RefreshAsync(reload);
         _refreshAction.SetEnabled(true);
     }
     
@@ -334,7 +334,7 @@ public partial class MainWindow : Adw.ApplicationWindow
             return;
         }
         
-        _ = _searchController.SearchAlbums(sender.GetText());
+        _ = _searchController.SearchAlbumsAsync(sender.GetText());
     }
     
     public (int, int) GetScreenSize()
@@ -380,7 +380,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         var controller = new LyricsController(_controller.GetJellyTuneApiService(), _controller.GetPlayerService());
         var lyrics = new LyricsView(controller);
         lyrics.Present(this);
-        _ = controller.Update();
+        _ = controller.UpdateAsync();
     }
 
     private void PlayerControllerOnShowPlaylistClicked(object? sender, AlbumArgs e)
@@ -400,7 +400,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         if (visiblePageName != "_search_albums")
             _album_view.Pop();
         
-        _albumController.Open(args.AlbumId, args.TrackId);
+        _albumController.OpenAsync(args.AlbumId, args.TrackId);
         _album_view.Push(_album_details);
     }
 
@@ -410,7 +410,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         if (visiblePageName != "_album_details")
             _album_view.Pop();
         
-        _ = _albumController.Open(albumId);
+        _ = _albumController.OpenAsync(albumId);
         _album_view.Push(_album_details);
     }
 
