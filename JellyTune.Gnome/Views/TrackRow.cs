@@ -109,7 +109,7 @@ public partial class TrackRow : Adw.ActionRow
     private void StopTrack()
     {
         _spinner.SetVisible(false);
-        _status.SetVisible(true);
+        _status.SetVisible(false);
         _status.SetFromIconName("media-playback-pause-symbolic");
         SetTitle($"<b>{GLib.Markup.EscapeText(_track.Name)}</b>");
     }

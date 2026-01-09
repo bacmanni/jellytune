@@ -190,10 +190,10 @@ public sealed class PlayerService : IPlayerService, IDisposable
 
     private void StopPlaying(bool endPlayback = true)
     {
-        if (_playingTrack == null)
+        if (_playingTrack == null && _selectedTrack == null)
             return;
 
-        var trackId = _playingTrack.Id;
+        var trackId = _playingTrack?.Id ?? _selectedTrack.Id;
         
         if (_player != null)
         {
@@ -208,6 +208,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
             _networkDataProvider?.Dispose();
             _player = null;
             _playingTrack = null;
+            _selectedTrack = null;
             _networkDataProvider = null;
         }
     }
@@ -354,7 +355,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// </summary>
     public void StopTrack()
     {
-        if (_playingTrack != null)
+        if (_playingTrack != null ||  _selectedTrack != null)
         {
             StopPlaying();
             PlayerStateChanged(new PlayerStateArgs(PlayerState.Stopped, _album, _tracks.ToList(), _selectedTrack));
@@ -403,7 +404,6 @@ public sealed class PlayerService : IPlayerService, IDisposable
             if (nextTrack == null)
             {
                 StopTrack();
-                PlayerStateChanged(new PlayerStateArgs(PlayerState.None, _album, _tracks.ToList(), null));
                 return;
             };
             

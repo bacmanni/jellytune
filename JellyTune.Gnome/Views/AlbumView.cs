@@ -56,7 +56,7 @@ public class AlbumView : Gtk.ScrolledWindow
             UpdateArtwork();
 
         if (args.UpdateTrackState)
-            UpdateTrackState(args.SelectedTrackId.Value);
+            UpdateTrackState();
     }
 
     private void TracksOnRowActivated(ListBox sender, ListBox.RowActivatedSignalArgs args)
@@ -137,7 +137,7 @@ public class AlbumView : Gtk.ScrolledWindow
         }
     }
 
-    private void UpdateTrackState(Guid trackId)
+    private void UpdateTrackState()
     {
         for (var i = 0; i < _controller.Tracks.Count; i++)
         {
