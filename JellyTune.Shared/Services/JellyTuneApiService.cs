@@ -137,7 +137,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// <param name="value"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<List<Search>> SearchAlbum(string value, CancellationToken cancellationToken = default)
+    public async Task<List<Search>> SearchAlbumAsync(string value, CancellationToken cancellationToken = default)
     {
         var searchResults = new List<Models.Search>();
 
@@ -183,7 +183,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
-    public async Task<List<Models.Search>> SearchArtistAlbums(string value, CancellationToken cancellationToken = default)
+    public async Task<List<Models.Search>> SearchArtistAlbumsAsync(string value, CancellationToken cancellationToken = default)
     {
         var searchResults = new List<Models.Search>();
         var queryResult = await _jellyfinApiClient.Artists.GetAsync(configuration =>
@@ -241,7 +241,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// </summary>
     /// <param name="value"></param>
     /// <returns></returns>
-    public async Task<List<Models.Search>> SearchTrack(string value, CancellationToken cancellationToken = default)
+    public async Task<List<Models.Search>> SearchTrackAsync(string value, CancellationToken cancellationToken = default)
     {
         var searchResults = new List<Models.Search>();
 

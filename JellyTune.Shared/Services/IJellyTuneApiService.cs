@@ -16,9 +16,9 @@ public interface IJellyTuneApiService
     public Task<List<Collection>> GetCollectionsAsync(CollectionType type);
     public Task<List<Album>> GetArtistsAndAlbumsAsync();
     public Task<Album> GetAlbumAsync(Guid albumId, CancellationToken cancellationToken = default);
-    public Task<List<Search>> SearchAlbum(string value, CancellationToken cancellationToken = default);
-    public Task<List<Models.Search>> SearchArtistAlbums(string value, CancellationToken cancellationToken = default);
-    public Task<List<Models.Search>> SearchTrack(string value, CancellationToken cancellationToken = default);
+    public Task<List<Search>> SearchAlbumAsync(string value, CancellationToken cancellationToken = default);
+    public Task<List<Models.Search>> SearchArtistAlbumsAsync(string value, CancellationToken cancellationToken = default);
+    public Task<List<Models.Search>> SearchTrackAsync(string value, CancellationToken cancellationToken = default);
     public Task<List<Track>> GetTracksAsync(Guid albumId, CancellationToken cancellationToken = default);
     public Task<Models.Track> GetTrackAsync(Guid trackId);
     public Task<byte[]?> GetPrimaryArtAsync(Guid albumId);
