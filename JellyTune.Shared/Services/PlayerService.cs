@@ -208,7 +208,10 @@ public sealed class PlayerService : IPlayerService, IDisposable
             _networkDataProvider?.Dispose();
             _player = null;
             _playingTrack = null;
-            _selectedTrack = null;
+            
+            if (endPlayback)
+                _selectedTrack = null;
+            
             _networkDataProvider = null;
         }
     }
@@ -358,7 +361,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
         if (_playingTrack != null ||  _selectedTrack != null)
         {
             StopPlaying();
-            PlayerStateChanged(new PlayerStateArgs(PlayerState.Stopped, _album, _tracks.ToList(), _selectedTrack));
+            PlayerStateChanged(new PlayerStateArgs(PlayerState.None, _album, _tracks.ToList(), _selectedTrack));
         }
     }
 
