@@ -72,16 +72,16 @@ public sealed class PlayerService : IPlayerService, IDisposable
     {
         _jellyTuneApiService = jellyTuneApiService;
         NetworkChange.NetworkAvailabilityChanged += NetworkChangeOnNetworkAvailabilityChanged;
-        
-        DeviceInfo? defaultDevice = _engine.PlaybackDevices.FirstOrDefault(x => x.IsDefault);
-        if (defaultDevice != null)
+
+        try
         {
+            var defaultDevice = _engine.PlaybackDevices.FirstOrDefault(x => x.IsDefault);
             _device = _engine.InitializePlaybackDevice(defaultDevice, _format);
             _device.Start();
         }
-        else
+        catch (Exception e)
         {
-            Console.WriteLine("No default audio device found");
+            Console.WriteLine("Failed to start default audio device");
         }
     }
 
