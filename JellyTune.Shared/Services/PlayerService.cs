@@ -21,7 +21,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
 
     private readonly MiniAudioEngine _engine = new();
     private readonly AudioFormat _format = AudioFormat.Dvd;
-    private readonly AudioPlaybackDevice _device;
+    private readonly AudioPlaybackDevice? _device;
     private NetworkDataProvider? _networkDataProvider;
     private SoundPlayer? _player;
     private string _streamingUrl = string.Empty;
@@ -73,9 +73,16 @@ public sealed class PlayerService : IPlayerService, IDisposable
         _jellyTuneApiService = jellyTuneApiService;
         NetworkChange.NetworkAvailabilityChanged += NetworkChangeOnNetworkAvailabilityChanged;
         
-        var defaultDevice = _engine.PlaybackDevices.FirstOrDefault(x => x.IsDefault);
-        _device = _engine.InitializePlaybackDevice(defaultDevice, _format);
-        _device.Start();
+        DeviceInfo? defaultDevice = _engine.PlaybackDevices.FirstOrDefault(x => x.IsDefault);
+        if (defaultDevice != null)
+        {
+            _device = _engine.InitializePlaybackDevice(defaultDevice, _format);
+            _device.Start();
+        }
+        else
+        {
+            Console.WriteLine("No default audio device found");
+        }
     }
 
     private void NetworkChangeOnNetworkAvailabilityChanged(object? sender, NetworkAvailabilityEventArgs e)
@@ -173,13 +180,17 @@ public sealed class PlayerService : IPlayerService, IDisposable
 
         // Get stream url and start playing
         _streamingUrl = _jellyTuneApiService.GetAudioStreamUrl(_playSessionId, trackId, position) ?? throw new Exception($"Streaming url for track with id {trackId} not found");
-        _networkDataProvider = new NetworkDataProvider(_engine, _format, _streamingUrl);
-        _player = new SoundPlayer(_engine, _device.Format, _networkDataProvider);
-        _device.MasterMixer.AddComponent(_player);
-        _player.IsLooping = false;
-        _player.Play();
 
-        _player.PlaybackEnded += async (_, args) => await OnPlaybackEnded(_, args);
+        if (_device != null)
+        {
+            _networkDataProvider = new NetworkDataProvider(_engine, _format, _streamingUrl);
+            _player = new SoundPlayer(_engine, _device.Format, _networkDataProvider);
+            _device.MasterMixer.AddComponent(_player);
+            _player.IsLooping = false;
+            _player.Play();
+
+            _player.PlaybackEnded += async (_, args) => await OnPlaybackEnded(_, args);
+        }
     }
 
     private Task OnPlaybackEnded(object? sender, EventArgs args)
