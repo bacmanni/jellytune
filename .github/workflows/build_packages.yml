@@ -2,7 +2,7 @@ name: Build packages
 
 on:
   workflow_run:
-    workflows: ["Run Unit Tests"]
+    workflows: ["Unit Tests"]
     types:
       - completed
 

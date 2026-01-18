@@ -1,0 +1,33 @@
+name: Unit Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/setup-dotnet@v5.0.0
+        with:
+          dotnet-version: '9.x'
+      
+      - name: Restore dependencies
+        run: dotnet restore ./src/JellyTune.sln
+        
+      - name: Build the solution
+        run: dotnet build ./src/JellyTune.sln --configuration Release --no-restore
+        
+      - name: Run unit tests with report
+        run: dotnet test ./src/JellyTune.Test/JellyTune.Test.csproj --configuration Release --no-build --logger "trx;LogFileName=TestResults.trx"
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: TestResults
+          path: ./src/JellyTune.Test/TestResults/TestResults.trx
