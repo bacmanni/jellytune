@@ -207,13 +207,13 @@ public sealed class PlayerService : IPlayerService, IDisposable
             _player.Dispose();
             _networkDataProvider?.Dispose();
             _player = null;
-            _playingTrack = null;
-            
-            if (endPlayback)
-                _selectedTrack = null;
-            
             _networkDataProvider = null;
         }
+        
+        _playingTrack = null;
+            
+        if (endPlayback)
+            _selectedTrack = null;
     }
 
     private void PausePlaying()
@@ -373,7 +373,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
         var tracks = _tracks.ToArray();
         Random.Shared.Shuffle(tracks);
         _tracks.Clear();
-        AddTracksFromPlaylist(tracks.ToList());
+        AddTracks(tracks.ToList());
     }
 
     /// <summary>
@@ -511,7 +511,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// </summary>
     /// <param name="playlistId"></param>
     /// <param name="tracks"></param>
-    public void AddTracksFromPlaylist(List<Track> tracks)
+    public void AddTracks(List<Track> tracks)
     {
         foreach (var track in tracks)
             _tracks.Add(track);

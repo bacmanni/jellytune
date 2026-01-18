@@ -27,7 +27,7 @@ public interface IPlayerService
     public List<Track> GetTracks();
     public void AddTrack(Track track);
     public int? GetQueuePosition(Guid trackId);
-    public void AddTracksFromPlaylist(List<Track> tracks);
+    public void AddTracks(List<Track> tracks);
     public void ClearTracks();
     void PlayTrack(Track track);
     public PlayerState GetTrackState(Guid trackId);

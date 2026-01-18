@@ -4,7 +4,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JellyTune.Gnome", "JellyTun
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JellyTune.Shared", "JellyTune.Shared\JellyTune.Shared.csproj", "{2CDDA6FD-5821-4D4D-88BE-8A8919C37324}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JellyTune.Test", "JellyTune.Test\JellyTune.Test.csproj", "{10CED937-4A9B-4119-B1D2-A1561C3946C7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JellyTune.Test", "JellyTune.Test\JellyTune.Test.csproj", "{47F0F184-B892-48B0-AE13-3888BE491D8F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,9 +20,9 @@ Global
 		{2CDDA6FD-5821-4D4D-88BE-8A8919C37324}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2CDDA6FD-5821-4D4D-88BE-8A8919C37324}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2CDDA6FD-5821-4D4D-88BE-8A8919C37324}.Release|Any CPU.Build.0 = Release|Any CPU
-		{10CED937-4A9B-4119-B1D2-A1561C3946C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{10CED937-4A9B-4119-B1D2-A1561C3946C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{10CED937-4A9B-4119-B1D2-A1561C3946C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{10CED937-4A9B-4119-B1D2-A1561C3946C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47F0F184-B892-48B0-AE13-3888BE491D8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47F0F184-B892-48B0-AE13-3888BE491D8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47F0F184-B892-48B0-AE13-3888BE491D8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47F0F184-B892-48B0-AE13-3888BE491D8F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

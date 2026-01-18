@@ -23,7 +23,14 @@ public class FileService : IFileService
         _fileSystem = fileSystem;
     }
 
-    private string GetFilename(FileType type, Guid id)
+    /// <summary>
+    /// Get filename for specific type
+    /// </summary>
+    /// <param name="type"></param>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
+    public string GetFilename(FileType type, Guid id)
     {
         if (type == FileType.AlbumArt)
             return $"{_configurationService.GetCacheDirectory()}/albums/{id.ToString()}.jpg";
@@ -42,7 +49,7 @@ public class FileService : IFileService
     /// <returns></returns>
     public async Task<byte[]?> GetFileAsync(FileType type, Guid id, CancellationToken cancellationToken = default)
     {
-        await _semaphore.WaitAsync();
+        await _semaphore.WaitAsync(cancellationToken);
         try
         {
             var key = $"{type.ToString()}-{id.ToString()}";
@@ -168,7 +175,6 @@ public class FileService : IFileService
     /// <returns></returns>
     public Uri? GetFileUrl(FileType type, Guid id)
     {
-        var key = $"{type.ToString()}-{id.ToString()}";
         var filename = GetFilename(type, id);
         
         if (_configurationService.Get().CacheAlbumArt)
