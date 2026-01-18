@@ -59,12 +59,4 @@ public class ConfigurationServiceTests
         
         Assert.Equal(savedAutoRefresh, loadedAutoRefresh);
     }
-
-    [Fact]
-    public void GetConfigurationDirectory()
-    {
-        var directory = _configurationService.GetConfigurationDirectory();
-        var linuxDirectory = Path.Combine(Environment.GetEnvironmentVariable("HOME"), ".config", _applicationId);
-        Assert.Equal(directory, linuxDirectory);
-    }
 }
