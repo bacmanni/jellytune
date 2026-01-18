@@ -21,16 +21,16 @@ jobs:
         run: | 
           sudo apt-get update
           sudo apt-get install -y libglib2.0-dev
-          dotnet restore ./JellyTune.sln
+          dotnet restore
         
       - name: Build the solution
-        run: dotnet build ./JellyTune.sln --configuration Release --no-restore
+        run: dotnet build --configuration Release --no-restore
         
       - name: Run unit tests with report
-        run: dotnet test ./JellyTune.Test/JellyTune.Test.csproj --configuration Release --no-build --logger "trx;LogFileName=TestResults.trx"
+        run: dotnet test --configuration Release --no-build --logger "trx"
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
           name: TestResults
-          path: ./JellyTune.Test/TestResults/TestResults.trx
+          path: '**/*.trx'
