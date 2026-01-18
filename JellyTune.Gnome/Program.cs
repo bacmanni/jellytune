@@ -146,7 +146,7 @@ class Program
 
         // Project related
         serviceCollection.AddSingleton<IConfigurationService, ConfigurationService>(
-            serviceProvider => new ConfigurationService(fileSystem: serviceProvider.GetRequiredService<IFileSystem>(), applicationId: _applicationInfo.Id)
+            serviceProvider => new ConfigurationService(_fileSystem: serviceProvider.GetRequiredService<IFileSystem>(), applicationId: _applicationInfo.Id)
         );
         serviceCollection.AddSingleton<IFileSystem, FileSystem>();
         serviceCollection.AddSingleton<IJellyTuneApiService, JellyTuneApiService>();
