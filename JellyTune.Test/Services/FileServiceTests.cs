@@ -1,5 +1,6 @@
 using System.IO.Abstractions;
 using System.Text;
+using System.Text.Json;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Models;
 using JellyTune.Shared.Services;
@@ -81,7 +82,7 @@ public class FileServiceTests
         file = await _fileService.GetFileAsync(FileType.AlbumArt, _albumId1);
         Assert.Equal(file, _file);
     }
-    /*
+    
     [Fact]
     public async Task GetCacheFile_WriteCacheFile()
     {
@@ -94,16 +95,18 @@ public class FileServiceTests
             Value2 = "value2",
         };
         
-        // For stream we need to do some magic
         using var ms = new MemoryStream();
         await using var writer = new StreamWriter(ms, Encoding.UTF8, 1024, leaveOpen: true);
         
         _mockFileSystem.Setup(repo => repo.File.CreateText("filename")).Returns(writer);
+        _mockFileSystem.Setup(repo => repo.File.ReadAllTextAsync("/cache/test.json", CancellationToken.None)).ReturnsAsync(JsonSerializer.Serialize(fileExample));
+        
         await _fileService.WriteCacheFile("test", fileExample);
         await writer.FlushAsync();
         
-        _mockFileSystem.Setup(repo => repo.File.ReadAllTextAsync($"/cache/test.json", CancellationToken.None)).ReturnsAsync(fileExample.ToString());
         file = await _fileService.GetCacheFile<FileExample>("test");
-        Assert.Equal(fileExample, file);
-    }*/
+        Assert.NotNull(file);
+        Assert.Equal(fileExample.Value1, file.Value1);
+        Assert.Equal(fileExample.Value2, file.Value2);
+    }
 }

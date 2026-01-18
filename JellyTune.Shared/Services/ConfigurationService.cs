@@ -7,9 +7,8 @@ using JellyTune.Shared.Models;
 
 namespace JellyTune.Shared.Services;
 
-public class ConfigurationService(IFileSystem fileSystem, string applicationId) : IConfigurationService
+public class ConfigurationService(IFileSystem _fileSystem, string applicationId) : IConfigurationService
 {
-    private readonly IFileSystem _fileSystem = fileSystem;
     private readonly Configuration _configuration = new();
 
     /// <summary>

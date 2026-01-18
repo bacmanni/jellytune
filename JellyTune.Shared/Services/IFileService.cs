@@ -9,5 +9,4 @@ public interface IFileService
     public Task WriteCacheFile<T>(string id, T data);
     public void ClearCacheFile(string id);
     public Uri? GetFileUrl(FileType type, Guid id);
-    public string GetFilename(FileType type, Guid id);
 }

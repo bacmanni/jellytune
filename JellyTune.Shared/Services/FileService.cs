@@ -30,7 +30,7 @@ public class FileService : IFileService
     /// <param name="id"></param>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
-    public string GetFilename(FileType type, Guid id)
+    private string GetFilename(FileType type, Guid id)
     {
         if (type == FileType.AlbumArt)
             return $"{_configurationService.GetCacheDirectory()}/albums/{id.ToString()}.jpg";
