@@ -67,35 +67,33 @@ public sealed class AlbumController : IDisposable
     public async Task OpenAsync(Guid albumId, Guid? selectedTrackId = null)
     {
         AlbumChanged(new AlbumStateArgs());
+
+        if (_cancellationTokenSource != null)
+        {
+            await _cancellationTokenSource.CancelAsync();
+            _cancellationTokenSource.Dispose();
+        }
         
-        _cancellationTokenSource?.Cancel();
-        _cancellationTokenSource?.Dispose();
         _cancellationTokenSource = new CancellationTokenSource();
         
         Album = await _jellyTuneApiService.GetAlbumAsync(albumId, _cancellationTokenSource.Token);
         Tracks = await _jellyTuneApiService.GetTracksAsync(albumId,  _cancellationTokenSource.Token);
         
-        AlbumChanged(new AlbumStateArgs() { UpdateAlbum = true, UpdateTracks = true, SelectedTrackId = selectedTrackId });
-
         if (_cancellationTokenSource.IsCancellationRequested)
             return;
+        
+        AlbumChanged(new AlbumStateArgs() { UpdateAlbum = true, UpdateTracks = true, SelectedTrackId = selectedTrackId });
         
         if (Album.HasArtwork)
         {
             Artwork = await _fileService.GetFileAsync(FileType.AlbumArt, albumId, _cancellationTokenSource.Token);
+            if (_cancellationTokenSource.IsCancellationRequested)
+                return;
+            
             AlbumChanged(new AlbumStateArgs() { UpdateArtwork = true});    
         }
     }
 
-    /// <summary>
-    /// Close album
-    /// </summary>
-    public async Task CloseAsync()
-    {
-        _cancellationTokenSource?.Cancel();
-        _cancellationTokenSource?.Dispose();
-    }
-    
     /// <summary>
     /// Play track. If already playing, then pause track
     /// </summary>

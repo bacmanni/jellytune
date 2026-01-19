@@ -26,6 +26,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     private SoundPlayer? _player;
     private string _streamingUrl = string.Empty;
     private bool _networkDisconnected;
+    private CancellationTokenSource? _cancellationTokenSource;
     
     /// <summary>
     /// Currently selected album
@@ -92,13 +93,16 @@ public sealed class PlayerService : IPlayerService, IDisposable
                 _networkDisconnected = true;
     }
 
-    private async Task OpenAlbumWithoutTracksAsync(Guid albumId)
+    private async Task OpenAlbumWithoutTracksAsync(Guid albumId, CancellationToken cancellationToken = default)
     {
         PlayerStateChanged(new PlayerStateArgs(PlayerState.Loading));
 
-        var album = await _jellyTuneApiService.GetAlbumAsync(albumId);
+        var album = await _jellyTuneApiService.GetAlbumAsync(albumId, cancellationToken);
         _album = album ?? throw new Exception($"Album with id {albumId} not found");
         _selectedTrack = null;
+        
+        if (_cancellationTokenSource is { IsCancellationRequested: true })
+            return;
         
         PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedInfo, album, _tracks.ToList()));
 
@@ -109,26 +113,33 @@ public sealed class PlayerService : IPlayerService, IDisposable
         }
     }
 
-    private async Task OpenAlbumAsync(Guid albumId)
+    private async Task OpenAlbumAsync(Guid albumId, CancellationToken cancellationToken = default)
     {
         PlayerStateChanged(new PlayerStateArgs(PlayerState.Loading));
 
         _tracks.Clear();
-        var album = await _jellyTuneApiService.GetAlbumAsync(albumId);
+        var album = await _jellyTuneApiService.GetAlbumAsync(albumId, cancellationToken);
         _album = album ?? throw new Exception($"Album with id {albumId} not found");
         
-        var tracks = await _jellyTuneApiService.GetTracksAsync(_album.Id);
+        var tracks = await _jellyTuneApiService.GetTracksAsync(_album.Id, cancellationToken);
 
         foreach (var track in tracks)
             _tracks.Add(track);
         
         _selectedTrack = null;
 
+        if (_cancellationTokenSource is { IsCancellationRequested: true })
+            return;
+        
         PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedInfo, album, tracks));
 
         if (album.HasArtwork)
         {
             _artwork = await _jellyTuneApiService.GetPrimaryArtAsync(albumId);
+            
+            if (_cancellationTokenSource is { IsCancellationRequested: true })
+                return;
+            
             PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedArtwork, album, tracks));
         }
     }
@@ -264,6 +275,14 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <param name="trackId">Id of the track. If not set uses first from the album tracks</param>
     public async Task StartTrackAsync(Guid? trackId = null)
     {
+        if (_cancellationTokenSource != null)
+        {
+            await _cancellationTokenSource.CancelAsync();
+            _cancellationTokenSource.Dispose();
+        }
+        
+        _cancellationTokenSource = new CancellationTokenSource();
+        
         if (!trackId.HasValue)
         {
             if (_tracks.Count > 0)
