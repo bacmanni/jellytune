@@ -98,7 +98,7 @@ public sealed class AccountController
         if (!string.IsNullOrWhiteSpace(configuration.CollectionId))
             CollectionId = Guid.Parse(configuration.CollectionId);
         
-        if (configuration.PlaylistCollectionId != null)
+        if (!string.IsNullOrWhiteSpace(configuration.PlaylistCollectionId))
             PlaylistCollectionId = Guid.Parse(configuration.PlaylistCollectionId);
         
         OnConfigurationLoaded?.Invoke(this, new AccountArgs() {Validate = validate, Configuration = configuration });
