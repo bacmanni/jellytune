@@ -50,7 +50,7 @@ jobs:
           name: JellyTune-flatpak
           path: Deploy/JellyTune-*.flatpak
           
-  Run-On-x86_64:
+  Run-On-arm64:
     build:
       if: ${{ github.event.workflow_run.conclusion == 'success' }}
       runs-on: ubuntu-24.04-arm
