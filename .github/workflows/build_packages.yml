@@ -42,7 +42,7 @@ jobs:
       - name: Upload AppImage artifact
         uses: actions/upload-artifact@v5
         with:
-          name: JellyTune-$JELLYTUNE_VERSION.x86_64.AppImage
+          name: JellyTune-${{ env.JELLYTUNE_VERSION }}.x86_64.AppImage
           path: Deploy/JellyTune*.AppImage
 
       - name: Create Flatpak
@@ -51,7 +51,7 @@ jobs:
       - name: Upload flatpak artifact
         uses: actions/upload-artifact@v5
         with:
-          name: JellyTune-$JELLYTUNE_VERSION.x86_64.flatpak
+          name: JellyTune-${{ env.JELLYTUNE_VERSION }}.x86_64.flatpak
           path: Deploy/JellyTune-*.flatpak
 
 
@@ -86,7 +86,7 @@ jobs:
       - name: Upload AppImage artifact
         uses: actions/upload-artifact@v5
         with:
-          name: JellyTune-$JELLYTUNE_VERSION.arm64.AppImage
+          name: JellyTune-${{ env.JELLYTUNE_VERSION }}.arm64.AppImage
           path: Deploy/JellyTune*.AppImage
 
       - name: Create Flatpak
@@ -95,6 +95,6 @@ jobs:
       - name: Upload flatpak artifact
         uses: actions/upload-artifact@v5
         with:
-          name: JellyTune-$JELLYTUNE_VERSION.arm64.flatpak
+          name: JellyTune-${{ env.JELLYTUNE_VERSION }}.arm64.flatpak
           path: Deploy/JellyTune-*.flatpak
 
