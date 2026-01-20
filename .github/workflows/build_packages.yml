@@ -34,7 +34,7 @@ jobs:
         run: dotnet tool update -g KuiperZone.PupNet
 
       - name: Create x64 Appimage
-        run: pupnet --runtime linux-x64 --kind appimage -app-version 1.0.${{ github.run_number }}
+        run: pupnet --runtime linux-x64 --kind appimage --app-version 1.0.${{ github.run_number }}
 
       - name: Upload AppImage artifact
         uses: actions/upload-artifact@v5
@@ -43,7 +43,7 @@ jobs:
           path: Deploy/JellyTune*.AppImage
 
       - name: Create Flatpak
-        run: pupnet --runtime linux-x64 --kind flatpak -app-version 1.0.${{ github.run_number }}
+        run: pupnet --runtime linux-x64 --kind flatpak --app-version 1.0.${{ github.run_number }}
 
       - name: Upload flatpak artifact
         uses: actions/upload-artifact@v5
@@ -78,7 +78,7 @@ jobs:
         run: dotnet tool update -g KuiperZone.PupNet
 
       - name: Create arm64 Appimage
-        run: pupnet --runtime linux-arm64 --kind appimage -app-version 1.0.${{ github.run_number }}
+        run: pupnet --runtime linux-arm64 --kind appimage --app-version 1.0.${{ github.run_number }}
 
       - name: Upload AppImage artifact
         uses: actions/upload-artifact@v5
@@ -87,7 +87,7 @@ jobs:
           path: Deploy/JellyTune*.AppImage
 
       - name: Create Flatpak
-        run: pupnet --runtime linux-arm64 --kind flatpak -app-version 1.0.${{ github.run_number }}
+        run: pupnet --runtime linux-arm64 --kind flatpak --app-version 1.0.${{ github.run_number }}
 
       - name: Upload flatpak artifact
         uses: actions/upload-artifact@v5
