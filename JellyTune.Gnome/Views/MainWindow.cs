@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Runtime.InteropServices;
 using Gio;
 using GLib;
@@ -425,7 +426,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         about.ApplicationName = _controller.ApplicationInfo.Name;
         about.ApplicationIcon = _controller.ApplicationInfo.Icon;
         about.DeveloperName = _controller.ApplicationInfo.Developer;
-        about.Version = _controller.ApplicationInfo.Version;
+        about.Version = $"{Assembly.GetExecutingAssembly().GetName().Version}";
         about.Website = _controller.ApplicationInfo.Website;
         about.Copyright = _controller.ApplicationInfo.Copyright;
         about.IssueUrl = _controller.ApplicationInfo.IssueUrl;
