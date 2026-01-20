@@ -8,7 +8,7 @@ on:
 
 jobs:
 
-  Run-On-x86_64:
+  Build_x86_64:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
@@ -34,7 +34,7 @@ jobs:
         run: dotnet tool update -g KuiperZone.PupNet
 
       - name: Create x64 Appimage
-        run: pupnet --runtime linux-x64 --kind appimage
+        run: pupnet --runtime linux-x64 --kind appimage -app-version 1.0.[${{github.run_number}}]
 
       - name: Upload AppImage artifact
         uses: actions/upload-artifact@v5
@@ -43,55 +43,10 @@ jobs:
           path: Deploy/JellyTune*.AppImage
 
       - name: Create Flatpak
-        run: pupnet --runtime linux-x64 --kind flatpak
+        run: pupnet --runtime linux-x64 --kind flatpak -app-version 1.0.[${{github.run_number}}]
 
       - name: Upload flatpak artifact
         uses: actions/upload-artifact@v5
         with:
           name: JellyTune-flatpak
           path: Deploy/JellyTune-*.flatpak
-
-
-  Run-On-arm64:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest-arm
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v5.0.0
-        with:
-          dotnet-version: '9.x'
-      
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libglib2.0-dev libfuse2 libfuse3-3 flatpak flatpak-builder
-          wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-aarch64.AppImage
-          chmod +x appimagetool-aarch64.AppImage
-          sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          sudo flatpak install flathub org.gnome.Platform//47 -y
-          sudo flatpak install flathub org.gnome.Sdk//47 -y
-
-      - name: Install PupNet
-        run: dotnet tool update -g KuiperZone.PupNet
-
-      - name: Create arm64 Appimage
-        run: pupnet --runtime linux-arm64 --kind appimage
-
-      - name: Upload AppImage artifact
-        uses: actions/upload-artifact@v5
-        with:
-          name: JellyTune-AppImage
-          path: Deploy/JellyTune*.AppImage
-
-      - name: Create Flatpak
-        run: pupnet --runtime linux-arm64 --kind flatpak
-
-      - name: Upload flatpak artifact
-        uses: actions/upload-artifact@v5
-        with:
-          name: JellyTune-flatpak
-          path: Deploy/JellyTune-*.flatpak
-
