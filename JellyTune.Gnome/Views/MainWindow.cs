@@ -426,7 +426,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         about.ApplicationName = _controller.ApplicationInfo.Name;
         about.ApplicationIcon = _controller.ApplicationInfo.Icon;
         about.DeveloperName = _controller.ApplicationInfo.Developer;
-        about.Version = $"{Assembly.GetExecutingAssembly().GetName().Version}";
+        about.Version = $"{Assembly.GetExecutingAssembly().GetName().Version?.Major}.{Assembly.GetExecutingAssembly().GetName().Version?.Minor}.{Assembly.GetExecutingAssembly().GetName().Version?.Build}";
         about.Website = _controller.ApplicationInfo.Website;
         about.Copyright = _controller.ApplicationInfo.Copyright;
         about.IssueUrl = _controller.ApplicationInfo.IssueUrl;
