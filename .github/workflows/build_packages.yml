@@ -66,8 +66,29 @@ jobs:
           run: |
             sudo apt-get update
             sudo apt-get install -y libglib2.0-dev libfuse2 libfuse3-3 flatpak flatpak-builder
-            wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
-            chmod +x appimagetool-x86_64.AppImage
+            wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-aarch64.AppImage
+            chmod +x appimagetool-aarch64.AppImage
             sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
             sudo flatpak install flathub org.gnome.Platform//47 -y
             sudo flatpak install flathub org.gnome.Sdk//47 -y
+            
+        - name: Install PupNet
+          run: dotnet tool update -g KuiperZone.PupNet
+
+        - name: Create x64 Appimage
+          run: pupnet --runtime linux-arm64 --kind appimage
+
+        - name: Upload AppImage artifact
+          uses: actions/upload-artifact@v5
+          with:
+            name: JellyTune-AppImage
+            path: Deploy/JellyTune*.AppImage
+
+        - name: Create Flatpak
+          run: pupnet --runtime linux-arm64 --kind flatpak
+
+        - name: Upload flatpak artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: JellyTune-flatpak
+          path: Deploy/JellyTune-*.flatpak
