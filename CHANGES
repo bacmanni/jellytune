@@ -1,2 +1,6 @@
-+ 1.0.0; 2025-07-05
-- Initial release. Basic playback. More features coming in upcoming releases
++ 1.0;2026-01-20
+- Startup wizard for creating Jellyfin server configuration
+- Basic functionality for playing audio from Jellyfin server
+- Support for single playlist
+- Gnome integration
+

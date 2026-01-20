@@ -2,9 +2,9 @@
 
 ![Screenshot of JellyTune](Screenshots/Wide.png)
 
-My idea is to have native Gnome app for Jellyfin that is also fully supported for mobile devices. Nothing more, nothing less. So simple audio player. That means no massive edit functionality and no video playback. Main focus is on audio. My wish is to use this on my mobile Linux device at some point.
+My idea is to have native Gnome client for Jellyfin that is also fully supported for mobile devices. So simple audio player. That means no massive edit functionality and no video playback. My wish is to use this on my mobile Linux device at some point.
 
-For now, it only supports one audio collection at the time. That is the way I use Jellyfin. If you are using some other way, then leave a comment through support ticket and I see what we can do about it. Same thing goes to playlists when they are implemented.
+For now, it only supports one audio and playlist collection. That is the way I use Jellyfin. If you are using some other way, then leave a comment through support ticket and I see what we can do about it.
 
 Oh, and the whole reason for this all is that I like to buy records and have them locally. I don't use streaming services for music :)
 
@@ -12,12 +12,13 @@ Oh, and the whole reason for this all is that I like to buy records and have the
 JellyTune for Gnome requires at least Gnome 45. Only Linux is supported, but I have run the app on MacOS.
 
 ## Packages
-There will only be two ways to get JellyTune. Downloading appimage or fetching it through flatpak.
+There will only be two ways to get JellyTune. Downloading appimage or flatpak. Flathub install comping at some point
 
 ## Project
 Project is written in C#. It is separated in two projects:
 JellyTune.Shared - Can be used for shared functionality if there will be similiar player for example KDE.
-JellyTune.Gnome - Gnome UI of JellyTune
+JellyTune.Test - Unit tests for shared project
+JellyTune.Gnome - Gnome client
 
 ## Thanks
 My thanks for the people who have and are working with these:
@@ -34,11 +35,12 @@ Last mention to [Jetbrains](https://www.jetbrains.com/) for providing open sourc
 
 **1.0**
 - Startup wizard for creating Jellyfin server configuration
-- Basic functionality for playing Jellyfin audio from single album and single collection
-- Support for playlist and collections
-- Gnome integration (MPRIS)
+- Basic functionality for playing audio from Jellyfin server
+- Support for single playlist
+- Gnome integration
 
 **1.1**
 - Audio book support
 - Support for keyring(?)
+- Last.fm support (?)
 - Feel free to suggest features
