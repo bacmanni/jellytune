@@ -12,13 +12,13 @@ Oh, and the whole reason for this all is that I like to buy records and have the
 JellyTune for Gnome requires at least Gnome 45. Only Linux is supported, but I have run the app on MacOS.
 
 ## Packages
-There will only be two ways to get JellyTune. Downloading appimage or flatpak. Flathub install comping at some point
+There will be couple of ways to get JellyTune. Downloading appimage or flatpak from releases. Flathub install coming at some point
 
 ## Project
-Project is written in C#. It is separated in two projects:
-JellyTune.Shared - Can be used for shared functionality if there will be similiar player for example KDE.
-JellyTune.Test - Unit tests for shared project
-JellyTune.Gnome - Gnome client
+Project is written in C#. It is separated in multiple projects:
+**JellyTune.Shared**: Can be used for shared functionality if there will be similar player for example KDE.
+**JellyTune.Test**: Unit tests for shared project
+**JellyTune.Gnome**: Gnome client
 
 ## Thanks
 My thanks for the people who have and are working with these:

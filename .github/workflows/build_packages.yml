@@ -1,4 +1,4 @@
-name: Build packages
+name: Build packages x86_64
 
 on:
   workflow_run:
@@ -7,6 +7,7 @@ on:
       - completed
 
 jobs:
+  Run-On-x86_64:
   build:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
@@ -48,3 +49,25 @@ jobs:
         with:
           name: JellyTune-flatpak
           path: Deploy/JellyTune-*.flatpak
+          
+  Run-On-x86_64:
+    build:
+      if: ${{ github.event.workflow_run.conclusion == 'success' }}
+      runs-on: ubuntu-24.04-arm
+      
+      steps:
+        - uses: actions/checkout@v3
+        - name: Checkout repository
+          uses: actions/setup-dotnet@v5.0.0
+          with:
+            dotnet-version: '9.x'
+      
+        - name: Install dependencies
+          run: |
+            sudo apt-get update
+            sudo apt-get install -y libglib2.0-dev libfuse2 libfuse3-3 flatpak flatpak-builder
+            wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+            chmod +x appimagetool-x86_64.AppImage
+            sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+            sudo flatpak install flathub org.gnome.Platform//47 -y
+            sudo flatpak install flathub org.gnome.Sdk//47 -y
