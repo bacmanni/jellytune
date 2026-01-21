@@ -34,13 +34,12 @@ Last mention to [Jetbrains](https://www.jetbrains.com/) for providing open sourc
 ## Planned versions:
 
 **1.0**
-- Startup wizard for creating Jellyfin server configuration
-- Basic functionality for playing audio from Jellyfin server
+- Startup wizard for basic configuration
+- Basic functionality for playing audio
 - Support for single playlist
 - Gnome integration
 
 **1.1**
-- Audio book support
 - Support for keyring(?)
 - Last.fm support (?)
 - Feel free to suggest features
