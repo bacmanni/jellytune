@@ -1,7 +1,9 @@
 using System.IO.Abstractions;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Text.Unicode;
 using JellyTune.Shared.Models;
 
@@ -147,6 +149,52 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId)
         }
     }
 
+    /// <summary>
+    /// Get latest changes from CHANGES-file
+    /// </summary>
+    /// <returns></returns>
+    public string[] GetLatestChanges()
+    {
+        using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("JellyTune.Shared.Resources.CHANGES");
+        using var reader = new StreamReader(stream!); 
+        var lines = reader.ReadToEnd().Split('\n', StringSplitOptions.RemoveEmptyEntries);
+
+        var changes = ParseChanges(lines);
+
+        var latest = changes.FirstOrDefault()?.Changes.ToArray();
+        return latest ?? [];
+    }
+
+    private List<Change> ParseChanges(string[] changes)
+    {
+        var result =  new List<Change>();
+        
+        foreach (var changeLine in changes)
+        {
+            if (string.IsNullOrWhiteSpace(changeLine)) continue;
+            
+            // Version and date
+            if (changeLine.StartsWith("+"))
+            {
+                var parts = changeLine.TrimStart('+').Split(';', 2);
+                
+                var version = parts[0].Trim();
+                var date = parts.Length > 1 ? DateTime.Parse(parts[1].Trim()) : DateTime.MinValue;
+ 
+                result.Add(new Change() { Version =  version, Date = date });
+            }
+            else
+            {
+                if (result.Count == 0) continue;
+
+                var change = changeLine.TrimStart('-').Trim();
+                result[result.Count-1].Changes.Add(change);
+            }
+        }
+        
+        return result.OrderBy(x => x.Date).ToList();
+    }
+    
     private void CreateConfigurationFile(string filename)
     {
         try

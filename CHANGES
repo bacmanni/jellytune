@@ -1,6 +1,6 @@
 + 1.0;2026-01-20
-- Startup wizard for creating Jellyfin server configuration
-- Basic functionality for playing audio from Jellyfin server
+- Startup wizard for basic configuration
+- Basic functionality for playing audio
 - Support for single playlist
 - Gnome integration
 

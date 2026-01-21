@@ -55,4 +55,9 @@ public sealed class MainWindowController : IDisposable
         var configuration = _configurationService.Get();
         return !string.IsNullOrWhiteSpace(configuration.PlaylistCollectionId);
     }
+
+    public string[] GetReleaseNotes()
+    {
+        return _configurationService.GetLatestChanges();
+    }
 }

@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
 using Gio;
 using GLib;
 using Gtk;
@@ -430,13 +431,26 @@ public partial class MainWindow : Adw.ApplicationWindow
         about.Website = _controller.ApplicationInfo.Website;
         about.Copyright = _controller.ApplicationInfo.Copyright;
         about.IssueUrl = _controller.ApplicationInfo.IssueUrl;
-        about.ReleaseNotes = _controller.ApplicationInfo.ReleaseNotes;
+        about.ReleaseNotes = GetReleaseNotes();
         about.LicenseType = License.Gpl30;
         about.Designers = _controller.ApplicationInfo.Designers;
         about.Artists = _controller.ApplicationInfo.Artists;
         about.Present(this);
     }
 
+    private string GetReleaseNotes()
+    {
+        var sb = new StringBuilder();
+        var latest = _controller.GetReleaseNotes();
+
+        foreach (var changeLine in latest)
+        {
+            sb.Append($"<p>{changeLine}</p>");
+        }
+        
+        return sb.ToString();
+    }
+    
     /// <summary>
     /// Show preferences dialog
     /// </summary>

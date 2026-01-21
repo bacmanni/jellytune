@@ -59,4 +59,17 @@ public class ConfigurationServiceTests
         
         Assert.Equal(savedAutoRefresh, loadedAutoRefresh);
     }
+
+    [Fact]
+    public void GetLatestChanges()
+    {
+        var result = _configurationService.GetLatestChanges();
+        
+        
+        
+        
+        
+        
+        Assert.NotEmpty(result);
+    }
 }

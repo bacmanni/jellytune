@@ -18,5 +18,11 @@
         <HintPath>..\JellyTune.Gnome\bin\Debug\net9.0\JellyTune.Shared.dll</HintPath>
       </Reference>
     </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="..\CHANGES">
+        <Link>Resources/CHANGES</Link>
+      </EmbeddedResource>
+    </ItemGroup>
     
 </Project>
