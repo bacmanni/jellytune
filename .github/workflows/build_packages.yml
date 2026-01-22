@@ -100,21 +100,21 @@ jobs:
 
   Create_Release: 
   needs: [Build_x86_64, Build_arm64] 
-  runs-on: ubuntu-latest 
+  runs-on: ubuntu-latest
   steps: 
-    - name: Download all artifacts 
+    - name: Download all artifacts
       uses: actions/download-artifact@v4 
       with: 
-        path: artifacts 
+        path: artifacts
         
 
-    - name: Create GitHub Release 
-      uses: softprops/action-gh-release@v2 
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
       with: 
         tag_name: v${{ env.JELLYTUNE_VERSION }}
-        name: JellyTune v${{ env.JELLYTUNE_VERSION }} 
+        name: JellyTune v${{ env.JELLYTUNE_VERSION }}
         body: | 
-          Release of JellyTune version ${{ env.JELLYTUNE_VERSION }}. 
+          JellyTune version ${{ env.JELLYTUNE_VERSION }}.
         files: artifacts/**/* 
       
       env: 
