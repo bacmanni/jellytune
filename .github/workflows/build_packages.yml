@@ -99,23 +99,23 @@ jobs:
           path: Deploy/JellyTune-*.flatpak
 
   Create_Release: 
-  needs: [Build_x86_64, Build_arm64] 
-  runs-on: ubuntu-latest
-  steps: 
-    - name: Download all artifacts
-      uses: actions/download-artifact@v4 
-      with: 
-        path: artifacts
+    needs: [Build_x86_64, Build_arm64] 
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4 
+        with: 
+          path: artifacts
         
 
-    - name: Create GitHub Release
-      uses: softprops/action-gh-release@v2
-      with: 
-        tag_name: v${{ env.JELLYTUNE_VERSION }}
-        name: JellyTune v${{ env.JELLYTUNE_VERSION }}
-        body: | 
-          JellyTune version ${{ env.JELLYTUNE_VERSION }}.
-        files: artifacts/**/* 
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with: 
+          tag_name: v${{ env.JELLYTUNE_VERSION }}
+          name: JellyTune v${{ env.JELLYTUNE_VERSION }}
+          body: | 
+            JellyTune version ${{ env.JELLYTUNE_VERSION }}.
+          files: artifacts/**/* 
       
-      env: 
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        env: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
