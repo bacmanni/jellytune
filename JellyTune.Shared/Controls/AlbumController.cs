@@ -34,7 +34,7 @@ public sealed class AlbumController : IDisposable
 
     private void PlayerServiceOnPlayerStateChanged(object? sender, PlayerStateArgs e)
     {
-        if (e.State is PlayerState.Playing or PlayerState.Stopped or PlayerState.Paused or PlayerState.Selected or PlayerState.None)
+        if (e.State is PlayerState.Playing or PlayerState.Stopped or PlayerState.Paused or PlayerState.Selected or PlayerState.None or PlayerState.Starting)
         {
             AlbumChanged(new AlbumStateArgs() { UpdateTrackState = true, SelectedTrackId = e.SelectedTrack?.Id });
         }

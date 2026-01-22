@@ -44,6 +44,11 @@ public sealed class PlayerService : IPlayerService, IDisposable
     private byte[]? _artwork { get; set; }
 
     /// <summary>
+    /// Currently starting track
+    /// </summary>
+    private Guid? _startingTrack;
+    
+    /// <summary>
     /// Currently selected track
     /// </summary>
     private Track? _selectedTrack;
@@ -296,6 +301,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
             return;
         }
         
+        _startingTrack = trackId.Value;
         PlayerStateChanged(new PlayerStateArgs(PlayerState.Starting));
         var track = _tracks.FirstOrDefault(t => t.Id == trackId.Value);
         
@@ -592,6 +598,11 @@ public sealed class PlayerService : IPlayerService, IDisposable
         if (_selectedTrack?.Id == trackId)
         {
             return PlayerState.Selected;
+        }
+
+        if (_startingTrack == trackId)
+        {
+            return PlayerState.Starting;
         }
         
         return PlayerState.None;

@@ -23,8 +23,8 @@ Project is written in C#. It is separated in multiple projects:
 ## Thanks
 My thanks for the people who have and are working with these:
 [Gir.Core](https://github.com/gircore/gir.core),
-[SoundFlow](https://github.com/LSXPrime/SoundFlow) and
-[Jellyfin](https://jellyfin.org)
+[SoundFlow](https://github.com/LSXPrime/SoundFlow),
+[Jellyfin](https://jellyfin.org) and
 [Tmds.DBus](https://github.com/tmds/Tmds.DBus)
  
 Also special thanks to Ruut Kiiskilä for providing the logo to JellyTune. Nice job!

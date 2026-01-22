@@ -69,6 +69,7 @@ public partial class TrackRow : Adw.ActionRow
         switch (state)
         {
             case PlayerState.Selected:
+            case PlayerState.Starting:
                 LoadingTrack();
                 break;
             case PlayerState.Playing:
