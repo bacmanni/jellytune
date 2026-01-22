@@ -9,7 +9,7 @@ For now, it only supports one audio and playlist collection. That is the way I u
 Oh, and the whole reason for this all is that I like to buy records and have them locally. I don't use streaming services for music :)
 
 ## Requirements
-JellyTune for Gnome requires at least Gnome 45. Only Linux is supported, but I have run the app on MacOS.
+JellyTune for Gnome requires at least Gnome 45 (libAdwaita 1.6 or later). x86_64 and aarch64 versions are both also supported.
 
 ## Packages
 There will be couple of ways to get JellyTune. Downloading appimage or flatpak from releases. Flathub install coming at some point
