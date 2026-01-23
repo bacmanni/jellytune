@@ -31,9 +31,9 @@ public sealed class PlaylistTracksController : IDisposable
 
     private void PlayerServiceOnPlayerStateChanged(object? sender, PlayerStateArgs e)
     {
-        if (e.State is PlayerState.Playing or PlayerState.Stopped || e.State is PlayerState.Paused)
+        if (e.State is PlayerState.Playing or PlayerState.Stopped or PlayerState.Paused or PlayerState.Starting or PlayerState.Selected)
         {
-            OnPlaylistTracksStateChanged.Invoke(this, new PlaylistTracksStateArgs() {  UpdateTrackState = true, SelectedTrackId = e.SelectedTrack.Id });
+            OnPlaylistTracksStateChanged.Invoke(this, new PlaylistTracksStateArgs() {  UpdateTrackState = true, SelectedTrackId = e.SelectedTrack?.Id });
         }
     }
 
