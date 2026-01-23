@@ -5,9 +5,6 @@ on:
     tags:
       - "v*"
       
-permissions:
-  contents: write
-
 jobs:
   Build_x86_64:
     runs-on: ubuntu-latest
@@ -96,6 +93,8 @@ jobs:
   Create_Release:
     needs: [Build_x86_64, Build_arm64]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Download all artifacts
