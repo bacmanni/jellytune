@@ -10,7 +10,6 @@ permissions:
 
 jobs:
   Build_x86_64:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -53,7 +52,6 @@ jobs:
           path: Deploy/JellyTune-*.flatpak
 
   Build_arm64:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-24.04-arm
 
     steps:
