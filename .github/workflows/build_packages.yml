@@ -5,7 +5,8 @@ on:
     tags:
       - "v*"
       
-permissions: contents: write
+permissions:
+  contents: write
 
 jobs:
   Build_x86_64:
