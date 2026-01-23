@@ -302,7 +302,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
         }
         
         _startingTrack = trackId.Value;
-        PlayerStateChanged(new PlayerStateArgs(PlayerState.Starting));
+        PlayerStateChanged(new PlayerStateArgs(PlayerState.Starting) { SelectedTrackId = trackId });
         var track = _tracks.FirstOrDefault(t => t.Id == trackId.Value);
         
         // Null when trying to start from album details
@@ -499,7 +499,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     {
         return _selectedTrack?.Id;
     }
-
+    
     /// <summary>
     /// Get currently selected track 
     /// </summary>

@@ -1,7 +1,10 @@
 name: Build packages
 
 on:
-  workflow_dispatch:
+  workflow_run:
+    workflows: ["Unit Tests"]
+    types:
+      - completed
 env:
   JELLYTUNE_VERSION: 1.0.${{ github.run_number }}
 
@@ -94,3 +97,24 @@ jobs:
           name: JellyTune-${{ env.JELLYTUNE_VERSION }}.aarch64.flatpak
           path: Deploy/JellyTune-*.flatpak
 
+  Create_Release: 
+    needs: [Build_x86_64, Build_arm64] 
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Download all artifacts
+        uses: actions/download-artifact@v5 
+        with: 
+          path: artifacts
+        
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with: 
+          tag_name: v${{ env.JELLYTUNE_VERSION }}
+          name: JellyTune v${{ env.JELLYTUNE_VERSION }}
+          body: | 
+            JellyTune version ${{ env.JELLYTUNE_VERSION }}.
+          files: artifacts/**/*
+          draft: false
+          prerelease: false

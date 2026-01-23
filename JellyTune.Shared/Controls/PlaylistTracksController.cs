@@ -17,7 +17,7 @@ public sealed class PlaylistTracksController : IDisposable
 
     public Playlist Playlist { private set; get; }
     public readonly List<Track> Tracks = [];
-    public event EventHandler<PlaylistTracksStateArgs> OnPlaylistTracksStateChanged;
+    public event EventHandler<PlaylistTracksStateArgs>? OnPlaylistTracksStateChanged;
     
     public PlaylistTracksController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService, IPlayerService playerService, IFileService fileService)
     {
@@ -31,9 +31,9 @@ public sealed class PlaylistTracksController : IDisposable
 
     private void PlayerServiceOnPlayerStateChanged(object? sender, PlayerStateArgs e)
     {
-        if (e.State is PlayerState.Playing or PlayerState.Stopped or PlayerState.Paused or PlayerState.Starting or PlayerState.Selected)
+        if (e.State is PlayerState.Playing or PlayerState.Stopped or PlayerState.Paused or PlayerState.Starting)
         {
-            OnPlaylistTracksStateChanged.Invoke(this, new PlaylistTracksStateArgs() {  UpdateTrackState = true, SelectedTrackId = e.SelectedTrack?.Id });
+            OnPlaylistTracksStateChanged?.Invoke(this, new PlaylistTracksStateArgs() {  UpdateTrackState = true, SelectedTrackId = e.SelectedTrack?.Id ?? e.SelectedTrackId });
         }
     }
 
@@ -43,13 +43,13 @@ public sealed class PlaylistTracksController : IDisposable
     /// <param name="playlistId"></param>
     public async Task OpenPlaylist(Guid playlistId)
     {
-        OnPlaylistTracksStateChanged.Invoke(this, new PlaylistTracksStateArgs() { Loading = true });
+        OnPlaylistTracksStateChanged?.Invoke(this, new PlaylistTracksStateArgs() { Loading = true });
         Playlist = await _jellyTuneApiService.GetPlaylistAsync(playlistId);
         
         Tracks.Clear();
         var tracks = await _jellyTuneApiService.GetPlaylistTracksAsync(playlistId);
         Tracks.AddRange(tracks);
-        OnPlaylistTracksStateChanged.Invoke(this, new PlaylistTracksStateArgs());
+        OnPlaylistTracksStateChanged?.Invoke(this, new PlaylistTracksStateArgs());
     }
 
     /// <summary>

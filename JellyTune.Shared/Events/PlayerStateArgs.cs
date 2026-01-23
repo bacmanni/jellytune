@@ -21,6 +21,11 @@ public class PlayerStateArgs(
     public List<Track> Tracks { get; private set; } = tracks ?? [];
 
     /// <summary>
+    /// Selected track Id. This is available when track is loading
+    /// </summary>
+    public Guid? SelectedTrackId { get; internal set; } = selectedTrack?.Id;
+
+    /// <summary>
     /// State realates to this track guid
     /// </summary>
     public Track? SelectedTrack { get; private set; } = selectedTrack;

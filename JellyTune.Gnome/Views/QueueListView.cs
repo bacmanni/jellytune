@@ -30,7 +30,7 @@ public class QueueListView : Gtk.ScrolledWindow
 
     private void OnPlayerStateChanged(object? sender, PlayerStateArgs args)
     {
-        if (args.State is PlayerState.Playing or PlayerState.Paused or PlayerState.Starting or PlayerState.Selected)
+        if (args.State is PlayerState.Playing or PlayerState.Paused)
         {
             UpdateRowState(args.SelectedTrack.Id, args.State);
         }
