@@ -31,21 +31,21 @@ jobs:
         run: dotnet tool update -g KuiperZone.PupNet
 
       - name: Create x64 Appimage
-        run: pupnet --runtime linux-x64 --kind appimage --app-version ${{ github.ref }}
+        run: pupnet --runtime linux-x64 --kind appimage --app-version ${{ github.ref_name }}
 
       - name: Upload AppImage artifact
         uses: actions/upload-artifact@v5
         with:
-          name: JellyTune-${{ github.ref }}.x86_64.appImage
+          name: JellyTune-${{ github.ref_name }}.x86_64.appImage
           path: Deploy/JellyTune*.AppImage
 
       - name: Create Flatpak
-        run: pupnet --runtime linux-x64 --kind flatpak --app-version ${{ github.ref }}
+        run: pupnet --runtime linux-x64 --kind flatpak --app-version ${{ github.ref_name }}
 
       - name: Upload flatpak artifact
         uses: actions/upload-artifact@v5
         with:
-          name: JellyTune-${{ github.ref }}.x86_64.flatpak
+          name: JellyTune-${{ github.ref_name }}.x86_64.flatpak
           path: Deploy/JellyTune-*.flatpak
 
   Build_arm64:
@@ -73,21 +73,21 @@ jobs:
         run: dotnet tool update -g KuiperZone.PupNet
 
       - name: Create arm64 Appimage
-        run: pupnet --runtime linux-arm64 --kind appimage --app-version ${{ github.ref }}
+        run: pupnet --runtime linux-arm64 --kind appimage --app-version ${{ github.ref_name }}
 
       - name: Upload AppImage artifact
         uses: actions/upload-artifact@v5
         with:
-          name: JellyTune-${{ github.ref }}.aarch64.appImage
+          name: JellyTune-${{ github.ref_name }}.aarch64.appImage
           path: Deploy/JellyTune*.AppImage
 
       - name: Create Flatpak
-        run: pupnet --runtime linux-arm64 --kind flatpak --app-version ${{ github.ref }}
+        run: pupnet --runtime linux-arm64 --kind flatpak --app-version ${{ github.ref_name }}
 
       - name: Upload flatpak artifact
         uses: actions/upload-artifact@v5
         with:
-          name: JellyTune-${{ github.ref }}.aarch64.flatpak
+          name: JellyTune-${{ github.ref_name }}.aarch64.flatpak
           path: Deploy/JellyTune-*.flatpak
           
   Create_Release:
