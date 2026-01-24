@@ -110,10 +110,10 @@ jobs:
         with:
           path: ./artifacts
 
-      - name: Flatten artifact directory
+      - name: Print artifacts
         run: |
-          find ./artifacts -type f -exec mv {} ./artifacts \;
-          find ./artifacts -mindepth 1 -type d -exec rm -r {} +
+          echo "Artifacts directory:"
+          ls -R ./artifacts
 
       - name: Create Release
         id: create_release
