@@ -125,7 +125,7 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/JellyTune-*.x86_64.appImage
+          asset_path: ./artifacts/JellyTune-${{ github.ref_name }}.x86_64.appImage
           asset_name: JellyTune-${{ github.ref_name }}.x86_64.appImage
           asset_content_type: application/octet-stream
           
@@ -133,7 +133,7 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/JellyTune-*.x86_64.flatpak
+          asset_path: ./artifacts/JellyTune-${{ github.ref_name }}.x86_64.flatpak
           asset_name: JellyTune-${{ github.ref_name }}.x86_64.flatpak
           asset_content_type: application/octet-stream
 
@@ -141,7 +141,7 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/JellyTune-*.aarch64.appImage
+          asset_path: ./artifacts/JellyTune-${{ github.ref_name }}.aarch64.appImage
           asset_name: JellyTune-${{ github.ref_name }}.aarch64.appImage
           asset_content_type: application/octet-stream
           
@@ -149,7 +149,7 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/JellyTune-*.aarch64.flatpak
+          asset_path: ./artifacts/JellyTune-${{ github.ref_name }}.aarch64.flatpak
           asset_name: JellyTune-${{ github.ref_name }}.aarch64.flatpak
           asset_content_type: application/octet-stream
 
