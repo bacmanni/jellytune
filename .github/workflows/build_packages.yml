@@ -133,6 +133,8 @@ jobs:
 
       - name: Upload x86_64 appImage
         uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./artifacts/JellyTune-${{ github.ref_name }}.x86_64.AppImage
@@ -141,6 +143,8 @@ jobs:
           
       - name: Upload x86_64 flatpak
         uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./artifacts/JellyTune-${{ github.ref_name }}.x86_64.flatpak
@@ -149,6 +153,8 @@ jobs:
 
       - name: Upload aarch64 appImage
         uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./artifacts/JellyTune-${{ github.ref_name }}.aarch64.AppImage
@@ -157,6 +163,8 @@ jobs:
           
       - name: Upload aarch64 flatpak
         uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./artifacts/JellyTune-${{ github.ref_name }}.aarch64.flatpak
