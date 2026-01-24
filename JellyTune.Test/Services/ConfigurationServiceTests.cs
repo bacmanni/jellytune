@@ -44,8 +44,11 @@ public class ConfigurationServiceTests
         // Test save and load saved
         configuration.AutoRefresh = !configuration.AutoRefresh;
         _configurationService.Set(configuration);
-        _configurationService.Save();
         
+        
+        var evt = Assert.Raises<EventArgs>( handler => _configurationService.Saved += handler, handler => _configurationService.Saved -= handler, () => _configurationService.Save() );
+        Assert.Equal(_configurationService, evt.Sender);
+
         var configurationResult = new Configuration();
         configurationResult.AutoRefresh = !configurationResult.AutoRefresh;
         _mockFileSystem.Setup(repo => repo.File.ReadAllText(configurationFile)).Returns(JsonSerializer.Serialize(configurationResult));
@@ -53,7 +56,9 @@ public class ConfigurationServiceTests
         var savedAutoRefresh = configuration.AutoRefresh;
         configuration.AutoRefresh = !configuration.AutoRefresh;
         _configurationService.Set(configuration);
-        _configurationService.Load();
+        
+        evt = Assert.Raises<EventArgs>( handler => _configurationService.Loaded += handler, handler => _configurationService.Loaded -= handler, () => _configurationService.Load() );
+        Assert.Equal(_configurationService, evt.Sender);
 
         var loadedAutoRefresh = _configurationService.Get().AutoRefresh;
         
@@ -64,12 +69,6 @@ public class ConfigurationServiceTests
     public void GetLatestChanges()
     {
         var result = _configurationService.GetLatestChanges();
-        
-        
-        
-        
-        
-        
         Assert.NotEmpty(result);
     }
 }

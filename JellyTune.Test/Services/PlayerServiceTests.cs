@@ -1,3 +1,5 @@
+using JellyTune.Shared.Enums;
+using JellyTune.Shared.Events;
 using JellyTune.Shared.Models;
 using JellyTune.Shared.Services;
 using Moq;
@@ -164,5 +166,54 @@ public class PlayerServiceTests
         _playerService.StopTrack();
         _playerService.ClearTracks();
         Assert.Empty(_playerService.GetTracks());
+    }
+
+    [Fact]
+    public void StartTrackAsync_Events()
+    {
+        //Start
+        var evt = Assert.Raises<PlayerStateArgs>( handler => _playerService.OnPlayerStateChanged += handler, handler => _playerService.OnPlayerStateChanged -= handler, () => _playerService.StartTrackAsync(_trackId1).GetAwaiter().GetResult() );
+        Assert.Equal(_playerService, evt.Sender);
+        Assert.Equal(PlayerState.Playing, evt.Arguments.State);
+        Assert.Equal(2, evt.Arguments.Tracks.Count);
+        Assert.Equal(_trackId1, evt.Arguments.SelectedTrackId);
+        Assert.Equal(_trackId1, evt.Arguments.SelectedTrack?.Id);
+        Assert.Equal(_almumId1, evt.Arguments.Album?.Id);
+        
+        // Next
+        evt = Assert.Raises<PlayerStateArgs>( handler => _playerService.OnPlayerStateChanged += handler, handler => _playerService.OnPlayerStateChanged -= handler, () => _playerService.NextTrackAsync().GetAwaiter().GetResult() );
+        Assert.Equal(_playerService, evt.Sender);
+        Assert.Equal(PlayerState.Playing, evt.Arguments.State);
+        Assert.Equal(2, evt.Arguments.Tracks.Count);
+        Assert.Equal(_trackId2, evt.Arguments.SelectedTrackId);
+        Assert.Equal(_trackId2, evt.Arguments.SelectedTrack?.Id);
+        Assert.Equal(_almumId1, evt.Arguments.Album?.Id);
+        
+        // Previous
+        evt = Assert.Raises<PlayerStateArgs>( handler => _playerService.OnPlayerStateChanged += handler, handler => _playerService.OnPlayerStateChanged -= handler, () => _playerService.PreviousTrackAsync().GetAwaiter().GetResult() );
+        Assert.Equal(_playerService, evt.Sender);
+        Assert.Equal(PlayerState.Playing, evt.Arguments.State);
+        Assert.Equal(2, evt.Arguments.Tracks.Count);
+        Assert.Equal(_trackId1, evt.Arguments.SelectedTrackId);
+        Assert.Equal(_trackId1, evt.Arguments.SelectedTrack?.Id);
+        Assert.Equal(_almumId1, evt.Arguments.Album?.Id);
+        
+        // Start or pause
+        evt = Assert.Raises<PlayerStateArgs>( handler => _playerService.OnPlayerStateChanged += handler, handler => _playerService.OnPlayerStateChanged -= handler, () => _playerService.StartOrPauseTrackAsync().GetAwaiter().GetResult() );
+        Assert.Equal(_playerService, evt.Sender);
+        Assert.Equal(PlayerState.Paused, evt.Arguments.State);
+        Assert.Equal(2, evt.Arguments.Tracks.Count);
+        Assert.Equal(_trackId1, evt.Arguments.SelectedTrackId);
+        Assert.Equal(_trackId1, evt.Arguments.SelectedTrack?.Id);
+        Assert.Equal(_almumId1, evt.Arguments.Album?.Id);
+        
+        // Select
+        evt = Assert.Raises<PlayerStateArgs>( handler => _playerService.OnPlayerStateChanged += handler, handler => _playerService.OnPlayerStateChanged -= handler, () => _playerService.SelectTrack(_trackId1) );
+        Assert.Equal(_playerService, evt.Sender);
+        Assert.Equal(PlayerState.Selected, evt.Arguments.State);
+        Assert.Equal(2, evt.Arguments.Tracks.Count);
+        Assert.Equal(_trackId1, evt.Arguments.SelectedTrackId);
+        Assert.Equal(_trackId1, evt.Arguments.SelectedTrack?.Id);
+        Assert.Equal(_almumId1, evt.Arguments.Album?.Id);
     }
 }
