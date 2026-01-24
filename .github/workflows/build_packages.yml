@@ -102,13 +102,18 @@ jobs:
     needs: [Build_x86_64, Build_arm64]
     runs-on: ubuntu-latest
     permissions:
-      contents: [write, read]
+      contents: write
 
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
           path: ./artifacts
+
+      - name: Flatten artifact directory
+        run: |
+          find ./artifacts -type f -exec mv {} ./artifacts \;
+          find ./artifacts -mindepth 1 -type d -exec rm -r {} +
 
       - name: Create Release
         id: create_release
