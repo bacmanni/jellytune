@@ -37,7 +37,7 @@ public class MediaPlayerController : IDisposable
         if (e.State is PlayerState.Playing)
             _ = RegisterPlayer();
         
-        if (e.State == PlayerState.Stopped)
+        if (e.State == PlayerState.None)
             if (!_playerService.HasNextTrack())
                 _ = UnRegisterPlayer();
 

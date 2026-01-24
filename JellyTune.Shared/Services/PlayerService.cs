@@ -221,14 +221,14 @@ public sealed class PlayerService : IPlayerService, IDisposable
             return;
 
         var trackId = _playingTrack?.Id ?? _selectedTrack.Id;
-        
+
         if (_player != null)
         {
             _player.PlaybackEnded -= async (_, args) => await OnPlaybackEnded(_, args);
-            
+
             if (endPlayback && !string.IsNullOrWhiteSpace(_playSessionId))
                 _jellyTuneApiService.StopPlaybackAsync(_playSessionId, trackId);
-            
+
             _player?.Stop();
             _device.MasterMixer.RemoveComponent(_player);
             _player.Dispose();
@@ -236,11 +236,14 @@ public sealed class PlayerService : IPlayerService, IDisposable
             _player = null;
             _networkDataProvider = null;
         }
-        
+
         _playingTrack = null;
-            
+
         if (endPlayback)
+        {
+            _startingTrack = null;
             _selectedTrack = null;
+        }
     }
 
     private void PausePlaying()
