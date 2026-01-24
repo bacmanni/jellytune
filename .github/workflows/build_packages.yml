@@ -121,13 +121,35 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload Release Assets
+      - name: Upload x86_64 appImage
         uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts
-          asset_name: artifacts
+          asset_path: ./artifacts/JellyTune-*.x86_64.appImage
+          asset_name: JellyTune-${{ github.ref_name }}.x86_64.appImage
+          asset_content_type: application/octet-stream
+          
+      - name: Upload x86_64 flatpak
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/JellyTune-*.x86_64.flatpak
+          asset_name: JellyTune-${{ github.ref_name }}.x86_64.flatpak
+          asset_content_type: application/octet-stream
+
+      - name: Upload aarch64 appImage
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/JellyTune-*.aarch64.appImage
+          asset_name: JellyTune-${{ github.ref_name }}.aarch64.appImage
+          asset_content_type: application/octet-stream
+          
+      - name: Upload aarch64 flatpak
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/JellyTune-*.aarch64.flatpak
+          asset_name: JellyTune-${{ github.ref_name }}.aarch64.flatpak
           asset_content_type: application/octet-stream
 
