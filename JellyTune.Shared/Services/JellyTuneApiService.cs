@@ -81,15 +81,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
 
             return true;
         }
-        catch (InvalidOperationException ex)
-        {
-            return false;
-        }
-        catch (SystemException ex)
-        {
-            return false;
-        }
-        catch (HttpRequestException ex)
+        catch (Exception ex)
         {
             return false;
         }

@@ -24,14 +24,25 @@ public class HttpClientExceptionHandler : DelegatingHandler
                 var response = await base.SendAsync(request, cancellationToken);
                 if (!response.IsSuccessStatusCode)
                 {
+                    if (tries == totalRetries)
+                        return response;
+                    
                     Console.WriteLine($"Request failed with status code {response.StatusCode}");
-                    throw new HttpRequestException($"Request failed with status code {response.StatusCode}");
+                    tries++;
+                    continue;
                 }
 
                 return response;
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"Request failed with: {ex.Message}");
+
+                if (tries == totalRetries)
+                {
+                    return new HttpResponseMessage(HttpStatusCode.NotFound) { Content = new StringContent(string.Empty) };
+                }
+                
                 tries++;
             }
         }
