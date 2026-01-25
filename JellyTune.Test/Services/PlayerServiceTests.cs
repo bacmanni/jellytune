@@ -208,6 +208,16 @@ public class PlayerServiceTests
         Assert.Equal(_trackId1, evt.Arguments.SelectedTrack?.Id);
         Assert.Equal(_almumId1, evt.Arguments.Album?.Id);
         
+        // Another way round
+        playerState = _playerService.GetPlaybackState() == PlayerState.Playing ? PlayerState.Paused : PlayerState.Playing;
+        evt = Assert.Raises<PlayerStateArgs>( handler => _playerService.OnPlayerStateChanged += handler, handler => _playerService.OnPlayerStateChanged -= handler, () => _playerService.StartOrPauseTrackAsync().GetAwaiter().GetResult() );
+        Assert.Equal(_playerService, evt.Sender);
+        Assert.Equal(playerState, evt.Arguments.State);
+        Assert.Equal(2, evt.Arguments.Tracks.Count);
+        Assert.Equal(_trackId1, evt.Arguments.SelectedTrackId);
+        Assert.Equal(_trackId1, evt.Arguments.SelectedTrack?.Id);
+        Assert.Equal(_almumId1, evt.Arguments.Album?.Id);
+        
         // Select
         evt = Assert.Raises<PlayerStateArgs>( handler => _playerService.OnPlayerStateChanged += handler, handler => _playerService.OnPlayerStateChanged -= handler, () => _playerService.SelectTrack(_trackId1) );
         Assert.Equal(_playerService, evt.Sender);
