@@ -62,6 +62,11 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// Currently active play session
     /// </summary>
     private string? _playSessionId;
+
+    /// <summary>
+    /// Currently playing track position
+    /// </summary>
+    private double? _trackPosition;
     
     /// <summary>
     /// Event for all playing related changes
@@ -391,7 +396,16 @@ public sealed class PlayerService : IPlayerService, IDisposable
             PlayerStateChanged(new PlayerStateArgs(PlayerState.Paused, _album, _tracks.ToList(), _selectedTrack));
         }
     }
-    
+
+    /// <summary>
+    /// Seek currently playing/stopped track
+    /// </summary>
+    /// <param name="seconds"></param>
+    public void SeekTrack(double seconds)
+    {
+        _player?.Seek(TimeSpan.FromSeconds(seconds));
+    }
+
     /// <summary>
     /// Stop playing started track
     /// </summary>
@@ -688,8 +702,8 @@ public sealed class PlayerService : IPlayerService, IDisposable
             _player = null;
         }
 
-        _device.Stop();
-        _device.Dispose();
+        _device?.Stop();
+        _device?.Dispose();
         _engine.Dispose();
     }
 }

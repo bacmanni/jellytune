@@ -1,8 +1,10 @@
+using Gtk;
 using Gtk.Internal;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
 using JellyTune.Gnome.Helpers;
+using Range = Gtk.Range;
 
 namespace JellyTune.Gnome.Views;
 
@@ -10,7 +12,10 @@ public class PlayerView : Gtk.CenterBox
 {
     private readonly Gtk.Widget  _mainWindow;
     private readonly PlayerController _controller;
+    private Guid? _playingTrackId;
     
+    [Gtk.Connect] private readonly Gtk.Scale _durationScale;
+        
     [Gtk.Connect] private readonly Gtk.Box _container;
     [Gtk.Connect] private readonly Gtk.Image _albumArt;
     [Gtk.Connect] private readonly Gtk.Button _skipBackward;
@@ -26,10 +31,17 @@ public class PlayerView : Gtk.CenterBox
         builder.Connect(this);
     }
 
-    private void UpdateTrack()
+    private void UpdateTrack(bool begin = false)
     {
         if (_controller.SelectedTrack != null)
         {
+            if (begin)
+            {
+                _durationScale.Adjustment.Lower = 0;
+                _durationScale.Adjustment.Value = 0;
+                _durationScale.Adjustment.Upper = _controller.SelectedTrack.RunTime.Value.TotalSeconds;
+            }
+            
             _track.SetText(_controller.SelectedTrack.Name);
             _lyrics.SetSensitive(_controller.SelectedTrack.HasLyrics);
             _skipForward.SetSensitive(_controller.GetPlayerService().HasNextTrack());
@@ -77,8 +89,11 @@ public class PlayerView : Gtk.CenterBox
         _play.OnClicked += PlayerPlayOnClicked;
         _skipForward.OnClicked += SkipForwardOnClicked;
         _lyrics.OnClicked += LyricsOnOnClicked;
-        _controller.GetPlayerService().OnPlayerStateChanged += OnOnPlayerStateChanged;
-
+        _controller.GetPlayerService().OnPlayerStateChanged += OnPlayerStateChanged;
+        _controller.GetPlayerService().OnPlayerPositionChanged += OnPlayerPositionChanged;
+        
+        _durationScale.OnChangeValue += DurationScaleOnChangeValue;
+        
         var click = Gtk.GestureClick.New();
         _albumArt.AddController(click);
         click.OnReleased += (sender, args) =>
@@ -94,12 +109,24 @@ public class PlayerView : Gtk.CenterBox
         };
     }
 
+    private bool DurationScaleOnChangeValue(Range sender, Range.ChangeValueSignalArgs args)
+    {
+        _controller.SeekTrack(args.Value);
+        sender.SetValue(args.Value);
+        return true;
+    }
+
+    private void OnPlayerPositionChanged(object? sender, PlayerPositionArgs e)
+    {
+        _durationScale.Adjustment.Value = e.Position;
+    }
+
     private void LyricsOnOnClicked(Gtk.Button sender, EventArgs args)
     {
         _controller.ShowShowLyrics();
     }
 
-    private void OnOnPlayerStateChanged(object? sender, PlayerStateArgs e)
+    private void OnPlayerStateChanged(object? sender, PlayerStateArgs e)
     {
         switch (e.State)
         {
@@ -109,7 +136,8 @@ public class PlayerView : Gtk.CenterBox
                 break;
             case PlayerState.Playing:
                 _play.IconName = "media-playback-pause-symbolic";
-                UpdateTrack();
+                UpdateTrack(e.SelectedTrackId != _playingTrackId);
+                _playingTrackId = e.SelectedTrackId;
                 break;
             case PlayerState.SkipNext or PlayerState.SkipPrevious:
                 UpdateTrack();
@@ -125,8 +153,8 @@ public class PlayerView : Gtk.CenterBox
 
     public override void Dispose()
     {
-        _controller.GetPlayerService().OnPlayerStateChanged -= OnOnPlayerStateChanged;
-        
+        _controller.GetPlayerService().OnPlayerStateChanged -= OnPlayerStateChanged;
+        _controller.GetPlayerService().OnPlayerPositionChanged -= OnPlayerPositionChanged;
         base.Dispose();
     }
 }

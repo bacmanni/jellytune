@@ -16,9 +16,18 @@
                         <property name="hexpand">true</property>
                         <child><!-- TODO: Add duration selection -->
                             <object class="GtkBox" id="_duration">
-                                <property name="visible">false</property>
+                                <property name="visible">true</property>
+                                <property name="hexpand">true</property>
                                 <child>
-                                    <object class="GtkScale"></object>
+                                    <object class="GtkScale" id="_durationScale">
+                                        <property name="orientation">0</property>
+                                        <property name="hexpand">true</property>
+                                        <property name="draw-value">false</property>
+                                        <property name="adjustment">
+                                            <object class="GtkAdjustment">
+                                            </object>
+                                        </property>
+                                    </object>
                                 </child>
                             </object>
                         </child>

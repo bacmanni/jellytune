@@ -13,6 +13,7 @@ public interface IPlayerService
     public Task StartTrackAsync(Guid? trackId = null);
     public void StopTrack();
     public void PauseTrack();
+    public void SeekTrack(double seconds);
     public bool IsPlaying();
     public bool IsPaused();
     public void ShuffleTracks();
