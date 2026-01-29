@@ -12,10 +12,7 @@ public class PlayerView : Gtk.CenterBox
 {
     private readonly Gtk.Widget  _mainWindow;
     private readonly PlayerController _controller;
-    private Guid? _playingTrackId;
-    
-    [Gtk.Connect] private readonly Gtk.Scale _durationScale;
-        
+
     [Gtk.Connect] private readonly Gtk.Box _container;
     [Gtk.Connect] private readonly Gtk.Image _albumArt;
     [Gtk.Connect] private readonly Gtk.Button _skipBackward;
@@ -31,17 +28,10 @@ public class PlayerView : Gtk.CenterBox
         builder.Connect(this);
     }
 
-    private void UpdateTrack(bool begin = false)
+    private void UpdateTrack()
     {
         if (_controller.SelectedTrack != null)
         {
-            if (begin)
-            {
-                _durationScale.Adjustment.Lower = 0;
-                _durationScale.Adjustment.Value = 0;
-                _durationScale.Adjustment.Upper = _controller.SelectedTrack.RunTime.Value.TotalSeconds;
-            }
-            
             _track.SetText(_controller.SelectedTrack.Name);
             _lyrics.SetSensitive(_controller.SelectedTrack.HasLyrics);
             _skipForward.SetSensitive(_controller.GetPlayerService().HasNextTrack());
@@ -90,10 +80,7 @@ public class PlayerView : Gtk.CenterBox
         _skipForward.OnClicked += SkipForwardOnClicked;
         _lyrics.OnClicked += LyricsOnOnClicked;
         _controller.GetPlayerService().OnPlayerStateChanged += OnPlayerStateChanged;
-        _controller.GetPlayerService().OnPlayerPositionChanged += OnPlayerPositionChanged;
-        
-        _durationScale.OnChangeValue += DurationScaleOnChangeValue;
-        
+
         var click = Gtk.GestureClick.New();
         _albumArt.AddController(click);
         click.OnReleased += (sender, args) =>
@@ -116,11 +103,6 @@ public class PlayerView : Gtk.CenterBox
         return true;
     }
 
-    private void OnPlayerPositionChanged(object? sender, PlayerPositionArgs e)
-    {
-        _durationScale.Adjustment.Value = e.Position;
-    }
-
     private void LyricsOnOnClicked(Gtk.Button sender, EventArgs args)
     {
         _controller.ShowShowLyrics();
@@ -136,8 +118,7 @@ public class PlayerView : Gtk.CenterBox
                 break;
             case PlayerState.Playing:
                 _play.IconName = "media-playback-pause-symbolic";
-                UpdateTrack(e.SelectedTrackId != _playingTrackId);
-                _playingTrackId = e.SelectedTrackId;
+                UpdateTrack();
                 break;
             case PlayerState.SkipNext or PlayerState.SkipPrevious:
                 UpdateTrack();
@@ -154,7 +135,6 @@ public class PlayerView : Gtk.CenterBox
     public override void Dispose()
     {
         _controller.GetPlayerService().OnPlayerStateChanged -= OnPlayerStateChanged;
-        _controller.GetPlayerService().OnPlayerPositionChanged -= OnPlayerPositionChanged;
         base.Dispose();
     }
 }

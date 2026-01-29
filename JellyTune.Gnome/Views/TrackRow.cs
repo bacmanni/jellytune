@@ -30,9 +30,8 @@ public partial class TrackRow : Adw.ActionRow
         _fileService  = fileService;
         _track = track;
         Activatable = true;
-
-        if (_track.RunTime.HasValue)
-            _runtime.SetText(_track.RunTime.Value.ToString("m\\:ss"));
+        
+        _runtime.SetText(_track.RunTime.ToString("m\\:ss"));
 
         if (extended)
         {

@@ -213,6 +213,12 @@
           </object>
         </child>
         <child>
+          <object class="GtkBox" id="_playerPosition">
+            <property name="visible">true</property>
+            <property name="hexpand">true</property>
+          </object>
+        </child>
+        <child>
           <object class="GtkBox" id="_player">
             <property name="visible">false</property>
           </object>

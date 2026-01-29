@@ -28,6 +28,7 @@ public partial class MainWindow : Adw.ApplicationWindow
     
     private readonly PlayerController _playerController;
     private readonly PlayerView  _playerView;
+    private readonly PlayerPositionView _playerPositionView;
     
     private readonly AlbumController _albumController;
     private readonly AlbumView _albumView;
@@ -55,6 +56,8 @@ public partial class MainWindow : Adw.ApplicationWindow
     
     [Gtk.Connect] private readonly Gtk.Button _searchButton;
     [Gtk.Connect] private readonly Gtk.SearchEntry _search_field;
+    
+    [Gtk.Connect] private readonly Gtk.Box _playerPosition;
     
     [Gtk.Connect] private readonly Gtk.Box _player;
 
@@ -133,6 +136,9 @@ public partial class MainWindow : Adw.ApplicationWindow
         _playerController.OnShowShowLyricsClicked += PlayerControllerOnShowShowLyricsClicked;
         _playerView = new PlayerView(this, _playerController);
         _player.Append(_playerView);
+
+        _playerPositionView = new PlayerPositionView(_controller.GetPlayerService());
+        _playerPosition.Append(_playerPositionView);
         
         // Search
         _searchController = new SearchController(_controller.GetJellyTuneApiService(), _controller.GetConfigurationService(), _controller.GetPlayerService(), _controller.GetFileService());

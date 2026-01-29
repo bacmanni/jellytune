@@ -1,6 +1,8 @@
 
 using System.Collections.Concurrent;
+using System.Globalization;
 using System.Net.NetworkInformation;
+using System.Timers;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
 using JellyTune.Shared.Models;
@@ -11,6 +13,7 @@ using SoundFlow.Enums;
 using SoundFlow.Providers;
 using SoundFlow.Structs;
 using Task = System.Threading.Tasks.Task;
+using Timer = System.Timers.Timer;
 
 namespace JellyTune.Shared.Services;
 
@@ -27,6 +30,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     private string _streamingUrl = string.Empty;
     private bool _networkDisconnected;
     private CancellationTokenSource? _cancellationTokenSource;
+    private Timer? _playTimer;
     
     /// <summary>
     /// Currently selected album
@@ -211,6 +215,25 @@ public sealed class PlayerService : IPlayerService, IDisposable
             _player.Play();
 
             _player.PlaybackEnded += async (_, args) => await OnPlaybackEnded(_, args);
+            
+            _playTimer?.Close();
+            _playTimer?.Dispose();
+            
+            _playTimer = new Timer(250);
+            _playTimer.Elapsed += TimerOnElapsed;
+            _playTimer.Start();
+        }
+    }
+
+    private void TimerOnElapsed(object? sender, ElapsedEventArgs e)
+    {
+        if (_player?.State == PlaybackState.Playing)
+        {
+            double? seconds = _player.Time;
+            if (seconds.HasValue)
+            {
+                OnPlayerPositionChanged?.Invoke(this, new PlayerPositionArgs() { Position = seconds.Value });
+            }
         }
     }
 

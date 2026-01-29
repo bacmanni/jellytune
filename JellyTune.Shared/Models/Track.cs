@@ -8,7 +8,7 @@ public class Track()
     public string Album { get; set; }
     public int Number { get; set; }
     public string Name { get; set; }
-    public TimeSpan? RunTime { get; set; }
+    public TimeSpan RunTime { get; set; }
     public bool HasLyrics { get; set; }
     public bool HasArtwork { get; set; }
 }

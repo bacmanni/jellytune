@@ -81,6 +81,8 @@
       <None Remove="Blueprints\albumlist.ui" />
       <EmbeddedResource Include="Blueprints\albumlist.ui" />
       <None Remove="Blueprints\status.ui" />
+      <None Remove="Blueprints\player_seek.ui.xml" />
+      <EmbeddedResource Include="Blueprints\player_position.ui" />
     </ItemGroup>
 
     <ItemGroup>

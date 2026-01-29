@@ -50,10 +50,7 @@ public class MediaPlayer : IMediaPlayer2, IPlayer
         if (url != null)
             _metadata["mpris:artUrl"] = url.ToString();
         
-        if (track.RunTime.HasValue)
-            _metadata["mpris:length"] = track.RunTime.Value.TotalMicroseconds;
-        else
-            _metadata["mpris:length"] = 0;
+        _metadata["mpris:length"] = track.RunTime.TotalMicroseconds;
         
         var metadata = new KeyValuePair<string, object>("Metadata",_metadata);
         var status = new KeyValuePair<string, object>("PlaybackStatus", GetPlaybackStatus());
