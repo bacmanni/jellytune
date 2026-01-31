@@ -137,7 +137,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         _playerView = new PlayerView(this, _playerController);
         _player.Append(_playerView);
 
-        _playerPositionView = new PlayerPositionView(_controller.GetPlayerService());
+        _playerPositionView = new PlayerPositionView(_controller.GetPlayerService(), _controller.GetConfigurationService());
         _playerPosition.Append(_playerPositionView);
         
         // Search
@@ -314,6 +314,9 @@ public partial class MainWindow : Adw.ApplicationWindow
             if (!_player.IsVisible())
                 _player.SetVisible(true);
                 
+            if (!_playerPosition.IsVisible())
+                _playerPosition.SetVisible(true);
+                
             if (!_search_albums_footer.IsVisible())
                 _search_albums_footer.SetVisible(true);
                 
@@ -331,6 +334,7 @@ public partial class MainWindow : Adw.ApplicationWindow
             _search_albums_footer?.SetVisible(true);
             _queue_list_footer?.SetVisible(false);
             _playlist_tracks_footer?.SetVisible(false);
+            _playerPosition?.SetVisible(false);
         }
     }
 

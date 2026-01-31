@@ -2,7 +2,9 @@ using Adw.Internal;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Services;
 using JellyTune.Gnome.Helpers;
+using ActionRow = Adw.ActionRow;
 using AlertDialog = Adw.AlertDialog;
+using Object = GObject.Object;
 
 namespace JellyTune.Gnome.Views;
 
@@ -20,6 +22,8 @@ public partial class PreferencesView : Adw.PreferencesDialog
     [Gtk.Connect] private readonly Adw.SwitchRow _cacheList;
     [Gtk.Connect] private readonly Adw.SwitchRow _cacheArtwork;
     [Gtk.Connect] private readonly Adw.SwitchRow _showListSeparator;
+    [Gtk.Connect] private readonly Adw.SwitchRow _showPlayerDuration;
+    [Gtk.Connect] private readonly Adw.SwitchRow _showPlayerDurationLabels;
     
     public bool Refresh { get; set; } = false;
     public string? Password { get; set; } = null;
@@ -29,6 +33,16 @@ public partial class PreferencesView : Adw.PreferencesDialog
     {
         builder.Connect(this);
         OnCloseAttempt += CloseAttempt;
+        
+        _showPlayerDuration.OnNotify += ShowPlayerDurationOnNotify;
+    }
+
+    private void ShowPlayerDurationOnNotify(Object sender, NotifySignalArgs args)
+    {
+        if (args.Pspec.GetName() == "active")
+        {
+            _showPlayerDurationLabels.SetSensitive(_showPlayerDuration.GetActive());
+        }
     }
 
     private void CloseAttempt(Adw.Dialog sender, EventArgs args)
@@ -41,6 +55,8 @@ public partial class PreferencesView : Adw.PreferencesDialog
             configuration.CacheListData = _cacheList.GetActive();
             configuration.CacheAlbumArt = _cacheArtwork.GetActive();
             configuration.ShowListSeparator = _showListSeparator.GetActive();
+            configuration.ShowPlayerDuration = _showPlayerDuration.GetActive();
+            configuration.ShowPlayerDurationLabel = _showPlayerDurationLabels.GetActive();
             
             Refresh = _accountController.HasChanges();
             configuration.ServerUrl = _accountController.ServerUrl;
@@ -94,10 +110,15 @@ public partial class PreferencesView : Adw.PreferencesDialog
         _cacheList.SetActive(configuration.CacheListData);
         _cacheArtwork.SetActive(configuration.CacheAlbumArt);
         _showListSeparator.SetActive(configuration.ShowListSeparator);
+        
+        _showPlayerDuration.SetActive(configuration.ShowPlayerDuration);
+        _showPlayerDurationLabels.SetSensitive(_showPlayerDuration.GetActive());
+        _showPlayerDurationLabels.SetActive(configuration.ShowPlayerDurationLabel);
     }
 
     public override void Dispose()
     {
+        _showPlayerDuration.OnNotify -= ShowPlayerDurationOnNotify;
         OnCloseAttempt -= CloseAttempt;
         base.Dispose();
     }

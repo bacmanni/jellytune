@@ -4,6 +4,7 @@
 .album-art-small {
     border-radius: 6px;
 }
-.spinner-rotate {
-    animation: rotate 80s linear infinite;
+.scale-label {
+    min-width: 50px;
+    max-width: 50px;
 }

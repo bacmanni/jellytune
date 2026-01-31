@@ -3,6 +3,13 @@
     <object class="GtkBox" id="_root">
         <property name="hexpand">true</property>
         <child>
+            <object class="GtkLabel" id="_currentPosition">
+                <style>
+                    <class name="scale-label"/>
+                </style>
+            </object>
+        </child>
+        <child>
             <object class="GtkScale" id="_durationScale">
                 <property name="orientation">0</property>
                 <property name="hexpand">true</property>
@@ -11,6 +18,13 @@
                     <object class="GtkAdjustment">
                     </object>
                 </property>
+            </object>
+        </child>
+        <child>
+            <object class="GtkLabel" id="_totalLength">
+                <style>
+                    <class name="scale-label"/>
+                </style>
             </object>
         </child>
     </object>

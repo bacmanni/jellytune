@@ -214,7 +214,7 @@
         </child>
         <child>
           <object class="GtkBox" id="_playerPosition">
-            <property name="visible">true</property>
+            <property name="visible">false</property>
             <property name="hexpand">true</property>
           </object>
         </child>

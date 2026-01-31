@@ -46,7 +46,7 @@ public class ConfigurationServiceTests
         _configurationService.Set(configuration);
         
         
-        var evt = Assert.Raises<EventArgs>( handler => _configurationService.Saved += handler, handler => _configurationService.Saved -= handler, () => _configurationService.Save() );
+        var evt = Assert.Raises<EventArgs>( handler => _configurationService.OnSaved += handler, handler => _configurationService.OnSaved -= handler, () => _configurationService.Save() );
         Assert.Equal(_configurationService, evt.Sender);
 
         var configurationResult = new Configuration();
@@ -57,7 +57,7 @@ public class ConfigurationServiceTests
         configuration.AutoRefresh = !configuration.AutoRefresh;
         _configurationService.Set(configuration);
         
-        evt = Assert.Raises<EventArgs>( handler => _configurationService.Loaded += handler, handler => _configurationService.Loaded -= handler, () => _configurationService.Load() );
+        evt = Assert.Raises<EventArgs>( handler => _configurationService.OnLoaded += handler, handler => _configurationService.OnLoaded -= handler, () => _configurationService.Load() );
         Assert.Equal(_configurationService, evt.Sender);
 
         var loadedAutoRefresh = _configurationService.Get().AutoRefresh;

@@ -37,7 +37,7 @@ public class ListView : Gtk.Box
 
         var configuration = _controller.GetConfigurationService().Get();
         _list.SetShowSeparators(configuration.ShowListSeparator);
-        _controller.GetConfigurationService().Saved += OnSaved;
+        _controller.GetConfigurationService().OnSaved += OnSaved;
         
         _listItems = Gio.ListStore.New(ListRow.GetGType());
         var selectionModel = Gtk.NoSelection.New(_listItems);
@@ -222,7 +222,7 @@ public class ListView : Gtk.Box
     public override void Dispose()
     {
         _controller.OnListChanged -= ControllerOnListChanged;
-        _controller.GetConfigurationService().Saved -= OnSaved;
+        _controller.GetConfigurationService().OnSaved -= OnSaved;
         _listItems?.RunDispose();
         base.Dispose();
     }

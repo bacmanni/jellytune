@@ -114,10 +114,12 @@ public class PlayerView : Gtk.CenterBox
         {
             case PlayerState.Stopped or PlayerState.Paused:
                 _play.IconName = "media-playback-start-symbolic";
+                _play.TooltipText = "Play track";
                 UpdateTrack();
                 break;
             case PlayerState.Playing:
                 _play.IconName = "media-playback-pause-symbolic";
+                _play.TooltipText = "Pause track";
                 UpdateTrack();
                 break;
             case PlayerState.SkipNext or PlayerState.SkipPrevious:
