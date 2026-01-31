@@ -80,9 +80,4 @@ public class Configuration
     /// Show track position on player
     /// </summary>
     public bool ShowPlayerDuration { get; set; } = false;
-    
-    /// <summary>
-    /// Are position labels visible
-    /// </summary>
-    public bool ShowPlayerDurationLabel { get; set; } = false;
 }

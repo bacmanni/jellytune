@@ -39,11 +39,7 @@
                         <child>
                             <object class="AdwSwitchRow" id="_showPlayerDuration">
                                 <property name="title" translatable="yes">Show duration scale</property>
-                            </object>
-                        </child>
-                        <child>
-                            <object class="AdwSwitchRow" id="_showPlayerDurationLabels">
-                                <property name="title" translatable="yes">Show duration labels</property>
+                                <property name="subtitle" translatable="yes">Requires restart</property>
                             </object>
                         </child>
                     </object>

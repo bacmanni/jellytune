@@ -1,13 +1,9 @@
-using System.Timers;
-using Adw.Internal;
 using Gtk.Internal;
 using JellyTune.Gnome.Helpers;
-using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
 using JellyTune.Shared.Services;
 using Range = Gtk.Range;
-using Timer = System.Timers.Timer;
 
 namespace JellyTune.Gnome.Views;
 
@@ -36,17 +32,7 @@ public partial class PlayerPositionView : Gtk.Box
         _playerService.OnPlayerStateChanged += PlayerServiceOnPlayerStateChanged;
         _playerService.OnPlayerPositionChanged += PlayerServiceOnPlayerPositionChanged;
         _durationScale.OnChangeValue += DurationScaleOnChangeValue;
-        _configurationService.OnSaved += ConfigurationServiceOnOnSaved;
         SetVisible(_configurationService.Get().ShowPlayerDuration);
-        _currentPosition.SetVisible(_configurationService.Get().ShowPlayerDurationLabel);
-        _totalLength.SetVisible(_configurationService.Get().ShowPlayerDurationLabel);
-    }
-
-    private void ConfigurationServiceOnOnSaved(object? sender, EventArgs e)
-    {
-        SetVisible(_configurationService.Get().ShowPlayerDuration);
-        _currentPosition.SetVisible(_configurationService.Get().ShowPlayerDurationLabel);
-        _totalLength.SetVisible(_configurationService.Get().ShowPlayerDurationLabel);
     }
 
     private void PlayerServiceOnPlayerPositionChanged(object? sender, PlayerPositionArgs e)

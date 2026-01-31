@@ -23,8 +23,7 @@ public partial class PreferencesView : Adw.PreferencesDialog
     [Gtk.Connect] private readonly Adw.SwitchRow _cacheArtwork;
     [Gtk.Connect] private readonly Adw.SwitchRow _showListSeparator;
     [Gtk.Connect] private readonly Adw.SwitchRow _showPlayerDuration;
-    [Gtk.Connect] private readonly Adw.SwitchRow _showPlayerDurationLabels;
-    
+
     public bool Refresh { get; set; } = false;
     public string? Password { get; set; } = null;
     
@@ -33,16 +32,6 @@ public partial class PreferencesView : Adw.PreferencesDialog
     {
         builder.Connect(this);
         OnCloseAttempt += CloseAttempt;
-        
-        _showPlayerDuration.OnNotify += ShowPlayerDurationOnNotify;
-    }
-
-    private void ShowPlayerDurationOnNotify(Object sender, NotifySignalArgs args)
-    {
-        if (args.Pspec.GetName() == "active")
-        {
-            _showPlayerDurationLabels.SetSensitive(_showPlayerDuration.GetActive());
-        }
     }
 
     private void CloseAttempt(Adw.Dialog sender, EventArgs args)
@@ -56,8 +45,7 @@ public partial class PreferencesView : Adw.PreferencesDialog
             configuration.CacheAlbumArt = _cacheArtwork.GetActive();
             configuration.ShowListSeparator = _showListSeparator.GetActive();
             configuration.ShowPlayerDuration = _showPlayerDuration.GetActive();
-            configuration.ShowPlayerDurationLabel = _showPlayerDurationLabels.GetActive();
-            
+
             Refresh = _accountController.HasChanges();
             configuration.ServerUrl = _accountController.ServerUrl;
             configuration.Username = _accountController.Username;
@@ -112,13 +100,10 @@ public partial class PreferencesView : Adw.PreferencesDialog
         _showListSeparator.SetActive(configuration.ShowListSeparator);
         
         _showPlayerDuration.SetActive(configuration.ShowPlayerDuration);
-        _showPlayerDurationLabels.SetSensitive(_showPlayerDuration.GetActive());
-        _showPlayerDurationLabels.SetActive(configuration.ShowPlayerDurationLabel);
     }
 
     public override void Dispose()
     {
-        _showPlayerDuration.OnNotify -= ShowPlayerDurationOnNotify;
         OnCloseAttempt -= CloseAttempt;
         base.Dispose();
     }
