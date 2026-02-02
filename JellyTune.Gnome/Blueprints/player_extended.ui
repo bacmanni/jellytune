@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<interface>
+    <object class="GtkRevealer" id="_root">
+        <property name="transition-type">slide-down</property>
+        <property name="reveal-child">false</property>
+        <child>
+            <object class="GtkBox">
+                <property name="orientation">1</property>
+                <child>
+                    <object class="GtkStack" id="_extendedStack">
+                        <property name="hexpand">true</property>
+                        <property name="transition-type">crossfade</property>
+                        <child>
+                            <object class="GtkBox" id="_position">
+                                <property name="hexpand">true</property>
+                                <child>
+                                    <object class="GtkLabel" id="_currentPosition">
+                                        <style>
+                                            <class name="scale-label"/>
+                                        </style>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkScale" id="_durationScale">
+                                        <property name="orientation">0</property>
+                                        <property name="hexpand">true</property>
+                                        <property name="draw-value">false</property>
+                                        <property name="adjustment">
+                                            <object class="GtkAdjustment">
+                                            </object>
+                                        </property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkLabel" id="_totalLength">
+                                        <style>
+                                            <class name="scale-label"/>
+                                        </style>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkBox" id="_volume">
+                                <property name="hexpand">true</property>
+                                <property name="margin-end">6</property>
+                                <property name="margin-start">6</property>
+                                <child>
+                                    <object class="GtkButton" id="_muteButton">
+                                        <property name="icon-name">audio-volume-muted-symbolic</property>
+                                        <property name="tooltip-text">Mute audio</property>
+                                        <property name="has-frame">false</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkScale" id="_volumeScale">
+                                        <property name="orientation">0</property>
+                                        <property name="hexpand">true</property>
+                                        <property name="draw-value">false</property>
+                                        <property name="adjustment">
+                                            <object class="GtkAdjustment">
+                                                <property name="lower">0</property>
+                                                <property name="upper">100</property>
+                                            </object>
+                                        </property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkButton" id="_volumeButton">
+                                        <property name="icon-name">audio-volume-high-symbolic</property>
+                                        <property name="tooltip-text">Maximum volume</property>
+                                        <property name="has-frame">false</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkSeparator">
+                        <property name="orientation">horizontal</property>
+                    </object>
+                </child>
+            </object>
+        </child>
+    </object>
+</interface>
+
+

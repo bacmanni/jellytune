@@ -11,10 +11,10 @@ public sealed class MainWindowController : IDisposable
     private readonly IFileService _fileService;
     public readonly ApplicationInfo ApplicationInfo;
     
-    public IConfigurationService GetConfigurationService() => _configurationService;
-    public IJellyTuneApiService GetJellyTuneApiService() => _jellyTuneApiService;
-    public IPlayerService GetPlayerService() => _playerService;
-    public IFileService GetFileService() => _fileService;
+    public IConfigurationService ConfigurationService => _configurationService;
+    public IJellyTuneApiService JellyTuneApiService => _jellyTuneApiService;
+    public IPlayerService PlayerService => _playerService;
+    public IFileService FileService => _fileService;
 
     public MainWindowController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService, IPlayerService playerService, IFileService fileService, ApplicationInfo  applicationInfo)
     {

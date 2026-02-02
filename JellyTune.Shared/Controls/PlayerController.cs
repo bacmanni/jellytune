@@ -14,8 +14,10 @@ public sealed class PlayerController : IDisposable
     
     public event EventHandler<AlbumArgs> OnShowShowLyricsClicked;
     
-    public IPlayerService GetPlayerService() => _playerService;
-    public IJellyTuneApiService GetJellyTuneApiService() => _jellyTuneApiService;
+    public IPlayerService PlayerService => _playerService;
+    public IJellyTuneApiService JellyTuneApiService => _jellyTuneApiService;
+    
+    public IConfigurationService ConfigurationService => _configurationService;
     
     public Album? Album;
     public List<Track>? Tracks;

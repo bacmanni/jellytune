@@ -14,8 +14,8 @@ public sealed class AlbumController : IDisposable
     
     private CancellationTokenSource? _cancellationTokenSource;
     
-    public IPlayerService GetPlayerService() => _playerService;
-    public IFileService GetFileService() => _fileService;
+    public IPlayerService PlayerService => _playerService;
+    public IFileService FileService => _fileService;
 
     public Album? Album { get; private set; }
     public List<Track> Tracks { get; private set; } = [];

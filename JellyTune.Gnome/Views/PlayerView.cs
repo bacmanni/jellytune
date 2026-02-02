@@ -10,10 +10,13 @@ namespace JellyTune.Gnome.Views;
 
 public class PlayerView : Gtk.CenterBox
 {
-    private readonly Gtk.Widget  _mainWindow;
+    private readonly PlayerExtendedController _extendedController;
     private readonly PlayerController _controller;
 
+    private readonly PlayerExtendedButtonView _extendedButtonView;
+
     [Gtk.Connect] private readonly Gtk.Box _container;
+    [Gtk.Connect] private readonly Gtk.Box _actions;
     [Gtk.Connect] private readonly Gtk.Image _albumArt;
     [Gtk.Connect] private readonly Gtk.Button _skipBackward;
     [Gtk.Connect] private readonly Gtk.Button _play;
@@ -34,8 +37,8 @@ public class PlayerView : Gtk.CenterBox
         {
             _track.SetText(_controller.SelectedTrack.Name);
             _lyrics.SetSensitive(_controller.SelectedTrack.HasLyrics);
-            _skipForward.SetSensitive(_controller.GetPlayerService().HasNextTrack());
-            _skipBackward.SetSensitive(_controller.GetPlayerService().HasPreviousTrack());
+            _skipForward.SetSensitive(_controller.PlayerService.HasNextTrack());
+            _skipBackward.SetSensitive(_controller.PlayerService.HasPreviousTrack());
         }
     }
 
@@ -58,28 +61,31 @@ public class PlayerView : Gtk.CenterBox
     
     private void SkipForwardOnClicked(Gtk.Button sender, EventArgs args)
     {
-        _controller.GetPlayerService().NextTrackAsync();
+        _controller.PlayerService.NextTrackAsync();
     }
 
     private void SkipBackwardOnClicked(Gtk.Button sender, EventArgs args)
     {
-        _controller.GetPlayerService().PreviousTrackAsync();
+        _controller.PlayerService.PreviousTrackAsync();
     }
     
     private void PlayerPlayOnClicked(Gtk.Button sender, EventArgs args)
     {
-        _controller.GetPlayerService().StartOrPauseTrackAsync();
+        _controller.PlayerService.StartOrPauseTrackAsync();
     }
 
-    public PlayerView(Gtk.Widget mainWindow, PlayerController controller) : this(Blueprint.BuilderFromFile("player"))
+    public PlayerView(PlayerController controller, PlayerExtendedController extendedController) : this(Blueprint.BuilderFromFile("player"))
     {
-        _mainWindow  = mainWindow;
         _controller = controller;
+        _extendedController = extendedController;
+        //_playerVolumeView = new PlayerVolumeView(_controller.GetPlayerService(), _controller.GetConfigurationService());
+        _extendedButtonView = new PlayerExtendedButtonView(_extendedController);
+        _actions.Append(_extendedButtonView);
         _skipBackward.OnClicked += SkipBackwardOnClicked;
         _play.OnClicked += PlayerPlayOnClicked;
         _skipForward.OnClicked += SkipForwardOnClicked;
         _lyrics.OnClicked += LyricsOnOnClicked;
-        _controller.GetPlayerService().OnPlayerStateChanged += OnPlayerStateChanged;
+        _controller.PlayerService.OnPlayerStateChanged += OnPlayerStateChanged;
 
         var click = Gtk.GestureClick.New();
         _albumArt.AddController(click);
@@ -136,7 +142,7 @@ public class PlayerView : Gtk.CenterBox
 
     public override void Dispose()
     {
-        _controller.GetPlayerService().OnPlayerStateChanged -= OnPlayerStateChanged;
+        _controller.PlayerService.OnPlayerStateChanged -= OnPlayerStateChanged;
         base.Dispose();
     }
 }

@@ -83,6 +83,12 @@
       <None Remove="Blueprints\status.ui" />
       <None Remove="Blueprints\player_seek.ui.xml" />
       <EmbeddedResource Include="Blueprints\player_position.ui" />
+      <None Remove="Blueprints\player_volume.ui" />
+      <EmbeddedResource Include="Blueprints\player_volume.ui" />
+      <None Remove="Blueprints\player_extended_button.ui" />
+      <EmbeddedResource Include="Blueprints\player_extended_button.ui" />
+      <None Remove="Blueprints\player_extended.ui" />
+      <EmbeddedResource Include="Blueprints\player_extended.ui" />
     </ItemGroup>
 
     <ItemGroup>

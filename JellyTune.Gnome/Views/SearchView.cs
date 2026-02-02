@@ -91,7 +91,7 @@ public class SearchView : Gtk.ScrolledWindow
             _searchList.RemoveAll();
             foreach (var result in _controller.Results)
             {
-                _searchList.Append(new SearchRow(_controller.GetFileService(), result));
+                _searchList.Append(new SearchRow(_controller.FileService, result));
             }
         }
         

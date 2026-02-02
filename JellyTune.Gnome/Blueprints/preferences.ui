@@ -37,9 +37,9 @@
                             </object>
                         </child>
                         <child>
-                            <object class="AdwSwitchRow" id="_showPlayerDuration">
-                                <property name="title" translatable="yes">Show duration scale</property>
-                                <property name="subtitle" translatable="yes">Requires restart</property>
+                            <object class="AdwSwitchRow" id="_showExtendedControls">
+                                <property name="title" translatable="yes">Show extended controls</property>
+                                <property name="subtitle" translatable="yes">Buttons for seek and volume</property>
                             </object>
                         </child>
                     </object>

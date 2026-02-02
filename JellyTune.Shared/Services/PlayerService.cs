@@ -82,7 +82,12 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// This is called actively so use only if needed
     /// </summary>
     public event EventHandler<PlayerPositionArgs>? OnPlayerPositionChanged;
-    
+
+    /// <summary>
+    /// Called when volume changes
+    /// </summary>
+    public event EventHandler<PlayerVolumeArgs>? OnPlayerVolumeChanged;
+
     public PlayerService(IJellyTuneApiService jellyTuneApiService)
     {
         _jellyTuneApiService = jellyTuneApiService;
@@ -214,8 +219,12 @@ public sealed class PlayerService : IPlayerService, IDisposable
             _player.IsLooping = false;
             _player.Play();
 
-            _player.PlaybackEnded += async (_, args) => await OnPlaybackEnded(_, args);
+            var muted = IsMuted();
+            var volume = GetVolumePercent();
             
+            OnPlayerVolumeChanged?.Invoke(this, new PlayerVolumeArgs() { IsMuted = muted, Volume = volume});
+            
+            _player.PlaybackEnded += async (_, args) => await OnPlaybackEnded(_, args);
             _playTimer?.Close();
             _playTimer?.Dispose();
             
@@ -406,6 +415,68 @@ public sealed class PlayerService : IPlayerService, IDisposable
         if (IsPaused())
             return PlayerState.Paused;
         return PlayerState.Stopped;
+    }
+
+    /// <summary>
+    /// Get volume of player. Null if muted
+    /// </summary>
+    /// <returns></returns>
+    public double GetVolume()
+    {
+        return _player?.Volume ?? 0;
+    }
+
+    /// <summary>
+    /// Get volume percent 0-100
+    /// </summary>
+    /// <returns></returns>
+    public int GetVolumePercent()
+    {
+        var volume = GetVolume();
+        return (int)Math.Round(volume * 100);
+    }
+
+    /// <summary>
+    /// Set volume for player
+    /// </summary>
+    /// <param name="volume"></param>
+    public void SetVolume(double volume)
+    {
+        if (_player == null) return;
+
+        _player.Volume = (float)volume;
+        OnPlayerVolumeChanged?.Invoke(this, new PlayerVolumeArgs() { Volume = _player.Volume, IsMuted = _player.Mute });
+    }
+
+    /// <summary>
+    /// Set volume percent
+    /// </summary>
+    /// <param name="volume"></param>
+    public void SetVolumePercent(double volume)
+    {
+        SetVolume(volume / 100);
+    }
+
+    /// <summary>
+    /// Is player muted
+    /// </summary>
+    /// <returns></returns>
+    public bool IsMuted()
+    {
+        return _player?.Mute ?? false;
+    }
+
+    /// <summary>
+    /// Set player mute state
+    /// </summary>
+    /// <param name="muted"></param>
+    public void SetMuted(bool muted)
+    {
+        if (_player == null) return;
+        
+        _player.Mute = muted;
+        
+        OnPlayerVolumeChanged?.Invoke(this, new PlayerVolumeArgs() { Volume = _player.Volume, IsMuted = _player.Mute });
     }
 
     /// <summary>
@@ -725,6 +796,8 @@ public sealed class PlayerService : IPlayerService, IDisposable
             _player = null;
         }
 
+        _playTimer?.Close();
+        _playTimer?.Dispose();
         _device?.Stop();
         _device?.Dispose();
         _engine.Dispose();

@@ -12,8 +12,8 @@ public sealed class QueueListController : IDisposable
     
     public readonly List<Models.Track> Tracks = [];
     
-    public IFileService GetFileService() => _fileService;
-    public IPlayerService GetPlayerService() => _playerService;
+    public IFileService FileService => _fileService;
+    public IPlayerService PlayerService => _playerService;
     
     public event EventHandler<QueueArgs> OnQueueUpdated;
     

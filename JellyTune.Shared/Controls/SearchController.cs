@@ -14,7 +14,7 @@ public sealed class SearchController : IDisposable
     public readonly List<Models.Search> Results = [];
     private CancellationTokenSource? _cancellationTokenSource;
     
-    public IFileService GetFileService() => _fileService;
+    public IFileService FileService => _fileService;
     public event EventHandler<AlbumArgs>? OnAlbumClicked;
     public event EventHandler<SearchStateArgs>? OnSearchStateChanged;
     

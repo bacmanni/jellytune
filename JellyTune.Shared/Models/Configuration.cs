@@ -1,8 +1,3 @@
-using System.Text.Encodings.Web;
-using System.Text.Json;
-using System.Text.Unicode;
-using System.Runtime.InteropServices;
-
 namespace JellyTune.Shared.Models;
 public class Configuration
 {
@@ -77,7 +72,7 @@ public class Configuration
     public int? WindowHeight { get; set; }
 
     /// <summary>
-    /// Show track position on player
+    /// Show extended controls (seek/volume)
     /// </summary>
-    public bool ShowPlayerDuration { get; set; } = false;
+    public bool ShowExtendedControls { get; set; } = false;
 }

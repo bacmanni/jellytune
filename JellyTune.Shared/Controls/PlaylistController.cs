@@ -13,7 +13,7 @@ public class PlaylistController : ListController, IDisposable
     private readonly IPlayerService _playerService;
     private readonly IFileService _fileService;
 
-    public IFileService GetFileService() => _fileService;
+    public IFileService FileService => _fileService;
 
     public event EventHandler<Guid> OnPlaylistClicked;
 
