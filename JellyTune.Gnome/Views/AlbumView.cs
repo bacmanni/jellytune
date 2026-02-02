@@ -103,8 +103,8 @@ public class AlbumView : Gtk.ScrolledWindow
 
         SetSpinner(false);
         
-        _artist.SetText(GLib.Markup.EscapeText(_controller.Album.Artist));
-        _album.SetText(GLib.Markup.EscapeText(_controller.Album.Name));
+        _artist.SetText(_controller.Album.Artist);
+        _album.SetText(_controller.Album.Name);
         _trackCount.SetText($"{_controller.Tracks.Count.ToString()} tracks");
         
         if (_controller.Album?.Runtime != null)

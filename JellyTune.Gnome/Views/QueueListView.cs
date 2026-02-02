@@ -30,9 +30,9 @@ public class QueueListView : Gtk.ScrolledWindow
 
     private void OnPlayerStateChanged(object? sender, PlayerStateArgs args)
     {
-        if (args.State is PlayerState.Playing or PlayerState.Paused)
+        if (args.State is PlayerState.Playing or PlayerState.Paused or PlayerState.None)
         {
-            UpdateRowState(args.SelectedTrack.Id, args.State);
+            UpdateRowState();
         }
     }
 
@@ -55,14 +55,15 @@ public class QueueListView : Gtk.ScrolledWindow
         }
     }
 
-    private void UpdateRowState(Guid trackId, PlayerState state)
+    private void UpdateRowState()
     {
         for (var i = 0; i < _controller.Tracks.Count; i++)
         {
             var row = _queueList.GetRowAtIndex(i) as TrackRow;
             if (row == null)  continue;
 
-            row.UpdateState(row.TrackId == trackId ? state : PlayerState.None);
+            var state = _controller.GetPlayerService().GetTrackState(row.TrackId);
+            row.UpdateState(state);
         }
     }
 
