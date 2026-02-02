@@ -131,8 +131,8 @@ public class AlbumView : Gtk.ScrolledWindow
         _tracks.RemoveAll();
         foreach (var track in _controller.Tracks)
         {
-            var state = _controller.GetPlayerService().GetTrackState(track.Id);
-            var row = new TrackRow(_controller.GetFileService(), track, state);
+            var state = _controller.PlayerService.GetTrackState(track.Id);
+            var row = new TrackRow(_controller.FileService, track, state);
             _tracks.Append(row);
         }
     }
@@ -144,7 +144,7 @@ public class AlbumView : Gtk.ScrolledWindow
             var row = _tracks.GetRowAtIndex(i) as TrackRow;
             if (row == null)  continue;
             
-            var state = _controller.GetPlayerService().GetTrackState(row.TrackId);
+            var state = _controller.PlayerService.GetTrackState(row.TrackId);
             row.UpdateState(state);
         }
     }

@@ -1,6 +1,8 @@
 
 using System.Collections.Concurrent;
+using System.Globalization;
 using System.Net.NetworkInformation;
+using System.Timers;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
 using JellyTune.Shared.Models;
@@ -11,6 +13,7 @@ using SoundFlow.Enums;
 using SoundFlow.Providers;
 using SoundFlow.Structs;
 using Task = System.Threading.Tasks.Task;
+using Timer = System.Timers.Timer;
 
 namespace JellyTune.Shared.Services;
 
@@ -27,6 +30,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     private string _streamingUrl = string.Empty;
     private bool _networkDisconnected;
     private CancellationTokenSource? _cancellationTokenSource;
+    private Timer? _playTimer;
     
     /// <summary>
     /// Currently selected album
@@ -62,6 +66,11 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// Currently active play session
     /// </summary>
     private string? _playSessionId;
+
+    /// <summary>
+    /// Currently playing track position
+    /// </summary>
+    private double? _trackPosition;
     
     /// <summary>
     /// Event for all playing related changes
@@ -73,7 +82,12 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// This is called actively so use only if needed
     /// </summary>
     public event EventHandler<PlayerPositionArgs>? OnPlayerPositionChanged;
-    
+
+    /// <summary>
+    /// Called when volume changes
+    /// </summary>
+    public event EventHandler<PlayerVolumeArgs>? OnPlayerVolumeChanged;
+
     public PlayerService(IJellyTuneApiService jellyTuneApiService)
     {
         _jellyTuneApiService = jellyTuneApiService;
@@ -205,7 +219,30 @@ public sealed class PlayerService : IPlayerService, IDisposable
             _player.IsLooping = false;
             _player.Play();
 
+            var muted = IsMuted();
+            var volume = GetVolumePercent();
+            
+            OnPlayerVolumeChanged?.Invoke(this, new PlayerVolumeArgs() { IsMuted = muted, Volume = volume});
+            
             _player.PlaybackEnded += async (_, args) => await OnPlaybackEnded(_, args);
+            _playTimer?.Close();
+            _playTimer?.Dispose();
+            
+            _playTimer = new Timer(250);
+            _playTimer.Elapsed += TimerOnElapsed;
+            _playTimer.Start();
+        }
+    }
+
+    private void TimerOnElapsed(object? sender, ElapsedEventArgs e)
+    {
+        if (_player?.State == PlaybackState.Playing)
+        {
+            double? seconds = _player.Time;
+            if (seconds.HasValue)
+            {
+                OnPlayerPositionChanged?.Invoke(this, new PlayerPositionArgs() { Position = seconds.Value });
+            }
         }
     }
 
@@ -381,6 +418,68 @@ public sealed class PlayerService : IPlayerService, IDisposable
     }
 
     /// <summary>
+    /// Get volume of player. Null if muted
+    /// </summary>
+    /// <returns></returns>
+    public double GetVolume()
+    {
+        return _player?.Volume ?? 0;
+    }
+
+    /// <summary>
+    /// Get volume percent 0-100
+    /// </summary>
+    /// <returns></returns>
+    public int GetVolumePercent()
+    {
+        var volume = GetVolume();
+        return (int)Math.Round(volume * 100);
+    }
+
+    /// <summary>
+    /// Set volume for player
+    /// </summary>
+    /// <param name="volume"></param>
+    public void SetVolume(double volume)
+    {
+        if (_player == null) return;
+
+        _player.Volume = (float)volume;
+        OnPlayerVolumeChanged?.Invoke(this, new PlayerVolumeArgs() { Volume = _player.Volume, IsMuted = _player.Mute });
+    }
+
+    /// <summary>
+    /// Set volume percent
+    /// </summary>
+    /// <param name="volume"></param>
+    public void SetVolumePercent(double volume)
+    {
+        SetVolume(volume / 100);
+    }
+
+    /// <summary>
+    /// Is player muted
+    /// </summary>
+    /// <returns></returns>
+    public bool IsMuted()
+    {
+        return _player?.Mute ?? false;
+    }
+
+    /// <summary>
+    /// Set player mute state
+    /// </summary>
+    /// <param name="muted"></param>
+    public void SetMuted(bool muted)
+    {
+        if (_player == null) return;
+        
+        _player.Mute = muted;
+        
+        OnPlayerVolumeChanged?.Invoke(this, new PlayerVolumeArgs() { Volume = _player.Volume, IsMuted = _player.Mute });
+    }
+
+    /// <summary>
     /// Pause playing track
     /// </summary>
     public void PauseTrack()
@@ -391,7 +490,16 @@ public sealed class PlayerService : IPlayerService, IDisposable
             PlayerStateChanged(new PlayerStateArgs(PlayerState.Paused, _album, _tracks.ToList(), _selectedTrack));
         }
     }
-    
+
+    /// <summary>
+    /// Seek currently playing/stopped track
+    /// </summary>
+    /// <param name="seconds"></param>
+    public void SeekTrack(double seconds)
+    {
+        _player?.Seek(TimeSpan.FromSeconds(seconds));
+    }
+
     /// <summary>
     /// Stop playing started track
     /// </summary>
@@ -688,8 +796,10 @@ public sealed class PlayerService : IPlayerService, IDisposable
             _player = null;
         }
 
-        _device.Stop();
-        _device.Dispose();
+        _playTimer?.Close();
+        _playTimer?.Dispose();
+        _device?.Stop();
+        _device?.Dispose();
         _engine.Dispose();
     }
 }

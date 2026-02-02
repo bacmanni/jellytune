@@ -14,8 +14,10 @@ public sealed class PlayerController : IDisposable
     
     public event EventHandler<AlbumArgs> OnShowShowLyricsClicked;
     
-    public IPlayerService GetPlayerService() => _playerService;
-    public IJellyTuneApiService GetJellyTuneApiService() => _jellyTuneApiService;
+    public IPlayerService PlayerService => _playerService;
+    public IJellyTuneApiService JellyTuneApiService => _jellyTuneApiService;
+    
+    public IConfigurationService ConfigurationService => _configurationService;
     
     public Album? Album;
     public List<Track>? Tracks;
@@ -28,12 +30,6 @@ public sealed class PlayerController : IDisposable
         _playerService = playerService;
         _configurationService = configurationService;
         _playerService.OnPlayerStateChanged += PlayerServiceOnPlayerStateChanged;
-        _playerService.OnPlayerPositionChanged += PlayerServiceOnPlayerPositionChanged;
-    }
-
-    private void PlayerServiceOnPlayerPositionChanged(object? sender, PlayerPositionArgs e)
-    {
-
     }
 
     private void PlayerServiceOnPlayerStateChanged(object? sender, PlayerStateArgs e)
@@ -69,5 +65,14 @@ public sealed class PlayerController : IDisposable
             return;
         
         OnShowShowLyricsClicked?.Invoke(this, new AlbumArgs { AlbumId = Album.Id, TrackId = SelectedTrack.Id });
+    }
+
+    /// <summary>
+    /// Seek track 
+    /// </summary>
+    /// <param name="value">Seconds</param>
+    public void SeekTrack(double value)
+    {
+        _playerService.SeekTrack(value);
     }
 }

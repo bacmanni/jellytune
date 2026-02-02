@@ -1,8 +1,3 @@
-using System.Text.Encodings.Web;
-using System.Text.Json;
-using System.Text.Unicode;
-using System.Runtime.InteropServices;
-
 namespace JellyTune.Shared.Models;
 public class Configuration
 {
@@ -75,4 +70,9 @@ public class Configuration
     /// Application window height
     /// </summary>
     public int? WindowHeight { get; set; }
+
+    /// <summary>
+    /// Show extended controls (seek/volume)
+    /// </summary>
+    public bool ShowExtendedControls { get; set; } = false;
 }

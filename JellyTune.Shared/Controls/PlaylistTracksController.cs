@@ -12,8 +12,8 @@ public sealed class PlaylistTracksController : IDisposable
     private readonly IPlayerService _playerService;
     private readonly IFileService _fileService;
     
-    public IFileService GetFileService() => _fileService;
-    public IPlayerService GetPlayerService() => _playerService;
+    public IFileService FileService => _fileService;
+    public IPlayerService PlayerService => _playerService;
 
     public Playlist Playlist { private set; get; }
     public readonly List<Track> Tracks = [];

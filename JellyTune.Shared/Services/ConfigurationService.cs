@@ -16,12 +16,12 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId)
     /// <summary>
     /// Occurs when the configuration object is saved
     /// </summary>
-    public event EventHandler<EventArgs>? Saved;
+    public event EventHandler<EventArgs>? OnSaved;
 
     /// <summary>
     /// Occurs when the configuration object is loaded
     /// </summary>
-    public event EventHandler<EventArgs>? Loaded;
+    public event EventHandler<EventArgs>? OnLoaded;
 
     /// <summary>
     /// Saves the configuration file
@@ -32,7 +32,7 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId)
         var json = JsonSerializer.Serialize(_configuration,  options: new JsonSerializerOptions { WriteIndented = true, Encoder = JavaScriptEncoder.Create(UnicodeRanges.All) });
         
         _fileSystem.File.WriteAllText(filename, json);
-        Saved?.Invoke(this, EventArgs.Empty);
+        OnSaved?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -62,7 +62,7 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId)
             }
         }
 
-        Loaded?.Invoke(this, EventArgs.Empty);
+        OnLoaded?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>

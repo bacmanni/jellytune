@@ -8,11 +8,13 @@ public interface IPlayerService
 {
     public event EventHandler<PlayerStateArgs> OnPlayerStateChanged;
     public event EventHandler<PlayerPositionArgs> OnPlayerPositionChanged;
+    public event EventHandler<PlayerVolumeArgs> OnPlayerVolumeChanged;
     public void SelectTrack(Guid trackId);
     public bool IsSelectedTrack(Guid? trackId = null);
     public Task StartTrackAsync(Guid? trackId = null);
     public void StopTrack();
     public void PauseTrack();
+    public void SeekTrack(double seconds);
     public bool IsPlaying();
     public bool IsPaused();
     public void ShuffleTracks();
@@ -35,4 +37,10 @@ public interface IPlayerService
     public bool HasPreviousTrack();
     public Task StartOrPauseTrackAsync();
     public PlayerState GetPlaybackState();
+    public double GetVolume();
+    public int GetVolumePercent();
+    public void SetVolume(double volume);
+    public void SetVolumePercent(double volume);
+    public bool IsMuted();
+    public void SetMuted(bool muted);
 }

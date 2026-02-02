@@ -11,9 +11,9 @@ public class ListController
     private readonly IPlayerService _playerService;
     private readonly IFileService _fileService;
 
-    public IFileService GetFileService() => _fileService;
+    public IFileService FileService => _fileService;
     
-    public IConfigurationService GetConfigurationService() => _configurationService;
+    public IConfigurationService ConfigurationService => _configurationService;
     
     public ListController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService, IPlayerService playerService, IFileService fileService)
     {

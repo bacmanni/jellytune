@@ -14,14 +14,6 @@
                     <object class="GtkBox">
                         <property name="orientation">1</property>
                         <property name="hexpand">true</property>
-                        <child><!-- TODO: Add duration selection -->
-                            <object class="GtkBox" id="_duration">
-                                <property name="visible">false</property>
-                                <child>
-                                    <object class="GtkScale"></object>
-                                </child>
-                            </object>
-                        </child>
                         <child>
                             <object class="GtkBox" id="_content">
                                 <property name="hexpand">true</property>
@@ -72,6 +64,7 @@
                                             <object class="GtkButton" id="_skipBackward">
                                                 <property name="icon-name">media-skip-backward-symbolic</property>
                                                 <property name="has-frame">false</property>
+                                                <property name="tooltip-text">Previous track</property>
                                             </object>
                                         </child>
                                         <child>
@@ -84,6 +77,7 @@
                                             <object class="GtkButton" id="_skipForward">
                                                 <property name="icon-name">media-skip-forward-symbolic</property>
                                                 <property name="has-frame">false</property>
+                                                <property name="tooltip-text">Next track</property>
                                             </object>
                                         </child>
                                     </object>
@@ -96,7 +90,7 @@
                                             <object class="GtkButton" id="_lyrics">
                                                 <property name="halign">2</property>
                                                 <property name="icon-name">format-justify-center-symbolic</property>
-                                                <property name="tooltip-text">Show track lyrics</property>
+                                                <property name="tooltip-text">Lyrics</property>
                                                 <property name="has-frame">false</property>
                                                 <property name="sensitive">false</property>
                                             </object>

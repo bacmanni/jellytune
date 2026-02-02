@@ -12,9 +12,9 @@ public sealed class StartupController : IDisposable
     private readonly IJellyTuneApiService _jellyTuneApiService;
     private readonly IConfigurationService _configurationService;
 
-    public IConfigurationService GetConfigurationService() => _configurationService;
+    public IConfigurationService ConfigurationService => _configurationService;
     
-    public IJellyTuneApiService  GetJellyTuneApiService() => _jellyTuneApiService;
+    public IJellyTuneApiService  JellyTuneApiService => _jellyTuneApiService;
     
     public StartupController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService)
     {

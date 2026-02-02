@@ -25,7 +25,7 @@ public class QueueListView : Gtk.ScrolledWindow
         _controller = controller;
         _controller.OnQueueUpdated += ControllerOnQueueUpdated;
         _queueList.OnRowActivated += QueueListOnRowActivated;
-        _controller.GetPlayerService().OnPlayerStateChanged += OnPlayerStateChanged;
+        _controller.PlayerService.OnPlayerStateChanged += OnPlayerStateChanged;
     }
 
     private void OnPlayerStateChanged(object? sender, PlayerStateArgs args)
@@ -42,7 +42,7 @@ public class QueueListView : Gtk.ScrolledWindow
         if (row is null)
             return;
                 
-        _controller.GetPlayerService().StartTrackAsync(row.TrackId);
+        _controller.PlayerService.StartTrackAsync(row.TrackId);
     }
 
     private void ControllerOnQueueUpdated(object? sender, QueueArgs e)
@@ -50,8 +50,8 @@ public class QueueListView : Gtk.ScrolledWindow
         _queueList.RemoveAll();
         foreach (var track in _controller.Tracks)
         {
-            var state = _controller.GetPlayerService().GetTrackState(track.Id);
-            _queueList.Append(new TrackRow(_controller.GetFileService(), track, state, true));
+            var state = _controller.PlayerService.GetTrackState(track.Id);
+            _queueList.Append(new TrackRow(_controller.FileService, track, state, true));
         }
     }
 
@@ -71,7 +71,7 @@ public class QueueListView : Gtk.ScrolledWindow
     {
         _controller.OnQueueUpdated -= ControllerOnQueueUpdated;
         _queueList.OnRowActivated -= QueueListOnRowActivated;
-        _controller.GetPlayerService().OnPlayerStateChanged -= OnPlayerStateChanged;
+        _controller.PlayerService.OnPlayerStateChanged -= OnPlayerStateChanged;
         base.Dispose();
     }
 }

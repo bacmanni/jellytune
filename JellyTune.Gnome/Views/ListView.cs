@@ -35,9 +35,9 @@ public class ListView : Gtk.Box
         _controller = controller;
         _controller.OnListChanged += ControllerOnListChanged;
 
-        var configuration = _controller.GetConfigurationService().Get();
+        var configuration = _controller.ConfigurationService.Get();
         _list.SetShowSeparators(configuration.ShowListSeparator);
-        _controller.GetConfigurationService().Saved += OnSaved;
+        _controller.ConfigurationService.OnSaved += OnSaved;
         
         _listItems = Gio.ListStore.New(ListRow.GetGType());
         var selectionModel = Gtk.NoSelection.New(_listItems);
@@ -187,7 +187,7 @@ public class ListView : Gtk.Box
             return;
         }
         
-        listItem.SetChild(new GridItem(_controller.GetFileService()));
+        listItem.SetChild(new GridItem(_controller.FileService));
     }
 
     private void ListFactoryOnBind(Gtk.SignalListItemFactory sender, Gtk.SignalListItemFactory.BindSignalArgs args)
@@ -216,20 +216,20 @@ public class ListView : Gtk.Box
             return;
         }
 
-        listItem.SetChild(new ListItem(_controller.GetFileService()));
+        listItem.SetChild(new ListItem(_controller.FileService));
     }
 
     public override void Dispose()
     {
         _controller.OnListChanged -= ControllerOnListChanged;
-        _controller.GetConfigurationService().Saved -= OnSaved;
+        _controller.ConfigurationService.OnSaved -= OnSaved;
         _listItems?.RunDispose();
         base.Dispose();
     }
 
     private void OnSaved(object? sender, EventArgs e)
     {
-        var configuration = _controller.GetConfigurationService().Get();
+        var configuration = _controller.ConfigurationService.Get();
         _list.SetShowSeparators(configuration.ShowListSeparator);
     }
 }

@@ -58,8 +58,8 @@ public class PlaylistTracksView : Gtk.Box
         
         foreach (var track in _controller.Tracks)
         {
-            var state = _controller.GetPlayerService().GetTrackState(track.Id);
-            _playlistTracksList.Append(new TrackRow(_controller.GetFileService(), track, state, true));
+            var state = _controller.PlayerService.GetTrackState(track.Id);
+            _playlistTracksList.Append(new TrackRow(_controller.FileService, track, state, true));
         }
         
         _spinner.SetVisible(false);
@@ -73,7 +73,7 @@ public class PlaylistTracksView : Gtk.Box
             var row = _playlistTracksList.GetRowAtIndex(i) as TrackRow;
             if (row == null)  continue;
             
-            var state = _controller.GetPlayerService().GetTrackState(row.TrackId);
+            var state = _controller.PlayerService.GetTrackState(row.TrackId);
             row.UpdateState(state);
         }
     }

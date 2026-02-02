@@ -17,11 +17,6 @@
                             </object>
                         </child>
                         <child>
-                            <object class="AdwSwitchRow" id="_showListSeparator">
-                                <property name="title" translatable="yes">Show list separator</property>
-                            </object>
-                        </child>
-                        <child>
                             <object class="AdwSwitchRow" id="_cacheList">
                                 <property name="title" translatable="yes">Store list data to device memory</property>
                             </object>
@@ -29,6 +24,22 @@
                         <child>
                             <object class="AdwSwitchRow" id="_cacheArtwork">
                                 <property name="title" translatable="yes">Store artwork to device memory</property>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+                <child>
+                    <object class="AdwPreferencesGroup">
+                        <property name="title" translatable="yes">View</property>
+                        <child>
+                            <object class="AdwSwitchRow" id="_showListSeparator">
+                                <property name="title" translatable="yes">Show list separator</property>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="AdwSwitchRow" id="_showExtendedControls">
+                                <property name="title" translatable="yes">Show extended controls</property>
+                                <property name="subtitle" translatable="yes">Buttons for seek and volume</property>
                             </object>
                         </child>
                     </object>

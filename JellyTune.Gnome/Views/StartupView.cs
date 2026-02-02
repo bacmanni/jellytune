@@ -33,9 +33,9 @@ public class StartupView : Adw.Dialog
         _controller = controller;
         _taskCompletionSource = taskCompletionSource;
         
-        _accountController = new AccountController(_controller.GetConfigurationService(), _controller.GetJellyTuneApiService());
+        _accountController = new AccountController(_controller.ConfigurationService, _controller.JellyTuneApiService);
         _accountView = new AccountView(_accountController);
-        _accountController.OpenConfiguration(_controller.GetConfigurationService().Get(), startupState != StartupState.InitialRun);
+        _accountController.OpenConfiguration(_controller.ConfigurationService.Get(), startupState != StartupState.InitialRun);
         _accountBox.Prepend(_accountView);
         _accountController.OnUpdate += (sender, b) =>
         {
@@ -51,7 +51,7 @@ public class StartupView : Adw.Dialog
         _continue1.OnClicked += async (sender, args) =>
         {
             _continue1.SetSensitive(false);
-            var configuration = _controller.GetConfigurationService().Get();
+            var configuration = _controller.ConfigurationService.Get();
             configuration.ServerUrl = _accountController.ServerUrl;
             configuration.Username = _accountController.Username;
 

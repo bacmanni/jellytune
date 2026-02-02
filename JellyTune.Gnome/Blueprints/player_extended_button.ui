@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<interface>
+    <object class="GtkBox" id="_root">
+        <child>
+            <object class="GtkToggleButton" id="_position">
+                <property name="tooltip-text">Select position</property>
+                <property name="has-frame">false</property>
+                <property name="icon-name">completion-snippet-symbolic</property>
+            </object>
+        </child>
+        <child>
+            <object class="GtkToggleButton" id="_volume">
+                <property name="tooltip-text">Volume</property>
+                <property name="has-frame">false</property>
+            </object>
+        </child>
+    </object>
+</interface>

@@ -28,6 +28,9 @@ public partial class MainWindow : Adw.ApplicationWindow
     
     private readonly PlayerController _playerController;
     private readonly PlayerView  _playerView;
+
+    private readonly PlayerExtendedController _playerExtendedController;
+    private readonly PlayerExtendedView _playerExtendedView;
     
     private readonly AlbumController _albumController;
     private readonly AlbumView _albumView;
@@ -55,6 +58,8 @@ public partial class MainWindow : Adw.ApplicationWindow
     
     [Gtk.Connect] private readonly Gtk.Button _searchButton;
     [Gtk.Connect] private readonly Gtk.SearchEntry _search_field;
+    
+    [Gtk.Connect] private readonly Gtk.Box _playerPosition;
     
     [Gtk.Connect] private readonly Gtk.Box _player;
 
@@ -107,52 +112,57 @@ public partial class MainWindow : Adw.ApplicationWindow
             _queueListController.ShuffleTracks();
         };
 
-        _controller.GetPlayerService().OnPlayerStateChanged += OnPlayerStateChanged;
+        _controller.PlayerService.OnPlayerStateChanged += OnPlayerStateChanged;
 
         // Album list
-        _albumlistController = new AlbumlistController(_controller.GetJellyTuneApiService(),
-            _controller.GetConfigurationService(), _controller.GetPlayerService(), _controller.GetFileService());
+        _albumlistController = new AlbumlistController(_controller.JellyTuneApiService,
+            _controller.ConfigurationService, _controller.PlayerService, _controller.FileService);
         _albumlistController.OnAlbumClicked += AlbumlistControllerOnAlbumClicked;
         _albumListView = new AlbumListView(_albumlistController);
         _main_stack_music.Append(_albumListView);
         
         //Album details
-        _albumController = new AlbumController(_controller.GetJellyTuneApiService(), _controller.GetConfigurationService(), _controller.GetPlayerService(), _controller.GetFileService());
+        _albumController = new AlbumController(_controller.JellyTuneApiService, _controller.ConfigurationService, _controller.PlayerService, _controller.FileService);
         _albumView = new AlbumView(_albumController);
         _album_details_view.SetContent(_albumView);
         
         // Startup
-        _startupController = new StartupController(_controller.GetJellyTuneApiService(), _controller.GetConfigurationService());
+        _startupController = new StartupController(_controller.JellyTuneApiService, _controller.ConfigurationService);
 
         // Media controls
-        _mediaPlayerController = new MediaPlayerController(this, _controller.GetFileService(), _controller.GetPlayerService(), _controller.ApplicationInfo);
+        _mediaPlayerController = new MediaPlayerController(this, _controller.FileService, _controller.PlayerService, _controller.ApplicationInfo);
         
         //Audio player
-        _playerController = new PlayerController(_controller.GetJellyTuneApiService(), _controller.GetConfigurationService(), _controller.GetPlayerService());
+        _playerExtendedController = new PlayerExtendedController(_controller.PlayerService, _controller.ConfigurationService);
+        
+        _playerController = new PlayerController(_controller.JellyTuneApiService, _controller.ConfigurationService, _controller.PlayerService);
         _playerController.OnShowPlaylistClicked += PlayerControllerOnShowPlaylistClicked;
         _playerController.OnShowShowLyricsClicked += PlayerControllerOnShowShowLyricsClicked;
-        _playerView = new PlayerView(this, _playerController);
+        _playerView = new PlayerView(_playerController, _playerExtendedController);
         _player.Append(_playerView);
+
+        _playerExtendedView = new PlayerExtendedView(_playerExtendedController);
+        _playerPosition.Append(_playerExtendedView);
         
         // Search
-        _searchController = new SearchController(_controller.GetJellyTuneApiService(), _controller.GetConfigurationService(), _controller.GetPlayerService(), _controller.GetFileService());
+        _searchController = new SearchController(_controller.JellyTuneApiService, _controller.ConfigurationService, _controller.PlayerService, _controller.FileService);
         _searchController.OnAlbumClicked += SearchControllerOnAlbumClicked;
         _searchView = new SearchView(_searchController);
         _search_albums_view.SetContent(_searchView);
         _search_field.OnSearchChanged += SearchFieldOnSearchChanged;
         
         // Que list for currently playling queue
-        _queueListController = new QueueListController(_controller.GetJellyTuneApiService(), _controller.GetConfigurationService(), _controller.GetPlayerService(), _controller.GetFileService());
+        _queueListController = new QueueListController(_controller.JellyTuneApiService, _controller.ConfigurationService, _controller.PlayerService, _controller.FileService);
         _queueListView = new QueueListView(_queueListController);
         _queue_list_view.SetContent(_queueListView);
         
         // Playlist
-        _playlistController = new PlaylistController(_controller.GetJellyTuneApiService(), _controller.GetConfigurationService(), _controller.GetPlayerService(), _controller.GetFileService());
+        _playlistController = new PlaylistController(_controller.JellyTuneApiService, _controller.ConfigurationService, _controller.PlayerService, _controller.FileService);
         _playlistView = new PlaylistView(_playlistController);
         _main_stack_playlist.Append(_playlistView);
         _playlistController.OnPlaylistClicked += PlaylistControllerOnPlaylistClicked;
         
-        _playlistTracksController = new PlaylistTracksController(_controller.GetJellyTuneApiService(), _controller.GetConfigurationService(), _controller.GetPlayerService(), _controller.GetFileService());
+        _playlistTracksController = new PlaylistTracksController(_controller.JellyTuneApiService, _controller.ConfigurationService, _controller.PlayerService, _controller.FileService);
         _playlistTracksView = new PlaylistTracksView(_playlistTracksController);
         _playlist_tracks_view.SetContent(_playlistTracksView);
 
@@ -308,6 +318,9 @@ public partial class MainWindow : Adw.ApplicationWindow
             if (!_player.IsVisible())
                 _player.SetVisible(true);
                 
+            if (!_playerPosition.IsVisible())
+                _playerPosition.SetVisible(true);
+                
             if (!_search_albums_footer.IsVisible())
                 _search_albums_footer.SetVisible(true);
                 
@@ -325,6 +338,7 @@ public partial class MainWindow : Adw.ApplicationWindow
             _search_albums_footer?.SetVisible(true);
             _queue_list_footer?.SetVisible(false);
             _playlist_tracks_footer?.SetVisible(false);
+            _playerPosition?.SetVisible(false);
         }
     }
 
@@ -379,7 +393,7 @@ public partial class MainWindow : Adw.ApplicationWindow
 
     private void PlayerControllerOnShowShowLyricsClicked(object? sender, AlbumArgs e)
     {
-        var controller = new LyricsController(_controller.GetJellyTuneApiService(), _controller.GetPlayerService());
+        var controller = new LyricsController(_controller.JellyTuneApiService, _controller.PlayerService);
         var lyrics = new LyricsView(controller);
         lyrics.Present(this);
         _ = controller.UpdateAsync();
@@ -458,7 +472,7 @@ public partial class MainWindow : Adw.ApplicationWindow
     /// <param name="args"></param>
     private void ActPreferencesOnOnActivate(Gio.SimpleAction sender, Gio.SimpleAction.ActivateSignalArgs args)
     {
-        var preferences = new PreferencesView(_controller.GetConfigurationService(), _controller.GetJellyTuneApiService());
+        var preferences = new PreferencesView(_controller.ConfigurationService, _controller.JellyTuneApiService);
         preferences.Present(this);
         preferences.OnClosed += async (dialog, eventArgs) =>
         {
@@ -521,7 +535,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         _spinner.SetVisible(false);
         _album_view.SetVisible(true);
         
-        if(_controller.GetConfigurationService().IsPlatform(OSPlatform.Linux))
+        if(_controller.ConfigurationService.IsPlatform(OSPlatform.Linux))
             await _mediaPlayerController.ConnectAsync();
 
         await RefreshLists();
@@ -529,7 +543,7 @@ public partial class MainWindow : Adw.ApplicationWindow
     
     public override void Dispose()
     {
-        _controller.GetPlayerService().OnPlayerStateChanged -= OnPlayerStateChanged;
+        _controller.PlayerService.OnPlayerStateChanged -= OnPlayerStateChanged;
         _search_field.OnSearchChanged -= SearchFieldOnSearchChanged;
         
         _albumController.Dispose();

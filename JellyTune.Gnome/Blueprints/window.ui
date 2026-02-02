@@ -37,14 +37,14 @@
                       <object class="AdwHeaderBar" id="_main_view_headerbar">
                         <child type="start">
                           <object class="GtkToggleButton" id="_searchButton">
-                            <property name="tooltip-text">Search albums</property>
+                            <property name="tooltip-text">Search</property>
                             <property name="icon-name">system-search-symbolic</property>
                             <property name="action-name">win.search</property>
                           </object>
                         </child>
                         <child type="end">
                           <object class="GtkMenuButton" id="_menuButton">
-                            <property name="tooltip-text">Show main menu</property>
+                            <property name="tooltip-text">Main Menu</property>
                             <property name="icon-name">open-menu-symbolic</property>
                             <property name="menu-model">main_menu</property>
                           </object>
@@ -141,7 +141,7 @@
                         <child type="end">
                           <object class="GtkButton" id="_queue_list_shuffle">
                             <property name="icon-name">media-playlist-shuffle-symbolic</property>
-                            <property name="tooltip-text">Shuffle tracks</property>
+                            <property name="tooltip-text">Shuffle</property>
                           </object>
                         </child>
                         <property name="title-widget">
@@ -210,6 +210,11 @@
                 </property>
               </object>
             </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox" id="_playerPosition">
+            <property name="hexpand">true</property>
           </object>
         </child>
         <child>
