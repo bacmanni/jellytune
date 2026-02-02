@@ -62,7 +62,7 @@ public class QueueListView : Gtk.ScrolledWindow
             var row = _queueList.GetRowAtIndex(i) as TrackRow;
             if (row == null)  continue;
 
-            var state = _controller.GetPlayerService().GetTrackState(row.TrackId);
+            var state = _controller.PlayerService.GetTrackState(row.TrackId);
             row.UpdateState(state);
         }
     }
