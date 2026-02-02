@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<interface>
-    <object class="GtkButton" id="_root">
-        <property name="icon-name">format-justify-center-symbolic</property>
-        <property name="tooltip-text">Volume</property>
-        <property name="has-frame">false</property>
-    </object>
-</interface>
