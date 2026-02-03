@@ -445,7 +445,6 @@ public partial class MainWindow : Adw.ApplicationWindow
         about.Website = _controller.ApplicationInfo.Website;
         about.Copyright = _controller.ApplicationInfo.Copyright;
         about.IssueUrl = _controller.ApplicationInfo.IssueUrl;
-        about.ReleaseNotes = GetReleaseNotes();
         about.LicenseType = License.Gpl30;
         about.Designers = _controller.ApplicationInfo.Designers;
         about.Artists = _controller.ApplicationInfo.Artists;
