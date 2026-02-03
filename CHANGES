@@ -1,9 +1,9 @@
++ 1.1;2026-02-02
+- Bug fixes
+- Added extended controls
+
 + 1.0;2026-01-20
 - Startup wizard for basic configuration
 - Basic functionality for playing audio
 - Support for single playlist
 - Gnome integration
-
-+ 1.1;2026-02-02
-- Bug fixes
-- Added extended controls
