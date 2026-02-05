@@ -480,6 +480,32 @@ public sealed class PlayerService : IPlayerService, IDisposable
     }
 
     /// <summary>
+    /// Skip playing track backwards
+    /// </summary>
+    /// <param name="seconds"></param>
+    public void Back(int seconds)
+    {
+        if (_player == null) return;
+        
+        double current = _player.Time;
+        
+        SeekTrack(current - seconds);
+    }
+
+    /// <summary>
+    /// Skip playing track forwards
+    /// </summary>
+    /// <param name="seconds"></param>
+    public void Skip(int seconds)
+    {
+        if (_player == null) return;
+        
+        double current = _player.Time;
+        
+        SeekTrack(current + seconds);
+    }
+
+    /// <summary>
     /// Pause playing track
     /// </summary>
     public void PauseTrack()

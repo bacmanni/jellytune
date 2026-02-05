@@ -1,9 +1,6 @@
 using Gtk.Internal;
 using JellyTune.Shared.Controls;
-using JellyTune.Shared.Events;
 using JellyTune.Gnome.Helpers;
-using JellyTune.Gnome.Models;
-using SignalListItemFactory = Gtk.SignalListItemFactory;
 
 namespace JellyTune.Gnome.Views;
 

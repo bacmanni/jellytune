@@ -3,7 +3,6 @@ using Gtk;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
-using JellyTune.Shared.Models;
 using JellyTune.Gnome.Helpers;
 using JellyTune.Gnome.Models;
 using SwitchRow = Adw.SwitchRow;

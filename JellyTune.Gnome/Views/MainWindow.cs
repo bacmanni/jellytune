@@ -188,12 +188,44 @@ public partial class MainWindow : Adw.ApplicationWindow
         AddAction(actSearchBar);
         application.SetAccelsForAction("win.search", new string[] { "<Ctrl>f" });
 
+        // Basic controls
+        var actNextTrack = Gio.SimpleAction.New("track_next", null);
+        actNextTrack.OnActivate += ActNextTrackOnActivate;
+        AddAction(actNextTrack);
+        application.SetAccelsForAction("win.track_next", new string[] { "<Ctrl>Right" });
+
+        var actPrevious = Gio.SimpleAction.New("track_previous", null);
+        actPrevious.OnActivate += ActPreviousOnActivate;
+        AddAction(actPrevious);
+        application.SetAccelsForAction("win.track_previous", new string[] { "<Ctrl>Left" });
+        
+        var actPlayPause = Gio.SimpleAction.New("track_play", null);
+        actPlayPause.OnActivate += ActPlayPauseOnActivate;
+        AddAction(actPlayPause);
+        application.SetAccelsForAction("win.track_play", new string[] { "<Ctrl>space" });
+
+        var actVolumeUp = Gio.SimpleAction.New("volume_up", null);
+        actVolumeUp.OnActivate += ActVolumeUpOnActivate;
+        AddAction(actVolumeUp);
+        application.SetAccelsForAction("win.volume_up", new string[] { "<Ctrl>Up" });
+        
+        var actVolumeDown = Gio.SimpleAction.New("volume_down", null);
+        actVolumeDown.OnActivate += ActVolumeDownOnActivate;
+        AddAction(actVolumeDown);
+        application.SetAccelsForAction("win.volume_down", new string[] { "<Ctrl>Down" });
+        
+        // Lyrics
+        var actLyrics = Gio.SimpleAction.New("track_lyrics", null);
+        actLyrics.OnActivate += ActLyricsOnActivate;
+        AddAction(actLyrics);
+        application.SetAccelsForAction("win.track_lyrics", new string[] { "<Ctrl>l" });
+        
         //Quit Action
         var actQuit = Gio.SimpleAction.New("quit", null);
         actQuit.OnActivate += Quit;
         AddAction(actQuit);
         application.SetAccelsForAction("win.quit", new string[] { "<Ctrl>q" });
-        
+
         // Event for ctrl click
         var ctrlEvent = Gtk.EventControllerKey.New();
         ctrlEvent.OnKeyPressed += (sender, args) =>
@@ -230,6 +262,55 @@ public partial class MainWindow : Adw.ApplicationWindow
         
         OnNotify += OnOnNotify;
         _ = UpdateMainMenu();
+    }
+
+    private void ActVolumeDownOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
+    {
+        var previous = _controller.PlayerService.GetVolumePercent() - 15;
+        
+        if (previous <= 0)
+            previous = 0;
+        
+        _controller.PlayerService.SetVolumePercent(previous);
+    }
+
+    private void ActVolumeUpOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
+    {
+        var next = _controller.PlayerService.GetVolumePercent() + 15;
+        if (next > 100)
+            next = 100;
+        
+        _controller.PlayerService.SetVolumePercent(next);
+    }
+
+    private void ActSkipBackOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
+    {
+        _controller.PlayerService.Skip(15);
+    }
+
+    private void ActSkipOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
+    {
+        _controller.PlayerService.Back(15);
+    }
+
+    private void ActLyricsOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
+    {
+        _playerController.ShowShowLyrics();
+    }
+
+    private void ActPlayPauseOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
+    {
+        _controller.PlayerService.StartOrPauseTrackAsync();
+    }
+
+    private void ActPreviousOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
+    {
+        _controller.PlayerService.PreviousTrackAsync();
+    }
+
+    private void ActNextTrackOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
+    {
+        _controller.PlayerService.NextTrackAsync();
     }
 
     private void PlaylistControllerOnPlaylistClicked(object? sender, Guid id)

@@ -58,8 +58,9 @@
                                     </object>
                                 </child>
                                 <child>
-                                    <object class="GtkBox" id="_controls">
-                                        <property name="halign">2</property>
+                                    <object class="GtkFlowBox" id="_controls">
+                                        <property name="orientation">horizontal</property>
+                                        <property name="selection-mode">none</property>
                                         <child>
                                             <object class="GtkButton" id="_skipBackward">
                                                 <property name="icon-name">media-skip-backward-symbolic</property>

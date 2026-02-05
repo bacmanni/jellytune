@@ -3,9 +3,7 @@ using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
-using JellyTune.Shared.Services;
 using Button = Gtk.Button;
-using ToggleButton = Gtk.ToggleButton;
 
 namespace JellyTune.Gnome.Views;
 

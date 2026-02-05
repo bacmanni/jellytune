@@ -1,5 +1,4 @@
 using GObject;
-using Gtk;
 using JellyTune.Shared.Models;
 
 namespace JellyTune.Gnome.Models;

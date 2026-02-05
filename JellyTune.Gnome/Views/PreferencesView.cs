@@ -2,9 +2,7 @@ using Adw.Internal;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Services;
 using JellyTune.Gnome.Helpers;
-using ActionRow = Adw.ActionRow;
 using AlertDialog = Adw.AlertDialog;
-using Object = GObject.Object;
 
 namespace JellyTune.Gnome.Views;
 

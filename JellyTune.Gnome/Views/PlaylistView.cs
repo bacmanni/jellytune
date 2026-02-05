@@ -1,6 +1,5 @@
 using Gtk.Internal;
 using JellyTune.Shared.Controls;
-using JellyTune.Shared.Events;
 using JellyTune.Gnome.Helpers;
 
 

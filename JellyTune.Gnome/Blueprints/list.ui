@@ -39,6 +39,7 @@
                                         <property name="propagate-natural-width">true</property>
                                         <child>
                                             <object class="GtkListView" id="_list">
+                                                <property name="focusable">true</property>
                                                 <property name="single-click-activate">true</property>
                                                 <property name="show-separators">false</property>
                                             </object>
@@ -55,6 +56,7 @@
                                         <property name="propagate-natural-width">true</property>
                                         <child>
                                             <object class="GtkGridView" id="_grid">
+                                                <property name="focusable">true</property>
                                                 <property name="single-click-activate">true</property>
                                                 <property name="max-columns">20</property>
                                             </object>

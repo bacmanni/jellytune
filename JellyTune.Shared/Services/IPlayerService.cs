@@ -43,4 +43,6 @@ public interface IPlayerService
     public void SetVolumePercent(double volume);
     public bool IsMuted();
     public void SetMuted(bool muted);
+    void Back(int seconds);
+    void Skip(int seconds);
 }

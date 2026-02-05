@@ -40,6 +40,10 @@ Last mention to [Jetbrains](https://www.jetbrains.com/) for providing open sourc
 - Gnome integration
 
 **1.1**
+- Bug fixes
+- Added extended controls (seek/volume)
+
+**1.2**
 - Support for keyring(?)
 - Last.fm support (?)
 - Feel free to suggest features

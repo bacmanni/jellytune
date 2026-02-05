@@ -1,14 +1,12 @@
-using Gtk;
 using Gtk.Internal;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
 using JellyTune.Gnome.Helpers;
-using Range = Gtk.Range;
 
 namespace JellyTune.Gnome.Views;
 
-public class PlayerView : Gtk.CenterBox
+public class PlayerView : Gtk.Box
 {
     private readonly PlayerExtendedController _extendedController;
     private readonly PlayerController _controller;
@@ -26,7 +24,7 @@ public class PlayerView : Gtk.CenterBox
     [Gtk.Connect] private readonly Gtk.Label _artist;
 
     private PlayerView(Gtk.Builder builder) : base(
-        new CenterBoxHandle(builder.GetPointer("_root"), false))
+        new BoxHandle(builder.GetPointer("_root"), false))
     {
         builder.Connect(this);
     }
@@ -78,7 +76,6 @@ public class PlayerView : Gtk.CenterBox
     {
         _controller = controller;
         _extendedController = extendedController;
-        //_playerVolumeView = new PlayerVolumeView(_controller.GetPlayerService(), _controller.GetConfigurationService());
         _extendedButtonView = new PlayerExtendedButtonView(_extendedController);
         _actions.Append(_extendedButtonView);
         _skipBackward.OnClicked += SkipBackwardOnClicked;
@@ -100,13 +97,6 @@ public class PlayerView : Gtk.CenterBox
         {
             _controller.ShowPlaylist();
         };
-    }
-
-    private bool DurationScaleOnChangeValue(Range sender, Range.ChangeValueSignalArgs args)
-    {
-        _controller.SeekTrack(args.Value);
-        sender.SetValue(args.Value);
-        return true;
     }
 
     private void LyricsOnOnClicked(Gtk.Button sender, EventArgs args)

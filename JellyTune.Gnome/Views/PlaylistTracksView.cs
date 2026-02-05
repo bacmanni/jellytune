@@ -1,6 +1,5 @@
 using Gtk.Internal;
 using JellyTune.Shared.Controls;
-using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
 using JellyTune.Gnome.Helpers;
 using ListBox = Gtk.ListBox;
