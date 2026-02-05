@@ -40,8 +40,8 @@ public class ListView : Gtk.Box
         _controller.ConfigurationService.OnSaved += OnSaved;
         
         _listItems = Gio.ListStore.New(ListRow.GetGType());
-        var selectionModel = Gtk.NoSelection.New(_listItems);
-        
+        var selectionModel = Gtk.SingleSelection.New(_listItems);
+
         //List
         _listFactory = Gtk.SignalListItemFactory.New();
         _listFactory.OnSetup += ListFactoryOnSetup;
@@ -53,6 +53,10 @@ public class ListView : Gtk.Box
         {
             if (_listItems.GetObject(args.Position) is ListRow row)
                 _controller.OpenItem(row.Id);
+        };
+        _list.OnRealize += (sender, args) =>
+        {
+            _list.GrabFocus();
         };
         
         // Grid
@@ -66,6 +70,10 @@ public class ListView : Gtk.Box
         {
             if (_listItems.GetObject(args.Position) is ListRow row)
                 _controller.OpenItem(row.Id);
+        };
+        _grid.OnRealize += (sender, args) =>
+        {
+            _grid.GrabFocus();
         };
     }
 

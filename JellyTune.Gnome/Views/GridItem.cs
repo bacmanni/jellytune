@@ -27,6 +27,7 @@ public class GridItem : Gtk.Box
     public GridItem(IFileService fileService) : this(Blueprint.BuilderFromFile("grid_item"))
     {
         _fileService = fileService;
+        CanFocus = true;
     }
 
     public void Bind(ListRow row)

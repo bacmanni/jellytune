@@ -121,7 +121,7 @@
                                 </child>
                                 <child>
                                     <object class="GtkListBox" id="_tracks">
-                                        <property name="selection-mode">none</property>
+                                        <property name="selection-mode">single</property>
                                         <property name="activate-on-single-click">true</property>
                                         <style>
                                             <class name="boxed-list"/>
