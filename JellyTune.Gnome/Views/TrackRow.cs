@@ -30,7 +30,7 @@ public partial class TrackRow : Adw.ActionRow
         _fileService  = fileService;
         _track = track;
         Activatable = true;
-        CanFocus = true;
+        CanFocus = false;
         
         _runtime.SetText(_track.RunTime.ToString("m\\:ss"));
 

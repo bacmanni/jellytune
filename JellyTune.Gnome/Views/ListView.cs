@@ -40,7 +40,7 @@ public class ListView : Gtk.Box
         _controller.ConfigurationService.OnSaved += OnSaved;
         
         _listItems = Gio.ListStore.New(ListRow.GetGType());
-        var selectionModel = Gtk.SingleSelection.New(_listItems);
+        var selectionModel = Gtk.NoSelection.New(_listItems);
 
         //List
         _listFactory = Gtk.SignalListItemFactory.New();

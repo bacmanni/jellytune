@@ -35,24 +35,6 @@ public class AlbumView : Gtk.ScrolledWindow
         _tracks.OnRowSelected += TracksOnRowSelected;
         _tracks.OnRowActivated += TracksOnRowActivated;
         _controller.OnAlbumChanged += ControllerOnAlbumChanged;
-        
-        var enterEvent = Gtk.EventControllerKey.New();
-        enterEvent.OnKeyPressed += (sender, args) =>
-        {
-            // 65293: Return, 65421: Enter
-            if (args.Keyval == 65293 || args.Keyval == 65421)
-            {
-                var row =  _tracks.GetSelectedRow() as TrackRow;
-                if (row != null)
-                {
-                    _ = _controller.PlayOrPauseTrackAsync(row.TrackId);
-                }
-            }
-            
-            return true;
-        };
-        
-        AddController(enterEvent);
     }
 
     private void ControllerOnAlbumChanged(object? sender, AlbumStateArgs args)
