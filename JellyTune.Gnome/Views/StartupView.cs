@@ -7,6 +7,7 @@ namespace JellyTune.Gnome.Views;
 
 public class StartupView : Adw.Dialog
 {
+    private readonly Adw.Application _application;
     private readonly StartupController  _controller;
 
     private readonly AccountController   _accountController;
@@ -16,8 +17,10 @@ public class StartupView : Adw.Dialog
     
     [Gtk.Connect] private readonly Adw.Carousel _carousel;
     
+    [Gtk.Connect] private readonly Gtk.Button _close;
     [Gtk.Connect] private readonly Gtk.Button _continue0;
     
+    [Gtk.Connect] private readonly Gtk.Button _back;
     [Gtk.Connect] private readonly Gtk.Box _accountBox;
     [Gtk.Connect] private readonly Gtk.Button _continue1;
     
@@ -27,9 +30,10 @@ public class StartupView : Adw.Dialog
         builder.Connect(this);
     }
 
-    public StartupView(StartupState startupState, StartupController controller,
+    public StartupView(Adw.Application application, StartupState startupState, StartupController controller,
         TaskCompletionSource taskCompletionSource) : this(Blueprint.BuilderFromFile("startup"))
     {
+        _application = application;
         _controller = controller;
         _taskCompletionSource = taskCompletionSource;
         
@@ -41,12 +45,22 @@ public class StartupView : Adw.Dialog
         {
             _continue1.SetSensitive(b);
         };
+
+        _close.OnClicked += (sender, args) =>
+        {
+            _application.Quit();
+        };
         
         _continue0.OnClicked += (sender, args) =>
         {
             _carousel.ScrollTo(_carousel.GetNthPage(1), true);
         };
 
+        _back.OnClicked += (sender, args) =>
+        {
+            _carousel.ScrollTo(_carousel.GetNthPage(0), true);
+        };
+        
         // Save configuration
         _continue1.OnClicked += async (sender, args) =>
         {

@@ -12,17 +12,20 @@
         <child>
             <object class="AdwEntryRow" id="_username">
                 <property name="title" translatable="yes">Username</property>
+                <property name="sensitive">false</property>
                 <property name="show-apply-button">true</property>
             </object>
         </child>
         <child>
             <object class="AdwPasswordEntryRow" id="_password">
                 <property name="title" translatable="yes">Password</property>
+                <property name="sensitive">false</property>
                 <property name="show-apply-button">true</property>
             </object>
         </child>
         <child>
             <object class="AdwSwitchRow" id="_rememberPassword">
+                <property name="sensitive">false</property>
                 <property name="title" translatable="yes">Remember password</property>
             </object>
         </child>

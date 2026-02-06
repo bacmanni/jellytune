@@ -607,7 +607,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         {
             var taskCompletionSource = new TaskCompletionSource();
             _spinner.SetVisible(false);
-            var startup = new StartupView(startupState, _startupController, taskCompletionSource);
+            var startup = new StartupView(_application, startupState, _startupController, taskCompletionSource);
             startup.Present(this);
             await taskCompletionSource.Task;
         }

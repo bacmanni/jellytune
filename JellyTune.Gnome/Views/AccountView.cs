@@ -181,6 +181,7 @@ public class AccountView : Adw.PreferencesGroup
         _server.RemoveCssClass("error");
         _username.SetSensitive(false);
         _password.SetSensitive(false);
+        _rememberPassword.SetSensitive(false);
         _audioCollection.SetSensitive(false);
             
         if (!string.IsNullOrWhiteSpace(_server.GetText()))
@@ -220,6 +221,7 @@ public class AccountView : Adw.PreferencesGroup
             _password.RemoveCssClass("error");
             _usernameLoading.SetVisible(false);
             _passwordLoading.SetSensitive(false);
+            _rememberPassword.SetSensitive(false);
         }
         
         if (!string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password))
@@ -236,6 +238,7 @@ public class AccountView : Adw.PreferencesGroup
                 _controller.UpdateValidity(true,  true, false);
                 _username.RemoveCssClass("error");
                 _password.RemoveCssClass("error");
+                _rememberPassword.SetSensitive(true);
                 _audioCollection.SetSensitive(true);
                 await UpdateAudioCollections();
                 UpdatePlaylistCollections();

@@ -30,11 +30,23 @@
                             </object>
                         </child>
                         <child>
-                            <object class="GtkButton" id="_continue0">
-                                <property name="label">Continue</property>
-                                <style>
-                                    <class name="suggested-action"/>
-                                </style>
+                            <object class="GtkBox">
+                                <property name="hexpand">true</property>
+                                <property name="homogeneous">true</property>
+                                <property name="spacing">12px</property>
+                                <child>
+                                    <object class="GtkButton" id="_close">
+                                        <property name="label">Close</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkButton" id="_continue0">
+                                        <property name="label">Continue</property>
+                                        <style>
+                                            <class name="suggested-action"/>
+                                        </style>
+                                    </object>
+                                </child>
                             </object>
                         </child>
                     </object>
@@ -54,13 +66,25 @@
                             </object>
                         </child>
                         <child>
-                            <object class="GtkButton" id="_continue1">
-                                <property name="sensitive">false</property>
+                            <object class="GtkBox">
                                 <property name="margin-top">24</property>
-                                <property name="label">Continue</property>
-                                <style>
-                                    <class name="suggested-action"/>
-                                </style>
+                                <property name="hexpand">true</property>
+                                <property name="homogeneous">true</property>
+                                <property name="spacing">12px</property>
+                                <child>
+                                    <object class="GtkButton" id="_back">
+                                        <property name="label">Back</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkButton" id="_continue1">
+                                        <property name="sensitive">false</property>
+                                        <property name="label">Continue</property>
+                                        <style>
+                                            <class name="suggested-action"/>
+                                        </style>
+                                    </object>
+                                </child>
                             </object>
                         </child>
                     </object>
