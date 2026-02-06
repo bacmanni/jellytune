@@ -43,6 +43,10 @@ Last mention to [Jetbrains](https://www.jetbrains.com/) for providing open sourc
 - Bug fixes
 - Added extended controls (seek/volume)
 
+**1.1.1**
+- Bug fixes
+- Updates on startup wizard
+
 **1.2**
 - Support for keyring(?)
 - Last.fm support (?)
