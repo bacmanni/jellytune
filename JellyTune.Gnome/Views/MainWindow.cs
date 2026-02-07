@@ -342,8 +342,8 @@ public partial class MainWindow : Adw.ApplicationWindow
         
         _menuUpdateCancellationTokenSource?.Cancel();
         _menuUpdateCancellationTokenSource = new CancellationTokenSource();
-        var width1 = GetAllocatedWidth();
-        
+        var width1 = GetScreenSize().Item1;
+
         if (delay)
         {
             int? width2;
@@ -375,7 +375,7 @@ public partial class MainWindow : Adw.ApplicationWindow
                 mainMenu.InsertSection(0, null, section);
             }
         }
-        else if (!show)
+        else
         {
             _main_view_headerbar.TitleWidget?.SetVisible(true);
 
