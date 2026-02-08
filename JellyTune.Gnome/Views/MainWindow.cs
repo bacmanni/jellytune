@@ -329,7 +329,7 @@ public partial class MainWindow : Adw.ApplicationWindow
             QueueDraw();
         
         if (name != "default-width" && name != "maximized") return;
-        _ = UpdateMainMenu(args.Pspec.GetName() == "maximized");
+        _ = UpdateMainMenu(name == "maximized");
     }
 
     private async Task RefreshLists(bool reload = false)

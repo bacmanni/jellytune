@@ -33,20 +33,6 @@ Last mention to [Jetbrains](https://www.jetbrains.com/) for providing open sourc
 
 ## Planned versions:
 
-**1.0**
-- Startup wizard for basic configuration
-- Basic functionality for playing audio
-- Support for single playlist
-- Gnome integration
-
-**1.1**
-- Bug fixes
-- Added extended controls (seek/volume)
-
-**1.1.1**
-- Bug fixes
-- Updates on startup wizard
-
 **1.2**
 - Support for keyring(?)
 - Last.fm support (?)
