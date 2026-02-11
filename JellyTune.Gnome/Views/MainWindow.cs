@@ -292,16 +292,6 @@ public partial class MainWindow : Adw.ApplicationWindow
         _controller.PlayerService.SetVolumePercent(next);
     }
 
-    private void ActSkipBackOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
-    {
-        _controller.PlayerService.Skip(15);
-    }
-
-    private void ActSkipOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
-    {
-        _controller.PlayerService.Back(15);
-    }
-
     private void ActLyricsOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
     {
         _playerController.ShowShowLyrics();
@@ -431,6 +421,8 @@ public partial class MainWindow : Adw.ApplicationWindow
             _playlist_tracks_footer?.SetVisible(false);
             _playerPosition?.SetVisible(false);
         }
+        
+        QueueDraw();
     }
 
     private void SearchFieldOnSearchChanged(SearchEntry sender, EventArgs args)
