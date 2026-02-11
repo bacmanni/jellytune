@@ -37,6 +37,8 @@ public class PlayerView : Gtk.Box
             _lyrics.SetSensitive(_controller.SelectedTrack.HasLyrics);
             _skipForward.SetSensitive(_controller.PlayerService.HasNextTrack());
             _skipBackward.SetSensitive(_controller.PlayerService.HasPreviousTrack());
+            
+            _container.QueueDraw();
         }
     }
 
@@ -54,6 +56,7 @@ public class PlayerView : Gtk.Box
             using var bytes = GLib.Bytes.New(_controller.Artwork);
             using var texture = Gdk.Texture.NewFromBytes(bytes);
             _albumArt.SetFromPaintable(texture);
+            _albumArt.QueueDraw();
         }
     }
     

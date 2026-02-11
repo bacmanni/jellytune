@@ -68,6 +68,7 @@ public partial class MainWindow : Adw.ApplicationWindow
     [Gtk.Connect] private readonly Gtk.MenuButton _menuButton;
     [Gtk.Connect] private readonly Adw.Spinner _spinner;
     
+    [Gtk.Connect] private readonly Adw.ViewSwitcher _switcher_title;
     [Gtk.Connect] private readonly Adw.NavigationPage _main_view;
     [Gtk.Connect] private readonly Adw.NavigationPage _album_details;
     [Gtk.Connect] private readonly Adw.NavigationPage _search_albums;
@@ -107,6 +108,14 @@ public partial class MainWindow : Adw.ApplicationWindow
         //Build UI
         builder.Connect(this);
 
+        _main_stack.OnNotify += (sender, args) =>
+        {
+            if (args.Pspec.GetName() == "visible-child")
+            {
+                /////////
+            }
+        };
+        
         _queue_list_shuffle.OnClicked += (sender, args) =>
         {
             _queueListController.ShuffleTracks();
@@ -326,7 +335,7 @@ public partial class MainWindow : Adw.ApplicationWindow
     {
         var name = args.Pspec.GetName();
         if (name == "is-active" && IsActive)
-            QueueDraw();
+            //QueueDraw();
         
         if (name != "default-width" && name != "maximized") return;
         _ = UpdateMainMenu(name == "maximized");
@@ -518,6 +527,13 @@ public partial class MainWindow : Adw.ApplicationWindow
     private void ActRefreshOnActivate(Gio.SimpleAction sender, Gio.SimpleAction.ActivateSignalArgs args)
     {
         _ = RefreshLists(true);
+    }
+
+    private void ActShortvutsOnActivate(Gio.SimpleAction sender, Gio.SimpleAction.ActivateSignalArgs args)
+    {
+        var shortcuts = Adw.ShortcutsDialog.New();
+        
+        shortcuts.Present(this);
     }
 
     private void ActAboutOnOnActivate(Gio.SimpleAction sender, Gio.SimpleAction.ActivateSignalArgs args)

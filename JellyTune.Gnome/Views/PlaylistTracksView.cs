@@ -75,6 +75,8 @@ public class PlaylistTracksView : Gtk.Box
             var state = _controller.PlayerService.GetTrackState(row.TrackId);
             row.UpdateState(state);
         }
+        
+        _playlistTracksList.QueueDraw();
     }
     
     public override void Dispose()

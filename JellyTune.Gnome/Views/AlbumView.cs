@@ -123,6 +123,7 @@ public class AlbumView : Gtk.ScrolledWindow
             using var bytes = GLib.Bytes.New(_controller.Artwork);
             using var texture = Gdk.Texture.NewFromBytes(bytes);
             _albumArt.SetFromPaintable(texture);
+            _albumArt.QueueDraw();
         }
     }
     
@@ -136,7 +137,7 @@ public class AlbumView : Gtk.ScrolledWindow
             _tracks.Append(row);
         }
         
-        _tracks.GetFirstChild()?.GrabFocus();
+        _tracks.QueueDraw();
     }
 
     private void UpdateTrackState()
@@ -149,6 +150,8 @@ public class AlbumView : Gtk.ScrolledWindow
             var state = _controller.PlayerService.GetTrackState(row.TrackId);
             row.UpdateState(state);
         }
+        
+        _tracks.QueueDraw();
     }
 
     public void IsCtrlActive(bool active)

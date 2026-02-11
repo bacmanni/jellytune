@@ -53,6 +53,8 @@ public class QueueListView : Gtk.ScrolledWindow
             var state = _controller.PlayerService.GetTrackState(track.Id);
             _queueList.Append(new TrackRow(_controller.FileService, track, state, true));
         }
+        
+        _queueList.QueueDraw();
     }
 
     private void UpdateRowState()
@@ -65,6 +67,8 @@ public class QueueListView : Gtk.ScrolledWindow
             var state = _controller.PlayerService.GetTrackState(row.TrackId);
             row.UpdateState(state);
         }
+        
+        _queueList.QueueDraw();
     }
 
     public override void Dispose()
