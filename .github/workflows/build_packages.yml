@@ -41,7 +41,7 @@ jobs:
 
       - name: Create Flatpak
         run:  |
-          VERSION=${GITHUB_REF_NAME#v}
+          VERSION=1.1
           pupnet --runtime linux-x64 --kind flatpak --app-version $VERSION
 
       - name: Upload flatpak artifact
@@ -76,7 +76,7 @@ jobs:
 
       - name: Create arm64 Appimage
         run: |
-          VERSION=${GITHUB_REF_NAME#v}
+          VERSION=1.1
           pupnet --runtime linux-arm64 --kind appimage --app-version $VERSION
 
       - name: Upload AppImage artifact
@@ -87,7 +87,7 @@ jobs:
 
       - name: Create Flatpak
         run: |
-          VERSION=${GITHUB_REF_NAME#v}
+          VERSION=1.1
           pupnet --runtime linux-arm64 --kind flatpak --app-version $VERSION
 
       - name: Upload flatpak artifact
