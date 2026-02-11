@@ -334,9 +334,6 @@ public partial class MainWindow : Adw.ApplicationWindow
     private void OnOnNotify(Object sender, NotifySignalArgs args)
     {
         var name = args.Pspec.GetName();
-        if (name == "is-active" && IsActive)
-            //QueueDraw();
-        
         if (name != "default-width" && name != "maximized") return;
         _ = UpdateMainMenu(name == "maximized");
     }

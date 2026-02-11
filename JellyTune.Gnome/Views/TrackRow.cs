@@ -62,6 +62,7 @@ public partial class TrackRow : Adw.ActionRow
         using var bytes = GLib.Bytes.New(albumArt);
         using var texture = Gdk.Texture.NewFromBytes(bytes);
         _albumArt.SetFromPaintable(texture);
+        _albumArt.QueueDraw();
     }
     
     public void UpdateState(PlayerState state)
@@ -89,6 +90,7 @@ public partial class TrackRow : Adw.ActionRow
         _status.SetVisible(false);
         _spinner.SetVisible(true);
         SetTitle($"<b>{GLib.Markup.EscapeText(_track.Name)}</b>");
+        QueueDraw();
     }
     
     private void StartTrack()
@@ -97,6 +99,7 @@ public partial class TrackRow : Adw.ActionRow
         _status.SetVisible(true);
         _status.SetFromIconName("media-playback-start-symbolic");
         SetTitle($"<b>{GLib.Markup.EscapeText(_track.Name)}</b>");
+        QueueDraw();
     }
 
     private void ClearTrack()
@@ -105,6 +108,7 @@ public partial class TrackRow : Adw.ActionRow
         _status.SetVisible(true);
         _status.SetFromIconName(null);
         SetTitle(GLib.Markup.EscapeText(_track.Name));
+        QueueDraw();
     }
 
     private void StopTrack()
@@ -113,6 +117,7 @@ public partial class TrackRow : Adw.ActionRow
         _status.SetVisible(true);
         _status.SetFromIconName("media-playback-pause-symbolic");
         SetTitle($"<b>{GLib.Markup.EscapeText(_track.Name)}</b>");
+        QueueDraw();
     }
 
     public override void Dispose()
