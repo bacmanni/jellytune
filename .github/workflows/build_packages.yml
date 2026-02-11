@@ -30,7 +30,7 @@ jobs:
 
       - name: Create x64 Appimage
         run: |
-          VERSION=${GITHUB_REF_NAME#v}
+          VERSION=1.1
           pupnet --runtime linux-x64 --kind appimage --app-version $VERSION
 
       - name: Upload AppImage artifact
