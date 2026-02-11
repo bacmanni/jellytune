@@ -1,7 +1,9 @@
-name: Build packages
+name: Build and release packages
 
 on:
-  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
       
 jobs:
   Build_x86_64:
@@ -96,4 +98,76 @@ jobs:
           name: JellyTune-${{ github.ref_name }}.aarch64.flatpak
           path: Deploy/JellyTune-*.flatpak
           
+  Create_Release:
+    needs: [Build_x86_64, Build_arm64]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+          merge-multiple: true
+
+      - name: Print artifacts
+        run: |
+          echo "Artifacts directory:"
+          ls -R ./artifacts
+          mv ./artifacts/JellyTune-*.x86_64.AppImage ./artifacts/JellyTune-${{ github.ref_name }}.x86_64.AppImage
+          mv ./artifacts/JellyTune-*.x86_64.flatpak ./artifacts/JellyTune-${{ github.ref_name }}.x86_64.flatpak
+          mv ./artifacts/JellyTune-*.aarch64.AppImage ./artifacts/JellyTune-${{ github.ref_name }}.aarch64.AppImage
+          mv ./artifacts/JellyTune-*.aarch64.flatpak ./artifacts/JellyTune-${{ github.ref_name }}.aarch64.flatpak
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: JellyTune ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Upload x86_64 appImage
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/JellyTune-${{ github.ref_name }}.x86_64.AppImage
+          asset_name: JellyTune-${{ github.ref_name }}.x86_64.appImage
+          asset_content_type: application/octet-stream
+          
+      - name: Upload x86_64 flatpak
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/JellyTune-${{ github.ref_name }}.x86_64.flatpak
+          asset_name: JellyTune-${{ github.ref_name }}.x86_64.flatpak
+          asset_content_type: application/octet-stream
+
+      - name: Upload aarch64 appImage
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/JellyTune-${{ github.ref_name }}.aarch64.AppImage
+          asset_name: JellyTune-${{ github.ref_name }}.aarch64.appImage
+          asset_content_type: application/octet-stream
+          
+      - name: Upload aarch64 flatpak
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./artifacts/JellyTune-${{ github.ref_name }}.aarch64.flatpak
+          asset_name: JellyTune-${{ github.ref_name }}.aarch64.flatpak
+          asset_content_type: application/octet-stream
 
