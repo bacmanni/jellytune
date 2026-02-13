@@ -53,7 +53,8 @@ public partial class MainWindow : Adw.ApplicationWindow
     private readonly int _breakpoint = 500;
     
     private readonly Gio.SimpleAction _refreshAction;
-
+    private readonly Gio.SimpleAction _viewAction;
+    
     private CancellationTokenSource? _menuUpdateCancellationTokenSource;
     
     [Gtk.Connect] private readonly Gtk.Button _searchButton;
@@ -112,7 +113,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         {
             if (args.Pspec.GetName() == "visible-child")
             {
-                /////////
+                _viewAction.ChangeState(Variant.NewString(_main_stack.VisibleChildName));
             }
         };
         
@@ -251,21 +252,21 @@ public partial class MainWindow : Adw.ApplicationWindow
         AddController(ctrlEvent);
         
         // Event for selected view
-        var viewAction = SimpleAction.NewStateful(
+        _viewAction = SimpleAction.NewStateful(
             "view",
             VariantType.String,
             Variant.NewString("page1")
         );
         
-        viewAction.OnChangeState += (sender, args) =>
+        _viewAction.OnChangeState += (sender, args) =>
         {
-            viewAction.SetState(args.Value);
+            _viewAction.SetState(args.Value);
             var newState = args.Value.Print(false).Trim('\'');
             
             if (_main_stack.VisibleChildName != newState)
                 _main_stack.SetVisibleChildName(newState);
         };
-        AddAction(viewAction);
+        AddAction(_viewAction);
         application.SetAccelsForAction("win.view('page1')", new string[] { "<Ctrl>1" });
         application.SetAccelsForAction("win.view('page2')", new string[] { "<Ctrl>2" });
         
@@ -385,6 +386,19 @@ public partial class MainWindow : Adw.ApplicationWindow
             }
         }
     }
+
+    private void MenuUpdateSelection(bool mainViewActive)
+    {
+        var mainMenu = _menuButton.MenuModel as Gio.Menu;
+        var existingSection = mainMenu.GetItemLink(0, "section") as Gio.Menu;
+        var hasSection = existingSection.GetItemAttributeValue(0, "action", VariantType.String).Print(false)
+            .Trim('\'').Contains("win.view");
+
+        if (hasSection)
+        {
+            
+        }
+    }
     
     private void OnPlayerStateChanged(object? sender, PlayerStateArgs args)
     {
@@ -422,7 +436,7 @@ public partial class MainWindow : Adw.ApplicationWindow
             _playerPosition?.SetVisible(false);
         }
         
-        QueueDraw();
+        _album_view.QueueDraw();
     }
 
     private void SearchFieldOnSearchChanged(SearchEntry sender, EventArgs args)
@@ -441,25 +455,6 @@ public partial class MainWindow : Adw.ApplicationWindow
         return (DefaultWidth, DefaultHeight);
     }
 
-    
-    private Gdk.Rectangle? GetScreenRectangle()
-    {
-        if (Display == null) return null;
-        
-        var monitors = Display.GetMonitors();
-        for (uint n = 0; n < monitors.GetNItems(); n++)
-        {
-            var monitor = monitors.GetObject(n) as Gdk.Monitor;
-            
-            if (monitor == null)
-                continue;
-
-            return monitor.Geometry;
-        }
-        
-        return null;
-    }
-    
     private void SetWindowSize(int width, int height)
     {
         var savedSize = _controller.GetWindowSize();
@@ -518,13 +513,6 @@ public partial class MainWindow : Adw.ApplicationWindow
         _ = RefreshLists(true);
     }
 
-    private void ActShortvutsOnActivate(Gio.SimpleAction sender, Gio.SimpleAction.ActivateSignalArgs args)
-    {
-        var shortcuts = Adw.ShortcutsDialog.New();
-        
-        shortcuts.Present(this);
-    }
-
     private void ActAboutOnOnActivate(Gio.SimpleAction sender, Gio.SimpleAction.ActivateSignalArgs args)
     {
         var about = Adw.AboutDialog.New();
@@ -541,19 +529,6 @@ public partial class MainWindow : Adw.ApplicationWindow
         about.Present(this);
     }
 
-    private string GetReleaseNotes()
-    {
-        var sb = new StringBuilder();
-        var latest = _controller.GetReleaseNotes();
-
-        foreach (var changeLine in latest)
-        {
-            sb.Append($"<p>{changeLine}</p>");
-        }
-        
-        return sb.ToString();
-    }
-    
     /// <summary>
     /// Show preferences dialog
     /// </summary>
