@@ -16,9 +16,7 @@ public class SearchView : Gtk.ScrolledWindow
     [Gtk.Connect] private readonly Adw.Clamp _results;
     [Gtk.Connect] private readonly Gtk.ListBox _searchList;
     [Gtk.Connect] private readonly Adw.StatusPage _startup;
-    
-    private readonly Gio.ListStore _searchListItems;
-    
+
     private SearchView(Gtk.Builder builder) : base(
         new ScrolledWindowHandle(builder.GetPointer("_root"), false))
     {
@@ -74,15 +72,21 @@ public class SearchView : Gtk.ScrolledWindow
 
     private void ControllerOnOnSearchStateChanged(object? sender, SearchStateArgs args)
     {
-        if (args.Open)
-            SetSpinner();
+        GLib.MainContext.Default().InvokeFull(0, () =>
+        {
+            if (args.Open)
+                SetSpinner();
         
-        if (args.Start)
-            SetSpinner(true);
+            if (args.Start)
+                SetSpinner(true);
 
-        if (args.Updated)
-            UpdateSearch();
+            if (args.Updated)
+                UpdateSearch();
+
+            return false;
+        });
     }
+
 
     private void UpdateSearch()
     {

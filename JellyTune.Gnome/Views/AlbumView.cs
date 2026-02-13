@@ -39,25 +39,30 @@ public class AlbumView : Gtk.ScrolledWindow
 
     private void ControllerOnAlbumChanged(object? sender, AlbumStateArgs args)
     {
-        switch (args.UpdateAlbum)
+        GLib.MainContext.Default().InvokeFull(0, () =>
         {
-            case false when !args.UpdateTracks && !args.UpdateArtwork && !args.UpdateTrackState:
+            if (!args.UpdateAlbum && !args.UpdateTracks && !args.UpdateArtwork && !args.UpdateTrackState)
+            {
                 SetSpinner(true);
-                break;
-            case true:
+                return false;
+            }
+
+            if (args.UpdateAlbum)
                 UpdateAlbum();
-                break;
-        }
 
-        if (args.UpdateTracks)
-            UpdateTracks();
+            if (args.UpdateTracks)
+                UpdateTracks();
 
-        if (args.UpdateArtwork)
-            UpdateArtwork();
+            if (args.UpdateArtwork)
+                UpdateArtwork();
 
-        if (args.UpdateTrackState)
-            UpdateTrackState();
+            if (args.UpdateTrackState)
+                UpdateTrackState();
+
+            return false;
+        });
     }
+
 
     private void TracksOnRowActivated(ListBox sender, ListBox.RowActivatedSignalArgs args)
     {

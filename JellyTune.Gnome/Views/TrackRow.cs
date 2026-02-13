@@ -61,11 +61,10 @@ public partial class TrackRow : Adw.ActionRow
         if  (albumArt == null || albumArt.Length == 0)
             return;
         
-        using var bytes = GLib.Bytes.New(albumArt);
-        using var texture = Gdk.Texture.NewFromBytes(bytes);
-
         GLib.MainContext.Default().InvokeFull(0, () =>
         {
+            using var bytes = GLib.Bytes.New(albumArt);
+            using var texture = Gdk.Texture.NewFromBytes(bytes);
             _albumArt.SetFromPaintable(texture);
             return false;
         });
@@ -93,49 +92,33 @@ public partial class TrackRow : Adw.ActionRow
 
     private void LoadingTrack()
     {
-        GLib.MainContext.Default().InvokeFull(0, () =>
-        {
-            _status.SetVisible(false);
-            _spinner.SetVisible(true);
-            SetTitle($"<b>{GLib.Markup.EscapeText(_track.Name)}</b>");
-            return false;
-        });
+        _status.SetVisible(false);
+        _spinner.SetVisible(true);
+        SetTitle($"<b>{GLib.Markup.EscapeText(_track.Name)}</b>");
     }
     
     private void StartTrack()
     {
-        GLib.MainContext.Default().InvokeFull(0, () =>
-        {
-            _spinner.SetVisible(false);
-            _status.SetVisible(true);
-            _status.SetFromIconName("media-playback-start-symbolic");
-            SetTitle($"<b>{GLib.Markup.EscapeText(_track.Name)}</b>");
-            return false;
-        });
+        _spinner.SetVisible(false);
+        _status.SetVisible(true);
+        _status.SetFromIconName("media-playback-start-symbolic");
+        SetTitle($"<b>{GLib.Markup.EscapeText(_track.Name)}</b>");
     }
 
     private void ClearTrack()
     {
-        GLib.MainContext.Default().InvokeFull(0, () =>
-        {
-            _spinner.SetVisible(false);
-            _status.SetVisible(true);
-            _status.SetFromIconName(null);
-            SetTitle(GLib.Markup.EscapeText(_track.Name));
-            return false;
-        });
+        _spinner.SetVisible(false);
+        _status.SetVisible(true);
+        _status.SetFromIconName(null);
+        SetTitle(GLib.Markup.EscapeText(_track.Name));
     }
 
     private void StopTrack()
     {
-        GLib.MainContext.Default().InvokeFull(0, () =>
-        {
-            _spinner.SetVisible(false);
-            _status.SetVisible(true);
-            _status.SetFromIconName("media-playback-pause-symbolic");
-            SetTitle($"<b>{GLib.Markup.EscapeText(_track.Name)}</b>");
-            return false;
-        });
+        _spinner.SetVisible(false);
+        _status.SetVisible(true);
+        _status.SetFromIconName("media-playback-pause-symbolic");
+        SetTitle($"<b>{GLib.Markup.EscapeText(_track.Name)}</b>");
     }
 
     public override void Dispose()

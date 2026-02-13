@@ -113,62 +113,62 @@ public class ListView : Gtk.Box
 
     private void ControllerOnListChanged(object? sender, ListStateArgs args)
     {
-        if (args.Items is not null)
+        GLib.MainContext.Default().InvokeFull(0, () =>
         {
-            // Updates list store
-            if (args.UpdateOnly)
+            if (args.Items is not null)
             {
-                var updateIds = _controller.GetItems().Select(item => item.Id).ToList();
-                var currentIds = _items.Select(item => item.Id).ToList();
-
-                var addedIds = updateIds.Except(currentIds).ToList();
-                var removedIds = currentIds.Except(updateIds).ToList();
-
-                if (removedIds.Any())
+                if (args.UpdateOnly)
                 {
-                    for (var i = _listItems.GetNItems() - 1; i >= 0; i--)
+                    var updateIds = _controller.GetItems().Select(item => item.Id).ToList();
+                    var currentIds = _items.Select(item => item.Id).ToList();
+
+                    var addedIds = updateIds.Except(currentIds).ToList();
+                    var removedIds = currentIds.Except(updateIds).ToList();
+
+                    if (removedIds.Any())
                     {
-                        var item = _listItems.GetObject(i) as ListRow;
-                        if  (item is null) continue;
-                    
-                        if (removedIds.Contains(item.Id))
-                            _listItems.Remove(i);
+                        for (var i = _listItems.GetNItems() - 1; i >= 0; i--)
+                        {
+                            if (_listItems.GetObject(i) is ListRow row &&
+                                removedIds.Contains(row.Id))
+                                _listItems.Remove(i);
+                        }
+                    }
+
+                    if (addedIds.Any())
+                    {
+                        var added = _controller.GetItems().Where(x => addedIds.Contains(x.Id));
+                        foreach (var item in added)
+                            _listItems.Append(new ListRow(item));
                     }
                 }
-
-                if (addedIds.Any())
+                else
                 {
-                    var added = _controller.GetItems().Where(x => addedIds.Contains(x.Id)).ToList();
-                    foreach (var item in added)
+                    _listItems.RemoveAll();
+                    _items.Clear();
+                    foreach (var item in args.Items)
                     {
-                        _listItems.Append(new ListRow(item));   
+                        _listItems.Append(new ListRow(item));
+                        _items.Add(item);
                     }
                 }
+            }
+
+            if (args.IsLoading)
+            {
+                _results.SetVisible(false);
+                _loader.SetVisible(true);
             }
             else
             {
-                _listItems.RemoveAll();
-                foreach (var item in args.Items)
-                {
-                    _listItems.Append(new ListRow(item));   
-                }
-
-                _items.AddRange(args.Items);
+                _loader.SetVisible(false);
+                _results.SetVisible(true);
             }
-        }
-            
-        if (args.IsLoading)
-        {
-            _results.SetVisible(false);
-            _loader.SetVisible(true);
-        }
-        else
-        {
-            _loader.SetVisible(false);
-            _results.SetVisible(true);
-        }
-    }
 
+            return false;
+        });
+    }
+    
     private void GridFactoryOnBind(Gtk.SignalListItemFactory sender, Gtk.SignalListItemFactory.BindSignalArgs args)
     {
         var listItem = args.Object as Gtk.ListItem;

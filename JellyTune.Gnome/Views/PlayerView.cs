@@ -33,25 +33,17 @@ public class PlayerView : Gtk.Box
     {
         if (_controller.SelectedTrack != null)
         {
-            GLib.MainContext.Default().InvokeFull(0, () =>
-            {
-                _track.SetText(_controller.SelectedTrack.Name);
-                _lyrics.SetSensitive(_controller.SelectedTrack.HasLyrics);
-                _skipForward.SetSensitive(_controller.PlayerService.HasNextTrack());
-                _skipBackward.SetSensitive(_controller.PlayerService.HasPreviousTrack());
-                return false;
-            });
+            _track.SetText(_controller.SelectedTrack.Name);
+            _lyrics.SetSensitive(_controller.SelectedTrack.HasLyrics);
+            _skipForward.SetSensitive(_controller.PlayerService.HasNextTrack());
+            _skipBackward.SetSensitive(_controller.PlayerService.HasPreviousTrack());
         }
     }
 
     private void UpdateAlbum()
     {
-        GLib.MainContext.Default().InvokeFull(0, () =>
-        {
-            _artist.SetText(GLib.Markup.EscapeText(_controller.Album.Artist));
-            _albumArt.Clear();
-            return false;
-        });
+        _artist.SetText(GLib.Markup.EscapeText(_controller.Album.Artist));
+        _albumArt.Clear();
         UpdateTrack();
     }
     
@@ -61,12 +53,7 @@ public class PlayerView : Gtk.Box
         {
             using var bytes = GLib.Bytes.New(_controller.Artwork);
             using var texture = Gdk.Texture.NewFromBytes(bytes);
-
-            GLib.MainContext.Default().InvokeFull(0, () =>
-            {
-                _albumArt.SetFromPaintable(texture);
-                return false;
-            });
+            _albumArt.SetFromPaintable(texture);
         }
     }
     
@@ -119,28 +106,32 @@ public class PlayerView : Gtk.Box
 
     private void OnPlayerStateChanged(object? sender, PlayerStateArgs e)
     {
-        switch (e.State)
+        GLib.MainContext.Default().InvokeFull(0, () =>
         {
-            case PlayerState.Stopped or PlayerState.Paused:
-                _play.IconName = "media-playback-start-symbolic";
-                _play.TooltipText = "Play track";
-                UpdateTrack();
-                break;
-            case PlayerState.Playing:
-                _play.IconName = "media-playback-pause-symbolic";
-                _play.TooltipText = "Pause track";
-                UpdateTrack();
-                break;
-            case PlayerState.SkipNext or PlayerState.SkipPrevious:
-                UpdateTrack();
-                break;
-            case PlayerState.LoadedInfo:
-                UpdateAlbum();
-                break;
-            case PlayerState.LoadedArtwork:
-                UpdateArtwork();
-                break;
-        }
+            switch (e.State)
+            {
+                case PlayerState.Stopped or PlayerState.Paused:
+                    _play.IconName = "media-playback-start-symbolic";
+                    _play.TooltipText = "Play track";
+                    UpdateTrack();
+                    break;
+                case PlayerState.Playing:
+                    _play.IconName = "media-playback-pause-symbolic";
+                    _play.TooltipText = "Pause track";
+                    UpdateTrack();
+                    break;
+                case PlayerState.SkipNext or PlayerState.SkipPrevious:
+                    UpdateTrack();
+                    break;
+                case PlayerState.LoadedInfo:
+                    UpdateAlbum();
+                    break;
+                case PlayerState.LoadedArtwork:
+                    UpdateArtwork();
+                    break;
+            }
+            return false;
+        });
     }
 
     public override void Dispose()

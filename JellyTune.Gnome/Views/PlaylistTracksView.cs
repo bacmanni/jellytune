@@ -40,29 +40,33 @@ public class PlaylistTracksView : Gtk.Box
 
     private void ControllerOnPlaylistTracksStateChanged(object? sender, PlaylistTracksStateArgs e)
     {
-        if (e.Loading)
+        GLib.MainContext.Default().InvokeFull(0, () =>
         {
-            _results.SetVisible(false);
-            _spinner.SetVisible(true);
-            return;
-        }
+            if (e.Loading)
+            {
+                _results.SetVisible(false);
+                _spinner.SetVisible(true);
+                return false;
+            }
 
-        if (e.UpdateTrackState)
-        {
-            UpdateTrackState(e.SelectedTrackId.Value);
-            return;
-        }
-        
-        _playlistTracksList.RemoveAll();
-        
-        foreach (var track in _controller.Tracks)
-        {
-            var state = _controller.PlayerService.GetTrackState(track.Id);
-            _playlistTracksList.Append(new TrackRow(_controller.FileService, track, state, true));
-        }
-        
-        _spinner.SetVisible(false);
-        _results.SetVisible(true);
+            if (e.UpdateTrackState)
+            {
+                UpdateTrackState(e.SelectedTrackId!.Value);
+                return false;
+            }
+
+            _playlistTracksList.RemoveAll();
+
+            foreach (var track in _controller.Tracks)
+            {
+                var state = _controller.PlayerService.GetTrackState(track.Id);
+                _playlistTracksList.Append(new TrackRow(_controller.FileService, track, state, true));
+            }
+
+            _spinner.SetVisible(false);
+            _results.SetVisible(true);
+            return false;
+        });
     }
 
     private void UpdateTrackState(Guid trackId)
