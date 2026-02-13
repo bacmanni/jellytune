@@ -435,8 +435,6 @@ public partial class MainWindow : Adw.ApplicationWindow
             _playlist_tracks_footer?.SetVisible(false);
             _playerPosition?.SetVisible(false);
         }
-        
-        _album_view.QueueDraw();
     }
 
     private void SearchFieldOnSearchChanged(SearchEntry sender, EventArgs args)

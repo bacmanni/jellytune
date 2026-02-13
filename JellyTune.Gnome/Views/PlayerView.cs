@@ -33,19 +33,25 @@ public class PlayerView : Gtk.Box
     {
         if (_controller.SelectedTrack != null)
         {
-            _track.SetText(_controller.SelectedTrack.Name);
-            _lyrics.SetSensitive(_controller.SelectedTrack.HasLyrics);
-            _skipForward.SetSensitive(_controller.PlayerService.HasNextTrack());
-            _skipBackward.SetSensitive(_controller.PlayerService.HasPreviousTrack());
-            
-            _container.QueueDraw();
+            GLib.MainContext.Default().InvokeFull(0, () =>
+            {
+                _track.SetText(_controller.SelectedTrack.Name);
+                _lyrics.SetSensitive(_controller.SelectedTrack.HasLyrics);
+                _skipForward.SetSensitive(_controller.PlayerService.HasNextTrack());
+                _skipBackward.SetSensitive(_controller.PlayerService.HasPreviousTrack());
+                return false;
+            });
         }
     }
 
     private void UpdateAlbum()
     {
-        _artist.SetText(GLib.Markup.EscapeText(_controller.Album.Artist));
-        _albumArt.Clear();
+        GLib.MainContext.Default().InvokeFull(0, () =>
+        {
+            _artist.SetText(GLib.Markup.EscapeText(_controller.Album.Artist));
+            _albumArt.Clear();
+            return false;
+        });
         UpdateTrack();
     }
     
@@ -55,8 +61,12 @@ public class PlayerView : Gtk.Box
         {
             using var bytes = GLib.Bytes.New(_controller.Artwork);
             using var texture = Gdk.Texture.NewFromBytes(bytes);
-            _albumArt.SetFromPaintable(texture);
-            _albumArt.QueueDraw();
+
+            GLib.MainContext.Default().InvokeFull(0, () =>
+            {
+                _albumArt.SetFromPaintable(texture);
+                return false;
+            });
         }
     }
     
