@@ -40,17 +40,23 @@ public partial class PlaylistRow : Adw.ActionRow
         _playlist_item_description.SetText(description);
 
         if (_playlist.HasArtwork)
-            UpdateArtwork();
+            _ = UpdateArtwork();
     }
     
     private async Task UpdateArtwork()
     {
         var artWork = await _fileService.GetFileAsync(FileType.Playlist, _playlist.Id);
-        if  (artWork == null || artWork.Length == 0)
+        if (artWork == null || artWork.Length == 0)
             return;
-        
+
         using var bytes = GLib.Bytes.New(artWork);
         using var texture = Gdk.Texture.NewFromBytes(bytes);
-        _playlist_primary_image.SetFromPaintable(texture);
+        
+        GLib.MainContext.Default().InvokeFull(0, () =>
+        {
+            _playlist_primary_image.SetFromPaintable(texture);
+            return false;
+        });
     }
+
 }
