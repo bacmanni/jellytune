@@ -13,6 +13,8 @@ public class PlayerView : Gtk.Box
 
     private readonly PlayerExtendedButtonView _extendedButtonView;
 
+    private bool _isDisposed;
+    
     [Gtk.Connect] private readonly Gtk.Box _container;
     [Gtk.Connect] private readonly Gtk.Box _actions;
     [Gtk.Connect] private readonly Gtk.Image _albumArt;
@@ -31,29 +33,24 @@ public class PlayerView : Gtk.Box
 
     private void UpdateTrack()
     {
+        _artist.SetText(GLib.Markup.EscapeText(_controller.Album.Artist));
+        if (_controller.Artwork != null)
+        {
+            var bytes = GLib.Bytes.New(_controller.Artwork);
+            var texture = Gdk.Texture.NewFromBytes(bytes);
+            _albumArt.SetFromPaintable(texture);
+        }
+        else
+        {
+            _albumArt.Clear();
+        }
+        
         if (_controller.SelectedTrack != null)
         {
             _track.SetText(_controller.SelectedTrack.Name);
             _lyrics.SetSensitive(_controller.SelectedTrack.HasLyrics);
             _skipForward.SetSensitive(_controller.PlayerService.HasNextTrack());
             _skipBackward.SetSensitive(_controller.PlayerService.HasPreviousTrack());
-        }
-    }
-
-    private void UpdateAlbum()
-    {
-        _artist.SetText(GLib.Markup.EscapeText(_controller.Album.Artist));
-        _albumArt.Clear();
-        UpdateTrack();
-    }
-    
-    private void UpdateArtwork()
-    {
-        if (_controller.Artwork != null)
-        {
-            using var bytes = GLib.Bytes.New(_controller.Artwork);
-            using var texture = Gdk.Texture.NewFromBytes(bytes);
-            _albumArt.SetFromPaintable(texture);
         }
     }
     
@@ -110,6 +107,7 @@ public class PlayerView : Gtk.Box
 
         GtkHelper.GtkDispatch(() =>
         {
+            if (_isDisposed) return;
             if (!IsVisible()) return;
 
             switch (state)
@@ -131,20 +129,13 @@ public class PlayerView : Gtk.Box
                 case PlayerState.SkipPrevious:
                     UpdateTrack();
                     break;
-
-                case PlayerState.LoadedInfo:
-                    UpdateAlbum();
-                    break;
-
-                case PlayerState.LoadedArtwork:
-                    UpdateArtwork();
-                    break;
             }
         });
     }
 
     public override void Dispose()
     {
+        _isDisposed = true;
         _controller.PlayerService.OnPlayerStateChanged -= OnPlayerStateChanged;
         base.Dispose();
     }

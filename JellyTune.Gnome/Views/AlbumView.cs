@@ -21,6 +21,7 @@ public class AlbumView : Gtk.ScrolledWindow
     [Gtk.Connect] private readonly Adw.Spinner _spinner;
     [Gtk.Connect] private readonly Adw.Clamp _result;
 
+    private bool _isDisposed;
     private bool _isCtrlActive = false;
     
     private AlbumView(Gtk.Builder builder) : base(
@@ -46,6 +47,7 @@ public class AlbumView : Gtk.ScrolledWindow
 
         GtkHelper.GtkDispatch(() =>
         {
+            if (_isDisposed) return;
             if (!IsVisible()) return;
             
             if (!updateAlbum && !updateTracks && !updateArtwork && !updateTrackState)
@@ -128,9 +130,8 @@ public class AlbumView : Gtk.ScrolledWindow
         if ( _controller.Artwork != null)
         {
             _albumArt.Clear();
-            
-            using var bytes = GLib.Bytes.New(_controller.Artwork);
-            using var texture = Gdk.Texture.NewFromBytes(bytes);
+            var bytes = GLib.Bytes.New(_controller.Artwork);
+            var texture = Gdk.Texture.NewFromBytes(bytes);
             _albumArt.SetFromPaintable(texture);
         }
     }
@@ -165,6 +166,7 @@ public class AlbumView : Gtk.ScrolledWindow
 
     public override void Dispose()
     {
+        _isDisposed = true;
         _tracks.OnRowSelected -= TracksOnRowSelected;
         _tracks.OnRowActivated -= TracksOnRowActivated;
         _controller.OnAlbumChanged -= ControllerOnAlbumChanged;
