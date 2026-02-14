@@ -40,18 +40,22 @@ public class PlaylistTracksView : Gtk.Box
 
     private void ControllerOnPlaylistTracksStateChanged(object? sender, PlaylistTracksStateArgs e)
     {
+        var loading = e.Loading;
+        var updateTrackState = e.UpdateTrackState;
+        var selectedTrackId = e.SelectedTrackId;
+
         GLib.MainContext.Default().InvokeFull(0, () =>
         {
-            if (e.Loading)
+            if (loading)
             {
                 _results.SetVisible(false);
                 _spinner.SetVisible(true);
                 return false;
             }
 
-            if (e.UpdateTrackState)
+            if (updateTrackState && selectedTrackId.HasValue)
             {
-                UpdateTrackState(e.SelectedTrackId!.Value);
+                UpdateTrackState(selectedTrackId.Value);
                 return false;
             }
 
@@ -68,6 +72,7 @@ public class PlaylistTracksView : Gtk.Box
             return false;
         });
     }
+
 
     private void UpdateTrackState(Guid trackId)
     {

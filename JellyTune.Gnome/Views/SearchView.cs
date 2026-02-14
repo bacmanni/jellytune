@@ -72,20 +72,25 @@ public class SearchView : Gtk.ScrolledWindow
 
     private void ControllerOnOnSearchStateChanged(object? sender, SearchStateArgs args)
     {
+        var open = args.Open;
+        var start = args.Start;
+        var updated = args.Updated;
+
         GLib.MainContext.Default().InvokeFull(0, () =>
         {
-            if (args.Open)
+            if (open)
                 SetSpinner();
-        
-            if (args.Start)
+
+            if (start)
                 SetSpinner(true);
 
-            if (args.Updated)
+            if (updated)
                 UpdateSearch();
 
             return false;
         });
     }
+
 
 
     private void UpdateSearch()
