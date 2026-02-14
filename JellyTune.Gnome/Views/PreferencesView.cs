@@ -81,7 +81,7 @@ public partial class PreferencesView : Adw.PreferencesDialog
             ForceClose();
     }
 
-    public PreferencesView(IConfigurationService configurationService, IJellyTuneApiService jellyTuneApiService) : this(Blueprint.BuilderFromFile("preferences"))
+    public PreferencesView(IConfigurationService configurationService, IJellyTuneApiService jellyTuneApiService) : this(GtkHelper.BuilderFromFile("preferences"))
     {
         _configurationService = configurationService;
         _jellyTuneApiService = jellyTuneApiService;

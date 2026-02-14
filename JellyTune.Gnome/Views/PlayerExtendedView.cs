@@ -35,7 +35,7 @@ public partial class PlayerExtendedView : Gtk.Revealer
     }
 
     public PlayerExtendedView(PlayerExtendedController controller) : this(
-        Blueprint.BuilderFromFile("player_extended"))
+        GtkHelper.BuilderFromFile("player_extended"))
     {
         _controller = controller;
         _controller.OnShowHide += ControllerOnShowHide;

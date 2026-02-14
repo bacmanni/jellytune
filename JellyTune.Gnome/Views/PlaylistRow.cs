@@ -23,7 +23,7 @@ public partial class PlaylistRow : Adw.ActionRow
         builder.Connect(this);
     }
 
-    public PlaylistRow(IFileService fileService, Playlist playlist) : this(Blueprint.BuilderFromFile("playlist_row"))
+    public PlaylistRow(IFileService fileService, Playlist playlist) : this(GtkHelper.BuilderFromFile("playlist_row"))
     {
         _playlist  = playlist;
         _fileService = fileService;

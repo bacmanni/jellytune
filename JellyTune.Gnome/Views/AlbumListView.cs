@@ -16,7 +16,7 @@ public class AlbumListView : Gtk.Box
         builder.Connect(this);
     }
 
-    public AlbumListView(AlbumlistController controller) : this(Blueprint.BuilderFromFile("albumlist"))
+    public AlbumListView(AlbumlistController controller) : this(GtkHelper.BuilderFromFile("albumlist"))
     {
         _controller = controller;
         Append(new Views.ListView(_controller));

@@ -24,7 +24,7 @@ public class ListItem : Gtk.Box
         builder.Connect(this);
     }
     
-    public ListItem(IFileService fileService) : this(Blueprint.BuilderFromFile("list_item"))
+    public ListItem(IFileService fileService) : this(GtkHelper.BuilderFromFile("list_item"))
     {
         _fileService = fileService;
         CanFocus = false;

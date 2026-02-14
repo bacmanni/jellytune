@@ -21,7 +21,7 @@ public partial class PlayerExtendedButtonView : Gtk.Box
     }
 
     public PlayerExtendedButtonView(PlayerExtendedController controller) : this(
-        Blueprint.BuilderFromFile("player_extended_button"))
+        GtkHelper.BuilderFromFile("player_extended_button"))
     {
         _controller = controller;
         _position.OnClicked += PositionOnClicked;

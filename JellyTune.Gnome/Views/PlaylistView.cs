@@ -17,7 +17,7 @@ public class PlaylistView : Gtk.Box
         builder.Connect(this);
     }
 
-    public PlaylistView(PlaylistController controller) : this(Blueprint.BuilderFromFile("playlist"))
+    public PlaylistView(PlaylistController controller) : this(GtkHelper.BuilderFromFile("playlist"))
     {
         _controller = controller;
         Append(new Views.ListView(_controller));

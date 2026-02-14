@@ -20,7 +20,7 @@ public class QueueListView : Gtk.ScrolledWindow
         builder.Connect(this);
     }
 
-    public QueueListView(QueueListController controller) : this(Blueprint.BuilderFromFile("queue_list"))
+    public QueueListView(QueueListController controller) : this(GtkHelper.BuilderFromFile("queue_list"))
     {
         _controller = controller;
         _controller.OnQueueUpdated += ControllerOnQueueUpdated;

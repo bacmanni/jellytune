@@ -551,7 +551,7 @@ public partial class MainWindow : Adw.ApplicationWindow
     /// <param name="sender"></param>
     /// <param name="controller">The MainWindowController</param>
     /// <param name="application">The Adw.Application</param>
-    public MainWindow(Adw.Application sender, MainWindowController controller, Adw.Application application) : this(Blueprint.BuilderFromFile("window"), controller, application)
+    public MainWindow(Adw.Application sender, MainWindowController controller, Adw.Application application) : this(GtkHelper.BuilderFromFile("window"), controller, application)
     {
     }
 

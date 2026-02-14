@@ -72,7 +72,7 @@ public class PlayerView : Gtk.Box
         _controller.PlayerService.StartOrPauseTrackAsync();
     }
 
-    public PlayerView(PlayerController controller, PlayerExtendedController extendedController) : this(Blueprint.BuilderFromFile("player"))
+    public PlayerView(PlayerController controller, PlayerExtendedController extendedController) : this(GtkHelper.BuilderFromFile("player"))
     {
         _controller = controller;
         _extendedController = extendedController;
@@ -108,8 +108,10 @@ public class PlayerView : Gtk.Box
     {
         var state = e.State;
 
-        GLib.MainContext.Default().InvokeFull(0, () =>
+        GtkHelper.GtkDispatch(() =>
         {
+            if (!IsVisible()) return;
+
             switch (state)
             {
                 case PlayerState.Stopped:
@@ -138,8 +140,6 @@ public class PlayerView : Gtk.Box
                     UpdateArtwork();
                     break;
             }
-
-            return false;
         });
     }
 

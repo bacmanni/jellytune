@@ -21,7 +21,7 @@ public class SearchRow : Adw.ActionRow
         builder.Connect(this);
     }
 
-    public SearchRow(IFileService fileService, Search row) : this(Blueprint.BuilderFromFile("search_row"))
+    public SearchRow(IFileService fileService, Search row) : this(GtkHelper.BuilderFromFile("search_row"))
     {
         _fileService = fileService;
         Id = row.Id;

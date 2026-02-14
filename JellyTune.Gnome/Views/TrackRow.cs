@@ -27,7 +27,7 @@ public partial class TrackRow : Adw.ActionRow
         builder.Connect(this);
     }
     
-    public TrackRow(IFileService fileService, Track track, PlayerState state, bool extended = false) : this(Blueprint.BuilderFromFile("track_row"))
+    public TrackRow(IFileService fileService, Track track, PlayerState state, bool extended = false) : this(GtkHelper.BuilderFromFile("track_row"))
     {
         _fileService  = fileService;
         _track = track;

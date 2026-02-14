@@ -23,7 +23,7 @@ public partial class LyricsView : Adw.Dialog
         builder.Connect(this);
     }
     
-    public LyricsView(LyricsController controller) : this(Blueprint.BuilderFromFile("lyrics"))
+    public LyricsView(LyricsController controller) : this(GtkHelper.BuilderFromFile("lyrics"))
     {
         _controller = controller;
         _controller.OnLyricsUpdated += ControllerOnOnLyricsUpdated;

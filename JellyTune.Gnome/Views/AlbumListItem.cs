@@ -23,7 +23,7 @@ public class AlbumListItem : Gtk.Box
         builder.Connect(this);
     }
     
-    public AlbumListItem(IFileService fileService) : this(Blueprint.BuilderFromFile("album_list_item"))
+    public AlbumListItem(IFileService fileService) : this(GtkHelper.BuilderFromFile("album_list_item"))
     {
         _fileService = fileService;
     }

@@ -2,7 +2,7 @@ using System.Reflection;
 
 namespace JellyTune.Gnome.Helpers;
 
-public abstract class Blueprint
+public abstract class GtkHelper
 {
     public static Gtk.Builder BuilderFromFile(string name)
     {
@@ -19,6 +19,14 @@ public abstract class Blueprint
             Console.WriteLine(e);
             throw;
         }
-        
+    }
+
+    public static void GtkDispatch(Action action)
+    {
+        GLib.MainContext.Default().InvokeFull(0, () =>
+        {
+            action();
+            return false;
+        });
     }
 }

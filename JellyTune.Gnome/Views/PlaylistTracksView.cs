@@ -20,7 +20,7 @@ public class PlaylistTracksView : Gtk.Box
         builder.Connect(this);
     }
 
-    public PlaylistTracksView(PlaylistTracksController controller) : this(Blueprint.BuilderFromFile("playlist_tracks"))
+    public PlaylistTracksView(PlaylistTracksController controller) : this(GtkHelper.BuilderFromFile("playlist_tracks"))
     {
         _controller = controller;
         _controller.OnPlaylistTracksStateChanged += ControllerOnPlaylistTracksStateChanged;

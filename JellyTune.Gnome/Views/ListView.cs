@@ -30,7 +30,7 @@ public class ListView : Gtk.Box
         builder.Connect(this);
     }
     
-    public ListView(ListController controller) : this(Blueprint.BuilderFromFile("list"))
+    public ListView(ListController controller) : this(GtkHelper.BuilderFromFile("list"))
     {
         _controller = controller;
         _controller.OnListChanged += ControllerOnListChanged;

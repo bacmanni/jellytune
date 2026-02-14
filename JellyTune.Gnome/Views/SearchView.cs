@@ -53,7 +53,7 @@ public class SearchView : Gtk.ScrolledWindow
         }
     }
     
-    public SearchView(SearchController controller) : this(Blueprint.BuilderFromFile("search"))
+    public SearchView(SearchController controller) : this(GtkHelper.BuilderFromFile("search"))
     {
         _controller = controller;
         _controller.OnSearchStateChanged += ControllerOnOnSearchStateChanged;

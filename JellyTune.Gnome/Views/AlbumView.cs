@@ -29,7 +29,7 @@ public class AlbumView : Gtk.ScrolledWindow
         builder.Connect(this);
     }
     
-    public AlbumView(AlbumController controller) : this(Blueprint.BuilderFromFile("album"))
+    public AlbumView(AlbumController controller) : this(GtkHelper.BuilderFromFile("album"))
     {
         _controller = controller;
         _tracks.OnRowSelected += TracksOnRowSelected;
@@ -44,12 +44,14 @@ public class AlbumView : Gtk.ScrolledWindow
         var updateArtwork = args.UpdateArtwork;
         var updateTrackState = args.UpdateTrackState;
 
-        GLib.MainContext.Default().InvokeFull(0, () =>
+        GtkHelper.GtkDispatch(() =>
         {
+            if (!IsVisible()) return;
+            
             if (!updateAlbum && !updateTracks && !updateArtwork && !updateTrackState)
             {
                 SetSpinner(true);
-                return false;
+                return;
             }
 
             if (updateAlbum)
@@ -63,8 +65,6 @@ public class AlbumView : Gtk.ScrolledWindow
 
             if (updateTrackState)
                 UpdateTrackState();
-
-            return false;
         });
     }
 
