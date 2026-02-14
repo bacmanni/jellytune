@@ -106,28 +106,41 @@ public class PlayerView : Gtk.Box
 
     private void OnPlayerStateChanged(object? sender, PlayerStateArgs e)
     {
-        switch (e.State)
+        var state = e.State;
+
+        GLib.MainContext.Default().InvokeFull(0, () =>
         {
-            case PlayerState.Stopped or PlayerState.Paused:
-                _play.IconName = "media-playback-start-symbolic";
-                _play.TooltipText = "Play track";
-                UpdateTrack();
-                break;
-            case PlayerState.Playing:
-                _play.IconName = "media-playback-pause-symbolic";
-                _play.TooltipText = "Pause track";
-                UpdateTrack();
-                break;
-            case PlayerState.SkipNext or PlayerState.SkipPrevious:
-                UpdateTrack();
-                break;
-            case PlayerState.LoadedInfo:
-                UpdateAlbum();
-                break;
-            case PlayerState.LoadedArtwork:
-                UpdateArtwork();
-                break;
-        }
+            switch (state)
+            {
+                case PlayerState.Stopped:
+                case PlayerState.Paused:
+                    _play.IconName = "media-playback-start-symbolic";
+                    _play.TooltipText = "Play track";
+                    UpdateTrack();
+                    break;
+
+                case PlayerState.Playing:
+                    _play.IconName = "media-playback-pause-symbolic";
+                    _play.TooltipText = "Pause track";
+                    UpdateTrack();
+                    break;
+
+                case PlayerState.SkipNext:
+                case PlayerState.SkipPrevious:
+                    UpdateTrack();
+                    break;
+
+                case PlayerState.LoadedInfo:
+                    UpdateAlbum();
+                    break;
+
+                case PlayerState.LoadedArtwork:
+                    UpdateArtwork();
+                    break;
+            }
+
+            return false;
+        });
     }
 
     public override void Dispose()
