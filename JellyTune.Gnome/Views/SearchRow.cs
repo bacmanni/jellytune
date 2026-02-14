@@ -53,17 +53,12 @@ public class SearchRow : Adw.ActionRow
 
     private async Task UpdateArtwork()
     {
-        var artWork = await _fileService.GetFileAsync(FileType.Playlist, Id);
-        if (artWork == null || artWork.Length == 0)
+        var albumArt = await _fileService.GetFileAsync(FileType.AlbumArt, AlbumId);
+        if  (albumArt == null || albumArt.Length == 0)
             return;
-
-        using var bytes = GLib.Bytes.New(artWork);
-        using var texture = Gdk.Texture.NewFromBytes(bytes);
         
-        GLib.MainContext.Default().InvokeFull(0, () =>
-        {
-            _albumArt.SetFromPaintable(texture);
-            return false;
-        });
+        using var bytes = GLib.Bytes.New(albumArt);
+        using var texture = Gdk.Texture.NewFromBytes(bytes);
+        _albumArt.SetFromPaintable(texture);
     }
 }

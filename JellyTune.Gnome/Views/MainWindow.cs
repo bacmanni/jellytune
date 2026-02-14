@@ -387,19 +387,6 @@ public partial class MainWindow : Adw.ApplicationWindow
         }
     }
 
-    private void MenuUpdateSelection(bool mainViewActive)
-    {
-        var mainMenu = _menuButton.MenuModel as Gio.Menu;
-        var existingSection = mainMenu.GetItemLink(0, "section") as Gio.Menu;
-        var hasSection = existingSection.GetItemAttributeValue(0, "action", VariantType.String).Print(false)
-            .Trim('\'').Contains("win.view");
-
-        if (hasSection)
-        {
-            
-        }
-    }
-    
     private void OnPlayerStateChanged(object? sender, PlayerStateArgs args)
     {
         if (args.State is PlayerState.Playing or PlayerState.Stopped or PlayerState.Paused)

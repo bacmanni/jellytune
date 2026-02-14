@@ -61,13 +61,9 @@ public partial class TrackRow : Adw.ActionRow
         if  (albumArt == null || albumArt.Length == 0)
             return;
         
-        GLib.MainContext.Default().InvokeFull(0, () =>
-        {
-            using var bytes = GLib.Bytes.New(albumArt);
-            using var texture = Gdk.Texture.NewFromBytes(bytes);
-            _albumArt.SetFromPaintable(texture);
-            return false;
-        });
+        using var bytes = GLib.Bytes.New(albumArt);
+        using var texture = Gdk.Texture.NewFromBytes(bytes);
+        _albumArt.SetFromPaintable(texture);
     }
     
     public void UpdateState(PlayerState state)
