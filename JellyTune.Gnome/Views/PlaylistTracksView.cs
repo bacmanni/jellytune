@@ -46,20 +46,25 @@ public class PlaylistTracksView : Gtk.Box
             _spinner.SetVisible(true);
             return;
         }
-
-        if (e.UpdateTrackState)
-        {
-            UpdateTrackState(e.SelectedTrackId.Value);
-            return;
-        }
+     
+        var updateTrackState = e.UpdateTrackState;
+        var trackId = e.SelectedTrackId;
         
-        _playlistTracksList.RemoveAll();
-        
-        foreach (var track in _controller.Tracks)
+        GtkHelper.GtkDispatch(() =>
         {
-            var state = _controller.PlayerService.GetTrackState(track.Id);
-            _playlistTracksList.Append(new TrackRow(_controller.FileService, track, state, true));
-        }
+            if (updateTrackState)
+            {
+                UpdateTrackState(trackId.Value);
+                return;
+            }
+        
+            _playlistTracksList.RemoveAll();
+            foreach (var track in _controller.Tracks)
+            {
+                var state = _controller.PlayerService.GetTrackState(track.Id);
+                _playlistTracksList.Append(new TrackRow(_controller.FileService, track, state, true));
+            }
+        });
         
         _spinner.SetVisible(false);
         _results.SetVisible(true);

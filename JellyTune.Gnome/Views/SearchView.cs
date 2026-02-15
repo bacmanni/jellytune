@@ -72,7 +72,7 @@ public class SearchView : Gtk.ScrolledWindow
 
     private void ControllerOnOnSearchStateChanged(object? sender, SearchStateArgs args)
     {
-        GLib.MainContext.Default().InvokeFull(0, () =>
+        GtkHelper.GtkDispatch(() =>
         {
             if (args.Open)
                 SetSpinner();
@@ -82,8 +82,6 @@ public class SearchView : Gtk.ScrolledWindow
 
             if (args.Updated)
                 UpdateSearch();
-
-            return false;
         });
     }
 

@@ -96,8 +96,13 @@ public partial class PlayerExtendedView : Gtk.Revealer
     private void PlayerServiceOnPlayerPositionChanged(object? sender, PlayerPositionArgs e)
     {
         var time = TimeSpan.FromSeconds(e.Position);
-        _currentPosition.SetText($"{(int)time.TotalMinutes}:{time.Seconds:00}");
-        _durationScale.Adjustment.Value = e.Position;
+        var position = e.Position;
+
+        GtkHelper.GtkDispatch(() =>
+        {
+            _currentPosition.SetText($"{(int)time.TotalMinutes}:{time.Seconds:00}");
+            _durationScale.Adjustment.Value = position;
+        });
     }
 
     private bool DurationScaleOnChangeValue(Range sender, Range.ChangeValueSignalArgs args)
