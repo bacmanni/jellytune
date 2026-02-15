@@ -506,6 +506,9 @@ public partial class MainWindow : Adw.ApplicationWindow
     /// <param name="args"></param>
     private void ActPreferencesOnOnActivate(Gio.SimpleAction sender, Gio.SimpleAction.ActivateSignalArgs args)
     {
+        // Pause playing. Playing would break account related stuff
+        _controller.PlayerService.PauseTrack();
+        
         var preferences = new PreferencesView(_controller.ConfigurationService, _controller.JellyTuneApiService);
         preferences.Present(this);
         preferences.OnClosed += async (dialog, eventArgs) =>
