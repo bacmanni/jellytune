@@ -21,9 +21,6 @@ public class AlbumView : Gtk.ScrolledWindow
     [Gtk.Connect] private readonly Adw.Spinner _spinner;
     [Gtk.Connect] private readonly Adw.Clamp _result;
 
-    private bool _isDisposed;
-    private bool _isCtrlActive = false;
-    
     private AlbumView(Gtk.Builder builder) : base(
         new ScrolledWindowHandle(builder.GetPointer("_root"), false))
     {
@@ -47,9 +44,6 @@ public class AlbumView : Gtk.ScrolledWindow
 
         GtkHelper.GtkDispatch(() =>
         {
-            if (_isDisposed) return;
-            if (!IsVisible()) return;
-            
             if (!updateAlbum && !updateTracks && !updateArtwork && !updateTrackState)
             {
                 SetSpinner(true);
@@ -73,15 +67,8 @@ public class AlbumView : Gtk.ScrolledWindow
     private void TracksOnRowActivated(ListBox sender, ListBox.RowActivatedSignalArgs args)
     {
         if (args.Row is TrackRow row)
-        {
-            if (_isCtrlActive)
-            {
-                _controller.AddTrackToQueue(row.TrackId);
-            }
-            else
-            {
-                _ = _controller.PlayOrPauseTrackAsync(row.TrackId);
-            }
+        { 
+            _ = _controller.PlayOrPauseTrackAsync(row.TrackId);
         }
     }
 
@@ -159,14 +146,8 @@ public class AlbumView : Gtk.ScrolledWindow
         }
     }
 
-    public void IsCtrlActive(bool active)
-    {
-        _isCtrlActive = active;
-    }
-
     public override void Dispose()
     {
-        _isDisposed = true;
         _tracks.OnRowSelected -= TracksOnRowSelected;
         _tracks.OnRowActivated -= TracksOnRowActivated;
         _controller.OnAlbumChanged -= ControllerOnAlbumChanged;

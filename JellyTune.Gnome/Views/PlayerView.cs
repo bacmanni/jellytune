@@ -12,8 +12,6 @@ public class PlayerView : Gtk.Box
     private readonly PlayerController _controller;
 
     private readonly PlayerExtendedButtonView _extendedButtonView;
-
-    private bool _isDisposed;
     
     [Gtk.Connect] private readonly Gtk.Box _container;
     [Gtk.Connect] private readonly Gtk.Box _actions;
@@ -33,7 +31,9 @@ public class PlayerView : Gtk.Box
 
     private void UpdateTrack()
     {
-        _artist.SetText(GLib.Markup.EscapeText(_controller.Album.Artist));
+        if (_controller.Album != null)
+            _artist.SetText(GLib.Markup.EscapeText(_controller.Album.Artist));
+        
         if (_controller.Artwork != null)
         {
             var bytes = GLib.Bytes.New(_controller.Artwork);
@@ -104,12 +104,8 @@ public class PlayerView : Gtk.Box
     private void OnPlayerStateChanged(object? sender, PlayerStateArgs e)
     {
         var state = e.State;
-
         GtkHelper.GtkDispatch(() =>
         {
-            if (_isDisposed) return;
-            if (!IsVisible()) return;
-
             switch (state)
             {
                 case PlayerState.Stopped:
@@ -135,7 +131,6 @@ public class PlayerView : Gtk.Box
 
     public override void Dispose()
     {
-        _isDisposed = true;
         _controller.PlayerService.OnPlayerStateChanged -= OnPlayerStateChanged;
         base.Dispose();
     }

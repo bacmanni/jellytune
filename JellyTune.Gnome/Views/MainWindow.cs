@@ -236,21 +236,6 @@ public partial class MainWindow : Adw.ApplicationWindow
         AddAction(actQuit);
         application.SetAccelsForAction("win.quit", new string[] { "<Ctrl>q" });
 
-        // Event for ctrl click
-        var ctrlEvent = Gtk.EventControllerKey.New();
-        ctrlEvent.OnKeyPressed += (sender, args) =>
-        {
-            _albumView.IsCtrlActive(true);
-            return true;
-        };
-
-        ctrlEvent.OnKeyReleased += (sender, args) =>
-        {
-            _albumView.IsCtrlActive(false);
-        };
-        
-        AddController(ctrlEvent);
-        
         // Event for selected view
         _viewAction = SimpleAction.NewStateful(
             "view",

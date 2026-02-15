@@ -59,7 +59,12 @@ public partial class PlayerExtendedView : Gtk.Revealer
 
     private void PlayerServiceOnPlayerVolumeChanged(object? sender, PlayerVolumeArgs e)
     {
-        _volumeScale.Adjustment.Value = _controller.PlayerService.GetVolumePercent();
+        if (_volumeScale.Adjustment == null) return;
+
+        GtkHelper.GtkDispatch(() =>
+        {
+            _volumeScale.Adjustment.Value = _controller.PlayerService.GetVolumePercent();
+        });
     }
 
     private void MuteButtonOnClicked(Button sender, EventArgs args)
@@ -104,19 +109,25 @@ public partial class PlayerExtendedView : Gtk.Revealer
     private void PlayerServiceOnPlayerStateChanged(object? sender, PlayerStateArgs e)
     {
         if (!Visible) return;
-        
         if (e.State is not PlayerState.Playing) return;
         
-        if (e.SelectedTrack?.Id == _playingTrackId) return;
+        var selectedTrack = e.SelectedTrack;
         
-        _volumeScale.Adjustment.Value = _controller.PlayerService.GetVolumePercent();
+        if (selectedTrack?.Id == _playingTrackId) return;
         
-        _durationScale.Adjustment.Lower = 0;
-        _durationScale.Adjustment.Value = 0;
-        _durationScale.Adjustment.Upper = e.SelectedTrack.RunTime.TotalSeconds;
-        _currentPosition.SetText("0:00");
-        _totalLength.SetText($"{(int)e.SelectedTrack.RunTime.TotalMinutes}:{e.SelectedTrack.RunTime.Seconds:00}");
-        _playingTrackId =  e.SelectedTrackId;
+        var volume = _controller.PlayerService.GetVolumePercent();
+        var runtime = selectedTrack.RunTime;
+        
+        GtkHelper.GtkDispatch(() =>
+        {
+            _volumeScale.Adjustment.Value = volume;
+            _durationScale.Adjustment.Lower = 0;
+            _durationScale.Adjustment.Value = 0;
+            _durationScale.Adjustment.Upper = runtime.TotalSeconds;
+            _currentPosition.SetText("0:00");
+            _totalLength.SetText($"{(int)runtime.TotalMinutes}:{runtime.Seconds:00}");
+            _playingTrackId = selectedTrack.Id;
+        });
     }
 
     public override void Dispose()

@@ -43,26 +43,29 @@ public partial class PlayerExtendedButtonView : Gtk.Box
 
     private void PlayerServiceOnPlayerVolumeChanged(object? sender, PlayerVolumeArgs e)
     {
-        if (e.IsMuted)
+        GtkHelper.GtkDispatch(() =>
         {
-            _volume.SetIconName("audio-volume-muted-symbolic");
-        }
-        else
-        {
-            var volume = _controller.PlayerService.GetVolumePercent();
-            if (volume > 70)
+            if (_controller.PlayerService.IsMuted())
             {
-                _volume.SetIconName("audio-volume-high-symbolic");
-            }
-            else if (volume > 30)
-            {
-                _volume.SetIconName("audio-volume-medium-symbolic");
+                _volume.SetIconName("audio-volume-muted-symbolic");
             }
             else
             {
-                _volume.SetIconName("audio-volume-low-symbolic");
+                var volume = _controller.PlayerService.GetVolumePercent();
+                if (volume > 70)
+                {
+                    _volume.SetIconName("audio-volume-high-symbolic");
+                }
+                else if (volume > 30)
+                {
+                    _volume.SetIconName("audio-volume-medium-symbolic");
+                }
+                else
+                {
+                    _volume.SetIconName("audio-volume-low-symbolic");
+                }
             }
-        }
+        });
     }
 
     private void VolumeOnClicked(Button sender, EventArgs args)
