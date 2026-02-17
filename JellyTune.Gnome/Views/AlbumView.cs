@@ -21,15 +21,13 @@ public class AlbumView : Gtk.ScrolledWindow
     [Gtk.Connect] private readonly Adw.Spinner _spinner;
     [Gtk.Connect] private readonly Adw.Clamp _result;
 
-    private bool _isCtrlActive = false;
-    
     private AlbumView(Gtk.Builder builder) : base(
         new ScrolledWindowHandle(builder.GetPointer("_root"), false))
     {
         builder.Connect(this);
     }
     
-    public AlbumView(AlbumController controller) : this(Blueprint.BuilderFromFile("album"))
+    public AlbumView(AlbumController controller) : this(GtkHelper.BuilderFromFile("album"))
     {
         _controller = controller;
         _tracks.OnRowSelected += TracksOnRowSelected;
@@ -44,12 +42,12 @@ public class AlbumView : Gtk.ScrolledWindow
         var updateArtwork = args.UpdateArtwork;
         var updateTrackState = args.UpdateTrackState;
 
-        GLib.MainContext.Default().InvokeFull(0, () =>
+        GtkHelper.GtkDispatch(() =>
         {
             if (!updateAlbum && !updateTracks && !updateArtwork && !updateTrackState)
             {
                 SetSpinner(true);
-                return false;
+                return;
             }
 
             if (updateAlbum)
@@ -63,25 +61,14 @@ public class AlbumView : Gtk.ScrolledWindow
 
             if (updateTrackState)
                 UpdateTrackState();
-
-            return false;
         });
     }
-
-
 
     private void TracksOnRowActivated(ListBox sender, ListBox.RowActivatedSignalArgs args)
     {
         if (args.Row is TrackRow row)
-        {
-            if (_isCtrlActive)
-            {
-                _controller.AddTrackToQueue(row.TrackId);
-            }
-            else
-            {
-                _ = _controller.PlayOrPauseTrackAsync(row.TrackId);
-            }
+        { 
+            _ = _controller.PlayOrPauseTrackAsync(row.TrackId);
         }
     }
 
@@ -130,9 +117,8 @@ public class AlbumView : Gtk.ScrolledWindow
         if ( _controller.Artwork != null)
         {
             _albumArt.Clear();
-            
-            using var bytes = GLib.Bytes.New(_controller.Artwork);
-            using var texture = Gdk.Texture.NewFromBytes(bytes);
+            var bytes = GLib.Bytes.New(_controller.Artwork);
+            var texture = Gdk.Texture.NewFromBytes(bytes);
             _albumArt.SetFromPaintable(texture);
         }
     }
@@ -158,11 +144,6 @@ public class AlbumView : Gtk.ScrolledWindow
             var state = _controller.PlayerService.GetTrackState(row.TrackId);
             row.UpdateState(state);
         }
-    }
-
-    public void IsCtrlActive(bool active)
-    {
-        _isCtrlActive = active;
     }
 
     public override void Dispose()

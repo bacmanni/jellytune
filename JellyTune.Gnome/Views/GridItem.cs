@@ -24,7 +24,7 @@ public class GridItem : Gtk.Box
         builder.Connect(this);
     }
     
-    public GridItem(IFileService fileService) : this(Blueprint.BuilderFromFile("grid_item"))
+    public GridItem(IFileService fileService) : this(GtkHelper.BuilderFromFile("grid_item"))
     {
         _fileService = fileService;
         CanFocus = false;

@@ -53,7 +53,7 @@ public class SearchView : Gtk.ScrolledWindow
         }
     }
     
-    public SearchView(SearchController controller) : this(Blueprint.BuilderFromFile("search"))
+    public SearchView(SearchController controller) : this(GtkHelper.BuilderFromFile("search"))
     {
         _controller = controller;
         _controller.OnSearchStateChanged += ControllerOnOnSearchStateChanged;
@@ -72,25 +72,18 @@ public class SearchView : Gtk.ScrolledWindow
 
     private void ControllerOnOnSearchStateChanged(object? sender, SearchStateArgs args)
     {
-        var open = args.Open;
-        var start = args.Start;
-        var updated = args.Updated;
-
-        GLib.MainContext.Default().InvokeFull(0, () =>
+        GtkHelper.GtkDispatch(() =>
         {
-            if (open)
+            if (args.Open)
                 SetSpinner();
-
-            if (start)
+        
+            if (args.Start)
                 SetSpinner(true);
 
-            if (updated)
+            if (args.Updated)
                 UpdateSearch();
-
-            return false;
         });
     }
-
 
 
     private void UpdateSearch()

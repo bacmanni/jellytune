@@ -133,6 +133,10 @@
             <child>
               <object class="AdwNavigationPage" id="_queue_list">
                 <property name="tag">_queue_list</property>
+                <child type="top">
+                  <object class="AdwHeaderBar">
+                  </object>
+                </child>
                 <property name="child">
                   <object class="AdwToolbarView" id="_queue_list_view">
                     <property name="bottom-bar-style">raised</property>
@@ -163,6 +167,10 @@
             <child>
               <object class="AdwNavigationPage" id="_album_details">
                 <property name="tag">album_details</property>
+                <child type="top">
+                  <object class="AdwHeaderBar">
+                  </object>
+                </child>
                 <property name="child">
                   <object class="AdwToolbarView" id="_album_details_view">
                     <property name="bottom-bar-style">raised</property>
@@ -189,6 +197,10 @@
             <child>
               <object class="AdwNavigationPage" id="_playlist_tracks">
                 <property name="tag">_playlist_tracks</property>
+                <child type="top">
+                  <object class="AdwHeaderBar">
+                  </object>
+                </child>
                 <property name="child">
                   <object class="AdwToolbarView" id="_playlist_tracks_view">
                     <property name="bottom-bar-style">raised</property>

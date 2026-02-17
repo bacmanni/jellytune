@@ -31,7 +31,7 @@ public class StartupView : Adw.Dialog
     }
 
     public StartupView(Adw.Application application, StartupState startupState, StartupController controller,
-        TaskCompletionSource taskCompletionSource) : this(Blueprint.BuilderFromFile("startup"))
+        TaskCompletionSource taskCompletionSource) : this(GtkHelper.BuilderFromFile("startup"))
     {
         _application = application;
         _controller = controller;

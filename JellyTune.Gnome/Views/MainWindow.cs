@@ -236,21 +236,6 @@ public partial class MainWindow : Adw.ApplicationWindow
         AddAction(actQuit);
         application.SetAccelsForAction("win.quit", new string[] { "<Ctrl>q" });
 
-        // Event for ctrl click
-        var ctrlEvent = Gtk.EventControllerKey.New();
-        ctrlEvent.OnKeyPressed += (sender, args) =>
-        {
-            _albumView.IsCtrlActive(true);
-            return true;
-        };
-
-        ctrlEvent.OnKeyReleased += (sender, args) =>
-        {
-            _albumView.IsCtrlActive(false);
-        };
-        
-        AddController(ctrlEvent);
-        
         // Event for selected view
         _viewAction = SimpleAction.NewStateful(
             "view",
@@ -387,19 +372,6 @@ public partial class MainWindow : Adw.ApplicationWindow
         }
     }
 
-    private void MenuUpdateSelection(bool mainViewActive)
-    {
-        var mainMenu = _menuButton.MenuModel as Gio.Menu;
-        var existingSection = mainMenu.GetItemLink(0, "section") as Gio.Menu;
-        var hasSection = existingSection.GetItemAttributeValue(0, "action", VariantType.String).Print(false)
-            .Trim('\'').Contains("win.view");
-
-        if (hasSection)
-        {
-            
-        }
-    }
-    
     private void OnPlayerStateChanged(object? sender, PlayerStateArgs args)
     {
         if (args.State is PlayerState.Playing or PlayerState.Stopped or PlayerState.Paused)
@@ -534,6 +506,9 @@ public partial class MainWindow : Adw.ApplicationWindow
     /// <param name="args"></param>
     private void ActPreferencesOnOnActivate(Gio.SimpleAction sender, Gio.SimpleAction.ActivateSignalArgs args)
     {
+        // Pause playing. Playing would break account related stuff
+        _controller.PlayerService.StopTrack();
+        
         var preferences = new PreferencesView(_controller.ConfigurationService, _controller.JellyTuneApiService);
         preferences.Present(this);
         preferences.OnClosed += async (dialog, eventArgs) =>
@@ -564,7 +539,7 @@ public partial class MainWindow : Adw.ApplicationWindow
     /// <param name="sender"></param>
     /// <param name="controller">The MainWindowController</param>
     /// <param name="application">The Adw.Application</param>
-    public MainWindow(Adw.Application sender, MainWindowController controller, Adw.Application application) : this(Blueprint.BuilderFromFile("window"), controller, application)
+    public MainWindow(Adw.Application sender, MainWindowController controller, Adw.Application application) : this(GtkHelper.BuilderFromFile("window"), controller, application)
     {
     }
 

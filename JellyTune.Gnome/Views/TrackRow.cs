@@ -27,7 +27,7 @@ public partial class TrackRow : Adw.ActionRow
         builder.Connect(this);
     }
     
-    public TrackRow(IFileService fileService, Track track, PlayerState state, bool extended = false) : this(Blueprint.BuilderFromFile("track_row"))
+    public TrackRow(IFileService fileService, Track track, PlayerState state, bool extended = false) : this(GtkHelper.BuilderFromFile("track_row"))
     {
         _fileService  = fileService;
         _track = track;
@@ -61,13 +61,9 @@ public partial class TrackRow : Adw.ActionRow
         if  (albumArt == null || albumArt.Length == 0)
             return;
         
-        GLib.MainContext.Default().InvokeFull(0, () =>
-        {
-            using var bytes = GLib.Bytes.New(albumArt);
-            using var texture = Gdk.Texture.NewFromBytes(bytes);
-            _albumArt.SetFromPaintable(texture);
-            return false;
-        });
+        using var bytes = GLib.Bytes.New(albumArt);
+        using var texture = Gdk.Texture.NewFromBytes(bytes);
+        _albumArt.SetFromPaintable(texture);
     }
     
     public void UpdateState(PlayerState state)

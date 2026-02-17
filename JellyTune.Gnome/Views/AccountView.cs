@@ -42,7 +42,7 @@ public class AccountView : Adw.PreferencesGroup
         builder.Connect(this);
     }
     
-    public AccountView(AccountController controller) : this(Blueprint.BuilderFromFile("account"))
+    public AccountView(AccountController controller) : this(GtkHelper.BuilderFromFile("account"))
     {
         _controller = controller;
         _controller.OnConfigurationLoaded += ControllerOnOnConfigurationLoaded;

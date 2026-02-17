@@ -20,7 +20,7 @@ public class QueueListView : Gtk.ScrolledWindow
         builder.Connect(this);
     }
 
-    public QueueListView(QueueListController controller) : this(Blueprint.BuilderFromFile("queue_list"))
+    public QueueListView(QueueListController controller) : this(GtkHelper.BuilderFromFile("queue_list"))
     {
         _controller = controller;
         _controller.OnQueueUpdated += ControllerOnQueueUpdated;
@@ -47,24 +47,30 @@ public class QueueListView : Gtk.ScrolledWindow
 
     private void ControllerOnQueueUpdated(object? sender, QueueArgs e)
     {
-        _queueList.RemoveAll();
-        foreach (var track in _controller.Tracks)
+        GtkHelper.GtkDispatch(() =>
         {
-            var state = _controller.PlayerService.GetTrackState(track.Id);
-            _queueList.Append(new TrackRow(_controller.FileService, track, state, true));
-        }
+            _queueList.RemoveAll();
+            foreach (var track in _controller.Tracks)
+            {
+                var state = _controller.PlayerService.GetTrackState(track.Id);
+                _queueList.Append(new TrackRow(_controller.FileService, track, state, true));
+            } 
+        });
     }
 
     private void UpdateRowState()
     {
-        for (var i = 0; i < _controller.Tracks.Count; i++)
+        GtkHelper.GtkDispatch(() =>
         {
-            var row = _queueList.GetRowAtIndex(i) as TrackRow;
-            if (row == null)  continue;
+            for (var i = 0; i < _controller.Tracks.Count; i++)
+            {
+                var row = _queueList.GetRowAtIndex(i) as TrackRow;
+                if (row == null)  continue;
 
-            var state = _controller.PlayerService.GetTrackState(row.TrackId);
-            row.UpdateState(state);
-        }
+                var state = _controller.PlayerService.GetTrackState(row.TrackId);
+                row.UpdateState(state);
+            }
+        });
     }
 
     public override void Dispose()

@@ -23,7 +23,7 @@ public class LoginView : Adw.Dialog
         builder.Connect(this);
     }
     
-    public LoginView(StartupController controller, TaskCompletionSource taskCompletionSource) : this(Blueprint.BuilderFromFile("login"))
+    public LoginView(StartupController controller, TaskCompletionSource taskCompletionSource) : this(GtkHelper.BuilderFromFile("login"))
     {
         _controller = controller;
         _taskCompletionSource  = taskCompletionSource;

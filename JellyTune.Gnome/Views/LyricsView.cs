@@ -23,7 +23,7 @@ public partial class LyricsView : Adw.Dialog
         builder.Connect(this);
     }
     
-    public LyricsView(LyricsController controller) : this(Blueprint.BuilderFromFile("lyrics"))
+    public LyricsView(LyricsController controller) : this(GtkHelper.BuilderFromFile("lyrics"))
     {
         _controller = controller;
         _controller.OnLyricsUpdated += ControllerOnOnLyricsUpdated;
@@ -33,19 +33,24 @@ public partial class LyricsView : Adw.Dialog
 
     private void ControllerOnOnLyricsUpdated(object? sender, EventArgs e)
     {
-        _track.SetLabel(_controller.TrackName);
-        _artist.SetLabel(_controller.ArtistName);
+        GtkHelper.GtkDispatch(() =>
+        {
+            _track.SetLabel(_controller.TrackName);
+            _artist.SetLabel(_controller.ArtistName);
         
-        if (!string.IsNullOrWhiteSpace(_controller.Lyrics))
-            _lyrics.SetLabel(_controller.Lyrics);;
+            if (!string.IsNullOrWhiteSpace(_controller.Lyrics))
+                _lyrics.SetLabel(_controller.Lyrics);;
 
-        if (_controller?.AlbumArt == null) return;
-        using var bytes = GLib.Bytes.New(_controller.AlbumArt);
-        using var texture = Gdk.Texture.NewFromBytes(bytes);
-        _albumArt.SetFromPaintable(texture);
-        
-        _spinner.SetVisible(false);
-        _results.SetVisible(true);
+            if (_controller.AlbumArt != null)
+            {
+                var bytes = GLib.Bytes.New(_controller.AlbumArt);
+                var texture = Gdk.Texture.NewFromBytes(bytes);
+                _albumArt.SetFromPaintable(texture);
+            }
+            
+            _spinner.SetVisible(false);
+            _results.SetVisible(true);
+        });
     }
 
     public override void Dispose()

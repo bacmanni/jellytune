@@ -30,7 +30,7 @@ public class ListView : Gtk.Box
         builder.Connect(this);
     }
     
-    public ListView(ListController controller) : this(Blueprint.BuilderFromFile("list"))
+    public ListView(ListController controller) : this(GtkHelper.BuilderFromFile("list"))
     {
         _controller = controller;
         _controller.OnListChanged += ControllerOnListChanged;
@@ -113,7 +113,7 @@ public class ListView : Gtk.Box
 
     private void ControllerOnListChanged(object? sender, ListStateArgs args)
     {
-        GLib.MainContext.Default().InvokeFull(0, () =>
+        GtkHelper.GtkDispatch(() =>
         {
             if (args.Items is not null)
             {
@@ -164,8 +164,6 @@ public class ListView : Gtk.Box
                 _loader.SetVisible(false);
                 _results.SetVisible(true);
             }
-
-            return false;
         });
     }
     

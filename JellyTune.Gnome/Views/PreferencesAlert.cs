@@ -11,7 +11,7 @@ public class PreferencesAlert : Adw.AlertDialog
         builder.Connect(this);
     }
 
-    public PreferencesAlert() : this(Blueprint.BuilderFromFile("preferences_alert"))
+    public PreferencesAlert() : this(GtkHelper.BuilderFromFile("preferences_alert"))
     {
     }
 }
