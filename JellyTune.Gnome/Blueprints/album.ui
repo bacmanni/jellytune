@@ -37,9 +37,8 @@
                                         <property name="margin-bottom">12</property>
                                         <property name="halign">1</property>
                                         <child>
-                                            <object class="AdwClamp">
-                                                <property name="tightening-threshold">150</property>
-                                                <property name="child">
+                                            <object class="GtkBox">
+                                                <child>
                                                     <object class="GtkImage" id="_albumArt">
                                                         <property name="overflow">hidden</property>
                                                         <style>
@@ -48,16 +47,16 @@
                                                         </style>
                                                         <property name="pixel-size">160</property>
                                                     </object>
-                                                </property>
+                                                </child>
                                             </object>
                                         </child>
                                         <child>
                                             <object class="GtkBox">
                                                 <property name="orientation">1</property>
-                                                <property name="margin-start">12</property>
                                                 <property name="halign">1</property>
                                                 <child>
                                                     <object class="GtkLabel" id="_album">
+                                                        <property name="margin-start">12</property>
                                                         <property name="ellipsize">3</property>
                                                         <property name="justify">0</property>
                                                         <property name="halign">1</property>
@@ -68,6 +67,7 @@
                                                 </child>
                                                 <child>
                                                     <object class="GtkLabel" id="_artist">
+                                                        <property name="margin-start">12</property>
                                                         <property name="ellipsize">3</property>
                                                         <property name="justify">0</property>
                                                         <property name="halign">1</property>
@@ -78,7 +78,8 @@
                                                 </child>
                                                 <child>
                                                     <object class="GtkBox">
-                                                        <property name="margin-top">12</property>
+                                                        <property name="margin-start">12</property>
+                                                        <property name="margin-top">6</property>
                                                         <property name="spacing">12</property>
                                                         <child>
                                                             <object class="GtkLabel" id="_trackCount">
@@ -104,15 +105,43 @@
                                                     </object>
                                                 </child>
                                                 <child>
-                                                    <object class="GtkMenuButton" id="_tracks_modify">
-                                                        <property name="visible">false</property>
-                                                        <property name="halign">1</property>
+                                                    <object class="GtkBox">
+                                                        <property name="spacing">4</property>
+                                                        <property name="margin-start">4</property>
+                                                        <property name="valign">end</property>
                                                         <style>
-                                                            <class name="flat"/>
+                                                            <class name="dimmed"/>
                                                         </style>
-                                                        <property name="tooltip-text">Show actions</property>
-                                                        <property name="icon-name">view-more-symbolic</property>
-                                                        <property name="menu-model">tracks_modify</property>
+                                                        <child>
+                                                            <object class="GtkButton" id="_albums">
+                                                                <property name="tooltip-text">Artist albums</property>
+                                                                <property name="icon-name">view-list-symbolic</property>
+                                                                <property name="action-name">win.artist_albums</property>
+                                                                <style>
+                                                                    <class name="flat"/>
+                                                                </style>
+                                                            </object>
+                                                        </child>
+                                                        <child>
+                                                            <object class="GtkButton" id="_information">
+                                                                <property name="tooltip-text">Album information</property>
+                                                                <property name="icon-name">info-outline-symbolic</property>
+                                                                <property name="action-name">win.artist_information</property>
+                                                                <style>
+                                                                    <class name="flat"/>
+                                                                </style>
+                                                            </object>
+                                                        </child>
+                                                        <child>
+                                                            <object class="GtkButton" id="_description">
+                                                                <property name="tooltip-text">Artist information</property>
+                                                                <property name="icon-name">org.gnome.Settings-users-symbolic</property>
+                                                                <property name="action-name">win.artist_information</property>
+                                                                <style>
+                                                                    <class name="flat"/>
+                                                                </style>
+                                                            </object>
+                                                        </child>
                                                     </object>
                                                 </child>
                                             </object>
@@ -135,14 +164,4 @@
             </object>
         </child>
     </object>
-    <menu id="tracks_modify">
-        <item>
-            <attribute name="label" translatable="true">Refresh</attribute>
-            <attribute name="action">win.refresh</attribute>
-        </item>
-        <item>
-            <attribute name="label" translatable="true">Preferences</attribute>
-            <attribute name="action">win.preferences</attribute>
-        </item>
-    </menu>
 </interface>

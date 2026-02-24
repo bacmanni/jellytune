@@ -32,6 +32,9 @@ public partial class MainWindow : Adw.ApplicationWindow
     private readonly PlayerExtendedController _playerExtendedController;
     private readonly PlayerExtendedView _playerExtendedView;
     
+    private readonly ArtistController _artistController;
+    private readonly ArtistView _artistView;
+    
     private readonly AlbumController _albumController;
     private readonly AlbumView _albumView;
     
@@ -116,7 +119,17 @@ public partial class MainWindow : Adw.ApplicationWindow
                 _viewAction.ChangeState(Variant.NewString(_main_stack.VisibleChildName));
             }
         };
-        
+
+        // Handle back button clicks
+        _album_view.OnPopped += (sender, args) =>
+        {
+            var poppedPage = args.Page;
+            if (poppedPage == _album_details)
+            {
+                //_albumController.Cancel();
+            }
+        };
+
         _queue_list_shuffle.OnClicked += (sender, args) =>
         {
             _queueListController.ShuffleTracks();
@@ -154,6 +167,8 @@ public partial class MainWindow : Adw.ApplicationWindow
         _playerExtendedView = new PlayerExtendedView(_playerExtendedController);
         _playerPosition.Append(_playerExtendedView);
         
+        _artistController = new ArtistController(_controller.JellyTuneExtApiService);
+        
         // Search
         _searchController = new SearchController(_controller.JellyTuneApiService, _controller.ConfigurationService, _controller.PlayerService, _controller.FileService);
         _searchController.OnAlbumClicked += SearchControllerOnAlbumClicked;
@@ -161,7 +176,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         _search_albums_view.SetContent(_searchView);
         _search_field.OnSearchChanged += SearchFieldOnSearchChanged;
         
-        // Que list for currently playling queue
+        // Queue list for currently playling queue
         _queueListController = new QueueListController(_controller.JellyTuneApiService, _controller.ConfigurationService, _controller.PlayerService, _controller.FileService);
         _queueListView = new QueueListView(_queueListController);
         _queue_list_view.SetContent(_queueListView);
@@ -230,6 +245,14 @@ public partial class MainWindow : Adw.ApplicationWindow
         AddAction(actLyrics);
         application.SetAccelsForAction("win.track_lyrics", new string[] { "<Ctrl>l" });
         
+        var actArtistInfo = Gio.SimpleAction.New("artist_information", VariantType.String);
+        actArtistInfo.OnActivate += ActArtistInfoOnActivate;
+        AddAction(actArtistInfo);
+        
+        //var actArtistAlbums = Gio.SimpleAction.New("artist_albums", VariantType.String);
+        //actArtistAlbums.OnActivate += ActArtistAlbumsOnActivate;
+        //AddAction(actArtistAlbums);
+        
         //Quit Action
         var actQuit = Gio.SimpleAction.New("quit", null);
         actQuit.OnActivate += Quit;
@@ -257,6 +280,25 @@ public partial class MainWindow : Adw.ApplicationWindow
         
         OnNotify += OnOnNotify;
         _ = UpdateMainMenu();
+    }
+
+    private void ActArtistAlbumsOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
+    {
+        // Parameter is album id
+    }
+
+    private void ActArtistInfoOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
+    {
+        // Parameter is artist name
+        var artistName = args.Parameter.GetString(out var length);
+
+        if (!string.IsNullOrWhiteSpace(artistName))
+        {
+            //var artistName = variant.
+            var artistView = new ArtistView(_artistController);
+            _artistController.OpenArtistAsync(artistName);
+            artistView.Present(this);
+        }
     }
 
     private void ActVolumeDownOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
@@ -474,7 +516,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         if (visiblePageName != "_album_details")
             _album_view.Pop();
         
-        _ = _albumController.OpenAsync(albumId);
+        _albumController.OpenAsync(albumId);
         _album_view.Push(_album_details);
     }
 

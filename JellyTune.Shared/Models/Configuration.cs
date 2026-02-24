@@ -75,4 +75,9 @@ public class Configuration
     /// Show extended controls (seek/volume)
     /// </summary>
     public bool ShowExtendedControls { get; set; } = false;
+    
+    /// <summary>
+    /// Show controls that use non jellyfin apis
+    /// </summary>
+    public bool ShowExternalApiControls { get; set; } = false;
 }

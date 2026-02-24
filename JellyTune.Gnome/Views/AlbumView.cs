@@ -1,3 +1,4 @@
+using GLib;
 using Gtk;
 using Gtk.Internal;
 using JellyTune.Shared.Controls;
@@ -20,7 +21,10 @@ public class AlbumView : Gtk.ScrolledWindow
     [Gtk.Connect] private readonly Gtk.ListBox _tracks;
     [Gtk.Connect] private readonly Adw.Spinner _spinner;
     [Gtk.Connect] private readonly Adw.Clamp _result;
-
+    [Gtk.Connect] private readonly Gtk.Button _description;
+    [Gtk.Connect] private readonly Gtk.Button _albums;
+    [Gtk.Connect] private readonly Gtk.Button _information;
+    
     private AlbumView(Gtk.Builder builder) : base(
         new ScrolledWindowHandle(builder.GetPointer("_root"), false))
     {
@@ -33,8 +37,34 @@ public class AlbumView : Gtk.ScrolledWindow
         _tracks.OnRowSelected += TracksOnRowSelected;
         _tracks.OnRowActivated += TracksOnRowActivated;
         _controller.OnAlbumChanged += ControllerOnAlbumChanged;
+        _controller.ConfigurationService.OnSaved += ConfigurationServiceOnSaved;
+        UpdateControlVisibility();
     }
 
+    private void ConfigurationServiceOnSaved(object? sender, EventArgs e)
+    {
+        UpdateControlVisibility();
+    }
+
+    private void UpdateControlVisibility()
+    {
+        var showExternalControls = _controller.ConfigurationService.Get().ShowExternalApiControls;
+        
+        GtkHelper.GtkDispatch(() =>
+        {
+            if (showExternalControls)
+            {
+                _description.SetVisible(true);
+                _information.SetVisible(true);
+            }
+            else
+            {
+                _description.SetVisible(false);
+                _information.SetVisible(false);
+            }
+        });
+    }
+    
     private void ControllerOnAlbumChanged(object? sender, AlbumStateArgs args)
     {
         var updateAlbum = args.UpdateAlbum;
@@ -110,6 +140,10 @@ public class AlbumView : Gtk.ScrolledWindow
         
         if (_controller.Album?.Year != null)
             _albumYear.SetText(_controller.Album.Year.Value.ToString());
+        
+        // Set action target to album
+        _description.SetActionTargetValue(Variant.NewString(_controller.Album.Artist));
+        _albums.SetActionTargetValue(Variant.NewString(_controller.Album.Id.ToString()));
     }
 
     private void UpdateArtwork()

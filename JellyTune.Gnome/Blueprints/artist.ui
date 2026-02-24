@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<interface>
+    <object class="AdwDialog" id="_root">
+        <property name="content-height">440</property>
+        <property name="content-width">400</property>
+        <child>
+            <object class="AdwToolbarView">
+                <child type="top">
+                    <object class="AdwHeaderBar">
+                        <child>
+                            <object class="GtkBox">
+                                <property name="margin-top">6</property>
+                                <property name="margin-bottom">6</property>
+                                <child>
+                                    <object class="GtkBox">
+                                        <property name="orientation">1</property>
+                                        <property name="margin-top">6</property>
+                                        <property name="margin-start">24</property>
+                                        <child>
+                                            <object class="GtkLabel" id="_artist">
+                                                <property name="ellipsize">3</property>
+                                                <property name="justify">0</property>
+                                                <property name="halign">1</property>
+                                                <style>
+                                                    <class name="title-4"/>
+                                                </style>
+                                            </object>
+                                        </child>
+                                        <child>
+                                            <object class="GtkBox">
+                                                <property name="margin-top">6</property>
+                                                <property name="spacing">6</property>
+                                                <child>
+                                                    <object class="GtkLabel" id="_country">
+                                                    </object>
+                                                </child>
+                                                <child>
+                                                    <object class="GtkBox">
+                                                        <child>
+                                                            <object class="GtkLabel" id="_from">
+                                                            </object>
+                                                        </child>
+                                                        <child>
+                                                            <object class="GtkLabel" id="_separator">
+                                                                <property name="label"> - </property>
+                                                            </object>
+                                                        </child>
+                                                        <child>
+                                                            <object class="GtkLabel" id="_to">
+                                                            </object>
+                                                        </child>
+                                                    </object>
+                                                </child>
+                                            </object>
+                                        </child>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkBox">
+                        <property name="orientation">1</property>
+                        <property name="vexpand">true</property>
+                        <property name="hexpand">true</property>
+                        <property name="margin-bottom">12</property>
+                        <property name="margin-start">6</property>
+                        <property name="margin-end">6</property>
+                        <child>
+                            <object class="AdwSpinner" id="_spinner">
+                                <property name="margin-top">46</property>
+                                <property name="halign">3</property>
+                                <property name="valign">3</property>
+                                <property name="vexpand">true</property>
+                                <property name="hexpand">true</property>
+                                <property name="width-request">48</property>
+                                <property name="height-request">48</property>
+                                <property name="margin-bottom">48</property>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="AdwStatusPage" id="_noresults">
+                                <property name="margin-top">30</property>
+                                <property name="icon-name">face-sad-symbolic</property>
+                                <property name="title">No information found</property>
+                                <property name="description">No relevant information found from external api</property>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="AdwStatusPage" id="_noconnection">
+                                <property name="margin-top">30</property>
+                                <property name="icon-name">network-wired-no-route-symbolic</property>
+                                <property name="title">Error connecting</property>
+                                <property name="description">Broblem connecting to external api</property>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkScrolledWindow" id="_results">
+                                <property name="hscrollbar-policy">2</property>
+                                <property name="propagate-natural-height">true</property>
+                                <property name="propagate-natural-width">true</property>
+                                <child>
+                                    <object class="GtkBox">
+                                        <property name="margin-bottom">12</property>
+                                        <property name="margin-start">24</property>
+                                        <property name="margin-end">24</property>
+                                        <property name="orientation">1</property>
+                                        <child>
+                                            <object class="GtkBox">
+                                                <property name="orientation">1</property>
+                                                <child>
+                                                    <object class="GtkLabel" id="_description">
+                                                        <property name="wrap">true</property>
+                                                        <property name="margin-top">12</property>
+                                                        <property name="halign">1</property>
+                                                    </object>
+                                                </child>
+                                            </object>
+                                        </child>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+            </object>
+        </child>
+    </object>
+</interface>

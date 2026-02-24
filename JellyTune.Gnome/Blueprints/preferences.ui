@@ -42,6 +42,12 @@
                                 <property name="subtitle" translatable="yes">Buttons for seek and volume</property>
                             </object>
                         </child>
+                        <child>
+                            <object class="AdwSwitchRow" id="_showExternalControls">
+                                <property name="title" translatable="yes">Show external controls</property>
+                                <property name="subtitle" translatable="yes">Show controls that use non-jellyfin apis</property>
+                            </object>
+                        </child>
                     </object>
                 </child>
             </object>

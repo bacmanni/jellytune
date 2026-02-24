@@ -87,6 +87,8 @@
       <EmbeddedResource Include="Blueprints\player_extended_button.ui" />
       <None Remove="Blueprints\player_extended.ui" />
       <EmbeddedResource Include="Blueprints\player_extended.ui" />
+      <None Remove="Blueprints\artist.ui" />
+      <EmbeddedResource Include="Blueprints\artist.ui" />
     </ItemGroup>
 
     <ItemGroup>
