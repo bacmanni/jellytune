@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<interface>
+    <object class="AdwActionRow" id="_root">
+        <property name="title-lines">1</property>
+        <child type="prefix">
+            <object class="GtkImage" id="_albumArt">
+                <property name="overflow">hidden</property>
+                <style>
+                    <class name="icon-dropshadow"/>
+                    <class name="album-art-small"/>
+                </style>
+                <property name="pixel-size">40</property>
+            </object>
+        </child>
+    </object>
+</interface>

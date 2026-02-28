@@ -12,15 +12,12 @@ public partial class ArtistView : Adw.Dialog
     [Gtk.Connect] private readonly Adw.Spinner _spinner;
     [Gtk.Connect] private readonly Gtk.ScrolledWindow _results;
     [Gtk.Connect] private readonly Adw.StatusPage _noresults;
-    [Gtk.Connect] private readonly Adw.StatusPage _noconnection;
     
     [Gtk.Connect] private readonly Gtk.Label _description;
     [Gtk.Connect] private readonly Gtk.Label _artist;
 
     [Gtk.Connect] private readonly Gtk.Label _country;
-    [Gtk.Connect] private readonly Gtk.Label _from;
-    [Gtk.Connect] private readonly Gtk.Label _separator;
-    [Gtk.Connect] private readonly Gtk.Label _to;
+    [Gtk.Connect] private readonly Gtk.Label _duration;
     
     private ArtistView(Gtk.Builder builder) : base(
         new DialogHandle(builder.GetPointer("_root"), false))
@@ -34,8 +31,6 @@ public partial class ArtistView : Adw.Dialog
         _controller.OnArtistChanged += ControllerOnArtistChanged;
         _results.SetVisible(false);
         _noresults.SetVisible(false);
-        _noconnection.SetVisible(false);
-        _separator.SetVisible(false);
         _spinner.SetVisible(true);
     }
 
@@ -50,73 +45,32 @@ public partial class ArtistView : Adw.Dialog
 
                 if (_controller.YearFrom != null)
                 {
-                    _from.SetText(_controller.YearFrom.ToString());
-                    _separator.SetVisible(true);
+                    _duration.SetText(_controller.YearTo != null
+                        ? $"{_controller.YearFrom} - {_controller.YearTo}"
+                        : $"{_controller.YearFrom} - Present");
                 }
-                else
-                {
-                    _separator.SetVisible(false);
-                }
-
-                if (_controller.YearTo != null)
-                {
-                    _to.SetText(_controller.YearTo.ToString());
-                }
-                else
-                {
-                    _to.SetText("Present");
-                }
-
+  
                 _description.SetText(_controller.Description ?? string.Empty);
             });
         }
 
         if (e.IsLoading)
         {
-            // Reset separator state
-            _separator.SetVisible(false);
-
             _results.SetVisible(false);
             _noresults.SetVisible(false);
-            _noconnection.SetVisible(false);
             _spinner.SetVisible(true);
         }
         else
         {
             _spinner.SetVisible(false);
-
-            if (e.HasError)
-                _noconnection.SetVisible(true);
-            else if (string.IsNullOrWhiteSpace(_controller.Description))
+            
+            if (string.IsNullOrWhiteSpace(_controller.Description))
                 _noresults.SetVisible(true);
             else
                 _results.SetVisible(true);
         }
     }
 
-    /*
-    private void ControllerOnOnLyricsUpdated(object? sender, EventArgs e)
-    {
-        GtkHelper.GtkDispatch(() =>
-        {
-            _track.SetLabel(_controller.TrackName);
-            _artist.SetLabel(_controller.ArtistName);
-        
-            if (!string.IsNullOrWhiteSpace(_controller.Lyrics))
-                _lyrics.SetLabel(_controller.Lyrics);;
-
-            if (_controller.AlbumArt != null)
-            {
-                var bytes = GLib.Bytes.New(_controller.AlbumArt);
-                var texture = Gdk.Texture.NewFromBytes(bytes);
-                _albumArt.SetFromPaintable(texture);
-            }
-            
-            _spinner.SetVisible(false);
-            _results.SetVisible(true);
-        });
-    }
-*/
     public override void Dispose()
     {
         _controller.OnArtistChanged += ControllerOnArtistChanged;

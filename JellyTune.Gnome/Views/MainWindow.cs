@@ -33,8 +33,8 @@ public partial class MainWindow : Adw.ApplicationWindow
     private readonly PlayerExtendedView _playerExtendedView;
     
     private readonly ArtistController _artistController;
-    private readonly ArtistView _artistView;
-    
+    private readonly ArtistAlbumController _artistAlbumController;
+
     private readonly AlbumController _albumController;
     private readonly AlbumView _albumView;
     
@@ -168,6 +168,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         _playerPosition.Append(_playerExtendedView);
         
         _artistController = new ArtistController(_controller.JellyTuneExtApiService);
+        _artistAlbumController = new ArtistAlbumController(_controller.JellyTuneApiService, _controller.FileService);
         
         // Search
         _searchController = new SearchController(_controller.JellyTuneApiService, _controller.ConfigurationService, _controller.PlayerService, _controller.FileService);
@@ -249,9 +250,13 @@ public partial class MainWindow : Adw.ApplicationWindow
         actArtistInfo.OnActivate += ActArtistInfoOnActivate;
         AddAction(actArtistInfo);
         
-        //var actArtistAlbums = Gio.SimpleAction.New("artist_albums", VariantType.String);
-        //actArtistAlbums.OnActivate += ActArtistAlbumsOnActivate;
-        //AddAction(actArtistAlbums);
+        var actArtistAlbum = Gio.SimpleAction.New("artist_albums", VariantType.String);
+        actArtistAlbum.OnActivate += ActArtistAlbumOnActivate;
+        AddAction(actArtistAlbum);
+        
+        var actOpenAlbum = Gio.SimpleAction.New("open_album", VariantType.String);
+        actOpenAlbum.OnActivate += ActOpenAlbumOnActivate;
+        AddAction(actOpenAlbum);
         
         //Quit Action
         var actQuit = Gio.SimpleAction.New("quit", null);
@@ -282,21 +287,36 @@ public partial class MainWindow : Adw.ApplicationWindow
         _ = UpdateMainMenu();
     }
 
-    private void ActArtistAlbumsOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
+    private void ActOpenAlbumOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
+    {
+        var albumIdParameter = args.Parameter.GetString(out var length);
+        var albumId = Guid.Parse(albumIdParameter);
+
+        
+        _albumController.OpenAsync(albumId);
+        _album_view.PopToPage(_album_details);
+    }
+
+    private void ActArtistAlbumOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
     {
         // Parameter is album id
+        var albumIdParameter = args.Parameter.GetString(out var length);
+        var albumId = Guid.Parse(albumIdParameter);
+        
+        var artistAlbumView = new ArtistAlbumView(_artistAlbumController);
+        _ = _artistAlbumController.OpenAsync(albumId);
+        artistAlbumView.Present(this);
     }
 
     private void ActArtistInfoOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
     {
         // Parameter is artist name
-        var artistName = args.Parameter.GetString(out var length);
+        var artistName = args.Parameter?.GetString(out var length);
 
         if (!string.IsNullOrWhiteSpace(artistName))
         {
-            //var artistName = variant.
             var artistView = new ArtistView(_artistController);
-            _artistController.OpenArtistAsync(artistName);
+            _ = _artistController.OpenArtistAsync(artistName);
             artistView.Present(this);
         }
     }

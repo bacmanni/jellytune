@@ -144,6 +144,10 @@ public class AlbumView : Gtk.ScrolledWindow
         // Set action target to album
         _description.SetActionTargetValue(Variant.NewString(_controller.Album.Artist));
         _albums.SetActionTargetValue(Variant.NewString(_controller.Album.Id.ToString()));
+        
+        // Disable albums if 1 or less is found
+        var disableAlbums = _controller.Album?.ArtistAlbumCount > 1;
+        _albums.SetSensitive(disableAlbums);
     }
 
     private void UpdateArtwork()

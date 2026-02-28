@@ -17,7 +17,7 @@
                                         <property name="margin-top">6</property>
                                         <property name="margin-start">24</property>
                                         <child>
-                                            <object class="GtkLabel" id="_artist">
+                                            <object class="GtkLabel" id="_album">
                                                 <property name="ellipsize">3</property>
                                                 <property name="justify">0</property>
                                                 <property name="halign">1</property>
@@ -27,19 +27,10 @@
                                             </object>
                                         </child>
                                         <child>
-                                            <object class="GtkBox">
-                                                <property name="spacing">6</property>
+                                            <object class="GtkLabel" id="_released">
                                                 <style>
                                                     <class name="dimmed"/>
                                                 </style>
-                                                <child>
-                                                    <object class="GtkLabel" id="_country">
-                                                    </object>
-                                                </child>
-                                                <child>
-                                                    <object class="GtkLabel" id="_duration">
-                                                    </object>
-                                                </child>
                                             </object>
                                         </child>
                                     </object>
@@ -69,36 +60,19 @@
                             </object>
                         </child>
                         <child>
-                            <object class="AdwStatusPage" id="_noresults">
-                                <property name="margin-top">30</property>
-                                <property name="icon-name">face-sad-symbolic</property>
-                                <property name="title">No information found</property>
-                                <property name="description">No relevant information found</property>
-                            </object>
-                        </child>
-                        <child>
                             <object class="GtkScrolledWindow" id="_results">
                                 <property name="hscrollbar-policy">2</property>
                                 <property name="propagate-natural-height">true</property>
                                 <property name="propagate-natural-width">true</property>
                                 <child>
-                                    <object class="GtkBox">
-                                        <property name="margin-bottom">12</property>
-                                        <property name="margin-start">24</property>
-                                        <property name="margin-end">24</property>
-                                        <property name="orientation">1</property>
-                                        <child>
-                                            <object class="GtkBox">
-                                                <property name="orientation">1</property>
-                                                <child>
-                                                    <object class="GtkLabel" id="_description">
-                                                        <property name="wrap">true</property>
-                                                        <property name="margin-top">12</property>
-                                                        <property name="halign">1</property>
-                                                    </object>
-                                                </child>
-                                            </object>
-                                        </child>
+                                    <object class="GtkListBox" id="_albums">
+                                        <property name="margin-start">18</property>
+                                        <property name="margin-end">18</property>
+                                        <property name="selection-mode">none</property>
+                                        <property name="activate-on-single-click">true</property>
+                                        <style>
+                                            <class name="boxed-list"/>
+                                        </style>
                                     </object>
                                 </child>
                             </object>

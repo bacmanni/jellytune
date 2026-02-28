@@ -30,6 +30,6 @@ public interface IJellyTuneApiService
     public Task ResumePlaybackAsync(string sessiondId, Guid trackId, int? position);
     public Task<List<Playlist>> GetPlaylistsAsync(Guid collectionId);
     Uri? GetPrimaryArtUrl(Guid id);
-    public string GetWebsocketUrl();
     public Task SeekPlaybackAsync(string sessiondId, Guid trackId, int? position);
+    public Task<List<Album>> GetArtistAlbumsAsync(Guid albumId, bool includeAlbumId);
 }

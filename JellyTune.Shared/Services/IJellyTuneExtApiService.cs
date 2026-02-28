@@ -1,9 +1,9 @@
-using JellyTune.Shared.Models;
+using JellyTune.Shared.Models.External;
 
 namespace JellyTune.Shared.Services;
 
 public interface IJellyTuneExtApiService
 {
     public Task<Artist?> GetArtistAsync(string artistName);
-    public Task<byte[]?> GetArtistImageAsync(string url);
+    public Task<Album?> GetAlbumAsync(string artistName, string albumName);
 }

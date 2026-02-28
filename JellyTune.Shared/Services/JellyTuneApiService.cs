@@ -358,11 +358,26 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
 
         if (baseItem == null)
             throw new ArgumentException($"No album found with id {albumId}");
+        
+        var artistId = baseItem.AlbumArtists?.FirstOrDefault()?.Id 
+                       ?? baseItem.ArtistItems?.FirstOrDefault()?.Id;
 
+        var queryResult = await _jellyfinApiClient.Items.GetAsync(configuration =>
+        {
+            configuration.QueryParameters.StartIndex = 0;
+            configuration.QueryParameters.Recursive = true;
+            configuration.QueryParameters.Fields = [ItemFields.PrimaryImageAspectRatio, ItemFields.SortName];
+            configuration.QueryParameters.AlbumArtistIds = [artistId];
+            configuration.QueryParameters.IncludeItemTypes = [ BaseItemKind.MusicAlbum ];
+            configuration.QueryParameters.Limit = 0;
+        });
+        
+        var albumCount = queryResult?.TotalRecordCount;
         var albumResult = new Models.Album()
         {
             Id = baseItem.Id.GetValueOrDefault(),
             Artist = baseItem.AlbumArtist ?? "",
+            ArtistAlbumCount = albumCount,
             Name = baseItem.Name ?? "",
             Year = baseItem.ProductionYear,
             Runtime = baseItem.RunTimeTicks.HasValue ? new TimeSpan(baseItem.RunTimeTicks.Value) : null,
@@ -733,18 +748,6 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
         return _jellyfinApiClient.BuildUri(information);
     }
 
-    /// <summary>
-    /// Get url used for websocket connection
-    /// </summary>
-    /// <returns></returns>
-    public string GetWebsocketUrl()
-    {
-        var root = _sdkClientSettings.ServerUrl.StartsWith("http") ? "ws" :  "wss";
-        var rootUrl = _sdkClientSettings.ServerUrl.Replace("http", root).Replace("https", root);
-        
-        return $"{rootUrl}/socket?api_key={_sdkClientSettings.AccessToken}&deviceId={_deviceId}";
-    }
-
     public async Task SeekPlaybackAsync(string sessiondId, Guid trackId, int? position)
     {
         var body = new GeneralCommand()
@@ -763,6 +766,60 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
         };
 
         await _jellyfinApiClient.Sessions[sessiondId].Command.PostAsync(body).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Get artist albums
+    /// </summary>
+    /// <param name="albumId"></param>
+    /// <param name="includeAlbumId"></param>
+    /// <returns></returns>
+    public async Task<List<Album>> GetArtistAlbumsAsync(Guid albumId, bool includeAlbumId)
+    {
+        var albumsResult = new List<Album>();
+
+        var queryResult1 = await _jellyfinApiClient.Items[albumId].GetAsync();
+        var artistId = queryResult1?.AlbumArtists?.FirstOrDefault()?.Id 
+                       ?? queryResult1?.ArtistItems?.FirstOrDefault()?.Id;
+
+        if (!artistId.HasValue) return albumsResult;
+
+        var excluded = new List<Guid?>();
+
+        if (!includeAlbumId)
+            excluded.Add(albumId);
+        
+        var queryResult2 = await _jellyfinApiClient.Items.GetAsync(configuration =>
+        {
+            configuration.QueryParameters.StartIndex = 0;
+            configuration.QueryParameters.Limit = int.MaxValue;
+            configuration.QueryParameters.Recursive = true;
+            configuration.QueryParameters.ExcludeItemIds = excluded.ToArray();
+            configuration.QueryParameters.Fields = [ItemFields.PrimaryImageAspectRatio, ItemFields.SortName];
+            configuration.QueryParameters.AlbumArtistIds = [artistId];
+            configuration.QueryParameters.IncludeItemTypes = [ BaseItemKind.MusicAlbum ];
+        }).ConfigureAwait(false);
+        
+        if (queryResult2?.Items == null)
+            return albumsResult;
+
+        foreach (var baseItem in queryResult2.Items)
+        {
+            if (baseItem.Id == null || baseItem.Name == null || baseItem.AlbumArtist == null)
+                continue;
+
+            albumsResult.Add(new Models.Album()
+            {
+                Id = baseItem.Id.Value,
+                Artist = baseItem.AlbumArtist,
+                Name = baseItem.Name,
+                Year = baseItem.ProductionYear,
+                Runtime = baseItem.RunTimeTicks.HasValue ? new TimeSpan(baseItem.RunTimeTicks.Value) : null,
+                HasArtwork = baseItem.ImageTags?.AdditionalData.ContainsKey(ImageType.Primary.ToString()) == true
+            });
+        }
+
+        return albumsResult.OrderBy(a => a.Year).ToList();
     }
 
     /// <summary>

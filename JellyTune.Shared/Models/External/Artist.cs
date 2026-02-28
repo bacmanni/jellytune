@@ -1,6 +1,4 @@
-using MetaBrainz.MusicBrainz.Interfaces.Entities;
-
-namespace JellyTune.Shared.Models;
+namespace JellyTune.Shared.Models.External;
 
 public class Artist
 {

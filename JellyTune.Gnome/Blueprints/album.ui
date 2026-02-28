@@ -81,25 +81,19 @@
                                                         <property name="margin-start">12</property>
                                                         <property name="margin-top">6</property>
                                                         <property name="spacing">12</property>
+                                                        <style>
+                                                            <class name="dimmed"/>
+                                                        </style>
                                                         <child>
                                                             <object class="GtkLabel" id="_trackCount">
-                                                                <style>
-                                                                    <class name="dimmed"/>
-                                                                </style>
                                                             </object>
                                                         </child>
                                                         <child>
                                                             <object class="GtkLabel" id="_albumDuration">
-                                                                <style>
-                                                                    <class name="dimmed"/>
-                                                                </style>
                                                             </object>
                                                         </child>
                                                         <child>
                                                             <object class="GtkLabel" id="_albumYear">
-                                                                <style>
-                                                                    <class name="dimmed"/>
-                                                                </style>
                                                             </object>
                                                         </child>
                                                     </object>

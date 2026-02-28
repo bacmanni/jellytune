@@ -20,11 +20,11 @@ public class JellyTuneExtApiService : IJellyTuneExtApiService
     /// </summary>
     /// <param name="artistName"></param>
     /// <returns></returns>
-    public async Task<Artist?> GetArtistAsync(string artistName)
+    public async Task<Models.External.Artist?> GetArtistAsync(string artistName)
     {
         if (string.IsNullOrWhiteSpace(artistName)) return null;
         
-        var result = new Artist() { Name = artistName };
+        var result = new Models.External.Artist() { Name = artistName };
         
         Console.WriteLine($"Fetching data from musicbrainz");
         
@@ -75,26 +75,19 @@ public class JellyTuneExtApiService : IJellyTuneExtApiService
         var firstPage = pages.EnumerateObject().First().Value;
         var description = firstPage.TryGetProperty("extract", out var extract) ? extract.GetString() : null;
         result.Description = description;
-
-        var imageUrl = $"https://en.wikipedia.org/w/api.php?action=query&titles={Uri.EscapeDataString(wikipediaTitle)}&prop=pageimages&pithumbsize=128&format=json";
-        var imageData = await RetryAsync(() => http.GetFromJsonAsync<JsonElement>(imageUrl));
-        var imagePages = imageData.GetProperty("query").GetProperty("pages");
-        var imagePage = imagePages.EnumerateObject().First().Value;
-
-        if (imagePage.TryGetProperty("thumbnail", out var thumb))
-        {
-            result.ImageUrl = thumb.GetProperty("source").GetString();
-        }
-        
         return result;
     }
 
-    public async Task<byte[]?> GetArtistImageAsync(string url)
+    public Task<Models.External.Album?> GetAlbumAsync(string artistName, string albumName)
     {
-        using var http = new HttpClient();
-        http.DefaultRequestHeaders.UserAgent.ParseAdd($"{_applicationInfo.Name}/{_applicationInfo.Version} ({_applicationInfo.Email})");
-        var bytes = await http.GetByteArrayAsync(url);
-        return bytes;
+        if (string.IsNullOrWhiteSpace(artistName) || string.IsNullOrWhiteSpace(albumName)) return null;
+
+        var result = new Models.External.Album()
+        {
+            Name = albumName,
+        };
+
+        return null;
     }
 
     private string? GetWikidataIdFromUrl(string url)

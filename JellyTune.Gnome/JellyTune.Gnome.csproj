@@ -27,7 +27,6 @@
       <EmbeddedResource Include="Resources\jellytune-icon.svg" />
       <None Remove="Blueprints\window.blp" />
       <EmbeddedResource Include="Blueprints\window.ui" />
-      <None Remove="Blueprints\album_row.ui" />
       <None Remove="Blueprints\album_details.ui" />
       <None Remove="Blueprints\preferences_dialog.ui" />
       <None Remove="Blueprints\album_dialog.ui" />
@@ -74,7 +73,6 @@
       <None Remove="Blueprints\playlist.ui" />
       <EmbeddedResource Include="Blueprints\playlist.ui" />
       <None Remove="Blueprints\playlist_row.ui" />
-      <EmbeddedResource Include="Blueprints\playlist_row.ui" />
       <None Remove="Blueprints\playlist_tracks.ui" />
       <EmbeddedResource Include="Blueprints\playlist_tracks.ui" />
       <None Remove="Blueprints\playlist_tracks_row.ui" />
@@ -89,6 +87,10 @@
       <EmbeddedResource Include="Blueprints\player_extended.ui" />
       <None Remove="Blueprints\artist.ui" />
       <EmbeddedResource Include="Blueprints\artist.ui" />
+      <None Remove="Blueprints\artist_album.ui" />
+      <EmbeddedResource Include="Blueprints\artist_album.ui" />
+      <None Remove="Blueprints\album_row.ui" />
+      <EmbeddedResource Include="Blueprints\album_row.ui" />
     </ItemGroup>
 
     <ItemGroup>
