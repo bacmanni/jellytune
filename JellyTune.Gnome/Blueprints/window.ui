@@ -248,6 +248,10 @@
         <attribute name="action">win.preferences</attribute>
       </item>
       <item>
+        <attribute name="label" translatable="true">Keyboard Shortcuts</attribute>
+        <attribute name="action">win.shortcuts</attribute>
+      </item>
+      <item>
         <attribute name="label" translatable="true">About JellyTune</attribute>
         <attribute name="action">win.about</attribute>
       </item>

@@ -91,6 +91,8 @@
       <EmbeddedResource Include="Blueprints\artist_album.ui" />
       <None Remove="Blueprints\album_row.ui" />
       <EmbeddedResource Include="Blueprints\album_row.ui" />
+      <None Remove="Blueprints\shortcuts.ui" />
+      <EmbeddedResource Include="Blueprints\shortcuts.ui" />
     </ItemGroup>
 
     <ItemGroup>

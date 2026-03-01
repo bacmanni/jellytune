@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<interface>
+    <object class="AdwShortcutsDialog" id="_root">
+        <child>
+            <object class="AdwShortcutsSection">
+                <property name="title" translatable="yes">General</property>
+                <child>
+                    <object class="AdwShortcutsItem">
+                        <property name="title" translatable="yes">Show Search</property>
+                        <property name="action-name">win.search</property>
+                    </object>
+                </child>
+                <child>
+                    <object class="AdwShortcutsItem">
+                        <property name="title" translatable="yes">Show Albums</property>
+                        <property name="action-name">win.view('page1')</property>
+                    </object>
+                </child>
+                <child>
+                    <object class="AdwShortcutsItem">
+                        <property name="title" translatable="yes">Show Playlists</property>
+                        <property name="action-name">win.view('page2')</property>
+                    </object>
+                </child>
+                <child>
+                    <object class="AdwShortcutsItem">
+                        <property name="title" translatable="yes">Refresh Albums From Server</property>
+                        <property name="action-name">win.refresh</property>
+                    </object>
+                </child>
+                <child>
+                    <object class="AdwShortcutsItem">
+                        <property name="title" translatable="yes">Show Preferences</property>
+                        <property name="action-name">win.preferences</property>
+                    </object>
+                </child>
+                <child>
+                    <object class="AdwShortcutsItem">
+                        <property name="title" translatable="yes">Quit</property>
+                        <property name="action-name">win.quit</property>
+                    </object>
+                </child>
+            </object>
+        </child>
+        <child>
+            <object class="AdwShortcutsSection">
+                <property name="title" translatable="yes">Playing</property>
+                <child>
+                    <object class="AdwShortcutsItem">
+                        <property name="title" translatable="yes">Play/Pause</property>
+                        <property name="action-name">win.track_play</property>
+                    </object>
+                </child>
+                <child>
+                    <object class="AdwShortcutsItem">
+                        <property name="title" translatable="yes">Next Track</property>
+                        <property name="action-name">win.track_next</property>
+                    </object>
+                </child>
+                <child>
+                    <object class="AdwShortcutsItem">
+                        <property name="title" translatable="yes">Previous Track</property>
+                        <property name="action-name">win.track_previous</property>
+                    </object>
+                </child>
+                <child>
+                    <object class="AdwShortcutsItem">
+                        <property name="title" translatable="yes">Volume Up</property>
+                        <property name="action-name">win.volume_up</property>
+                    </object>
+                </child>
+                <child>
+                    <object class="AdwShortcutsItem">
+                        <property name="title" translatable="yes">Volume Down</property>
+                        <property name="action-name">win.volume_down</property>
+                    </object>
+                </child>
+                <child>
+                    <object class="AdwShortcutsItem">
+                        <property name="title" translatable="yes">Show Playing Track Lyrics</property>
+                        <property name="action-name">win.track_lyrics</property>
+                    </object>
+                </child>
+            </object>
+        </child>
+    </object>
+</interface>

@@ -200,14 +200,20 @@ public partial class MainWindow : Adw.ApplicationWindow
 
         //Preferences Action
         var actPreferences = Gio.SimpleAction.New("preferences", null);
-        actPreferences.OnActivate += ActPreferencesOnOnActivate;
+        actPreferences.OnActivate += ActPreferencesOnActivate;
         AddAction(actPreferences);
+        application.SetAccelsForAction("win.preferences", new string[] { "<Ctrl>comma" });
         
         //About Action
         var actAbout = Gio.SimpleAction.New("about", null);
         actAbout.OnActivate += ActAboutOnOnActivate;
         AddAction(actAbout);
 
+        var actShortcuts = Gio.SimpleAction.New("shortcuts", null);
+        actShortcuts.OnActivate += ActShortcutOnActivate;
+        AddAction(actShortcuts);
+        application.SetAccelsForAction("win.shortcuts", new string[] { "<Ctrl>question" });
+        
         //Search
         var actSearchBar = Gio.SimpleAction.New("search", null);
         actSearchBar.OnActivate += ActShowSearchBarOnOnActivate;
@@ -257,7 +263,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         var actOpenAlbum = Gio.SimpleAction.New("open_album", VariantType.String);
         actOpenAlbum.OnActivate += ActOpenAlbumOnActivate;
         AddAction(actOpenAlbum);
-        
+
         //Quit Action
         var actQuit = Gio.SimpleAction.New("quit", null);
         actQuit.OnActivate += Quit;
@@ -287,12 +293,17 @@ public partial class MainWindow : Adw.ApplicationWindow
         _ = UpdateMainMenu();
     }
 
+    private void ActShortcutOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
+    {
+        var builder = GtkHelper.BuilderFromFile("shortcuts");
+        var shortcutsWindow = (Adw.ShortcutsDialog)builder.GetObject("_root")!;
+        shortcutsWindow.Present(this);
+    }
+
     private void ActOpenAlbumOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
     {
         var albumIdParameter = args.Parameter.GetString(out var length);
         var albumId = Guid.Parse(albumIdParameter);
-
-        
         _albumController.OpenAsync(albumId);
         _album_view.PopToPage(_album_details);
     }
@@ -511,31 +522,18 @@ public partial class MainWindow : Adw.ApplicationWindow
 
     private void PlayerControllerOnShowPlaylistClicked(object? sender, AlbumArgs e)
     {
-        var visiblePageName = _album_view.GetVisiblePage()?.Tag;
-        _album_view.Pop();
-        
-        if (visiblePageName == "_queue_list") return;
-        
         _queueListController.Open();
-        _album_view.Push(_queue_list);
+        _album_view.PopToPage(_queue_list);
     }
 
     private void SearchControllerOnAlbumClicked(object? sender, AlbumArgs args)
     {
-        var visiblePageName = _album_view.GetVisiblePage()?.Tag;
-        if (visiblePageName != "_search_albums")
-            _album_view.Pop();
-        
         _albumController.OpenAsync(args.AlbumId, args.TrackId);
-        _album_view.Push(_album_details);
+        _album_view.PopToPage(_album_details);
     }
 
     private void AlbumlistControllerOnAlbumClicked(object? sender, Guid albumId)
     {
-        var visiblePageName = _album_view.GetVisiblePage()?.Tag;
-        if (visiblePageName != "_album_details")
-            _album_view.Pop();
-        
         _albumController.OpenAsync(albumId);
         _album_view.Push(_album_details);
     }
@@ -566,7 +564,7 @@ public partial class MainWindow : Adw.ApplicationWindow
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="args"></param>
-    private void ActPreferencesOnOnActivate(Gio.SimpleAction sender, Gio.SimpleAction.ActivateSignalArgs args)
+    private void ActPreferencesOnActivate(Gio.SimpleAction sender, Gio.SimpleAction.ActivateSignalArgs args)
     {
         // Pause playing. Playing would break account related stuff
         _controller.PlayerService.StopTrack();

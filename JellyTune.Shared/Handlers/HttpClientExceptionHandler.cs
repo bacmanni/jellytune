@@ -28,6 +28,7 @@ public class HttpClientExceptionHandler : DelegatingHandler
                         return response;
                     
                     Console.WriteLine($"Request failed with status code {response.StatusCode}");
+                    await Task.Delay(500, cancellationToken);
                     tries++;
                     continue;
                 }
