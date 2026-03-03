@@ -5,51 +5,54 @@ using JellyTune.Shared.Events;
 
 namespace JellyTune.Gnome.Views;
 
-public partial class ArtistView : Adw.Dialog
+public partial class InformationView : Adw.Dialog
 {
-    private ArtistController  _controller;
+    private InformationController  _controller;
 
     [Gtk.Connect] private readonly Adw.Spinner _spinner;
     [Gtk.Connect] private readonly Gtk.ScrolledWindow _results;
     [Gtk.Connect] private readonly Adw.StatusPage _noresults;
     
     [Gtk.Connect] private readonly Gtk.Label _description;
-    [Gtk.Connect] private readonly Gtk.Label _artist;
-
-    [Gtk.Connect] private readonly Gtk.Label _country;
-    [Gtk.Connect] private readonly Gtk.Label _duration;
+    [Gtk.Connect] private readonly Gtk.Label _title;
+    [Gtk.Connect] private readonly Gtk.Box _subtitle;
     
-    private ArtistView(Gtk.Builder builder) : base(
+    private InformationView(Gtk.Builder builder) : base(
         new DialogHandle(builder.GetPointer("_root"), false))
     {
         builder.Connect(this);
     }
     
-    public ArtistView(ArtistController controller) : this(GtkHelper.BuilderFromFile("artist"))
+    public InformationView(InformationController controller) : this(GtkHelper.BuilderFromFile("information"))
     {
         _controller = controller;
-        _controller.OnArtistChanged += ControllerOnArtistChanged;
+        _controller.OnInformationChanged += ControllerOnInformationChanged;
         _results.SetVisible(false);
         _noresults.SetVisible(false);
         _spinner.SetVisible(true);
     }
 
-    private void ControllerOnArtistChanged(object? sender, ArtistArgs e)
+    private void ControllerOnInformationChanged(object? sender, InformationArgs e)
     {
         if (e.UpdateDetails)
         {
             GtkHelper.GtkDispatch(() =>
             {
-                _artist.SetText(_controller.Name ?? string.Empty);
-                _country.SetText(_controller.Area ?? string.Empty);
-
-                if (_controller.YearFrom != null)
+                _title.SetText(_controller.Title ?? string.Empty);
+                
+                var child = _subtitle.GetFirstChild();
+                while (child != null)
                 {
-                    _duration.SetText(_controller.YearTo != null
-                        ? $"{_controller.YearFrom} - {_controller.YearTo}"
-                        : $"{_controller.YearFrom} - Present");
+                    var next = child.GetNextSibling();
+                    _subtitle.Remove(child);
+                    child = next;
                 }
-  
+                
+                foreach (var subtitle in _controller.Subtitles)
+                {
+                    _subtitle.Append(Gtk.Label.New(subtitle));
+                }
+                
                 _description.SetText(_controller.Description ?? string.Empty);
             });
         }
@@ -73,7 +76,7 @@ public partial class ArtistView : Adw.Dialog
 
     public override void Dispose()
     {
-        _controller.OnArtistChanged += ControllerOnArtistChanged;
+        _controller.OnInformationChanged += ControllerOnInformationChanged;
         base.Dispose();
     }
 }

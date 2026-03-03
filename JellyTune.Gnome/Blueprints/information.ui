@@ -17,7 +17,7 @@
                                         <property name="margin-top">6</property>
                                         <property name="margin-start">24</property>
                                         <child>
-                                            <object class="GtkLabel" id="_artist">
+                                            <object class="GtkLabel" id="_title">
                                                 <property name="ellipsize">3</property>
                                                 <property name="justify">0</property>
                                                 <property name="halign">1</property>
@@ -27,19 +27,11 @@
                                             </object>
                                         </child>
                                         <child>
-                                            <object class="GtkBox">
+                                            <object class="GtkBox" id="_subtitle">
                                                 <property name="spacing">6</property>
                                                 <style>
                                                     <class name="dimmed"/>
                                                 </style>
-                                                <child>
-                                                    <object class="GtkLabel" id="_country">
-                                                    </object>
-                                                </child>
-                                                <child>
-                                                    <object class="GtkLabel" id="_duration">
-                                                    </object>
-                                                </child>
                                             </object>
                                         </child>
                                     </object>

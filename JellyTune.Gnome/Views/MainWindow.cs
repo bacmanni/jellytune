@@ -32,7 +32,7 @@ public partial class MainWindow : Adw.ApplicationWindow
     private readonly PlayerExtendedController _playerExtendedController;
     private readonly PlayerExtendedView _playerExtendedView;
     
-    private readonly ArtistController _artistController;
+    private readonly InformationController _informationController;
     private readonly ArtistAlbumController _artistAlbumController;
 
     private readonly AlbumController _albumController;
@@ -167,7 +167,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         _playerExtendedView = new PlayerExtendedView(_playerExtendedController);
         _playerPosition.Append(_playerExtendedView);
         
-        _artistController = new ArtistController(_controller.JellyTuneExtApiService);
+        _informationController = new InformationController(_controller.JellyTuneExtApiService);
         _artistAlbumController = new ArtistAlbumController(_controller.JellyTuneApiService, _controller.FileService);
         
         // Search
@@ -196,8 +196,8 @@ public partial class MainWindow : Adw.ApplicationWindow
         _refreshAction = Gio.SimpleAction.New("refresh", null);
         _refreshAction.OnActivate += ActRefreshOnActivate;
         AddAction(_refreshAction);
-        application.SetAccelsForAction("win.refresh", new string[] { "<Ctrl>r" });
-
+        application.SetAccelsForAction("win.refresh", new string[] { "<Ctrl>F5" });
+     
         //Preferences Action
         var actPreferences = Gio.SimpleAction.New("preferences", null);
         actPreferences.OnActivate += ActPreferencesOnActivate;
@@ -260,6 +260,10 @@ public partial class MainWindow : Adw.ApplicationWindow
         actArtistAlbum.OnActivate += ActArtistAlbumOnActivate;
         AddAction(actArtistAlbum);
         
+        var actAlbumInfo = Gio.SimpleAction.New("album_information", VariantType.String);
+        actAlbumInfo.OnActivate += ActAlbumInfoOnActivate;
+        AddAction(actAlbumInfo);
+        
         var actOpenAlbum = Gio.SimpleAction.New("open_album", VariantType.String);
         actOpenAlbum.OnActivate += ActOpenAlbumOnActivate;
         AddAction(actOpenAlbum);
@@ -293,6 +297,16 @@ public partial class MainWindow : Adw.ApplicationWindow
         _ = UpdateMainMenu();
     }
 
+    private void ActAlbumInfoOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
+    {
+        var parameters = args.Parameter.GetString(out var length).Split(';');
+        if (parameters.Length <= 1) return;
+        
+        var informationView = new InformationView(_informationController);
+        _ = _informationController.OpenAlbumAsync(parameters[0], parameters[1]);
+        informationView.Present(this);
+    }
+
     private void ActShortcutOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
     {
         var builder = GtkHelper.BuilderFromFile("shortcuts");
@@ -324,12 +338,11 @@ public partial class MainWindow : Adw.ApplicationWindow
         // Parameter is artist name
         var artistName = args.Parameter?.GetString(out var length);
 
-        if (!string.IsNullOrWhiteSpace(artistName))
-        {
-            var artistView = new ArtistView(_artistController);
-            _ = _artistController.OpenArtistAsync(artistName);
-            artistView.Present(this);
-        }
+        if (string.IsNullOrWhiteSpace(artistName)) return;
+        
+        var informationView = new InformationView(_informationController);
+        _ = _informationController.OpenArtistAsync(artistName);
+        informationView.Present(this);
     }
 
     private void ActVolumeDownOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
@@ -503,7 +516,6 @@ public partial class MainWindow : Adw.ApplicationWindow
         var savedSize = _controller.GetWindowSize();
         if (savedSize.HasValue)
         {
-            
             SetDefaultSize(savedSize.Value.Item1, savedSize.Value.Item2);
             return;
         }

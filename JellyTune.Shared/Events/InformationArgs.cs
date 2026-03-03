@@ -1,6 +1,6 @@
 namespace JellyTune.Shared.Events;
 
-public class ArtistArgs : EventArgs
+public class InformationArgs : EventArgs
 {
     public bool IsLoading { get; set; }
     public bool HasError { get; set; }

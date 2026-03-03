@@ -336,6 +336,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
                 Id = baseItem.Id.Value,
                 Artist = baseItem.AlbumArtist,
                 Name = baseItem.Name,
+                ArtistId = baseItem?.AlbumArtists?.FirstOrDefault()?.Id ?? baseItem?.ArtistItems?.FirstOrDefault()?.Id,
                 Year = baseItem.ProductionYear,
                 Runtime = baseItem.RunTimeTicks.HasValue ? new TimeSpan(baseItem.RunTimeTicks.Value) : null,
                 HasArtwork = baseItem.ImageTags?.AdditionalData.ContainsKey(ImageType.Primary.ToString()) == true
@@ -377,6 +378,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
         {
             Id = baseItem.Id.GetValueOrDefault(),
             Artist = baseItem.AlbumArtist ?? "",
+            ArtistId = baseItem?.AlbumArtists?.FirstOrDefault()?.Id ?? baseItem?.ArtistItems?.FirstOrDefault()?.Id,
             ArtistAlbumCount = albumCount,
             Name = baseItem.Name ?? "",
             Year = baseItem.ProductionYear,
@@ -812,6 +814,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
             {
                 Id = baseItem.Id.Value,
                 Artist = baseItem.AlbumArtist,
+                ArtistId = baseItem?.AlbumArtists?.FirstOrDefault()?.Id ?? baseItem?.ArtistItems?.FirstOrDefault()?.Id,
                 Name = baseItem.Name,
                 Year = baseItem.ProductionYear,
                 Runtime = baseItem.RunTimeTicks.HasValue ? new TimeSpan(baseItem.RunTimeTicks.Value) : null,

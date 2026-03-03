@@ -3,6 +3,7 @@ namespace JellyTune.Shared.Models;
 public class Album()
 {
     public Guid Id { get; set; }
+    public Guid? ArtistId { get; set; }
     public string Artist { get; set; }
     public string Name { get; set; }
     public int? Year { get; set; }
