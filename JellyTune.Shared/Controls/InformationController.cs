@@ -37,6 +37,7 @@ public class InformationController
             if (artist == null) return;
             
             Title = artistName;
+            Subtitles.Clear();
             
             if (!string.IsNullOrWhiteSpace(artist?.Area))
                 Subtitles.Add(artist.Area);

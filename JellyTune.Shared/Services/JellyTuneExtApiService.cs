@@ -9,7 +9,9 @@ namespace JellyTune.Shared.Services;
 public class JellyTuneExtApiService : IJellyTuneExtApiService
 {
     private readonly ApplicationInfo _applicationInfo;
-
+    private readonly string[] _keywords = { "singer", "musician", "vocalist", "rapper", "guitarist", "bassist", "drummer", "composer", "songwriter", "producer" };
+    
+    
     public JellyTuneExtApiService(ApplicationInfo applicationInfo)
     {
         _applicationInfo = applicationInfo;
@@ -34,7 +36,7 @@ public class JellyTuneExtApiService : IJellyTuneExtApiService
         var artist = artists.Results.FirstOrDefault()?.Item;
         if (artist == null) return result;
 
-        var details = await RetryAsync(() => q.LookupArtistAsync(artist.Id));
+        var details = await RetryAsync(() => q.LookupArtistAsync(artist.Id, Include.UrlRelationships));
         if (details == null) return result;
 
         result.MbId = details.Id;
@@ -42,33 +44,86 @@ public class JellyTuneExtApiService : IJellyTuneExtApiService
         result.From = details.LifeSpan?.Begin?.Year;
         result.To = details.LifeSpan?.End?.Year;
 
-        Console.WriteLine($"Fetching data from wikipedia");
+        var wikipediaUrl = details.Relationships.FirstOrDefault(r => r.Type == "wikipedia")?.Target;
+        var wikipediaTitle = wikipediaUrl?.ToString()?.Split('/').Last();
+        
+        // Wikipedia page found, trying to use it directly
+        if (!string.IsNullOrWhiteSpace(wikipediaTitle))
+        {
+            Console.WriteLine($"Fetching data from wikipedia using title{wikipediaTitle}");
+            result.Description = await GetWikipediaPageDescription(wikipediaTitle);
+            
+            if (!string.IsNullOrWhiteSpace(result.Description))
+                return result;
+            
+            Console.WriteLine($"Fetch returned null!");
+        }
+        
+        Console.WriteLine($"Fetching data from wikipedia using search");
         var searchResults = await SearchWikipedia(artistName);
         if (searchResults.Any())
         {
-            var description = await GetWikipediaPageDescription(searchResults.FirstOrDefault().Key);
+            var description = await GetWikipediaPageDescription(searchResults.FirstOrDefault().Key, null);
             result.Description = description;
         }
         
         return result;
     }
 
-    private async Task<string?> GetWikipediaPageDescription(long pageId)
+    private async Task<string?> GetWikipediaPageDescription(string wikipediaTitle)
+    {
+        using var http = new HttpClient();
+        http.DefaultRequestHeaders.UserAgent.ParseAdd($"{_applicationInfo.Name}/{_applicationInfo.Version} ({_applicationInfo.Email})");
+        var url = $"https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=true&explaintext=true&titles={Uri.EscapeDataString(wikipediaTitle)}&format=json";
+        var data = await RetryAsync(() => http.GetFromJsonAsync<JsonElement>(url));
+        var pages = data.GetProperty("query").GetProperty("pages");
+        var firstPage = pages.EnumerateObject().First().Value;
+        var description = firstPage.TryGetProperty("extract", out var extract) ? extract.GetString() : null;
+        return description;
+    }
+
+
+    private async Task<string?> GetWikipediaPageDescription(long pageId, string? artistName)
     {
         using var http = new HttpClient();
         http.DefaultRequestHeaders.UserAgent.ParseAdd($"{_applicationInfo.Name}/{_applicationInfo.Version} ({_applicationInfo.Email})");
 
-        var url = $"https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=true&explaintext=true&pageids={pageId}&format=json";
+        var url = $"https://en.wikipedia.org/w/api.php?action=query&prop=extracts|categories&exintro=true&explaintext=true&pageids={pageId}&format=json";
         var data = await RetryAsync(() => http.GetFromJsonAsync<JsonElement>(url));
         var pages = data.GetProperty("query").GetProperty("pages");
         var page = pages.GetProperty(pageId.ToString());
-        var description = page.TryGetProperty("extract", out var extract) ? extract.GetString() : null;
-        return description;
+        
+        var categories = new List<string>();
+        if (page.TryGetProperty("categories", out var cats))
+        {
+            foreach (var c in cats.EnumerateArray())
+            {
+                categories.Add(c.GetProperty("title").GetString() ?? "");
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(artistName))
+        {
+            var isArtist = categories.Any(c => _keywords.Any(k => c.Contains(k, StringComparison.OrdinalIgnoreCase)));
+            if (!isArtist) return null;
+            
+            var description = page.TryGetProperty("extract", out var extract) ? extract.GetString() : null;
+            return description;
+        }
+        else
+        {
+            var isAlbum = categories.Any(c => c.Contains("album", StringComparison.OrdinalIgnoreCase) || c.Contains("EP", StringComparison.OrdinalIgnoreCase));
+            if (!isAlbum) return null;
+            
+            var description = page.TryGetProperty("extract", out var extract) ? extract.GetString() : null;
+
+            var hasArtist = description?.ToLower().Contains(artistName, StringComparison.CurrentCultureIgnoreCase);
+            return hasArtist == true ? description : null;
+        }
     }
     
     private async Task<Dictionary<long, string>> SearchWikipedia(string value)
     {
-        Console.WriteLine($"Fetching data from wikipedia");
         using var http = new HttpClient();
         http.DefaultRequestHeaders.UserAgent.ParseAdd($"{_applicationInfo.Name}/{_applicationInfo.Version} ({_applicationInfo.Email})");
         var url = "https://en.wikipedia.org/w/api.php?action=query&list=search&format=json&srsearch=" + Uri.EscapeDataString(value);
@@ -104,7 +159,9 @@ public class JellyTuneExtApiService : IJellyTuneExtApiService
         var searchResults = await SearchWikipedia(albumName);
         if (searchResults.Any())
         {
-            var description = await GetWikipediaPageDescription(searchResults.FirstOrDefault().Key);
+            var description = await GetWikipediaPageDescription(searchResults.FirstOrDefault().Key, artistName);
+            if (string.IsNullOrWhiteSpace(description)) return result;
+            
             result.Description = description;
         }
 

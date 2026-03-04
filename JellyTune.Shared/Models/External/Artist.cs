@@ -9,8 +9,4 @@ public class Artist
     public string? Area { get; set; }
     public int? From { get; set; }
     public int? To { get; set; }
-    public string? WikipediaUrl { get; set; }
-    public string? WikidataUrl { get; set; }
-    public string? WikipediaTitle { get; set; }
-    public string? ImageUrl { get; set; }
 }

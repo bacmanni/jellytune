@@ -1,7 +1,9 @@
 using Adw.Internal;
+using Gtk;
 using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Events;
+using Pango;
 
 namespace JellyTune.Gnome.Views;
 
@@ -40,6 +42,7 @@ public partial class InformationView : Adw.Dialog
             {
                 _title.SetText(_controller.Title ?? string.Empty);
                 
+                // Remove children
                 var child = _subtitle.GetFirstChild();
                 while (child != null)
                 {
@@ -50,7 +53,10 @@ public partial class InformationView : Adw.Dialog
                 
                 foreach (var subtitle in _controller.Subtitles)
                 {
-                    _subtitle.Append(Gtk.Label.New(subtitle));
+                    var label = Gtk.Label.New(subtitle);
+                    label.SetEllipsize(EllipsizeMode.End);
+                    label.SetJustify(Justification.Left);
+                    _subtitle.Append(label);
                 }
                 
                 _description.SetText(_controller.Description ?? string.Empty);
