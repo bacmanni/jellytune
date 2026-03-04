@@ -130,6 +130,10 @@ public sealed class PlayerService : IPlayerService, IDisposable
             _artwork = await _jellyTuneApiService.GetPrimaryArtAsync(albumId);
             PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedArtwork, album, _tracks.ToList()));
         }
+        else
+        {
+            _artwork = null;
+        }
     }
 
     private async Task OpenAlbumAsync(Guid albumId, CancellationToken cancellationToken = default)
