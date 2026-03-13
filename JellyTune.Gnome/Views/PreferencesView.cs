@@ -21,8 +21,7 @@ public partial class PreferencesView : Adw.PreferencesDialog
     [Gtk.Connect] private readonly Adw.SwitchRow _cacheArtwork;
     [Gtk.Connect] private readonly Adw.SwitchRow _showListSeparator;
     [Gtk.Connect] private readonly Adw.SwitchRow _showExtendedControls;
-    [Gtk.Connect] private readonly Adw.SwitchRow _showExternalControls;
-    
+
     public bool Refresh { get; set; } = false;
     public string? Password { get; set; } = null;
     
@@ -44,8 +43,7 @@ public partial class PreferencesView : Adw.PreferencesDialog
             configuration.CacheAlbumArt = _cacheArtwork.GetActive();
             configuration.ShowListSeparator = _showListSeparator.GetActive();
             configuration.ShowExtendedControls = _showExtendedControls.GetActive();
-            configuration.ShowExternalApiControls = _showExternalControls.GetActive();
-            
+
             Refresh = _accountController.HasChanges();
             configuration.ServerUrl = _accountController.ServerUrl;
             configuration.Username = _accountController.Username;
@@ -100,7 +98,6 @@ public partial class PreferencesView : Adw.PreferencesDialog
         _showListSeparator.SetActive(configuration.ShowListSeparator);
         
         _showExtendedControls.SetActive(configuration.ShowExtendedControls);
-        _showExternalControls.SetActive(configuration.ShowExternalApiControls);
     }
 
     public override void Dispose()

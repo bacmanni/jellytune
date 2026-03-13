@@ -22,6 +22,11 @@ public class HttpClientExceptionHandler : DelegatingHandler
             try
             {
                 var response = await base.SendAsync(request, cancellationToken);
+                if (response.StatusCode.Equals(HttpStatusCode.NotFound))
+                {
+                    return response;
+                }
+
                 if (!response.IsSuccessStatusCode)
                 {
                     if (tries == totalRetries)

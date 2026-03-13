@@ -474,7 +474,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
             {
                 configuration.QueryParameters.Height = 200;
                 configuration.QueryParameters.Width = 200;
-            }).ConfigureAwait(true);
+            }).ConfigureAwait(false);
             
             if (stream == null)
                 return null;
@@ -773,23 +773,18 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// <summary>
     /// Get artist albums
     /// </summary>
+    /// <param name="artistId"></param>
+    /// <param name="excludeAbumIds"></param>
     /// <param name="albumId"></param>
-    /// <param name="includeAlbumId"></param>
     /// <returns></returns>
-    public async Task<List<Album>> GetArtistAlbumsAsync(Guid albumId, bool includeAlbumId)
+    public async Task<List<Album>> GetArtistAlbumsAsync(Guid artistId, Guid?[]? excludeAbumIds = null)
     {
         var albumsResult = new List<Album>();
 
-        var queryResult1 = await _jellyfinApiClient.Items[albumId].GetAsync();
-        var artistId = queryResult1?.AlbumArtists?.FirstOrDefault()?.Id 
-                       ?? queryResult1?.ArtistItems?.FirstOrDefault()?.Id;
-
-        if (!artistId.HasValue) return albumsResult;
-
         var excluded = new List<Guid?>();
 
-        if (!includeAlbumId)
-            excluded.Add(albumId);
+        if (excludeAbumIds != null)
+            excluded.AddRange(excludeAbumIds);
         
         var queryResult2 = await _jellyfinApiClient.Items.GetAsync(configuration =>
         {
@@ -823,6 +818,26 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
         }
 
         return albumsResult.OrderBy(a => a.Year).ToList();
+    }
+
+    /// <summary>
+    /// Get artist
+    /// </summary>
+    /// <param name="artistId"></param>
+    /// <returns></returns>
+    public async Task<Artist?> GetArtistAsync(Guid artistId)
+    {
+        var baseItem = await _jellyfinApiClient.Items[artistId].GetAsync();
+        if (baseItem?.Id == null || baseItem.Name == null) return null;
+
+        var result = new Artist()
+        {
+            Id = baseItem.Id.Value,
+            Name = baseItem.Name,
+            HasArtwork = baseItem.ImageTags?.AdditionalData.ContainsKey(ImageType.Primary.ToString()) == true
+        };
+
+        return result;
     }
 
     /// <summary>

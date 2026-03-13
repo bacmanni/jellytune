@@ -9,14 +9,13 @@ public partial class LyricsView : Adw.Dialog
     private LyricsController  _controller;
 
     [Gtk.Connect] private readonly Adw.Spinner _spinner;
-    [Gtk.Connect] private readonly Gtk.Box _results;
+    [Gtk.Connect] private readonly Gtk.Revealer _results;
     
     [Gtk.Connect] private readonly Gtk.Label _lyrics;
     [Gtk.Connect] private readonly Gtk.Image _albumArt;
     [Gtk.Connect] private readonly Gtk.Label _track;
     [Gtk.Connect] private readonly Gtk.Label _artist;
-    [Gtk.Connect] private readonly Gtk.Button _update;
-    
+
     private LyricsView(Gtk.Builder builder) : base(
         new DialogHandle(builder.GetPointer("_root"), false))
     {
@@ -50,6 +49,7 @@ public partial class LyricsView : Adw.Dialog
             
             _spinner.SetVisible(false);
             _results.SetVisible(true);
+            _results.SetRevealChild(true);
         });
     }
 

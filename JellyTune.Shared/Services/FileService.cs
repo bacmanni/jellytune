@@ -36,6 +36,8 @@ public class FileService : IFileService
             return $"{_configurationService.GetCacheDirectory()}/albums/{id.ToString()}.jpg";
         if (type == FileType.Playlist)
             return $"{_configurationService.GetCacheDirectory()}/playlists/{id.ToString()}.jpg";
+        if (type == FileType.Artist)
+            return $"{_configurationService.GetCacheDirectory()}/artists/{id.ToString()}.jpg";
         
         throw new NotImplementedException($"File type {type} not implemented");
     }

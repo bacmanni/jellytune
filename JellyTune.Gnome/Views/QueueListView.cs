@@ -4,6 +4,7 @@ using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
 using JellyTune.Shared.Models;
 using JellyTune.Gnome.Helpers;
+using Button = Gtk.Button;
 using ListBox = Gtk.ListBox;
 
 namespace JellyTune.Gnome.Views;
@@ -13,7 +14,8 @@ public class QueueListView : Gtk.ScrolledWindow
     private readonly QueueListController  _controller;
     
     [Gtk.Connect] private readonly Gtk.ListBox _queueList;
-
+    [Gtk.Connect] private readonly Gtk.Button _shuffle;
+    
     private QueueListView(Gtk.Builder builder) : base(
         new ScrolledWindowHandle(builder.GetPointer("_root"), false))
     {
@@ -25,7 +27,13 @@ public class QueueListView : Gtk.ScrolledWindow
         _controller = controller;
         _controller.OnQueueUpdated += ControllerOnQueueUpdated;
         _queueList.OnRowActivated += QueueListOnRowActivated;
+        _shuffle.OnClicked += ShuffleOnClicked;
         _controller.PlayerService.OnPlayerStateChanged += OnPlayerStateChanged;
+    }
+
+    private void ShuffleOnClicked(Button sender, EventArgs args)
+    {
+        _controller.ShuffleTracks();
     }
 
     private void OnPlayerStateChanged(object? sender, PlayerStateArgs args)
@@ -77,6 +85,7 @@ public class QueueListView : Gtk.ScrolledWindow
     {
         _controller.OnQueueUpdated -= ControllerOnQueueUpdated;
         _queueList.OnRowActivated -= QueueListOnRowActivated;
+        _shuffle.OnClicked -= ShuffleOnClicked;
         _controller.PlayerService.OnPlayerStateChanged -= OnPlayerStateChanged;
         base.Dispose();
     }

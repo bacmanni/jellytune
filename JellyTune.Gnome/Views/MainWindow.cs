@@ -1,14 +1,15 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using Adw;
 using Gio;
 using GLib;
 using Gtk;
+using JellyTune.Gnome.DBus.MediaPlayer;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
 using JellyTune.Gnome.Helpers;
-using JellyTune.Gnome.MediaPlayer;
 using Object = GObject.Object;
 using Task = System.Threading.Tasks.Task;
 
@@ -31,8 +32,7 @@ public partial class MainWindow : Adw.ApplicationWindow
 
     private readonly PlayerExtendedController _playerExtendedController;
     private readonly PlayerExtendedView _playerExtendedView;
-    
-    private readonly InformationController _informationController;
+
     private readonly ArtistAlbumController _artistAlbumController;
 
     private readonly AlbumController _albumController;
@@ -66,8 +66,7 @@ public partial class MainWindow : Adw.ApplicationWindow
     [Gtk.Connect] private readonly Gtk.Box _playerPosition;
     
     [Gtk.Connect] private readonly Gtk.Box _player;
-
-    //[Gtk.Connect] private readonly Adw.ToastOverlay toastOverlay;
+    [Gtk.Connect] private readonly Gtk.Revealer _playerRevealer;
     
     [Gtk.Connect] private readonly Gtk.MenuButton _menuButton;
     [Gtk.Connect] private readonly Adw.Spinner _spinner;
@@ -98,9 +97,7 @@ public partial class MainWindow : Adw.ApplicationWindow
     [Gtk.Connect] private readonly Gtk.Box _search_albums_footer;
     [Gtk.Connect] private readonly Gtk.Box _queue_list_footer;
     [Gtk.Connect] private readonly Gtk.Box _playlist_tracks_footer;
-    
-    [Gtk.Connect] private readonly Gtk.Button _queue_list_shuffle;
-    
+
     private MainWindow(Gtk.Builder builder, MainWindowController controller, Adw.Application application) : base(new Adw.Internal.ApplicationWindowHandle(builder.GetPointer("_root"), false))
     {
         //Window Settings
@@ -129,12 +126,7 @@ public partial class MainWindow : Adw.ApplicationWindow
                 //_albumController.Cancel();
             }
         };
-
-        _queue_list_shuffle.OnClicked += (sender, args) =>
-        {
-            _queueListController.ShuffleTracks();
-        };
-
+        
         _controller.PlayerService.OnPlayerStateChanged += OnPlayerStateChanged;
 
         // Album list
@@ -166,8 +158,7 @@ public partial class MainWindow : Adw.ApplicationWindow
 
         _playerExtendedView = new PlayerExtendedView(_playerExtendedController);
         _playerPosition.Append(_playerExtendedView);
-        
-        _informationController = new InformationController(_controller.JellyTuneExtApiService);
+
         _artistAlbumController = new ArtistAlbumController(_controller.JellyTuneApiService, _controller.FileService);
         
         // Search
@@ -251,19 +242,11 @@ public partial class MainWindow : Adw.ApplicationWindow
         actLyrics.OnActivate += ActLyricsOnActivate;
         AddAction(actLyrics);
         application.SetAccelsForAction("win.track_lyrics", new string[] { "<Ctrl>l" });
-        
-        var actArtistInfo = Gio.SimpleAction.New("artist_information", VariantType.String);
-        actArtistInfo.OnActivate += ActArtistInfoOnActivate;
-        AddAction(actArtistInfo);
-        
+   
         var actArtistAlbum = Gio.SimpleAction.New("artist_albums", VariantType.String);
         actArtistAlbum.OnActivate += ActArtistAlbumOnActivate;
         AddAction(actArtistAlbum);
-        
-        var actAlbumInfo = Gio.SimpleAction.New("album_information", VariantType.String);
-        actAlbumInfo.OnActivate += ActAlbumInfoOnActivate;
-        AddAction(actAlbumInfo);
-        
+
         var actOpenAlbum = Gio.SimpleAction.New("open_album", VariantType.String);
         actOpenAlbum.OnActivate += ActOpenAlbumOnActivate;
         AddAction(actOpenAlbum);
@@ -297,16 +280,6 @@ public partial class MainWindow : Adw.ApplicationWindow
         _ = UpdateMainMenu();
     }
 
-    private void ActAlbumInfoOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
-    {
-        var parameters = args.Parameter.GetString(out var length).Split(';');
-        if (parameters.Length <= 1) return;
-        
-        var informationView = new InformationView(_informationController);
-        _ = _informationController.OpenAlbumAsync(parameters[0], parameters[1]);
-        informationView.Present(this);
-    }
-
     private void ActShortcutOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
     {
         var builder = GtkHelper.BuilderFromFile("shortcuts");
@@ -318,31 +291,20 @@ public partial class MainWindow : Adw.ApplicationWindow
     {
         var albumIdParameter = args.Parameter.GetString(out var length);
         var albumId = Guid.Parse(albumIdParameter);
-        _albumController.OpenAsync(albumId);
+        if (albumId == _albumController.Album?.Id) return;
+        _ = _albumController.OpenAsync(albumId);
         _album_view.PopToPage(_album_details);
     }
 
     private void ActArtistAlbumOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
     {
-        // Parameter is album id
-        var albumIdParameter = args.Parameter.GetString(out var length);
-        var albumId = Guid.Parse(albumIdParameter);
+        var artistIdParameter = args.Parameter?.GetString(out var length);
+        if (artistIdParameter == null) return;
         
+        var artistId = Guid.Parse(artistIdParameter);
         var artistAlbumView = new ArtistAlbumView(_artistAlbumController);
-        _ = _artistAlbumController.OpenAsync(albumId);
+        _ = _artistAlbumController.OpenAsync(artistId);
         artistAlbumView.Present(this);
-    }
-
-    private void ActArtistInfoOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
-    {
-        // Parameter is artist name
-        var artistName = args.Parameter?.GetString(out var length);
-
-        if (string.IsNullOrWhiteSpace(artistName)) return;
-        
-        var informationView = new InformationView(_informationController);
-        _ = _informationController.OpenArtistAsync(artistName);
-        informationView.Present(this);
     }
 
     private void ActVolumeDownOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
@@ -468,8 +430,8 @@ public partial class MainWindow : Adw.ApplicationWindow
             if (!_album_details_footer.IsVisible())
                 _album_details_footer.SetVisible(true);
                 
-            if (!_player.IsVisible())
-                _player.SetVisible(true);
+            if (!_playerRevealer.GetChildRevealed())
+                _playerRevealer.SetRevealChild(true);
                 
             if (!_playerPosition.IsVisible())
                 _playerPosition.SetVisible(true);
@@ -485,7 +447,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         }
         else if (args.State is PlayerState.None)
         {
-            _player?.SetVisible(false);
+            _playerRevealer?.SetRevealChild(false);
             _main_view_footer?.SetVisible(false);
             _album_details_footer?.SetVisible(true);
             _search_albums_footer?.SetVisible(true);
@@ -524,6 +486,11 @@ public partial class MainWindow : Adw.ApplicationWindow
         SetDefaultSize(width, height);
     }
 
+    private void ResetNavigationView()
+    {
+        //_album_view.PopToPage(_)
+    }
+    
     private void PlayerControllerOnShowShowLyricsClicked(object? sender, AlbumArgs e)
     {
         var controller = new LyricsController(_controller.JellyTuneApiService, _controller.PlayerService);
@@ -534,14 +501,16 @@ public partial class MainWindow : Adw.ApplicationWindow
 
     private void PlayerControllerOnShowPlaylistClicked(object? sender, AlbumArgs e)
     {
+        ResetNavigationView();
+        
         _queueListController.Open();
-        _album_view.PopToPage(_queue_list);
+        _album_view.Push(_queue_list);
     }
 
     private void SearchControllerOnAlbumClicked(object? sender, AlbumArgs args)
     {
         _albumController.OpenAsync(args.AlbumId, args.TrackId);
-        _album_view.PopToPage(_album_details);
+        _album_view.Push(_album_details);
     }
 
     private void AlbumlistControllerOnAlbumClicked(object? sender, Guid albumId)
@@ -622,7 +591,9 @@ public partial class MainWindow : Adw.ApplicationWindow
     {
         _application.AddWindow(this);
         Present();
-
+        
+        //SecretHelper.SetPassword("test");
+        
         var startupState = await _startupController.StartAsync();
         if (startupState == StartupState.RequirePassword)
         {

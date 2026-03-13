@@ -1,6 +1,6 @@
 using Tmds.DBus;
 
-namespace JellyTune.Gnome.MediaPlayer;
+namespace JellyTune.Gnome.DBus.MediaPlayer;
 
 [DBusInterface("org.mpris.MediaPlayer2")]
 public interface IMediaPlayer2 : IDBusObject

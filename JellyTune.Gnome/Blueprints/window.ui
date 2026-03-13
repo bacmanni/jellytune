@@ -142,12 +142,6 @@
                     <property name="bottom-bar-style">raised</property>
                     <child type="top">
                       <object class="AdwHeaderBar">
-                        <child type="end">
-                          <object class="GtkButton" id="_queue_list_shuffle">
-                            <property name="icon-name">media-playlist-shuffle-symbolic</property>
-                            <property name="tooltip-text">Shuffle</property>
-                          </object>
-                        </child>
                         <property name="title-widget">
                           <object class="AdwWindowTitle">
                           </object>
@@ -230,8 +224,13 @@
           </object>
         </child>
         <child>
-          <object class="GtkBox" id="_player">
-            <property name="visible">false</property>
+          <object class="GtkRevealer" id="_playerRevealer">
+            <property name="transition-type">slide-up</property>
+            <property name="reveal-child">false</property>
+            <child>
+              <object class="GtkBox" id="_player">
+              </object>
+            </child>
           </object>
         </child>
       </object>

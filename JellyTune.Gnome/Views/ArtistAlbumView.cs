@@ -12,9 +12,8 @@ public class ArtistAlbumView : Adw.Dialog
     private readonly ArtistAlbumController  _controller;
 
     [Gtk.Connect] private readonly Adw.Spinner _spinner;
-    [Gtk.Connect] private readonly Gtk.ScrolledWindow _results;
-
-    [Gtk.Connect] private readonly Gtk.Label _album;
+    [Gtk.Connect] private readonly Gtk.Revealer _result;
+    
     [Gtk.Connect] private readonly Gtk.ListBox _albums;
     
     private ArtistAlbumView(Gtk.Builder builder) : base(
@@ -29,7 +28,7 @@ public class ArtistAlbumView : Adw.Dialog
         _controller.OnAlbumsChanged += ControllerOnAlbumsChanged;
         _albums.OnRowActivated += AlbumsOnRowActivated;
         
-        _results.SetVisible(false);
+        _result.SetVisible(false);
         _spinner.SetVisible(true);
     }
 
@@ -53,7 +52,7 @@ public class ArtistAlbumView : Adw.Dialog
         {
             if (isLoading)
             {
-                _results.SetVisible(false);
+                _result.SetVisible(false);
                 _spinner.SetVisible(true);
                 return;
             }
@@ -66,7 +65,8 @@ public class ArtistAlbumView : Adw.Dialog
                 _albums.Append(row);
             }
             
-            _results.SetVisible(true);
+            _result.SetVisible(true);
+            _result.SetRevealChild(true);
         });
     }
 }

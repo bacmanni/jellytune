@@ -15,6 +15,7 @@
       <PackageReference Include="GirCore.GLib-2.0" Version="0.7.0" />
       <PackageReference Include="GirCore.GObject-2.0.Integration" Version="0.7.0" />
       <PackageReference Include="GirCore.Gtk-4.0" Version="0.7.0" />
+      <PackageReference Include="GirCore.Secret-1" Version="0.7.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.4" />
       <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.4" />
       <PackageReference Include="Tmds.DBus" Version="0.22.0" />
@@ -93,7 +94,6 @@
       <None Remove="Blueprints\shortcuts.ui" />
       <EmbeddedResource Include="Blueprints\shortcuts.ui" />
       <None Remove="Blueprints\information.ui" />
-      <EmbeddedResource Include="Blueprints\information.ui" />
     </ItemGroup>
 
     <ItemGroup>
@@ -102,6 +102,10 @@
 
     <ItemGroup>
       <EmbeddedResource Include="Blueprints\login.ui" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="DBus\" />
     </ItemGroup>
 
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">

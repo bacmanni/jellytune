@@ -31,5 +31,6 @@ public interface IJellyTuneApiService
     public Task<List<Playlist>> GetPlaylistsAsync(Guid collectionId);
     Uri? GetPrimaryArtUrl(Guid id);
     public Task SeekPlaybackAsync(string sessiondId, Guid trackId, int? position);
-    public Task<List<Album>> GetArtistAlbumsAsync(Guid albumId, bool includeAlbumId);
+    public Task<List<Album>> GetArtistAlbumsAsync(Guid artistId, Guid?[]? excludeAbumIds = null);
+    public Task<Artist?> GetArtistAsync(Guid artistId);
 }

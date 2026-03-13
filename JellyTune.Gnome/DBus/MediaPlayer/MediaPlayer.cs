@@ -4,7 +4,7 @@ using JellyTune.Shared.Models;
 using JellyTune.Shared.Services;
 using Tmds.DBus;
 
-namespace JellyTune.Gnome.MediaPlayer;
+namespace JellyTune.Gnome.DBus.MediaPlayer;
 
 public class MediaPlayer : IMediaPlayer2, IPlayer
 {

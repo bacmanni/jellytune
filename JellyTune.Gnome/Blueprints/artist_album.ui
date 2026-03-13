@@ -1,78 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
 <interface>
     <object class="AdwDialog" id="_root">
-        <property name="content-height">440</property>
-        <property name="content-width">400</property>
+        <property name="follows-content-size">true</property>
         <child>
-            <object class="AdwToolbarView">
-                <child type="top">
-                    <object class="AdwHeaderBar">
-                        <child>
-                            <object class="GtkBox">
-                                <property name="margin-top">6</property>
-                                <property name="margin-bottom">6</property>
+            <object class="AdwClamp">
+                <property name="maximum-size">500</property>
+                <child>
+                    <object class="AdwToolbarView">
+                        <child type="top">
+                            <object class="AdwHeaderBar">
                                 <child>
                                     <object class="GtkBox">
-                                        <property name="orientation">1</property>
                                         <property name="margin-top">6</property>
-                                        <property name="margin-start">24</property>
+                                        <property name="margin-bottom">6</property>
+                                        <property name="margin-start">6</property>
+                                        <property name="margin-end">6</property>
                                         <child>
-                                            <object class="GtkLabel" id="_album">
-                                                <property name="ellipsize">3</property>
-                                                <property name="justify">0</property>
-                                                <property name="halign">1</property>
-                                                <style>
-                                                    <class name="title-4"/>
-                                                </style>
-                                            </object>
-                                        </child>
-                                        <child>
-                                            <object class="GtkLabel" id="_released">
-                                                <style>
-                                                    <class name="dimmed"/>
-                                                </style>
+                                            <object class="GtkBox">
+                                                <property name="orientation">1</property>
+                                                <property name="margin-top">6</property>
+                                                <property name="margin-start">12</property>
+                                                <child>
+                                                    <object class="GtkLabel" id="_album">
+                                                        <property name="halign">0</property>
+                                                        <property name="label">Artist albums</property>
+                                                        <style>
+                                                            <class name="title-4"/>
+                                                        </style>
+                                                    </object>
+                                                </child>
                                             </object>
                                         </child>
                                     </object>
                                 </child>
                             </object>
                         </child>
-                    </object>
-                </child>
-                <child>
-                    <object class="GtkBox">
-                        <property name="orientation">1</property>
-                        <property name="vexpand">true</property>
-                        <property name="hexpand">true</property>
-                        <property name="margin-bottom">12</property>
-                        <property name="margin-start">6</property>
-                        <property name="margin-end">6</property>
                         <child>
-                            <object class="AdwSpinner" id="_spinner">
-                                <property name="margin-top">46</property>
-                                <property name="halign">3</property>
-                                <property name="valign">3</property>
+                            <object class="GtkBox">
+                                <property name="orientation">1</property>
                                 <property name="vexpand">true</property>
                                 <property name="hexpand">true</property>
-                                <property name="width-request">48</property>
-                                <property name="height-request">48</property>
-                                <property name="margin-bottom">48</property>
-                            </object>
-                        </child>
-                        <child>
-                            <object class="GtkScrolledWindow" id="_results">
-                                <property name="hscrollbar-policy">2</property>
-                                <property name="propagate-natural-height">true</property>
-                                <property name="propagate-natural-width">true</property>
+                                <property name="margin-bottom">12</property>
+                                <property name="margin-start">6</property>
+                                <property name="margin-end">6</property>
                                 <child>
-                                    <object class="GtkListBox" id="_albums">
-                                        <property name="margin-start">18</property>
-                                        <property name="margin-end">18</property>
-                                        <property name="selection-mode">none</property>
-                                        <property name="activate-on-single-click">true</property>
-                                        <style>
-                                            <class name="boxed-list"/>
-                                        </style>
+                                    <object class="AdwSpinner" id="_spinner">
+                                        <property name="margin-top">46</property>
+                                        <property name="halign">3</property>
+                                        <property name="valign">3</property>
+                                        <property name="vexpand">true</property>
+                                        <property name="hexpand">true</property>
+                                        <property name="width-request">48</property>
+                                        <property name="height-request">48</property>
+                                        <property name="margin-bottom">48</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkRevealer" id="_result">
+                                        <property name="transition-type">crossfade</property>
+                                        <child>
+                                            <object class="GtkScrolledWindow">
+                                                <property name="hscrollbar-policy">2</property>
+                                                <property name="propagate-natural-height">true</property>
+                                                <child>
+                                                    <object class="GtkListBox" id="_albums">
+                                                        <property name="margin-start">6</property>
+                                                        <property name="margin-end">6</property>
+                                                        <property name="selection-mode">none</property>
+                                                        <property name="activate-on-single-click">true</property>
+                                                        <style>
+                                                            <class name="boxed-list"/>
+                                                        </style>
+                                                    </object>
+                                                </child>
+                                            </object>
+                                        </child>
                                     </object>
                                 </child>
                             </object>

@@ -6,7 +6,6 @@ namespace JellyTune.Shared.Controls;
 public sealed class MainWindowController : IDisposable
 {
     private readonly IJellyTuneApiService _jellyTuneApiService;
-    private readonly IJellyTuneExtApiService _jellyTuneExtApiService;
     private readonly IConfigurationService _configurationService;
     private readonly IPlayerService _playerService;
     private readonly IFileService _fileService;
@@ -14,14 +13,12 @@ public sealed class MainWindowController : IDisposable
     
     public IConfigurationService ConfigurationService => _configurationService;
     public IJellyTuneApiService JellyTuneApiService => _jellyTuneApiService;
-    public IJellyTuneExtApiService JellyTuneExtApiService => _jellyTuneExtApiService;
     public IPlayerService PlayerService => _playerService;
     public IFileService FileService => _fileService;
 
-    public MainWindowController(IJellyTuneApiService jellyTuneApiService, IJellyTuneExtApiService jellyTuneExtApiService, IConfigurationService configurationService, IPlayerService playerService, IFileService fileService, ApplicationInfo applicationInfo)
+    public MainWindowController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService, IPlayerService playerService, IFileService fileService, ApplicationInfo applicationInfo)
     {
         _jellyTuneApiService = jellyTuneApiService;
-        _jellyTuneExtApiService = jellyTuneExtApiService;
         _configurationService = configurationService;
         _playerService = playerService;
         _fileService = fileService;

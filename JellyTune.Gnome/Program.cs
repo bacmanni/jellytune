@@ -56,13 +56,13 @@ class Program
         Gtk.Module.Initialize();
         Adw.Module.Initialize();
         Gio.Module.Initialize();
+        Secret.Module.Initialize();
         
         var serviceCollection = new ServiceCollection();
         ConfigureServices(_applicationInfo, serviceCollection);
         _serviceProvider = serviceCollection.BuildServiceProvider();
         
         var apiService = _serviceProvider.GetService<IJellyTuneApiService>();
-        var extApiService = _serviceProvider.GetService<IJellyTuneExtApiService>();
         var playerService = _serviceProvider.GetService<IPlayerService>();
         var fileService = _serviceProvider.GetService<IFileService>();
         var configurationService = _serviceProvider.GetService<IConfigurationService>();
@@ -80,7 +80,7 @@ class Program
         var resourceFile = Path.GetFullPath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)) + "/org.bacmanni.jellytune.gresource";
         Gio.Functions.ResourcesRegister(Gio.Functions.ResourceLoad(resourceFile));
         
-        _mainWindowController = new MainWindowController(apiService, extApiService, configurationService, playerService, fileService, _applicationInfo);
+        _mainWindowController = new MainWindowController(apiService, configurationService, playerService, fileService, _applicationInfo);
         
         _application = Adw.Application.New(_applicationInfo.Id, Gio.ApplicationFlags.NonUnique);
         _application.OnActivate += async (sender, args) =>
@@ -151,9 +151,7 @@ class Program
         serviceCollection.AddSingleton<IConfigurationService, ConfigurationService>(
             serviceProvider => new ConfigurationService(_fileSystem: serviceProvider.GetRequiredService<IFileSystem>(), applicationId: _applicationInfo.Id)
         );
-        serviceCollection.AddSingleton<IJellyTuneExtApiService, JellyTuneExtApiService>(
-            serviceProvider => new JellyTuneExtApiService(applicationInfo: _applicationInfo)
-        );
+        
         serviceCollection.AddSingleton<IFileSystem, FileSystem>();
         serviceCollection.AddSingleton<IJellyTuneApiService, JellyTuneApiService>();
         serviceCollection.AddSingleton<IPlayerService, PlayerService>();

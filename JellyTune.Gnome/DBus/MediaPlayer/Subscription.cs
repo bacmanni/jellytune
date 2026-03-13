@@ -1,4 +1,4 @@
-namespace JellyTune.Gnome.MediaPlayer;
+namespace JellyTune.Gnome.DBus.MediaPlayer;
 
 class Subscription : IDisposable
 {

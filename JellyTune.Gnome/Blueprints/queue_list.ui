@@ -9,11 +9,36 @@
             <object class="AdwClamp">
                 <property name="child">
                     <object class="GtkBox">
+                        <property name="margin-top">6</property>
+                        <property name="margin-bottom">6</property>
+                        <property name="margin-start">12</property>
+                        <property name="margin-end">12</property>
                         <property name="orientation">1</property>
-                        <property name="margin-top">24</property>
-                        <property name="margin-start">24</property>
-                        <property name="margin-end">24</property>
-                        <property name="margin-bottom">24</property>
+                        <child>
+                            <object class="GtkBox">
+                                <property name="hexpand">true</property>
+                                <property name="halign">2</property>
+                                <child>
+                                    <object class="GtkBox">
+                                        <property name="spacing">4</property>
+                                        <property name="halign">2</property>
+                                        <property name="hexpand">true</property>
+                                        <style>
+                                            <class name="dimmed"/>
+                                        </style>
+                                        <child>
+                                            <object class="GtkButton" id="_shuffle">
+                                                <property name="tooltip-text">Shuffle tracks</property>
+                                                <property name="icon-name">media-playlist-shuffle-symbolic</property>
+                                                <style>
+                                                    <class name="flat"/>
+                                                </style>
+                                            </object>
+                                        </child>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
                         <child>
                             <object class="GtkListBox" id="_queueList">
                                 <property name="selection-mode">none</property>
