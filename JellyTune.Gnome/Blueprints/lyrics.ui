@@ -5,6 +5,7 @@
         <child>
             <object class="AdwClamp">
                 <property name="maximum-size">500</property>
+                <property name="tightening-threshold">700</property>
                 <child>
                     <object class="AdwToolbarView">
                         <child type="top">
@@ -68,7 +69,7 @@
                                         <property name="orientation">1</property>
                                         <child>
                                             <object class="AdwSpinner" id="_spinner">
-                                                <property name="margin-top">46</property>
+                                                <property name="margin-top">6</property>
                                                 <property name="halign">3</property>
                                                 <property name="valign">3</property>
                                                 <property name="vexpand">true</property>
