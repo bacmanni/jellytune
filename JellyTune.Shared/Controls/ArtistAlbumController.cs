@@ -36,19 +36,7 @@ public class ArtistAlbumController
         
         if (_cancellationTokenSource?.IsCancellationRequested == true) return;
         OnAlbumsChanged.Invoke(this, new ArtistAlbumArgs() { IsLoading = true });
-        Artist = await _jellyTuneApiService.GetArtistAsync(artistId);
         Albums = await _jellyTuneApiService.GetArtistAlbumsAsync(artistId);
-        
-        if (_cancellationTokenSource?.IsCancellationRequested == true) return;
         OnAlbumsChanged.Invoke(this, new ArtistAlbumArgs());
-
-        if (Artist?.HasArtwork == true)
-        {
-            var artwork = await _fileService.GetFileAsync(FileType.Artist, Artist.Id);
-            if (_cancellationTokenSource?.IsCancellationRequested == true) return;
-            
-            ArtWork = artwork;
-            OnAlbumsChanged.Invoke(this, new ArtistAlbumArgs() { UpdateArtwork = true });
-        }
     }
 }

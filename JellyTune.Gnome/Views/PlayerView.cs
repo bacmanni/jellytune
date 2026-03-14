@@ -120,7 +120,9 @@ public class PlayerView : Gtk.Box
                     _play.TooltipText = "Pause track";
                     UpdateTrack();
                     break;
-
+                
+                case PlayerState.LoadedInfo:
+                case PlayerState.LoadedArtwork:
                 case PlayerState.SkipNext:
                 case PlayerState.SkipPrevious:
                     UpdateTrack();

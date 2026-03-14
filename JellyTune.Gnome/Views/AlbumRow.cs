@@ -30,7 +30,7 @@ public partial class AlbumRow : Adw.ActionRow
         
         SetTitle(album.Name);
         SetSubtitle(album.Year.ToString() ?? string.Empty);
-        UpdateArtwork();
+        _ = UpdateArtwork();
     }
 
     public Guid AlbumId => _album.Id;
@@ -44,5 +44,6 @@ public partial class AlbumRow : Adw.ActionRow
         using var bytes = GLib.Bytes.New(albumArt);
         using var texture = Gdk.Texture.NewFromBytes(bytes);
         _albumArt.SetFromPaintable(texture);
+        albumArt = null;
     }
 }

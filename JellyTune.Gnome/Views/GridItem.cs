@@ -70,6 +70,7 @@ public class GridItem : Gtk.Box
         }   
         
         _art.SetFromPaintable(_texture);
+        albumArt = null;
     }
     
     public void Clear()

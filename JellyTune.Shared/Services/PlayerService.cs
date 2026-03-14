@@ -133,6 +133,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
         else
         {
             _artwork = null;
+            PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedArtwork, album, _tracks.ToList()));
         }
     }
 
@@ -163,6 +164,11 @@ public sealed class PlayerService : IPlayerService, IDisposable
             if (_cancellationTokenSource is { IsCancellationRequested: true })
                 return;
             
+            PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedArtwork, album, tracks));
+        }
+        else
+        {
+            _artwork = null;
             PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedArtwork, album, tracks));
         }
     }
@@ -196,7 +202,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
                 }
 
                 if (!string.IsNullOrWhiteSpace(_playSessionId))
-                    _ = _jellyTuneApiService.ResumePlaybackAsync(_playSessionId, trackId, position);
+                    await _jellyTuneApiService.ResumePlaybackAsync(_playSessionId, trackId, position);
                 
                 if (!_networkDisconnected)
                 {

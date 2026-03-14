@@ -24,6 +24,9 @@ public class HttpClientExceptionHandler : DelegatingHandler
                 var response = await base.SendAsync(request, cancellationToken);
                 if (response.StatusCode.Equals(HttpStatusCode.NotFound))
                 {
+                    Console.WriteLine($"Request failed with status code {response.StatusCode}");
+                    response.Content = new StringContent(string.Empty);
+                    response.StatusCode = HttpStatusCode.Accepted;
                     return response;
                 }
 
