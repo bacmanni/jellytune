@@ -10,6 +10,7 @@ using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
 using JellyTune.Gnome.Helpers;
+using Dialog = Adw.Dialog;
 using Object = GObject.Object;
 using Task = System.Threading.Tasks.Task;
 
@@ -98,6 +99,9 @@ public partial class MainWindow : Adw.ApplicationWindow
     [Gtk.Connect] private readonly Gtk.Box _queue_list_footer;
     [Gtk.Connect] private readonly Gtk.Box _playlist_tracks_footer;
 
+    [Gtk.Connect] private readonly Gtk.Button _album_artist_albums;
+    [Gtk.Connect] private readonly Gtk.Button _queue_list_shuffle;
+    
     private MainWindow(Gtk.Builder builder, MainWindowController controller, Adw.Application application) : base(new Adw.Internal.ApplicationWindowHandle(builder.GetPointer("_root"), false))
     {
         //Window Settings
@@ -127,6 +131,8 @@ public partial class MainWindow : Adw.ApplicationWindow
             }
         };
         
+        _album_artist_albums.OnClicked += ShowArtistAlbumsOnClicked;
+        _queue_list_shuffle.OnClicked += QueueListShuffleOnClicked;
         _controller.PlayerService.OnPlayerStateChanged += OnPlayerStateChanged;
 
         // Album list
@@ -140,6 +146,8 @@ public partial class MainWindow : Adw.ApplicationWindow
         _albumController = new AlbumController(_controller.JellyTuneApiService, _controller.ConfigurationService, _controller.PlayerService, _controller.FileService);
         _albumView = new AlbumView(_albumController);
         _album_details_view.SetContent(_albumView);
+
+        _albumController.OnAlbumChanged += AlbumControllerOnAlbumChanged;
         
         // Startup
         _startupController = new StartupController(_controller.JellyTuneApiService, _controller.ConfigurationService);
@@ -188,7 +196,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         _refreshAction.OnActivate += ActRefreshOnActivate;
         AddAction(_refreshAction);
         application.SetAccelsForAction("win.refresh", new string[] { "<Ctrl>F5" });
-     
+
         //Preferences Action
         var actPreferences = Gio.SimpleAction.New("preferences", null);
         actPreferences.OnActivate += ActPreferencesOnActivate;
@@ -242,10 +250,6 @@ public partial class MainWindow : Adw.ApplicationWindow
         actLyrics.OnActivate += ActLyricsOnActivate;
         AddAction(actLyrics);
         application.SetAccelsForAction("win.track_lyrics", new string[] { "<Ctrl>l" });
-   
-        var actArtistAlbum = Gio.SimpleAction.New("artist_albums", VariantType.String);
-        actArtistAlbum.OnActivate += ActArtistAlbumOnActivate;
-        AddAction(actArtistAlbum);
 
         var actOpenAlbum = Gio.SimpleAction.New("open_album", VariantType.String);
         actOpenAlbum.OnActivate += ActOpenAlbumOnActivate;
@@ -280,11 +284,50 @@ public partial class MainWindow : Adw.ApplicationWindow
         _ = UpdateMainMenu();
     }
 
+    private void AlbumControllerOnAlbumChanged(object? sender, AlbumStateArgs e)
+    {
+        if (e is { UpdateAlbum: false, UpdateTracks: false, UpdateTrackState: false, UpdateArtwork: false })
+        {
+            _album_artist_albums.SetSensitive(false);
+        }
+        else if (e.UpdateAlbum)
+        {
+            _album_artist_albums.SetSensitive(true);
+        }
+    }
+
+    private void QueueListShuffleOnClicked(Button sender, EventArgs args)
+    {
+        _queueListController.ShuffleTracks();
+    }
+
+    private void ShowArtistAlbumsOnClicked(Button sender, EventArgs args)
+    {
+        ShowArtistAlbums(_albumController.Album?.ArtistId);
+    }
+
+    private void ShowArtistAlbums(Guid? artistId)
+    {
+        if (artistId == null) return;
+        
+        var artistAlbumView = new ArtistAlbumView(_artistAlbumController);
+        _ = _artistAlbumController.OpenAsync(artistId.Value);
+        artistAlbumView.Present(this);
+        artistAlbumView.OnClosed += ArtistAlbumViewOnClosed;
+    }
+    
     private void ActShortcutOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
     {
         var builder = GtkHelper.BuilderFromFile("shortcuts");
         var shortcutsWindow = (Adw.ShortcutsDialog)builder.GetObject("_root")!;
         shortcutsWindow.Present(this);
+        shortcutsWindow.OnClosed += ShortcutsWindowOnClosed;
+    }
+
+    private void ShortcutsWindowOnClosed(Dialog sender, EventArgs args)
+    {
+        sender.OnClosed -= ShortcutsWindowOnClosed;
+        sender.Dispose();
     }
 
     private void ActOpenAlbumOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
@@ -296,15 +339,10 @@ public partial class MainWindow : Adw.ApplicationWindow
         _album_view.PopToPage(_album_details);
     }
 
-    private void ActArtistAlbumOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
+    private void ArtistAlbumViewOnClosed(Dialog sender, EventArgs args)
     {
-        var artistIdParameter = args.Parameter?.GetString(out var length);
-        if (artistIdParameter == null) return;
-        
-        var artistId = Guid.Parse(artistIdParameter);
-        var artistAlbumView = new ArtistAlbumView(_artistAlbumController);
-        _ = _artistAlbumController.OpenAsync(artistId);
-        artistAlbumView.Present(this);
+        sender.OnClosed -= ArtistAlbumViewOnClosed;
+        sender.Dispose();
     }
 
     private void ActVolumeDownOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
@@ -497,6 +535,13 @@ public partial class MainWindow : Adw.ApplicationWindow
         var lyrics = new LyricsView(controller);
         lyrics.Present(this);
         _ = controller.UpdateAsync();
+        lyrics.OnClosed += LyricsOnClosed;
+    }
+
+    private void LyricsOnClosed(Dialog sender, EventArgs args)
+    {
+        sender.OnClosed -= LyricsOnClosed;
+        sender.Dispose();
     }
 
     private void PlayerControllerOnShowPlaylistClicked(object? sender, AlbumArgs e)
@@ -626,7 +671,6 @@ public partial class MainWindow : Adw.ApplicationWindow
         _controller.PlayerService.OnPlayerStateChanged -= OnPlayerStateChanged;
         _search_field.OnSearchChanged -= SearchFieldOnSearchChanged;
         
-        _albumController.Dispose();
         _playerController.Dispose();
         _albumController.Dispose();
         _searchController.Dispose();

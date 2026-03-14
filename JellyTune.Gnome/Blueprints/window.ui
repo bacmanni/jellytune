@@ -146,6 +146,12 @@
                           <object class="AdwWindowTitle">
                           </object>
                         </property>
+                        <child type="end">
+                          <object class="GtkButton" id="_queue_list_shuffle">
+                            <property name="tooltip-text">Shuffle tracks</property>
+                            <property name="icon-name">media-playlist-shuffle-symbolic</property>
+                          </object>
+                        </child>
                       </object>
                     </child>
                     <child type="bottom">
@@ -170,6 +176,15 @@
                     <property name="bottom-bar-style">raised</property>
                     <child type="top">
                       <object class="AdwHeaderBar">
+                        <child type="end">
+                          <object class="GtkButton" id="_album_artist_albums">
+                            <property name="tooltip-text">Artist albums</property>
+                            <property name="icon-name">view-list-symbolic</property>
+                            <style>
+                              <class name="flat"/>
+                            </style>
+                          </object>
+                        </child>
                         <property name="title-widget">
                           <object class="AdwWindowTitle">
                           </object>

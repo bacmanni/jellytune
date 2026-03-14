@@ -21,7 +21,6 @@ public class AlbumView : Gtk.ScrolledWindow
     [Gtk.Connect] private readonly Gtk.ListBox _tracks;
     [Gtk.Connect] private readonly Adw.Spinner _spinner;
     [Gtk.Connect] private readonly Adw.Clamp _result;
-    [Gtk.Connect] private readonly Gtk.Button _albums;
 
     private AlbumView(Gtk.Builder builder) : base(
         new ScrolledWindowHandle(builder.GetPointer("_root"), false))
@@ -112,12 +111,6 @@ public class AlbumView : Gtk.ScrolledWindow
         
         if (_controller.Album?.Year != null)
             _albumYear.SetText(_controller.Album.Year.Value.ToString());
-        
-        _albums.SetActionTargetValue(Variant.NewString(_controller.Album?.ArtistId?.ToString() ?? string.Empty));
-
-        // Disable albums if 1 or less is found
-        var disableAlbums = _controller.Album?.ArtistAlbumCount > 1;
-        _albums.SetSensitive(disableAlbums);
     }
 
     private void UpdateArtwork()

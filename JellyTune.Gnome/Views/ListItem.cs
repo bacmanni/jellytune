@@ -16,8 +16,7 @@ public class ListItem : Gtk.Box
 
     private FileType _fileType;
     private CancellationTokenSource? _cancellationTokenSource;
-    private Gdk.Texture? _texture;
-    
+
     private ListItem(Gtk.Builder builder) : base(
         new BoxHandle(builder.GetPointer("_root"), false))
     {
@@ -40,10 +39,7 @@ public class ListItem : Gtk.Box
         _title.SetLabel(row.Title);
         
         _art.Clear();
-        _texture?.RunDispose();
-        _texture?.Dispose();
-        _texture = null;
-        
+
         if (!row.HasArtwork)
             return;
 
@@ -62,16 +58,8 @@ public class ListItem : Gtk.Box
             return;
         
         using var bytes = GLib.Bytes.New(albumArt);
-        _texture = Gdk.Texture.NewFromBytes(bytes);
-
-        
-        if (_cancellationTokenSource is { IsCancellationRequested: true })
-        {
-            _texture.Dispose();
-            return;
-        }
-
-        _art.SetFromPaintable(_texture);
+        using var texture = Gdk.Texture.NewFromBytes(bytes);
+        _art.SetFromPaintable(texture);
         albumArt = null;
     }
     
@@ -79,8 +67,6 @@ public class ListItem : Gtk.Box
     {
         _cancellationTokenSource?.Cancel();
         _art.Clear();
-        _texture?.Dispose();
-        _texture = null;
     }
 
     public override void Dispose()

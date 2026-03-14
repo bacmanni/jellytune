@@ -16,8 +16,7 @@ public class GridItem : Gtk.Box
     
     private FileType _fileType;
     private CancellationTokenSource? _cancellationTokenSource;
-    private Gdk.Texture? _texture;
-    
+
     private GridItem(Gtk.Builder builder) : base(
         new BoxHandle(builder.GetPointer("_root"), false))
     {
@@ -40,8 +39,6 @@ public class GridItem : Gtk.Box
         _description.SetLabel(row.Description);
         
         _art.Clear();
-        _texture?.RunDispose();
-        _texture = null;
         
         if (!row.HasArtwork)
             return;
@@ -61,15 +58,8 @@ public class GridItem : Gtk.Box
             return;
         
         using var bytes = GLib.Bytes.New(albumArt);
-        _texture = Gdk.Texture.NewFromBytes(bytes);
-
-        if (_cancellationTokenSource is { IsCancellationRequested: true })
-        {
-            _texture.Dispose();
-            return;
-        }   
-        
-        _art.SetFromPaintable(_texture);
+        using var texture = Gdk.Texture.NewFromBytes(bytes);
+        _art.SetFromPaintable(texture);
         albumArt = null;
     }
     
@@ -77,8 +67,6 @@ public class GridItem : Gtk.Box
     {
         _cancellationTokenSource?.Cancel();
         _art.Clear();
-        _texture?.Dispose();
-        _texture = null;
     }
     
     public override void Dispose()

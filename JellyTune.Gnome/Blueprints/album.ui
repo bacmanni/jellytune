@@ -98,26 +98,6 @@
                                                         </child>
                                                     </object>
                                                 </child>
-                                                <child>
-                                                    <object class="GtkBox">
-                                                        <property name="spacing">4</property>
-                                                        <property name="margin-start">4</property>
-                                                        <property name="valign">end</property>
-                                                        <style>
-                                                            <class name="dimmed"/>
-                                                        </style>
-                                                        <child>
-                                                            <object class="GtkButton" id="_albums">
-                                                                <property name="tooltip-text">Artist albums</property>
-                                                                <property name="icon-name">view-list-symbolic</property>
-                                                                <property name="action-name">win.artist_albums</property>
-                                                                <style>
-                                                                    <class name="flat"/>
-                                                                </style>
-                                                            </object>
-                                                        </child>
-                                                    </object>
-                                                </child>
                                             </object>
                                         </child>
                                     </object>
