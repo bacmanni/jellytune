@@ -146,6 +146,12 @@
                           <object class="AdwWindowTitle">
                           </object>
                         </property>
+                        <child type="start">
+                          <object class="GtkButton" id="_queue_list_open_album">
+                            <property name="tooltip-text">Playing album</property>
+                            <property name="icon-name">multimedia-player-symbolic</property>
+                          </object>
+                        </child>
                         <child type="end">
                           <object class="GtkButton" id="_queue_list_shuffle">
                             <property name="tooltip-text">Shuffle tracks</property>

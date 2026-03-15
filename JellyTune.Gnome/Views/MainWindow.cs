@@ -101,7 +101,7 @@ public partial class MainWindow : Adw.ApplicationWindow
 
     [Gtk.Connect] private readonly Gtk.Button _album_artist_albums;
     [Gtk.Connect] private readonly Gtk.Button _queue_list_shuffle;
-    
+    [Gtk.Connect] private readonly Gtk.Button _queue_list_open_album;
     private MainWindow(Gtk.Builder builder, MainWindowController controller, Adw.Application application) : base(new Adw.Internal.ApplicationWindowHandle(builder.GetPointer("_root"), false))
     {
         //Window Settings
@@ -133,6 +133,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         
         _album_artist_albums.OnClicked += ShowArtistAlbumsOnClicked;
         _queue_list_shuffle.OnClicked += QueueListShuffleOnClicked;
+        _queue_list_open_album.OnClicked += QueueListOpenAlbumOnClicked;
         _controller.PlayerService.OnPlayerStateChanged += OnPlayerStateChanged;
 
         // Album list
@@ -282,6 +283,15 @@ public partial class MainWindow : Adw.ApplicationWindow
         
         OnNotify += OnOnNotify;
         _ = UpdateMainMenu();
+    }
+
+    private void QueueListOpenAlbumOnClicked(Button sender, EventArgs args)
+    {
+        var albumId = _playerController.PlayerService.GetSelectedAlbum()?.Id;
+        if (albumId == null) return;
+        
+        _ = _albumController.OpenAsync(albumId.Value);
+        _album_view.PopToPage(_album_details);
     }
 
     private void AlbumControllerOnAlbumChanged(object? sender, AlbumStateArgs e)
