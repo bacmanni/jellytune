@@ -28,7 +28,7 @@
               <object class="AdwNavigationPage" id="_main_view">
                 <property name="hexpand">true</property>
                 <property name="vexpand">true</property>
-                <property name="tag">_main_view</property>
+                <property name="tag">main_view</property>
                 <property name="child">
                   <object class="AdwToolbarView" id="_album_list_view">
                     <property name="top-bar-style">raised</property>
@@ -44,9 +44,10 @@
                         </child>
                         <child type="end">
                           <object class="GtkMenuButton" id="_menuButton">
-                            <property name="tooltip-text">Main Menu</property>
+                            <property name="tooltip-text" translatable="yes">Main Menu</property>
                             <property name="icon-name">open-menu-symbolic</property>
                             <property name="menu-model">main_menu</property>
+                            <property name="primary">true</property>
                           </object>
                         </child>
                         <property name="title-widget">
@@ -103,7 +104,7 @@
             </child>
             <child>
               <object class="AdwNavigationPage" id="_search_albums">
-                <property name="tag">_search_albums</property>
+                <property name="tag">search_albums</property>
                 <property name="child">
                   <object class="AdwToolbarView" id="_search_albums_view">
                     <property name="bottom-bar-style">raised</property>
@@ -132,7 +133,7 @@
             </child>
             <child>
               <object class="AdwNavigationPage" id="_queue_list">
-                <property name="tag">_queue_list</property>
+                <property name="tag">queue_list</property>
                 <child type="top">
                   <object class="AdwHeaderBar">
                   </object>
@@ -211,7 +212,7 @@
             </child>
             <child>
               <object class="AdwNavigationPage" id="_playlist_tracks">
-                <property name="tag">_playlist_tracks</property>
+                <property name="tag">playlist_tracks</property>
                 <child type="top">
                   <object class="AdwHeaderBar">
                   </object>

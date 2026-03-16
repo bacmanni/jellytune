@@ -291,7 +291,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         if (albumId == null) return;
         
         _ = _albumController.OpenAsync(albumId.Value);
-        _album_view.PopToPage(_album_details);
+        _album_view.Push(_album_details);
     }
 
     private void AlbumControllerOnAlbumChanged(object? sender, AlbumStateArgs e)
@@ -345,8 +345,10 @@ public partial class MainWindow : Adw.ApplicationWindow
         var albumIdParameter = args.Parameter.GetString(out var length);
         var albumId = Guid.Parse(albumIdParameter);
         if (albumId == _albumController.Album?.Id) return;
+        
+        ResetNavigationView();
         _ = _albumController.OpenAsync(albumId);
-        _album_view.PopToPage(_album_details);
+        _album_view.Add(_album_details);
     }
 
     private void ArtistAlbumViewOnClosed(Dialog sender, EventArgs args)
@@ -396,9 +398,7 @@ public partial class MainWindow : Adw.ApplicationWindow
 
     private void PlaylistControllerOnPlaylistClicked(object? sender, Guid id)
     {
-        var visiblePageName = _album_view.GetVisiblePage()?.Tag;
-        if (visiblePageName == "_playlist_tracks") return;
-
+        ResetNavigationView();
         _ = _playlistTracksController.OpenPlaylist(id);
         _album_view.Push(_playlist_tracks);
     }
@@ -536,7 +536,12 @@ public partial class MainWindow : Adw.ApplicationWindow
 
     private void ResetNavigationView()
     {
-        //_album_view.PopToPage(_)
+        var visibleTag = _album_view.VisiblePageTag;
+        while (visibleTag != "main_view")
+        {
+            _album_view.Pop();
+            visibleTag = _album_view.VisiblePageTag;
+        }
     }
     
     private void PlayerControllerOnShowShowLyricsClicked(object? sender, AlbumArgs e)
@@ -557,7 +562,6 @@ public partial class MainWindow : Adw.ApplicationWindow
     private void PlayerControllerOnShowPlaylistClicked(object? sender, AlbumArgs e)
     {
         ResetNavigationView();
-        
         _queueListController.Open();
         _album_view.Push(_queue_list);
     }
@@ -593,6 +597,13 @@ public partial class MainWindow : Adw.ApplicationWindow
         about.Designers = _controller.ApplicationInfo.Designers;
         about.Artists = _controller.ApplicationInfo.Artists;
         about.Present(this);
+        about.OnClosed += AboutOnClosed;
+    }
+
+    private void AboutOnClosed(Dialog sender, EventArgs args)
+    {
+        sender.OnClosed -= AboutOnClosed;
+        sender.Dispose();
     }
 
     /// <summary>
