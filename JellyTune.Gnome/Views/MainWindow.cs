@@ -99,6 +99,7 @@ public partial class MainWindow : Adw.ApplicationWindow
     [Gtk.Connect] private readonly Gtk.Box _queue_list_footer;
     [Gtk.Connect] private readonly Gtk.Box _playlist_tracks_footer;
 
+    // Navigation view buttons
     [Gtk.Connect] private readonly Gtk.Button _album_artist_albums;
     [Gtk.Connect] private readonly Gtk.Button _queue_list_shuffle;
     [Gtk.Connect] private readonly Gtk.Button _queue_list_open_album;
@@ -289,7 +290,7 @@ public partial class MainWindow : Adw.ApplicationWindow
     {
         var albumId = _playerController.PlayerService.GetSelectedAlbum()?.Id;
         if (albumId == null) return;
-        
+
         _ = _albumController.OpenAsync(albumId.Value);
         _album_view.Push(_album_details);
     }
@@ -313,11 +314,7 @@ public partial class MainWindow : Adw.ApplicationWindow
 
     private void ShowArtistAlbumsOnClicked(Button sender, EventArgs args)
     {
-        ShowArtistAlbums(_albumController.Album?.ArtistId);
-    }
-
-    private void ShowArtistAlbums(Guid? artistId)
-    {
+        var artistId = _albumController.Album?.ArtistId;
         if (artistId == null) return;
         
         var artistAlbumView = new ArtistAlbumView(_artistAlbumController);
@@ -325,7 +322,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         artistAlbumView.Present(this);
         artistAlbumView.OnClosed += ArtistAlbumViewOnClosed;
     }
-    
+
     private void ActShortcutOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
     {
         var builder = GtkHelper.BuilderFromFile("shortcuts");
@@ -348,7 +345,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         
         ResetNavigationView();
         _ = _albumController.OpenAsync(albumId);
-        _album_view.Add(_album_details);
+        _album_view.Push(_album_details);
     }
 
     private void ArtistAlbumViewOnClosed(Dialog sender, EventArgs args)
