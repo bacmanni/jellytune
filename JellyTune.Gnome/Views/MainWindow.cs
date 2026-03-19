@@ -588,7 +588,6 @@ public partial class MainWindow : Adw.ApplicationWindow
         about.DeveloperName = _controller.ApplicationInfo.Developer;
         about.Version = $"{Assembly.GetExecutingAssembly().GetName().Version?.Major}.{Assembly.GetExecutingAssembly().GetName().Version?.Minor}.{Assembly.GetExecutingAssembly().GetName().Version?.Build}";
         about.Website = _controller.ApplicationInfo.Website;
-        about.Copyright = _controller.ApplicationInfo.Copyright;
         about.IssueUrl = _controller.ApplicationInfo.IssueUrl;
         about.LicenseType = License.Gpl30;
         about.Designers = _controller.ApplicationInfo.Designers;
@@ -627,9 +626,7 @@ public partial class MainWindow : Adw.ApplicationWindow
     
     private void ActShowSearchBarOnOnActivate(Gio.SimpleAction sender, Gio.SimpleAction.ActivateSignalArgs args)
     {
-        var visiblePageName = _album_view.GetVisiblePage()?.Tag;
-        if (visiblePageName != "_search_albums")
-            _album_view.Pop();
+        ResetNavigationView();
         
         _album_view.Push(_search_albums);
         _search_field.SetText(string.Empty);

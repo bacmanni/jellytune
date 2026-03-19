@@ -47,7 +47,7 @@ public class PlayerView : Gtk.Box
         
         if (_controller.SelectedTrack != null)
         {
-            _track.SetText(_controller.SelectedTrack.Name);
+            _track.SetText(GLib.Markup.EscapeText(_controller.SelectedTrack.Name));
             _lyrics.SetSensitive(_controller.SelectedTrack.HasLyrics);
             _skipForward.SetSensitive(_controller.PlayerService.HasNextTrack());
             _skipBackward.SetSensitive(_controller.PlayerService.HasPreviousTrack());
