@@ -44,7 +44,7 @@
         </child>
         <child>
             <object class="AdwShortcutsSection">
-                <property name="title" translatable="yes">Playing</property>
+                <property name="title" translatable="yes">Player</property>
                 <child>
                     <object class="AdwShortcutsItem">
                         <property name="title" translatable="yes">Play/Pause</property>

@@ -71,8 +71,27 @@ public class Configuration
     /// </summary>
     public int? WindowHeight { get; set; }
 
+    #region Player
+    
     /// <summary>
-    /// Show extended controls (seek/volume)
+    /// Show button for lyrics dialog
     /// </summary>
-    public bool ShowExtendedControls { get; set; } = false;
+    public bool ShowLyrics { get; set; } = true;
+    
+    /// <summary>
+    /// Show button for seek control
+    /// </summary>
+    public bool ShowSeek {  get; set; } = false;
+    
+    /// <summary>
+    /// Show button for volume control
+    /// </summary>
+    public bool ShowVolume {  get; set; } = false;
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    public bool ShowCurrentAlbum {  get; set; } = false;
+    
+    #endregion
 }

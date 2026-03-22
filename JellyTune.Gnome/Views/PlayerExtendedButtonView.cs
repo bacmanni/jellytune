@@ -30,7 +30,8 @@ public partial class PlayerExtendedButtonView : Gtk.Box
         _controller.PlayerService.OnPlayerVolumeChanged += PlayerServiceOnPlayerVolumeChanged;
         _controller.ConfigurationService.OnSaved += ConfigurationServiceOnSaved;
         
-        SetVisible(_controller.ConfigurationService.Get().ShowExtendedControls);
+        _position.SetVisible(_controller.ConfigurationService.Get().ShowSeek);
+        _volume.SetVisible(_controller.ConfigurationService.Get().ShowVolume);
     }
 
     private void ConfigurationServiceOnSaved(object? sender, EventArgs e)
@@ -38,7 +39,8 @@ public partial class PlayerExtendedButtonView : Gtk.Box
         _controller.CloseExtension();
         _position.Active = false;
         _volume.Active = false;
-        SetVisible(_controller.ConfigurationService.Get().ShowExtendedControls);
+        _position.SetVisible(_controller.ConfigurationService.Get().ShowSeek);
+        _volume.SetVisible(_controller.ConfigurationService.Get().ShowVolume);
     }
 
     private void PlayerServiceOnPlayerVolumeChanged(object? sender, PlayerVolumeArgs e)

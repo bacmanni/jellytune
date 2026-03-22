@@ -3,6 +3,7 @@ using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
 using JellyTune.Gnome.Helpers;
+using Button = Gtk.Button;
 
 namespace JellyTune.Gnome.Views;
 
@@ -20,6 +21,7 @@ public class PlayerView : Gtk.Box
     [Gtk.Connect] private readonly Gtk.Button _play;
     [Gtk.Connect] private readonly Gtk.Button _skipForward;
     [Gtk.Connect] private readonly Gtk.Button _lyrics;
+    [Gtk.Connect] private readonly Gtk.Button _album;
     [Gtk.Connect] private readonly Gtk.Label _track;
     [Gtk.Connect] private readonly Gtk.Label _artist;
 
@@ -79,8 +81,10 @@ public class PlayerView : Gtk.Box
         _play.OnClicked += PlayerPlayOnClicked;
         _skipForward.OnClicked += SkipForwardOnClicked;
         _lyrics.OnClicked += LyricsOnOnClicked;
+        _album.OnClicked += AlbumOnClicked;
         _controller.PlayerService.OnPlayerStateChanged += OnPlayerStateChanged;
-
+        _controller.ConfigurationService.OnSaved += ConfigurationServiceOnSaved;
+        
         var click = Gtk.GestureClick.New();
         _albumArt.AddController(click);
         click.OnReleased += (sender, args) =>
@@ -94,6 +98,26 @@ public class PlayerView : Gtk.Box
         {
             _controller.ShowPlaylist();
         };
+
+        _lyrics.SetVisible(_controller.ConfigurationService.Get().ShowLyrics);
+        _album.SetVisible(_controller.ConfigurationService.Get().ShowCurrentAlbum);
+    }
+
+    private void AlbumOnClicked(Button sender, EventArgs args)
+    {
+        if (GetRoot() is Gtk.Window win)
+        {
+            var albumId = _controller.PlayerService.GetSelectedAlbum()?.Id;
+            if (!albumId.HasValue) return;
+            
+            win.ActivateAction("win.open_album", GLib.Variant.NewString(albumId.ToString()));
+        }
+    }
+
+    private void ConfigurationServiceOnSaved(object? sender, EventArgs e)
+    {
+        _lyrics.SetVisible(_controller.ConfigurationService.Get().ShowLyrics);
+        _album.SetVisible(_controller.ConfigurationService.Get().ShowCurrentAlbum);
     }
 
     private void LyricsOnOnClicked(Gtk.Button sender, EventArgs args)
@@ -133,6 +157,7 @@ public class PlayerView : Gtk.Box
 
     public override void Dispose()
     {
+        _controller.ConfigurationService.OnSaved -= ConfigurationServiceOnSaved;
         _controller.PlayerService.OnPlayerStateChanged -= OnPlayerStateChanged;
         base.Dispose();
     }

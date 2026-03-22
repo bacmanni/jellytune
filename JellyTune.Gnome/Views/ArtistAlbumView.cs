@@ -69,4 +69,11 @@ public class ArtistAlbumView : Adw.Dialog
             _result.SetRevealChild(true);
         });
     }
+
+    public override void Dispose()
+    {
+        _controller.OnAlbumsChanged -= ControllerOnAlbumsChanged;
+        _albums.OnRowActivated -= AlbumsOnRowActivated;
+        base.Dispose();
+    }
 }

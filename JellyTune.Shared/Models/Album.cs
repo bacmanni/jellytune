@@ -9,5 +9,4 @@ public class Album()
     public int? Year { get; set; }
     public TimeSpan? Runtime { get; set; }
     public bool HasArtwork { get; set; }
-    public int? ArtistAlbumCount { get; set; }
 }

@@ -18,7 +18,7 @@ public partial class TrackRow : Adw.ActionRow
     [Gtk.Connect] private readonly Gtk.Image _albumArt;
     [Gtk.Connect] private readonly Gtk.Label _runtime;
     [Gtk.Connect] private readonly Gtk.Label _number;
-    [Gtk.Connect] private readonly Gtk.Button _queue;
+
     public Guid TrackId => _track.Id;
 
     private TrackRow(Gtk.Builder builder) : base(

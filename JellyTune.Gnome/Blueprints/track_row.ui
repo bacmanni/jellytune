@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <interface>
     <object class="AdwActionRow" id="_root">
+        <style>
+            <class name="track-row"/>
+        </style>
         <property name="title-lines">1</property>
         <child type="prefix">
             <object class="GtkLabel" id="_number">
@@ -11,7 +14,6 @@
                 <property name="visible">false</property>
                 <property name="overflow">hidden</property>
                 <style>
-                    <class name="icon-dropshadow"/>
                     <class name="album-art-small"/>
                 </style>
                 <property name="pixel-size">40</property>
@@ -29,14 +31,6 @@
                         <property name="visible">false</property>
                     </object>
                 </child>
-            </object>
-        </child>
-        <child type="suffix">
-            <object class="GtkButton" id="_queue">
-                <property name="visible">false</property>
-                <style>
-                    <class name="circular"/>
-                </style>
             </object>
         </child>
         <child type="suffix">

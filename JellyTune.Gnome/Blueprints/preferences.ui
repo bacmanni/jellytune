@@ -30,16 +30,35 @@
                 </child>
                 <child>
                     <object class="AdwPreferencesGroup">
-                        <property name="title" translatable="yes">View</property>
+                        <property name="title" translatable="yes">List</property>
                         <child>
                             <object class="AdwSwitchRow" id="_showListSeparator">
                                 <property name="title" translatable="yes">Show list separator</property>
                             </object>
                         </child>
+                    </object>
+                </child>
+                <child>
+                    <object class="AdwPreferencesGroup">
+                        <property name="title" translatable="yes">Player</property>
                         <child>
-                            <object class="AdwSwitchRow" id="_showExtendedControls">
-                                <property name="title" translatable="yes">Show extended controls</property>
-                                <property name="subtitle" translatable="yes">Buttons for seek and volume</property>
+                            <object class="AdwSwitchRow" id="_showLyrics">
+                                <property name="title" translatable="yes">Show lyrics</property>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="AdwSwitchRow" id="_showSeek">
+                                <property name="title" translatable="yes">Show seek</property>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="AdwSwitchRow" id="_showVolume">
+                                <property name="title" translatable="yes">Show volume</property>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="AdwSwitchRow" id="_showPlayingAlbum">
+                                <property name="title" translatable="yes">Show playing album</property>
                             </object>
                         </child>
                     </object>

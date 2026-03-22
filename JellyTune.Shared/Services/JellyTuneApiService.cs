@@ -360,26 +360,11 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
         if (baseItem == null)
             throw new ArgumentException($"No album found with id {albumId}");
         
-        var artistId = baseItem.AlbumArtists?.FirstOrDefault()?.Id 
-                       ?? baseItem.ArtistItems?.FirstOrDefault()?.Id;
-
-        var queryResult = await _jellyfinApiClient.Items.GetAsync(configuration =>
-        {
-            configuration.QueryParameters.StartIndex = 0;
-            configuration.QueryParameters.Recursive = true;
-            configuration.QueryParameters.Fields = [ItemFields.PrimaryImageAspectRatio, ItemFields.SortName];
-            configuration.QueryParameters.AlbumArtistIds = [artistId];
-            configuration.QueryParameters.IncludeItemTypes = [ BaseItemKind.MusicAlbum ];
-            configuration.QueryParameters.Limit = 0;
-        });
-        
-        var albumCount = queryResult?.TotalRecordCount;
         var albumResult = new Models.Album()
         {
             Id = baseItem.Id.GetValueOrDefault(),
             Artist = baseItem.AlbumArtist ?? "",
             ArtistId = baseItem?.AlbumArtists?.FirstOrDefault()?.Id ?? baseItem?.ArtistItems?.FirstOrDefault()?.Id,
-            ArtistAlbumCount = albumCount,
             Name = baseItem.Name ?? "",
             Year = baseItem.ProductionYear,
             Runtime = baseItem.RunTimeTicks.HasValue ? new TimeSpan(baseItem.RunTimeTicks.Value) : null,

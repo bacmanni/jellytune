@@ -28,7 +28,7 @@ public partial class AlbumRow : Adw.ActionRow
         Activatable = true;
         CanFocus = false;
         
-        SetTitle(GLib.Markup.EscapeText(album.Name));
+        SetTitle(album.Name);
         SetSubtitle(album.Year.ToString() ?? string.Empty);
         _ = UpdateArtwork();
     }

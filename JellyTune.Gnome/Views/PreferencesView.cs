@@ -20,8 +20,11 @@ public partial class PreferencesView : Adw.PreferencesDialog
     [Gtk.Connect] private readonly Adw.SwitchRow _cacheList;
     [Gtk.Connect] private readonly Adw.SwitchRow _cacheArtwork;
     [Gtk.Connect] private readonly Adw.SwitchRow _showListSeparator;
-    [Gtk.Connect] private readonly Adw.SwitchRow _showExtendedControls;
-
+    [Gtk.Connect] private readonly Adw.SwitchRow _showSeek;
+    [Gtk.Connect] private readonly Adw.SwitchRow _showVolume;
+    [Gtk.Connect] private readonly Adw.SwitchRow _showPlayingAlbum;
+    [Gtk.Connect] private readonly Adw.SwitchRow _showLyrics;
+    
     public bool Refresh { get; set; } = false;
     public string? Password { get; set; } = null;
     
@@ -42,7 +45,10 @@ public partial class PreferencesView : Adw.PreferencesDialog
             configuration.CacheListData = _cacheList.GetActive();
             configuration.CacheAlbumArt = _cacheArtwork.GetActive();
             configuration.ShowListSeparator = _showListSeparator.GetActive();
-            configuration.ShowExtendedControls = _showExtendedControls.GetActive();
+            configuration.ShowLyrics = _showLyrics.GetActive();
+            configuration.ShowSeek = _showSeek.GetActive();
+            configuration.ShowVolume = _showVolume.GetActive();
+            configuration.ShowCurrentAlbum = _showPlayingAlbum.GetActive();
 
             Refresh = _accountController.HasChanges();
             configuration.ServerUrl = _accountController.ServerUrl;
@@ -97,7 +103,10 @@ public partial class PreferencesView : Adw.PreferencesDialog
         _cacheArtwork.SetActive(configuration.CacheAlbumArt);
         _showListSeparator.SetActive(configuration.ShowListSeparator);
         
-        _showExtendedControls.SetActive(configuration.ShowExtendedControls);
+        _showLyrics.SetActive(configuration.ShowLyrics);
+        _showSeek.SetActive(configuration.ShowSeek);
+        _showVolume.SetActive(configuration.ShowVolume);
+        _showPlayingAlbum.SetActive(configuration.ShowCurrentAlbum);
     }
 
     public override void Dispose()
