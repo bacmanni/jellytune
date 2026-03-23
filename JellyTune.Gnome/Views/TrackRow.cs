@@ -41,7 +41,7 @@ public partial class TrackRow : Adw.ActionRow
             _number.SetVisible(false);
             _albumArt.SetVisible(true);
             
-            SetSubtitle(_track.Artist);
+            SetSubtitle(GLib.Markup.EscapeText(_track.Artist));
             
             if (_track.HasArtwork)
                 _ = UpdateArtwork();
