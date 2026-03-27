@@ -98,6 +98,7 @@
                                         <child>
                                             <object class="GtkButton" id="_album">
                                                 <property name="halign">2</property>
+                                                <property name="valign">start</property>
                                                 <property name="icon-name">multimedia-player-symbolic</property>
                                                 <property name="tooltip-text">Playing album</property>
                                                 <property name="has-frame">false</property>

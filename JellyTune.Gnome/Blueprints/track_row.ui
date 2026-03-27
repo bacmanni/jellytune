@@ -10,13 +10,19 @@
             </object>
         </child>
         <child type="prefix">
-            <object class="GtkImage" id="_albumArt">
-                <property name="visible">false</property>
-                <property name="overflow">hidden</property>
-                <style>
-                    <class name="album-art-small"/>
-                </style>
-                <property name="pixel-size">40</property>
+            <object class="GtkBox">
+                <child>
+                    <object class="GtkImage" id="_albumArt">
+                        <property name="margin-top">5</property>
+                        <property name="visible">false</property>
+                        <property name="overflow">hidden</property>
+                        <property name="valign">start</property>
+                        <style>
+                            <class name="album-art-small"/>
+                        </style>
+                        <property name="pixel-size">40</property>
+                    </object>
+                </child>
             </object>
         </child>
         <child type="prefix">

@@ -5,6 +5,8 @@
         <child type="prefix">
             <object class="GtkImage" id="_albumArt">
                 <property name="overflow">hidden</property>
+                <property name="margin-top">5</property>
+                <property name="valign">start</property>
                 <style>
                     <class name="icon-dropshadow"/>
                     <class name="album-art-small"/>
