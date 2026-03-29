@@ -52,6 +52,7 @@
                         </child>
                         <property name="title-widget">
                           <object class="AdwViewSwitcher" id="_switcher_title">
+                            <property name="visible">false</property>
                             <property name="stack">_main_stack</property>
                             <property name="policy">1</property>
                           </object>
