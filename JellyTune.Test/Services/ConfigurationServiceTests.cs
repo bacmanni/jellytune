@@ -18,7 +18,7 @@ public class ConfigurationServiceTests
     {
         _applicationId = "test.application.id";
         _mockFileSystem  = new Mock<IFileSystem>();
-        _configurationService = new ConfigurationService(_mockFileSystem.Object, _applicationId);
+        _configurationService = new ConfigurationService(_mockFileSystem.Object, _applicationId, "config", "cache");
     }
 
     [Fact]

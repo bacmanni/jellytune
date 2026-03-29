@@ -8,7 +8,7 @@ using JellyTune.Shared.Models;
 
 namespace JellyTune.Shared.Services;
 
-public class ConfigurationService(IFileSystem _fileSystem, string applicationId) : IConfigurationService
+public class ConfigurationService(IFileSystem _fileSystem, string applicationId, string? configurationDir, string? cacheDir) : IConfigurationService
 {
     private readonly Configuration _configuration = new();
 
@@ -60,8 +60,6 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId)
                 }
             }
         }
-
-        OnLoaded?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -73,22 +71,8 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId)
         var platform = GetOsPlatform();
         if (platform == OSPlatform.Linux)
         {
-            // Running inside flatpak
-            if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("FLATPAK_ID")))
-            {
-                Console.WriteLine("Using flatpak config directory");
-                return $"~/.var/app/{applicationId}/config";
-            }
-            
-            Console.WriteLine("Using default config directory");
-            var configHome = Environment.GetEnvironmentVariable("XDG_CONFIG_HOME");
-            if (string.IsNullOrEmpty(configHome))
-            {
-                var home = Environment.GetEnvironmentVariable("HOME");
-                configHome = Path.Combine(home, ".config", applicationId);
-            }
-
-            return configHome;
+            Console.WriteLine($"Using configuration: {configurationDir}");
+            return configurationDir;
         }
         else if (platform == OSPlatform.OSX)
         {
@@ -107,22 +91,8 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId)
         var platform = GetOsPlatform();
         if (platform == OSPlatform.Linux)
         {
-            // Running inside flatpak
-            if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("FLATPAK_ID")))
-            {
-                Console.WriteLine("Using flatpak cache directory");
-                return $"~/.var/app/{applicationId}/cache";
-            }
-
-            Console.WriteLine("Using default cache directory");
-            var configHome = Environment.GetEnvironmentVariable("XDG_CACHE_HOME");
-            if (string.IsNullOrEmpty(configHome))
-            {
-                var home = Environment.GetEnvironmentVariable("HOME");
-                configHome = Path.Combine(home, ".cache", applicationId);
-            }
-
-            return configHome;
+            Console.WriteLine($"Using cache: {cacheDir}");
+            return cacheDir;
         }
         else if (platform == OSPlatform.OSX)
         {

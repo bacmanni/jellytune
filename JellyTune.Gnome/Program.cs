@@ -149,7 +149,7 @@ class Program
 
         // Project related
         serviceCollection.AddSingleton<IConfigurationService, ConfigurationService>(
-            serviceProvider => new ConfigurationService(_fileSystem: serviceProvider.GetRequiredService<IFileSystem>(), applicationId: _applicationInfo.Id)
+            serviceProvider => new ConfigurationService(_fileSystem: serviceProvider.GetRequiredService<IFileSystem>(), applicationId: _applicationInfo.Id, GLib.Functions.GetUserConfigDir(), GLib.Functions.GetUserCacheDir())
         );
         
         serviceCollection.AddSingleton<IFileSystem, FileSystem>();
