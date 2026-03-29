@@ -74,6 +74,12 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId)
         var platform = GetOsPlatform();
         if (platform == OSPlatform.Linux)
         {
+            // Running inside flatpak
+            if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("FLATPAK_ID")))
+            {
+                return $"~/.var/app/{applicationId}/config/jellytune";
+            }
+            
             var configHome = Environment.GetEnvironmentVariable("XDG_CONFIG_HOME");
             if (string.IsNullOrEmpty(configHome))
             {
@@ -100,6 +106,12 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId)
         var platform = GetOsPlatform();
         if (platform == OSPlatform.Linux)
         {
+            // Running inside flatpak
+            if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("FLATPAK_ID")))
+            {
+                return $"~/.var/app/{applicationId}/cache/jellytune";
+            }
+
             var configHome = Environment.GetEnvironmentVariable("XDG_CACHE_HOME");
             if (string.IsNullOrEmpty(configHome))
             {
