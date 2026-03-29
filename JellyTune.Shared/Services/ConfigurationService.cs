@@ -3,7 +3,6 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using System.Text.Unicode;
 using JellyTune.Shared.Models;
 
@@ -77,9 +76,11 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId)
             // Running inside flatpak
             if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("FLATPAK_ID")))
             {
-                return $"~/.var/app/{applicationId}/config/jellytune";
+                Console.WriteLine("Using flatpak config directory");
+                return $"~/.var/app/{applicationId}/config";
             }
             
+            Console.WriteLine("Using default config directory");
             var configHome = Environment.GetEnvironmentVariable("XDG_CONFIG_HOME");
             if (string.IsNullOrEmpty(configHome))
             {
@@ -109,9 +110,11 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId)
             // Running inside flatpak
             if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("FLATPAK_ID")))
             {
-                return $"~/.var/app/{applicationId}/cache/jellytune";
+                Console.WriteLine("Using flatpak cache directory");
+                return $"~/.var/app/{applicationId}/cache";
             }
 
+            Console.WriteLine("Using default cache directory");
             var configHome = Environment.GetEnvironmentVariable("XDG_CACHE_HOME");
             if (string.IsNullOrEmpty(configHome))
             {
