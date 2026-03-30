@@ -1,8 +1,18 @@
-+ 1.1;2026-02-02
++ 1.2;2026-02-18
+- Visual fixes and animations
+- Added keyboard shortcuts
+- Separated extended controls
+- Added ability to show artist albums
+- Added ability to show playing album
+
++ 1.1.5;2026-02-17
+- Bug fixes for window update
+
++ 1.1;2026-02-03
 - Bug fixes
 - Added extended controls
 
-+ 1.0;2026-01-20
++ 1.0;2026-01-24
 - Startup wizard for basic configuration
 - Basic functionality for playing audio
 - Support for single playlist
