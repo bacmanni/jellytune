@@ -18,7 +18,9 @@
                                         <property name="margin-end">6</property>
                                         <child>
                                             <object class="GtkImage" id="_albumArt">
+                                                <property name="margin-top">6</property>
                                                 <property name="overflow">hidden</property>
+                                                <property name="valign">start</property>
                                                 <style>
                                                     <class name="icon-dropshadow"/>
                                                     <class name="album-art-small"/>

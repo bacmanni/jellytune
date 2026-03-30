@@ -46,13 +46,10 @@
       <None Remove="Blueprints\search.ui" />
       <EmbeddedResource Include="Blueprints\search.ui" />
       <None Remove="Blueprints\search_list_item.ui" />
-      <None Update="Resources\org.bacmanni.jellytune.css">
+      <None Update="Resources\io.github.bacmanni.jellytune-dark.css">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="Resources\org.bacmanni.jellytune-dark.css">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="Resources\org.bacmanni.jellytune.gresource.xml">
+      <None Update="Resources\io.github.bacmanni.jellytune.gresource.xml">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Remove="Blueprints\queue_list.ui" />
@@ -110,11 +107,11 @@
 
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
         <Exec Command="echo Compiling gresources" />
-        <Exec Command="glib-compile-resources --sourcedir ./Resources ./Resources/org.bacmanni.jellytune.gresource.xml --target=$(OutDir)/org.bacmanni.jellytune.gresource" />
+        <Exec Command="glib-compile-resources --sourcedir ./Resources ./Resources/io.github.bacmanni.jellytune.gresource.xml --target=$(OutDir)/io.github.bacmanni.jellytune.gresource" />
     </Target>
     
     <Target Name="PostPublish" AfterTargets="Publish">
         <Exec Command="echo Copy resource" />
-        <Exec Command="cp $(OutDir)/org.bacmanni.jellytune.gresource $(PublishDir)/org.bacmanni.jellytune.gresource" />
+        <Exec Command="cp $(OutDir)/io.github.bacmanni.jellytune.gresource $(PublishDir)/io.github.bacmanni.jellytune.gresource" />
     </Target>
 </Project>

@@ -71,7 +71,6 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId,
         var platform = GetOsPlatform();
         if (platform == OSPlatform.Linux)
         {
-            Console.WriteLine($"Using configuration: {configurationDir}");
             return configurationDir;
         }
         else if (platform == OSPlatform.OSX)
@@ -91,7 +90,6 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId,
         var platform = GetOsPlatform();
         if (platform == OSPlatform.Linux)
         {
-            Console.WriteLine($"Using cache: {cacheDir}");
             return cacheDir;
         }
         else if (platform == OSPlatform.OSX)

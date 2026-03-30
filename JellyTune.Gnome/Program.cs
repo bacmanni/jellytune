@@ -77,7 +77,7 @@ class Program
             "JellyTune Gnome",
             $"jellytune-{configuration.DeviceId}");
         
-        var resourceFile = Path.GetFullPath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)) + "/org.bacmanni.jellytune.gresource";
+        var resourceFile = Path.GetFullPath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)) + $"/{_applicationInfo.Id}.gresource";
         Gio.Functions.ResourcesRegister(Gio.Functions.ResourceLoad(resourceFile));
         
         _mainWindowController = new MainWindowController(apiService, configurationService, playerService, fileService, _applicationInfo);
