@@ -1,4 +1,4 @@
-## JellyTune, Gnome audio player for Jellyfin
+## JellyTune, Gnome audio client for Jellyfin
 
 ![Screenshot of JellyTune](Screenshots/Wide.png)
 

@@ -94,7 +94,7 @@ public partial class PreferencesView : Adw.PreferencesDialog
         
         _accountController = new AccountController(_configurationService, _jellyTuneApiService);
         _accountView =  new AccountView(_accountController);
-        _preferencesPage1.Add(_accountView);
+        _preferencesPage1.Insert(_accountView, 0);
         
         var configuration =  _configurationService.Get();
         _accountController.OpenConfiguration(configuration, true);
