@@ -38,8 +38,8 @@ public partial class AlbumArtView : Adw.Dialog
         {
             if (isLoading)
             {
-                _artist.SetText(GLib.Markup.EscapeText(_controller.Album.Artist));
-                _album.SetText(GLib.Markup.EscapeText(_controller.Album.Name));
+                _artist.SetText(_controller.Album.Artist);
+                _album.SetText(_controller.Album.Name);
                 _results.SetRevealChild(false);
                 _spinner.SetVisible(true);
                 return;
