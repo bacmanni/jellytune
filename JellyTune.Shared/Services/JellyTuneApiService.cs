@@ -450,15 +450,16 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// Download album art
     /// </summary>
     /// <param name="albumId"></param>
+    /// <param name="size"></param>
     /// <returns></returns>
-    public async Task<byte[]?> GetPrimaryArtAsync(Guid albumId)
+    public async Task<byte[]?> GetPrimaryArtAsync(Guid albumId, int? size = 200)
     {
         try
         {
             await using var stream = await _jellyfinApiClient.Items[albumId].Images[ImageType.Primary.ToString()].GetAsync(configuration =>
             {
-                configuration.QueryParameters.Height = 200;
-                configuration.QueryParameters.Width = 200;
+                configuration.QueryParameters.Height = size;
+                configuration.QueryParameters.Width = size;
             }).ConfigureAwait(false);
             
             if (stream == null)
@@ -823,6 +824,16 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
         };
 
         return result;
+    }
+
+    public async Task<Guid?> GetArtistByTrackIdAsync(Guid trackId)
+    {
+        var baseItem = await _jellyfinApiClient.Items[trackId].GetAsync().ConfigureAwait(false);
+
+        if (baseItem == null)
+            throw new ArgumentException($"No album found with id {trackId}");
+
+        return baseItem?.AlbumArtists?.FirstOrDefault()?.Id ?? baseItem?.ArtistItems?.FirstOrDefault()?.Id;
     }
 
     /// <summary>

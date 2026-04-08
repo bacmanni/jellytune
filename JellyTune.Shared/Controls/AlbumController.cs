@@ -17,7 +17,7 @@ public sealed class AlbumController : IDisposable
     public IPlayerService PlayerService => _playerService;
     public IFileService FileService => _fileService;
     public IConfigurationService ConfigurationService => _configurationService;
-
+    public IJellyTuneApiService JellyTuneApiService => _jellyTuneApiService;
     public Album? Album { get; private set; }
     public List<Track> Tracks { get; private set; } = [];
     public Track? SelectedTrack { get; private set; }

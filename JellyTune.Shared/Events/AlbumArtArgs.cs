@@ -1,6 +1,6 @@
 namespace JellyTune.Shared.Events;
 
-public class ArtistAlbumArgs : EventArgs
+public class AlbumArtArgs : EventArgs
 {
     public bool IsLoading { get; set; }
 }

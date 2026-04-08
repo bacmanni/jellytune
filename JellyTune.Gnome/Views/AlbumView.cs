@@ -1,9 +1,8 @@
-using GLib;
-using Gtk;
 using Gtk.Internal;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Events;
 using JellyTune.Gnome.Helpers;
+using GestureClick = Gtk.GestureClick;
 using ListBox = Gtk.ListBox;
 
 namespace JellyTune.Gnome.Views;
@@ -11,6 +10,7 @@ namespace JellyTune.Gnome.Views;
 public class AlbumView : Gtk.ScrolledWindow
 {
     private readonly AlbumController _controller;
+    private readonly AlbumArtController _albumArtController;
     
     [Gtk.Connect] private readonly Gtk.Image _albumArt;
     [Gtk.Connect] private readonly Gtk.Label _artist;
@@ -31,9 +31,23 @@ public class AlbumView : Gtk.ScrolledWindow
     public AlbumView(AlbumController controller) : this(GtkHelper.BuilderFromFile("album"))
     {
         _controller = controller;
+        _albumArtController = new AlbumArtController(_controller.JellyTuneApiService);
         _tracks.OnRowSelected += TracksOnRowSelected;
         _tracks.OnRowActivated += TracksOnRowActivated;
         _controller.OnAlbumChanged += ControllerOnAlbumChanged;
+        
+        var click = Gtk.GestureClick.New();
+        click.OnPressed += ClickOnPressed;
+        _albumArt.AddController(click);
+    }
+
+    private void ClickOnPressed(GestureClick sender, GestureClick.PressedSignalArgs args)
+    {
+        if (_controller.Album?.Id == null) return;
+        
+        var albumArtDialog = new AlbumArtView(_albumArtController);
+        albumArtDialog.Present(this);
+        _ = _albumArtController.OpenAsync(_controller.Album);
     }
 
     private void ControllerOnAlbumChanged(object? sender, AlbumStateArgs args)

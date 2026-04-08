@@ -41,7 +41,7 @@ public class FileServiceTests
         };
         
         _mockJellyTuneApiService.Setup(repo => repo.GetPrimaryArtUrl(_albumId1)).Returns(new Uri($"{_url}{_albumId1.ToString()}.jpg"));
-        _mockJellyTuneApiService.Setup(repo => repo.GetPrimaryArtAsync(_albumId1)).ReturnsAsync(_file);
+        _mockJellyTuneApiService.Setup(repo => repo.GetPrimaryArtAsync(_albumId1, 200)).ReturnsAsync(_file);
         _mockJellyTuneApiService.Setup(repo => repo.GetPrimaryArtUrl(_playlistId)).Returns(new Uri($"{_url}{_playlistId.ToString()}.jpg"));
         _mockConfigurationService.Setup(repo => repo.Get()).Returns(configuration);
         _mockConfigurationService.Setup(repo => repo.GetCacheDirectory()).Returns("");

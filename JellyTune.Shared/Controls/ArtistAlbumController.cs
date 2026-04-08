@@ -24,9 +24,9 @@ public class ArtistAlbumController
     }
 
     /// <summary>
-    /// Load description for currently active artist
+    /// Load description for currently active artist using artistId
     /// </summary>
-    public async Task OpenAsync(Guid artistId)
+    public async Task OpenByArtistIdAsync(Guid artistId)
     {
         if (_cancellationTokenSource != null)
         {
@@ -37,6 +37,33 @@ public class ArtistAlbumController
         if (_cancellationTokenSource?.IsCancellationRequested == true) return;
         OnAlbumsChanged.Invoke(this, new ArtistAlbumArgs() { IsLoading = true });
         Albums = await _jellyTuneApiService.GetArtistAlbumsAsync(artistId);
+        OnAlbumsChanged.Invoke(this, new ArtistAlbumArgs());
+    }
+    
+    /// <summary>
+    /// Load description for currently active artist using trackId
+    /// </summary>
+    /// <param name="trackId"></param>
+    public async Task OpenByTrackIdAsync(Guid trackId)
+    {
+        if (_cancellationTokenSource != null)
+        {
+            await _cancellationTokenSource.CancelAsync();
+            _cancellationTokenSource.Dispose();
+        }
+        
+        if (_cancellationTokenSource?.IsCancellationRequested == true) return;
+        OnAlbumsChanged.Invoke(this, new ArtistAlbumArgs() { IsLoading = true });
+        var artistId = await _jellyTuneApiService.GetArtistByTrackIdAsync(trackId);
+
+        if (!artistId.HasValue)
+        {
+            Albums = [];
+            OnAlbumsChanged.Invoke(this, new ArtistAlbumArgs());
+            return;
+        }
+        
+        Albums = await _jellyTuneApiService.GetArtistAlbumsAsync(artistId.Value);
         OnAlbumsChanged.Invoke(this, new ArtistAlbumArgs());
     }
 }

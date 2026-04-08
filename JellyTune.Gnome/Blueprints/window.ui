@@ -26,6 +26,7 @@
             <property name="vexpand">true</property>
             <child>
               <object class="AdwNavigationPage" id="_main_view">
+                <property name="title" translatable="yes">Main</property>
                 <property name="hexpand">true</property>
                 <property name="vexpand">true</property>
                 <property name="tag">main_view</property>
@@ -106,6 +107,7 @@
             </child>
             <child>
               <object class="AdwNavigationPage" id="_search_albums">
+                <property name="title" translatable="yes">Search</property>
                 <property name="tag">search_albums</property>
                 <property name="child">
                   <object class="AdwToolbarView" id="_search_albums_view">
@@ -135,6 +137,7 @@
             </child>
             <child>
               <object class="AdwNavigationPage" id="_queue_list">
+                <property name="title" translatable="yes">Queue</property>
                 <property name="tag">queue_list</property>
                 <child type="top">
                   <object class="AdwHeaderBar">
@@ -161,6 +164,15 @@
                             <property name="icon-name">multimedia-player-symbolic</property>
                           </object>
                         </child>
+                        <child type="end">
+                          <object class="GtkButton" id="_queue_list_artist_albums">
+                            <property name="tooltip-text">Artist albums</property>
+                            <property name="icon-name">view-list-symbolic</property>
+                            <style>
+                              <class name="flat"/>
+                            </style>
+                          </object>
+                        </child>
                       </object>
                     </child>
                     <child type="bottom">
@@ -175,6 +187,7 @@
             </child>
             <child>
               <object class="AdwNavigationPage" id="_album_details">
+                <property name="title" translatable="yes">Album details</property>
                 <property name="tag">album_details</property>
                 <child type="top">
                   <object class="AdwHeaderBar">
@@ -214,6 +227,7 @@
             </child>
             <child>
               <object class="AdwNavigationPage" id="_playlist_tracks">
+                <property name="title" translatable="yes">Playlist</property>
                 <property name="tag">playlist_tracks</property>
                 <child type="top">
                   <object class="AdwHeaderBar">

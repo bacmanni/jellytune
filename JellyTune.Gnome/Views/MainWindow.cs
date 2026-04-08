@@ -103,6 +103,8 @@ public partial class MainWindow : Adw.ApplicationWindow
     [Gtk.Connect] private readonly Gtk.Button _album_artist_albums;
     [Gtk.Connect] private readonly Gtk.Button _queue_list_shuffle;
     [Gtk.Connect] private readonly Gtk.Button _queue_list_open_album;
+    [Gtk.Connect] private readonly Gtk.Button _queue_list_artist_albums;
+    
     private MainWindow(Gtk.Builder builder, MainWindowController controller, Adw.Application application) : base(new Adw.Internal.ApplicationWindowHandle(builder.GetPointer("_root"), false))
     {
         //Window Settings
@@ -135,6 +137,8 @@ public partial class MainWindow : Adw.ApplicationWindow
         _album_artist_albums.OnClicked += ShowArtistAlbumsOnClicked;
         _queue_list_shuffle.OnClicked += QueueListShuffleOnClicked;
         _queue_list_open_album.OnClicked += QueueListOpenAlbumOnClicked;
+        _queue_list_artist_albums.OnClicked += QueueListArtistAlbumsOnClicked;
+        
         _controller.PlayerService.OnPlayerStateChanged += OnPlayerStateChanged;
 
         // Album list
@@ -286,6 +290,17 @@ public partial class MainWindow : Adw.ApplicationWindow
         _ = UpdateMainMenu();
     }
 
+    private void QueueListArtistAlbumsOnClicked(Button sender, EventArgs args)
+    {
+        var trackId = _controller.PlayerService.GetSelectedTrack()?.Id;
+        if (!trackId.HasValue) return;
+        
+        var artistAlbumView = new ArtistAlbumView(_artistAlbumController);
+        _ = _artistAlbumController.OpenByTrackIdAsync(trackId.Value);
+        artistAlbumView.Present(this);
+        artistAlbumView.OnClosed += ArtistAlbumViewOnClosed;
+    }
+
     private void QueueListOpenAlbumOnClicked(Button sender, EventArgs args)
     {
         var albumId = _playerController.PlayerService.GetSelectedAlbum()?.Id;
@@ -318,7 +333,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         if (artistId == null) return;
         
         var artistAlbumView = new ArtistAlbumView(_artistAlbumController);
-        _ = _artistAlbumController.OpenAsync(artistId.Value);
+        _ = _artistAlbumController.OpenByArtistIdAsync(artistId.Value);
         artistAlbumView.Present(this);
         artistAlbumView.OnClosed += ArtistAlbumViewOnClosed;
     }
