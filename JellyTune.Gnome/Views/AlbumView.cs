@@ -43,7 +43,7 @@ public class AlbumView : Gtk.ScrolledWindow
 
     private void ClickOnPressed(GestureClick sender, GestureClick.PressedSignalArgs args)
     {
-        if (_controller.Album?.Id == null) return;
+        if (_controller.Artwork == null || _controller.Album?.Id == null) return;
         
         var albumArtDialog = new AlbumArtView(_albumArtController);
         albumArtDialog.Present(this);
@@ -129,7 +129,7 @@ public class AlbumView : Gtk.ScrolledWindow
 
     private void UpdateArtwork()
     {
-        if ( _controller.Artwork != null)
+        if (_controller.Artwork != null)
         {
             _albumArt.Clear();
             using var bytes = GLib.Bytes.New(_controller.Artwork);

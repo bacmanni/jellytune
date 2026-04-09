@@ -5,7 +5,7 @@
         <child>
             <object class="AdwClamp">
                 <property name="maximum-size">360</property>
-                <property name="tightening-threshold">700</property>
+                <property name="tightening-threshold">400</property>
                 <child>
                     <object class="AdwToolbarView">
                         <child type="top">
@@ -50,6 +50,7 @@
                             <object class="GtkScrolledWindow">
                                 <property name="hscrollbar-policy">2</property>
                                 <property name="propagate-natural-height">true</property>
+                                <property name="max-content-height">360</property>
                                 <child>
                                     <object class="GtkBox">
                                         <property name="margin-bottom">12</property>

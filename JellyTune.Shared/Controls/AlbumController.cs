@@ -93,6 +93,10 @@ public sealed class AlbumController : IDisposable
             
             AlbumChanged(new AlbumStateArgs() { UpdateArtwork = true});    
         }
+        else
+        {
+            Artwork = null;
+        }
     }
 
     /// <summary>
