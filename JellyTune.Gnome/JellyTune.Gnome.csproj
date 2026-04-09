@@ -18,7 +18,7 @@
       <PackageReference Include="GirCore.Secret-1" Version="0.7.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.4" />
       <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.4" />
-      <PackageReference Include="Tmds.DBus" Version="0.22.0" />
+      <PackageReference Include="Tmds.DBus" Version="0.92.0" />
     </ItemGroup>
 
     <ItemGroup>
