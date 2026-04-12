@@ -59,19 +59,17 @@
                                         <property name="orientation">1</property>
                                         <child>
                                             <object class="AdwSpinner" id="_spinner">
-                                                <property name="margin-top">28</property>
+                                                <property name="margin-top">170</property>
                                                 <property name="halign">3</property>
                                                 <property name="valign">3</property>
-                                                <property name="vexpand">true</property>
-                                                <property name="hexpand">true</property>
                                                 <property name="width-request">48</property>
                                                 <property name="height-request">48</property>
-                                                <property name="margin-bottom">28</property>
                                             </object>
                                         </child>
                                         <child>
                                             <object class="GtkRevealer" id="_results">
                                                 <property name="transition-type">crossfade</property>
+                                                <property name="reveal-child">false</property>
                                                 <child>
                                                     <object class="GtkImage" id="_albumArt">
                                                         <property name="overflow">hidden</property>
