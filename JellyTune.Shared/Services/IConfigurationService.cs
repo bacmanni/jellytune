@@ -14,5 +14,6 @@ public interface IConfigurationService
     Configuration Get();
     public bool IsPlatform(OSPlatform platform);
     public void Set(Configuration configuration);
+    public void Set<T>(string key, T value);
     public string[] GetLatestChanges();
 }

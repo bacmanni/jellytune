@@ -29,7 +29,6 @@ public sealed class StartupController : IDisposable
     public async Task<StartupState> StartAsync(string? nonStoredPassword = null)
     {
         var configuration = _configurationService.Get();
-        
         var server = configuration.ServerUrl;
         var username = configuration.Username;
         var password = !string.IsNullOrWhiteSpace(nonStoredPassword) ? nonStoredPassword : configuration.Password;

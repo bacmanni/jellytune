@@ -56,8 +56,7 @@ class Program
         Gtk.Module.Initialize();
         Adw.Module.Initialize();
         Gio.Module.Initialize();
-        Secret.Module.Initialize();
-        
+
         var serviceCollection = new ServiceCollection();
         ConfigureServices(_applicationInfo, serviceCollection);
         _serviceProvider = serviceCollection.BuildServiceProvider();

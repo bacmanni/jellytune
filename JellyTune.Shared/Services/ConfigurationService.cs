@@ -133,6 +133,24 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId,
     }
 
     /// <summary>
+    /// Set value in configuration with key
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    /// <typeparam name="T"></typeparam>
+    public void Set<T>(string key, T value)
+    {
+        var properties = typeof(Configuration).GetProperties();
+        foreach (var property in properties)
+        {
+            if (property.Name == key)
+            {
+                property.SetValue(_configuration, value);
+            }
+        }
+    }
+    
+    /// <summary>
     /// Get latest changes from CHANGES-file
     /// </summary>
     /// <returns></returns>

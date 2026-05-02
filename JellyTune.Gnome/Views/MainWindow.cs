@@ -6,6 +6,7 @@ using Gio;
 using GLib;
 using Gtk;
 using JellyTune.Gnome.DBus.MediaPlayer;
+using JellyTune.Gnome.DBus.Secret;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
@@ -26,7 +27,8 @@ public partial class MainWindow : Adw.ApplicationWindow
     
     private readonly StartupController _startupController;
 
-    private readonly MediaPlayerController _mediaPlayerController;
+    private readonly MediaPlayerService _mediaPlayerService;
+    private readonly SecretService _secretService;
     
     private readonly PlayerController _playerController;
     private readonly PlayerView  _playerView;
@@ -104,7 +106,7 @@ public partial class MainWindow : Adw.ApplicationWindow
     [Gtk.Connect] private readonly Gtk.Button _queue_list_shuffle;
     [Gtk.Connect] private readonly Gtk.Button _queue_list_open_album;
     [Gtk.Connect] private readonly Gtk.Button _queue_list_artist_albums;
-    
+
     private MainWindow(Gtk.Builder builder, MainWindowController controller, Adw.Application application) : base(new Adw.Internal.ApplicationWindowHandle(builder.GetPointer("_root"), false))
     {
         //Window Settings
@@ -159,7 +161,8 @@ public partial class MainWindow : Adw.ApplicationWindow
         _startupController = new StartupController(_controller.JellyTuneApiService, _controller.ConfigurationService);
 
         // Media controls
-        _mediaPlayerController = new MediaPlayerController(this, _controller.FileService, _controller.PlayerService, _controller.ApplicationInfo);
+        _mediaPlayerService = new MediaPlayerService(this, _controller.FileService, _controller.PlayerService, _controller.ApplicationInfo);
+        _secretService = new SecretService(_controller.ApplicationInfo);
         
         //Audio player
         _playerExtendedController = new PlayerExtendedController(_controller.PlayerService, _controller.ConfigurationService);
@@ -666,9 +669,11 @@ public partial class MainWindow : Adw.ApplicationWindow
     {
         _application.AddWindow(this);
         Present();
-        
-        //SecretHelper.SetPassword("test");
-        
+
+        await _secretService.Connect();
+        var password = await _secretService.GetPassword();
+        _controller.ConfigurationService.Set("Password", password);
+  
         var startupState = await _startupController.StartAsync();
         if (startupState == StartupState.RequirePassword)
         {
@@ -691,7 +696,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         _album_view.SetVisible(true);
         
         if(_controller.ConfigurationService.IsPlatform(OSPlatform.Linux))
-            await _mediaPlayerController.ConnectAsync();
+            await _mediaPlayerService.ConnectAsync();
 
         await RefreshLists();
     }
@@ -706,7 +711,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         _searchController.Dispose();
         _playlistController.Dispose();
         _startupController.Dispose();
-        _mediaPlayerController.Dispose();
+        _mediaPlayerService.Dispose();
         _queueListController.Dispose();
         base.Dispose();
     }
