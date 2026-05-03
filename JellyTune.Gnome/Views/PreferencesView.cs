@@ -10,7 +10,8 @@ public partial class PreferencesView : Adw.PreferencesDialog
 {
     private readonly IConfigurationService _configurationService;
     private readonly IJellyTuneApiService _jellyTuneApiService;
-
+    private readonly ISecurityService _securityService;
+    
     private readonly AccountController  _accountController;
     private readonly AccountView _accountView;
     
@@ -24,7 +25,7 @@ public partial class PreferencesView : Adw.PreferencesDialog
     [Gtk.Connect] private readonly Adw.SwitchRow _showVolume;
     [Gtk.Connect] private readonly Adw.SwitchRow _showPlayingAlbum;
     [Gtk.Connect] private readonly Adw.SwitchRow _showLyrics;
-    
+
     public bool Refresh { get; set; } = false;
     public string? Password { get; set; } = null;
     
@@ -55,16 +56,8 @@ public partial class PreferencesView : Adw.PreferencesDialog
             configuration.Username = _accountController.Username;
 
             // If password is not saved, we pass it temporarily through variable
-            if (_accountController.RememberPassword)
-            {
-                
-                //configuration.Password = _accountController.Password;
-            }
-            else
-            {
-                Password = _accountController.Password;
-            }
-            
+            Password = _accountController.Password;
+
             configuration.RememberPassword = _accountController.RememberPassword;
             configuration.CollectionId = _accountController.CollectionId?.ToString() ?? throw new NullReferenceException("This should never happen!");
             configuration.PlaylistCollectionId = _accountController.PlaylistCollectionId?.ToString();
@@ -87,17 +80,18 @@ public partial class PreferencesView : Adw.PreferencesDialog
             ForceClose();
     }
 
-    public PreferencesView(IConfigurationService configurationService, IJellyTuneApiService jellyTuneApiService) : this(GtkHelper.BuilderFromFile("preferences"))
+    public PreferencesView(IConfigurationService configurationService, ISecurityService securityService, IJellyTuneApiService jellyTuneApiService) : this(GtkHelper.BuilderFromFile("preferences"))
     {
         _configurationService = configurationService;
         _jellyTuneApiService = jellyTuneApiService;
+        _securityService = securityService;
         
-        _accountController = new AccountController(_configurationService, _jellyTuneApiService);
+        _accountController = new AccountController(_configurationService, _securityService, _jellyTuneApiService);
         _accountView =  new AccountView(_accountController);
         _preferencesPage1.Insert(_accountView, 0);
         
         var configuration =  _configurationService.Get();
-        _accountController.OpenConfiguration(configuration, true);
+        _ = _accountController.OpenConfiguration(configuration, true);
         _useAutoRefresh.SetActive(configuration.AutoRefresh);
         _cacheList.SetActive(configuration.CacheListData);
         _cacheArtwork.SetActive(configuration.CacheAlbumArt);

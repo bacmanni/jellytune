@@ -9,12 +9,13 @@ public sealed class AccountController
 {
     private readonly IJellyTuneApiService _jellyTuneApiService;
     private readonly IConfigurationService _configurationService;
+    private readonly ISecurityService _securityService;
     private bool _isValid { get; set; }
-    
+    private string? OriginalPassword { get; set; }
     public bool IsValid() => _isValid;
     public string ServerUrl { get; set; }
     public string Username { get; set; }
-    public string Password { get; set; }
+    public string? Password { get; set; }
     public bool RememberPassword { get; set; }
     public Guid? CollectionId { get; set; }
     public Guid? PlaylistCollectionId { get; set; }
@@ -23,10 +24,11 @@ public sealed class AccountController
 
     public event EventHandler<bool> OnUpdate;
     
-    public AccountController(IConfigurationService configurationService, IJellyTuneApiService jellyTuneApiService)
+    public AccountController(IConfigurationService configurationService, ISecurityService securityService, IJellyTuneApiService jellyTuneApiService)
     {
         _jellyTuneApiService = jellyTuneApiService;
         _configurationService = configurationService;
+        _securityService = securityService;
     }
 
     /// <summary>
@@ -87,12 +89,16 @@ public sealed class AccountController
     /// </summary>
     /// <param name="configuration"></param>
     /// <param name="validate">Should validate when opened</param>
-    public void OpenConfiguration(Configuration configuration, bool validate)
+    public async Task OpenConfiguration(Configuration configuration, bool validate)
     {
         _isValid = true;
         ServerUrl = configuration.ServerUrl;
         Username = configuration.Username;
         RememberPassword = configuration.RememberPassword;
+
+        var password = await _securityService.GetPasswordAsync();
+        OriginalPassword = password;
+        Password = password;
         
         if (!string.IsNullOrWhiteSpace(configuration.CollectionId))
             CollectionId = Guid.Parse(configuration.CollectionId);
@@ -100,7 +106,7 @@ public sealed class AccountController
         if (!string.IsNullOrWhiteSpace(configuration.PlaylistCollectionId))
             PlaylistCollectionId = Guid.Parse(configuration.PlaylistCollectionId);
         
-        OnConfigurationLoaded?.Invoke(this, new AccountArgs() {Validate = validate, Configuration = configuration });
+        OnConfigurationLoaded?.Invoke(this, new AccountArgs() {Validate = validate });
     }
 
     /// <summary>
@@ -137,6 +143,9 @@ public sealed class AccountController
         if (configuration.Username != Username)
             return true;
 
+        if (OriginalPassword != Password)
+            return true;
+        
         if (configuration.CollectionId != CollectionId?.ToString())
             return true;
 

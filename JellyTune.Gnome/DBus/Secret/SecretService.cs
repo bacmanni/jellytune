@@ -90,8 +90,7 @@ public class SecretService : ISecurityService
             publicKeyBytes = padded;
         }
 
-        Console.WriteLine("Public Key (hex): " + BitConverter.ToString(publicKeyBytes).Replace("-", ""));
-
+        //Console.WriteLine("Public Key (hex): " + BitConverter.ToString(publicKeyBytes).Replace("-", ""));
         return (PublicKey: publicKey, PrivateKey: privateKey);
     }
 
@@ -115,11 +114,11 @@ public class SecretService : ISecurityService
             sharedSecretBytes = padded;
         }
 
-        Console.WriteLine("Shared secret:  " + BitConverter.ToString(sharedSecretBytes).Replace("-", ""));
+        //Console.WriteLine("Shared secret:  " + BitConverter.ToString(sharedSecretBytes).Replace("-", ""));
 
         // HKDF-SHA256 → 128-bit AES key
         var aesKey = HKDF_SHA256(sharedSecretBytes, salt: new byte[32], info: Array.Empty<byte>(), outputLength: 16);
-        Console.WriteLine("AES Key (hex): " + BitConverter.ToString(aesKey).Replace("-", ""));
+        //Console.WriteLine("AES Key (hex): " + BitConverter.ToString(aesKey).Replace("-", ""));
 
         // AES-CBC with PKCS7
         using var aes = Aes.Create();
@@ -136,8 +135,8 @@ public class SecretService : ISecurityService
             ciphertext = encryptor.TransformFinalBlock(plaintextBytes, 0, plaintextBytes.Length);
         }
 
-        Console.WriteLine("IV:  " + BitConverter.ToString(aes.IV).Replace("-", ""));
-        Console.WriteLine("CT:  " + BitConverter.ToString(ciphertext).Replace("-", ""));
+        //Console.WriteLine("IV:  " + BitConverter.ToString(aes.IV).Replace("-", ""));
+        //Console.WriteLine("CT:  " + BitConverter.ToString(ciphertext).Replace("-", ""));
 
         return new Secret(sessionPath, aes.IV, ciphertext);
     }
@@ -163,7 +162,7 @@ public class SecretService : ISecurityService
             sharedSecretBytes = padded;
         }
 
-        Console.WriteLine("Shared secret (dec): " + BitConverter.ToString(sharedSecretBytes).Replace("-", ""));
+        //Console.WriteLine("Shared secret (dec): " + BitConverter.ToString(sharedSecretBytes).Replace("-", ""));
 
         // --- HKDF-SHA256 → 128-bit AES key (MUST MATCH ENCRYPT) ---
         var aesKey = HKDF_SHA256(
@@ -172,7 +171,7 @@ public class SecretService : ISecurityService
             info: Array.Empty<byte>(),
             outputLength: 16);
 
-        Console.WriteLine("AES Key (dec): " + BitConverter.ToString(aesKey).Replace("-", ""));
+        //Console.WriteLine("AES Key (dec): " + BitConverter.ToString(aesKey).Replace("-", ""));
 
         // --- AES-CBC decryption with PKCS7 ---
         using var aes = Aes.Create();

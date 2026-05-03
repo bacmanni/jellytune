@@ -624,7 +624,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         // Pause playing. Playing would break account related stuff
         _controller.PlayerService.StopTrack();
         
-        var preferences = new PreferencesView(_controller.ConfigurationService, _controller.JellyTuneApiService);
+        var preferences = new PreferencesView(_controller.ConfigurationService, _controller.SecurityService, _controller.JellyTuneApiService);
         preferences.Present(this);
         preferences.OnClosed += async (dialog, eventArgs) =>
         {

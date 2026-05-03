@@ -132,10 +132,11 @@ public class AccountView : Adw.PreferencesGroup
         _isAccountValid = false;
         _isServerValid = false;
             
-        _server.SetText(args.Configuration.ServerUrl);
-        _username.SetText(args.Configuration.Username);
-        _rememberPassword.SetActive(args.Configuration.RememberPassword);
-
+        _server.SetText(_controller.ServerUrl);
+        _username.SetText(_controller.Username);
+        _rememberPassword.SetActive(_controller.RememberPassword);
+        _password.SetText(_controller.Password ?? "");
+        
         if (!args.Validate)
             return;
         
