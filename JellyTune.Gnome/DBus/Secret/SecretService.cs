@@ -2,20 +2,20 @@ using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
 using JellyTune.Shared.Models;
+using JellyTune.Shared.Services;
 using Tmds.DBus;
 
 namespace JellyTune.Gnome.DBus.Secret;
 
-public class SecretService : IDisposable
+public class SecretService : ISecurityService
 {
     private readonly ApplicationInfo _applicationInfo;
     private readonly Connection _connection = Connection.Session;
 
-    public BigInteger PrivateKey { get; set; }
-    public BigInteger PublicKey { get; set; }
-    public byte[] ServerPublicKey { get; set; }
-    public ObjectPath ServerSessionPath { get; set; }
-
+    private BigInteger PrivateKey { get; set; }
+    private BigInteger PublicKey { get; set; }
+    private byte[] ServerPublicKey { get; set; }
+    private ObjectPath ServerSessionPath { get; set; }
     
     // IETF 1024-bit MODP group (Oakley Group 2)
     private static readonly byte[] OakleyGroup2PBytes = Convert.FromHexString(
@@ -190,7 +190,7 @@ public class SecretService : IDisposable
         return Encoding.UTF8.GetString(plaintextBytes);
     }
     
-    public async Task Connect()
+    public async Task OpenSessionAsync()
     {
         var service = _connection.CreateProxy<ISecretService>(
             "org.freedesktop.secrets",
@@ -286,7 +286,7 @@ public class SecretService : IDisposable
     /// Store password to keyring
     /// </summary>
     /// <param name="password"></param>
-    public async Task SetPassword(string password)
+    public async Task SetPasswordAsync(string? password)
     {
         var item = await GetSecretItemAsync();
         if (item != null)
@@ -294,14 +294,14 @@ public class SecretService : IDisposable
             await item.DeleteAsync();    
         }
         
-        await SetSecretItemAsync(password);
+        await SetSecretItemAsync(password ?? "");
     }
 
     /// <summary>
     /// Get stored password
     /// </summary>
     /// <returns></returns>
-    public async Task<string?> GetPassword()
+    public async Task<string?> GetPasswordAsync()
     {
         var item = await GetSecretItemAsync();
         if (item == null) return null;

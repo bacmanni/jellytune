@@ -4,7 +4,6 @@ using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
 using JellyTune.Shared.Models;
 using JellyTune.Gnome.Helpers;
-using Button = Gtk.Button;
 using ListBox = Gtk.ListBox;
 
 namespace JellyTune.Gnome.Views;

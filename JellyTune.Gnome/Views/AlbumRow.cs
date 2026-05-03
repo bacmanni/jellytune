@@ -1,5 +1,4 @@
 using Adw.Internal;
-using GLib.Internal;
 using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Models;

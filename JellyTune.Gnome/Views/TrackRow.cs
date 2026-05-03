@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using Adw.Internal;
 using JellyTune.Shared.Models;
 using JellyTune.Shared.Enums;

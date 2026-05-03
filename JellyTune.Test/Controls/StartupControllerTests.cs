@@ -10,13 +10,15 @@ public class StartupControllerTests
 {
     private readonly Mock<IConfigurationService> _mockConfigurationService;
     private readonly Mock<IJellyTuneApiService> _mockJellyTuneApiService;
+    private readonly Mock<ISecurityService> _mockSecurityService;
     private readonly StartupController _controller;
     
     public StartupControllerTests()
     {
         _mockJellyTuneApiService = new Mock<IJellyTuneApiService>();
         _mockConfigurationService = new Mock<IConfigurationService>();
-
+        _mockSecurityService = new Mock<ISecurityService>();
+        
         var configuration = new Configuration()
         {
             AutoRefresh = true,
@@ -39,7 +41,7 @@ public class StartupControllerTests
         };
         _mockJellyTuneApiService.Setup(repo => repo.GetCollectionsAsync(CollectionType.Playlist)).ReturnsAsync([collection2]);
         
-        _controller = new StartupController(_mockJellyTuneApiService.Object, _mockConfigurationService.Object);
+        _controller = new StartupController(_mockJellyTuneApiService.Object, _mockConfigurationService.Object, _mockSecurityService.Object);
     }
     
     [Fact]
@@ -64,9 +66,8 @@ public class StartupControllerTests
         Assert.Equal(StartupState.RequirePassword, state);
         
         // Update configuration with password
-        configuration = _mockConfigurationService.Object.Get();
-        configuration.Password = "password";
-        _mockConfigurationService.Object.Set(configuration);
+        _mockSecurityService.Setup(repo => repo.GetPasswordAsync()).ReturnsAsync("password");
+        await _mockSecurityService.Object.SetPasswordAsync("password");
         
         state = await _controller.StartAsync();
         Assert.Equal(StartupState.AccountProblem, state);

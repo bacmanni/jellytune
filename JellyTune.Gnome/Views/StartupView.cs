@@ -71,12 +71,12 @@ public class StartupView : Adw.Dialog
 
             if (_accountController.RememberPassword)
             {
-                configuration.Password = _accountController.Password;
+                await _controller.SecurityService.SetPasswordAsync(_accountController.Password);
                 configuration.RememberPassword  = true;
             }
             else
             {
-                configuration.Password = string.Empty;
+                await _controller.SecurityService.SetPasswordAsync(string.Empty);
                 configuration.RememberPassword = false;
             }
 

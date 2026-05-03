@@ -12,8 +12,9 @@ public interface IConfigurationService
     public string GetConfigurationDirectory();
     public string GetCacheDirectory();
     Configuration Get();
+    public void Set<T>(string key, T value);
+    public T Get<T>(string key);
     public bool IsPlatform(OSPlatform platform);
     public void Set(Configuration configuration);
-    public void Set<T>(string key, T value);
     public string[] GetLatestChanges();
 }

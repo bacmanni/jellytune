@@ -57,11 +57,11 @@ public partial class PreferencesView : Adw.PreferencesDialog
             // If password is not saved, we pass it temporarily through variable
             if (_accountController.RememberPassword)
             {
-                configuration.Password = _accountController.Password;
+                
+                //configuration.Password = _accountController.Password;
             }
             else
             {
-                configuration.Password = string.Empty;
                 Password = _accountController.Password;
             }
             

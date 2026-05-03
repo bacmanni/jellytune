@@ -1,12 +1,8 @@
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text;
-using Adw;
 using Gio;
 using GLib;
 using Gtk;
 using JellyTune.Gnome.DBus.MediaPlayer;
-using JellyTune.Gnome.DBus.Secret;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
@@ -28,8 +24,7 @@ public partial class MainWindow : Adw.ApplicationWindow
     private readonly StartupController _startupController;
 
     private readonly MediaPlayerService _mediaPlayerService;
-    private readonly SecretService _secretService;
-    
+
     private readonly PlayerController _playerController;
     private readonly PlayerView  _playerView;
 
@@ -158,12 +153,11 @@ public partial class MainWindow : Adw.ApplicationWindow
         _albumController.OnAlbumChanged += AlbumControllerOnAlbumChanged;
         
         // Startup
-        _startupController = new StartupController(_controller.JellyTuneApiService, _controller.ConfigurationService);
+        _startupController = new StartupController(_controller.JellyTuneApiService, _controller.ConfigurationService, _controller.SecurityService);
 
         // Media controls
         _mediaPlayerService = new MediaPlayerService(this, _controller.FileService, _controller.PlayerService, _controller.ApplicationInfo);
-        _secretService = new SecretService(_controller.ApplicationInfo);
-        
+
         //Audio player
         _playerExtendedController = new PlayerExtendedController(_controller.PlayerService, _controller.ConfigurationService);
         
@@ -670,10 +664,10 @@ public partial class MainWindow : Adw.ApplicationWindow
         _application.AddWindow(this);
         Present();
 
-        await _secretService.Connect();
-        var password = await _secretService.GetPassword();
-        _controller.ConfigurationService.Set("Password", password);
-  
+        // Open dbus sessions
+        await _mediaPlayerService.ConnectAsync();
+        await _controller.SecurityService.OpenSessionAsync();
+        
         var startupState = await _startupController.StartAsync();
         if (startupState == StartupState.RequirePassword)
         {
@@ -695,9 +689,6 @@ public partial class MainWindow : Adw.ApplicationWindow
         _spinner.SetVisible(false);
         _album_view.SetVisible(true);
         
-        if(_controller.ConfigurationService.IsPlatform(OSPlatform.Linux))
-            await _mediaPlayerService.ConnectAsync();
-
         await RefreshLists();
     }
     

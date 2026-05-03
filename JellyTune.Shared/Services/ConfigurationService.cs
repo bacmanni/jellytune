@@ -10,6 +10,7 @@ namespace JellyTune.Shared.Services;
 
 public class ConfigurationService(IFileSystem _fileSystem, string applicationId, string? configurationDir, string? cacheDir) : IConfigurationService
 {
+    
     private readonly Configuration _configuration = new();
 
     /// <summary>
@@ -148,6 +149,20 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId,
                 property.SetValue(_configuration, value);
             }
         }
+    }
+    
+    public T Get<T>(string key)
+    {
+        var properties = typeof(Configuration).GetProperties();
+        foreach (var property in properties)
+        {
+            if (property.Name == key)
+            {
+                return (T)property.GetValue(_configuration);
+            }
+        }
+
+        return default;
     }
     
     /// <summary>

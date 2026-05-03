@@ -92,7 +92,6 @@ public sealed class AccountController
         _isValid = true;
         ServerUrl = configuration.ServerUrl;
         Username = configuration.Username;
-        Password = configuration.Password;
         RememberPassword = configuration.RememberPassword;
         
         if (!string.IsNullOrWhiteSpace(configuration.CollectionId))
@@ -137,10 +136,7 @@ public sealed class AccountController
 
         if (configuration.Username != Username)
             return true;
-        
-        if (configuration.Password != Password)
-            return true;
-        
+
         if (configuration.CollectionId != CollectionId?.ToString())
             return true;
 

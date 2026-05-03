@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using JellyTune.Shared.Controls;
 using Jellyfin.Sdk;
+using JellyTune.Gnome.DBus.Secret;
 using JellyTune.Shared.Handlers;
 using JellyTune.Shared.Models;
 using JellyTune.Shared.Services;
@@ -65,21 +66,22 @@ class Program
         var playerService = _serviceProvider.GetService<IPlayerService>();
         var fileService = _serviceProvider.GetService<IFileService>();
         var configurationService = _serviceProvider.GetService<IConfigurationService>();
+        var securityService = _serviceProvider.GetService<ISecurityService>();
         
         configurationService.Load();
-        var configuration = configurationService.Get();
+        var deviceId = configurationService.Get<string>("DeviceId");
         
         var sdkClientSettings = _serviceProvider.GetRequiredService<JellyfinSdkSettings>();
         sdkClientSettings.Initialize(
             _applicationInfo.Name,
             _applicationInfo.Version,
             "JellyTune Gnome",
-            $"jellytune-{configuration.DeviceId}");
+            $"jellytune-{deviceId}");
         
         var resourceFile = Path.GetFullPath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)) + $"/{_applicationInfo.Id}.gresource";
         Gio.Functions.ResourcesRegister(Gio.Functions.ResourceLoad(resourceFile));
         
-        _mainWindowController = new MainWindowController(apiService, configurationService, playerService, fileService, _applicationInfo);
+        _mainWindowController = new MainWindowController(apiService, configurationService, securityService, playerService, fileService, _applicationInfo);
         
         _application = Adw.Application.New(_applicationInfo.Id, Gio.ApplicationFlags.NonUnique);
         _application.OnActivate += async (sender, args) =>
@@ -145,8 +147,12 @@ class Program
             s.GetRequiredService<JellyfinSdkSettings>(),
             s.GetRequiredService<IHttpClientFactory>().CreateClient("Default")));
         serviceCollection.AddScoped<JellyfinApiClient>();
-
+        
         // Project related
+        serviceCollection.AddSingleton<ISecurityService, SecretService>();
+        serviceCollection.AddSingleton<ISecurityService, SecretService>(
+            serviceProvider => new SecretService(applicationInfo: _applicationInfo)
+        );
         serviceCollection.AddSingleton<IConfigurationService, ConfigurationService>(
             serviceProvider => new ConfigurationService(_fileSystem: serviceProvider.GetRequiredService<IFileSystem>(), applicationId: _applicationInfo.Id, GLib.Functions.GetUserConfigDir(), GLib.Functions.GetUserCacheDir())
         );

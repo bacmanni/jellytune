@@ -10,11 +10,6 @@ public class Configuration
     /// Username for the server
     /// </summary>
     public string Username { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Password for the server
-    /// </summary>
-    public string Password { get; set; } = string.Empty;
     
     /// <summary>
     /// Should password be remembered in configuration

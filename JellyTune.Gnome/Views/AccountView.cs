@@ -134,7 +134,6 @@ public class AccountView : Adw.PreferencesGroup
             
         _server.SetText(args.Configuration.ServerUrl);
         _username.SetText(args.Configuration.Username);
-        _password.SetText(args.Configuration.Password);
         _rememberPassword.SetActive(args.Configuration.RememberPassword);
 
         if (!args.Validate)
