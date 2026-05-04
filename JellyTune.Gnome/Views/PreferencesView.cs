@@ -10,8 +10,7 @@ public partial class PreferencesView : Adw.PreferencesDialog
 {
     private readonly IConfigurationService _configurationService;
     private readonly IJellyTuneApiService _jellyTuneApiService;
-    private readonly ISecurityService _securityService;
-    
+
     private readonly AccountController  _accountController;
     private readonly AccountView _accountView;
     
@@ -54,11 +53,7 @@ public partial class PreferencesView : Adw.PreferencesDialog
             Refresh = _accountController.HasChanges();
             configuration.ServerUrl = _accountController.ServerUrl;
             configuration.Username = _accountController.Username;
-
-            // If password is not saved, we pass it temporarily through variable
-            Password = _accountController.Password;
-
-            configuration.RememberPassword = _accountController.RememberPassword;
+            configuration.Password = _accountController.Password;
             configuration.CollectionId = _accountController.CollectionId?.ToString() ?? throw new NullReferenceException("This should never happen!");
             configuration.PlaylistCollectionId = _accountController.PlaylistCollectionId?.ToString();
             
@@ -80,13 +75,12 @@ public partial class PreferencesView : Adw.PreferencesDialog
             ForceClose();
     }
 
-    public PreferencesView(IConfigurationService configurationService, ISecurityService securityService, IJellyTuneApiService jellyTuneApiService) : this(GtkHelper.BuilderFromFile("preferences"))
+    public PreferencesView(IConfigurationService configurationService, IJellyTuneApiService jellyTuneApiService) : this(GtkHelper.BuilderFromFile("preferences"))
     {
         _configurationService = configurationService;
         _jellyTuneApiService = jellyTuneApiService;
-        _securityService = securityService;
-        
-        _accountController = new AccountController(_configurationService, _securityService, _jellyTuneApiService);
+
+        _accountController = new AccountController(_configurationService, _jellyTuneApiService);
         _accountView =  new AccountView(_accountController);
         _preferencesPage1.Insert(_accountView, 0);
         

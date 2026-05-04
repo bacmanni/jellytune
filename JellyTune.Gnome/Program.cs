@@ -66,8 +66,7 @@ class Program
         var playerService = _serviceProvider.GetService<IPlayerService>();
         var fileService = _serviceProvider.GetService<IFileService>();
         var configurationService = _serviceProvider.GetService<IConfigurationService>();
-        var securityService = _serviceProvider.GetService<ISecurityService>();
-        
+
         configurationService.Load();
         var deviceId = configurationService.Get<string>("DeviceId");
         
@@ -81,7 +80,7 @@ class Program
         var resourceFile = Path.GetFullPath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)) + $"/{_applicationInfo.Id}.gresource";
         Gio.Functions.ResourcesRegister(Gio.Functions.ResourceLoad(resourceFile));
         
-        _mainWindowController = new MainWindowController(apiService, configurationService, securityService, playerService, fileService, _applicationInfo);
+        _mainWindowController = new MainWindowController(apiService, configurationService, playerService, fileService, _applicationInfo);
         
         _application = Adw.Application.New(_applicationInfo.Id, Gio.ApplicationFlags.NonUnique);
         _application.OnActivate += async (sender, args) =>
@@ -149,10 +148,6 @@ class Program
         serviceCollection.AddScoped<JellyfinApiClient>();
         
         // Project related
-        serviceCollection.AddSingleton<ISecurityService, SecretService>();
-        serviceCollection.AddSingleton<ISecurityService, SecretService>(
-            serviceProvider => new SecretService(applicationInfo: _applicationInfo)
-        );
         serviceCollection.AddSingleton<IConfigurationService, ConfigurationService>(
             serviceProvider => new ConfigurationService(_fileSystem: serviceProvider.GetRequiredService<IFileSystem>(), applicationId: _applicationInfo.Id, GLib.Functions.GetUserConfigDir(), GLib.Functions.GetUserCacheDir())
         );

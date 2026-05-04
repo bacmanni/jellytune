@@ -7,7 +7,6 @@ namespace JellyTune.Test.Controls;
 public class AccountControllerTests
 {
     private readonly Mock<IConfigurationService> _mockConfigurationService;
-    private readonly Mock<ISecurityService> _mockSecurityService;
     private readonly Mock<IJellyTuneApiService> _mockJellyTuneApiService;
     private readonly AccountController _controller;
     
@@ -15,13 +14,12 @@ public class AccountControllerTests
     {
         _mockJellyTuneApiService = new Mock<IJellyTuneApiService>();
         _mockConfigurationService = new Mock<IConfigurationService>();
-        _mockSecurityService  = new Mock<ISecurityService>();
-        
+
         _mockJellyTuneApiService.Setup(repo => repo.CheckServerAsync("http://test.com")).ReturnsAsync(true);
         _mockJellyTuneApiService.Setup(repo => repo.CheckServerAsync("https://test.com:8096")).ReturnsAsync(true);
         _mockJellyTuneApiService.Setup(repo => repo.LoginAsync("valid", "test")).ReturnsAsync(true);
         
-        _controller = new AccountController(_mockConfigurationService.Object, _mockSecurityService.Object, _mockJellyTuneApiService.Object);
+        _controller = new AccountController(_mockConfigurationService.Object, _mockJellyTuneApiService.Object);
     }
 
     [Fact]

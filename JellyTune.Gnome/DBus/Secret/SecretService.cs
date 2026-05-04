@@ -2,12 +2,14 @@ using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
 using JellyTune.Shared.Models;
-using JellyTune.Shared.Services;
 using Tmds.DBus;
 
 namespace JellyTune.Gnome.DBus.Secret;
 
-public class SecretService : ISecurityService
+/// <summary>
+/// When there is some better way to save passwords sandbox friendly this class will be used
+/// </summary>
+public class SecretService
 {
     private readonly ApplicationInfo _applicationInfo;
     private readonly Connection _connection = Connection.Session;
@@ -293,7 +295,8 @@ public class SecretService : ISecurityService
             await item.DeleteAsync();    
         }
         
-        await SetSecretItemAsync(password ?? "");
+        
+        //await SetSecretItemAsync(password ?? "");
     }
 
     /// <summary>
@@ -307,10 +310,5 @@ public class SecretService : ISecurityService
 
         var secret = await item.GetSecretAsync(ServerSessionPath);
         return Decrypt(PrivateKey, ServerPublicKey, secret.Parameters, secret.Value);
-    }
-
-    public void Dispose()
-    {
-        // nothing yet
     }
 }

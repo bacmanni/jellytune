@@ -153,7 +153,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         _albumController.OnAlbumChanged += AlbumControllerOnAlbumChanged;
         
         // Startup
-        _startupController = new StartupController(_controller.JellyTuneApiService, _controller.ConfigurationService, _controller.SecurityService);
+        _startupController = new StartupController(_controller.JellyTuneApiService, _controller.ConfigurationService);
 
         // Media controls
         _mediaPlayerService = new MediaPlayerService(this, _controller.FileService, _controller.PlayerService, _controller.ApplicationInfo);
@@ -624,7 +624,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         // Pause playing. Playing would break account related stuff
         _controller.PlayerService.StopTrack();
         
-        var preferences = new PreferencesView(_controller.ConfigurationService, _controller.SecurityService, _controller.JellyTuneApiService);
+        var preferences = new PreferencesView(_controller.ConfigurationService, _controller.JellyTuneApiService);
         preferences.Present(this);
         preferences.OnClosed += async (dialog, eventArgs) =>
         {
@@ -664,10 +664,9 @@ public partial class MainWindow : Adw.ApplicationWindow
         _application.AddWindow(this);
         Present();
 
-        // Open dbus sessions
+        // Open dbus session
         await _mediaPlayerService.ConnectAsync();
-        await _controller.SecurityService.OpenSessionAsync();
-        
+       
         var startupState = await _startupController.StartAsync();
         if (startupState == StartupState.RequirePassword)
         {

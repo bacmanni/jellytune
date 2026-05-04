@@ -37,7 +37,7 @@ public class StartupView : Adw.Dialog
         _controller = controller;
         _taskCompletionSource = taskCompletionSource;
         
-        _accountController = new AccountController(_controller.ConfigurationService, _controller.SecurityService, _controller.JellyTuneApiService);
+        _accountController = new AccountController(_controller.ConfigurationService, _controller.JellyTuneApiService);
         _accountView = new AccountView(_accountController);
         _accountController.OpenConfiguration(_controller.ConfigurationService.Get(), startupState != StartupState.InitialRun);
         _accountBox.Prepend(_accountView);
@@ -68,17 +68,7 @@ public class StartupView : Adw.Dialog
             var configuration = _controller.ConfigurationService.Get();
             configuration.ServerUrl = _accountController.ServerUrl;
             configuration.Username = _accountController.Username;
-
-            if (_accountController.RememberPassword)
-            {
-                await _controller.SecurityService.SetPasswordAsync(_accountController.Password);
-                configuration.RememberPassword  = true;
-            }
-            else
-            {
-                await _controller.SecurityService.SetPasswordAsync(string.Empty);
-                configuration.RememberPassword = false;
-            }
+            configuration.Password = _accountController.Password;
 
             if (_accountController.CollectionId != null)
                 configuration.CollectionId = _accountController.CollectionId.ToString();

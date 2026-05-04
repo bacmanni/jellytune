@@ -11,17 +11,14 @@ public sealed class StartupController : IDisposable
 {
     private readonly IJellyTuneApiService _jellyTuneApiService;
     private readonly IConfigurationService _configurationService;
-    private readonly ISecurityService _securityService;
     
     public IConfigurationService ConfigurationService => _configurationService;
-    public ISecurityService SecurityService => _securityService;
     public IJellyTuneApiService  JellyTuneApiService => _jellyTuneApiService;
     
-    public StartupController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService, ISecurityService securityService)
+    public StartupController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService)
     {
         _jellyTuneApiService = jellyTuneApiService;
         _configurationService = configurationService;
-        _securityService = securityService;
     }
 
     /// <summary>
@@ -33,7 +30,7 @@ public sealed class StartupController : IDisposable
         var configuration = _configurationService.Get();
         var server = configuration.ServerUrl;
         var username = configuration.Username;
-        var password = !string.IsNullOrWhiteSpace(nonStoredPassword) ? nonStoredPassword : await _securityService.GetPasswordAsync();
+        var password = !string.IsNullOrWhiteSpace(nonStoredPassword) ? nonStoredPassword : configuration.Password;;
         var collectionId = configuration.CollectionId;
         
         // This should only happen when no configuration is saved

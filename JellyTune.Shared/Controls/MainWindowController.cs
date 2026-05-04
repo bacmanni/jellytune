@@ -7,22 +7,19 @@ public sealed class MainWindowController : IDisposable
 {
     private readonly IJellyTuneApiService _jellyTuneApiService;
     private readonly IConfigurationService _configurationService;
-    private readonly ISecurityService _securityService;
     private readonly IPlayerService _playerService;
     private readonly IFileService _fileService;
     public readonly ApplicationInfo ApplicationInfo;
     
     public IConfigurationService ConfigurationService => _configurationService;
-    public ISecurityService SecurityService => _securityService;
     public IJellyTuneApiService JellyTuneApiService => _jellyTuneApiService;
     public IPlayerService PlayerService => _playerService;
     public IFileService FileService => _fileService;
 
-    public MainWindowController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService, ISecurityService securityService, IPlayerService playerService, IFileService fileService, ApplicationInfo applicationInfo)
+    public MainWindowController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService, IPlayerService playerService, IFileService fileService, ApplicationInfo applicationInfo)
     {
         _jellyTuneApiService = jellyTuneApiService;
         _configurationService = configurationService;
-        _securityService = securityService;
         _playerService = playerService;
         _fileService = fileService;
         ApplicationInfo = applicationInfo;

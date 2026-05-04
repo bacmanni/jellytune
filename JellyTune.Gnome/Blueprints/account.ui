@@ -24,12 +24,6 @@
             </object>
         </child>
         <child>
-            <object class="AdwSwitchRow" id="_rememberPassword">
-                <property name="sensitive">false</property>
-                <property name="title" translatable="yes">Remember password</property>
-            </object>
-        </child>
-        <child>
             <object class="AdwComboRow" id="_audioCollection">
                 <property name="title" translatable="yes">Audio collection</property>
                 <property name="sensitive">false</property>

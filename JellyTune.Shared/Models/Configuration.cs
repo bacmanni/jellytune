@@ -1,6 +1,17 @@
+using System.Text.Json.Serialization;
+
 namespace JellyTune.Shared.Models;
 public class Configuration
 {
+    /// <summary>
+    /// Take copy of configuration
+    /// </summary>
+    /// <returns></returns>
+    public Configuration ShallowCopy()
+    {
+        return (Configuration)MemberwiseClone();
+    }
+    
     /// <summary>
     /// Server to be used
     /// </summary>
@@ -12,10 +23,10 @@ public class Configuration
     public string Username { get; set; } = string.Empty;
     
     /// <summary>
-    /// Should password be remembered in configuration
+    /// Password for the server
     /// </summary>
-    public bool RememberPassword { get; set; } = false;
-    
+    public string? Password { get; set; } = string.Empty;
+
     /// <summary>
     /// Selected audio collection id
     /// </summary>
