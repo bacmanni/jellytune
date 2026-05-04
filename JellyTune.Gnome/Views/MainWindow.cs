@@ -353,7 +353,9 @@ public partial class MainWindow : Adw.ApplicationWindow
     {
         var albumIdParameter = args.Parameter.GetString(out var length);
         var albumId = Guid.Parse(albumIdParameter);
-        if (albumId == _albumController.Album?.Id) return;
+        
+        var visibleTag = _album_view.VisiblePageTag;
+        if (albumId == _albumController.Album?.Id && visibleTag == "album_details") return;
         
         ResetNavigationView();
         _ = _albumController.OpenAsync(albumId);
