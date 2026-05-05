@@ -50,12 +50,7 @@ public sealed class StartupController : IDisposable
         {
             return StartupState.InvalidServer;
         }
-        
-        if (string.IsNullOrEmpty(password))
-        {
-            return StartupState.RequirePassword;
-        }
-        
+
         var logged = await _jellyTuneApiService.LoginAsync(username, password);
         if (!logged)
         {

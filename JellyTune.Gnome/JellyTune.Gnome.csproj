@@ -99,10 +99,6 @@
       <ProjectReference Include="..\JellyTune.Shared\JellyTune.Shared.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <EmbeddedResource Include="Blueprints\login.ui" />
-    </ItemGroup>
-
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
         <Exec Command="echo Compiling gresources" />
         <Exec Command="glib-compile-resources --sourcedir ./Resources ./Resources/io.github.bacmanni.jellytune.gresource.xml --target=$(OutDir)/io.github.bacmanni.jellytune.gresource" />

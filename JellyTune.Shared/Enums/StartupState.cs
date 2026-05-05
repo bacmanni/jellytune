@@ -7,7 +7,6 @@ public enum StartupState
     AccountProblem,
     MissingCollection,
     Finished,
-    RequirePassword,
     SelectCollection,
     InvalidServer
 }

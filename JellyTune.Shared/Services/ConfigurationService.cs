@@ -12,7 +12,7 @@ namespace JellyTune.Shared.Services;
 
 public class ConfigurationService(IFileSystem _fileSystem, string applicationId, string? configurationDir, string? cacheDir) : IConfigurationService
 {
-    private readonly string _keySalt = "";
+    private readonly string _keySalt = "37cee24e-26a3-4a71-8e92-3bb5cecfcbc3";
     private readonly Configuration _configuration = new();
 
     /// <summary>

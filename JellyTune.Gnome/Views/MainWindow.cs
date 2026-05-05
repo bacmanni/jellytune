@@ -670,15 +670,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         await _mediaPlayerService.ConnectAsync();
        
         var startupState = await _startupController.StartAsync();
-        if (startupState == StartupState.RequirePassword)
-        {
-            var taskCompletionSource = new TaskCompletionSource();
-            _spinner.SetVisible(false);
-            var login = new LoginView(_startupController, taskCompletionSource);
-            login.Present(this);
-            await taskCompletionSource.Task;
-        }
-        else if (startupState != StartupState.Finished)
+        if (startupState != StartupState.Finished)
         {
             var taskCompletionSource = new TaskCompletionSource();
             _spinner.SetVisible(false);
