@@ -34,7 +34,7 @@ public class PlaylistTracksView : Gtk.Box
     {
         if (args.Row is TrackRow row)
         {
-            _controller.PlayOrPauseTrackAsync(row.TrackId);
+            _ = _controller.PlayOrPauseTrackAsync(row.TrackId);
         }
     }
 
