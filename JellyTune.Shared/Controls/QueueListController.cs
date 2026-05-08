@@ -52,13 +52,4 @@ public sealed class QueueListController : IDisposable
         _playerService.ShuffleTracks();
         Open();
     }
-
-    /// <summary>
-    /// Clear current queue
-    /// </summary>
-    public void ClearTracks()
-    {
-        _playerService.ClearTracks();
-        Open();
-    }
 }

@@ -6,7 +6,6 @@ namespace JellyTune.Shared.Services;
 public interface IConfigurationService
 {
     public event EventHandler<EventArgs>? OnSaved;
-    public event EventHandler<EventArgs>? OnLoaded;
     public void Save();
     public void Load();
     public string GetConfigurationDirectory();

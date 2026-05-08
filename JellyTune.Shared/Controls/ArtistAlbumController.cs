@@ -12,7 +12,6 @@ public class ArtistAlbumController
     
     public IFileService FileService => _fileService;
     public byte[]? ArtWork = null;
-    public Artist? Artist { get; private set; }
     public List<Album> Albums { get; private set; } = [];
     private CancellationTokenSource? _cancellationTokenSource;
     public event EventHandler<ArtistAlbumArgs> OnAlbumsChanged;

@@ -62,21 +62,19 @@ public sealed class StartupController : IDisposable
         {
             return StartupState.MissingCollection;
         }
-        else
+
+        if (!string.IsNullOrWhiteSpace(collectionId))
         {
-            if (!string.IsNullOrWhiteSpace(collectionId))
+            var id = Guid.Parse(collectionId);
+            var collection = collections.FirstOrDefault(c => c.Id == id);
+            if (collection != null)
             {
-                var id = Guid.Parse(collectionId);
-                var collection = collections.FirstOrDefault(c => c.Id == id);
-                if (collection != null)
-                {
-                    _jellyTuneApiService.SetCollectionId(collection.Id);
-                    return StartupState.Finished;
-                }
+                _jellyTuneApiService.SetCollectionId(collection.Id);
+                return StartupState.Finished;
             }
-            
-            return StartupState.SelectCollection;
         }
+            
+        return StartupState.SelectCollection;
     }
 
     /// <summary>
