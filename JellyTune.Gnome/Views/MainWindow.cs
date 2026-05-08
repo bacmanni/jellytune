@@ -503,6 +503,8 @@ public partial class MainWindow : Adw.ApplicationWindow
 
             if (!_playlist_tracks_footer.IsVisible())
                 _playlist_tracks_footer.SetVisible(true);
+
+            UpdateHeader(true);
         }
         else if (args.State is PlayerState.None)
         {
@@ -513,9 +515,17 @@ public partial class MainWindow : Adw.ApplicationWindow
             _queue_list_footer?.SetVisible(false);
             _playlist_tracks_footer?.SetVisible(false);
             _playerPosition?.SetVisible(false);
+
+            UpdateHeader(false);
         }
     }
 
+    private void UpdateHeader(bool visible)
+    {
+        _queue_list_open_album.SetSensitive(visible);
+        _queue_list_artist_albums.SetSensitive(visible);
+    }
+    
     private void SearchFieldOnSearchChanged(SearchEntry sender, EventArgs args)
     {
         if (string.IsNullOrWhiteSpace(sender.GetText()))
