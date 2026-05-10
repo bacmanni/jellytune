@@ -284,7 +284,6 @@ public partial class MainWindow : Adw.ApplicationWindow
         application.SetAccelsForAction("win.view('page2')", new string[] { "<Ctrl>2" });
         
         OnNotify += OnOnNotify;
-        _ = UpdateMainMenu();
     }
 
     private void QueueListArtistAlbumsOnClicked(Button sender, EventArgs args)
@@ -692,6 +691,7 @@ public partial class MainWindow : Adw.ApplicationWindow
         _spinner.SetVisible(false);
         _album_view.SetVisible(true);
         
+        await UpdateMainMenu();
         await RefreshLists();
     }
     
