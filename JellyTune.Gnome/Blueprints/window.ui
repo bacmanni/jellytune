@@ -159,18 +159,15 @@
                           </object>
                         </child>
                         <child type="end">
-                          <object class="GtkButton" id="_queue_list_open_album">
-                            <property name="tooltip-text">Playing album</property>
-                            <property name="icon-name">multimedia-player-symbolic</property>
-                          </object>
-                        </child>
-                        <child type="end">
                           <object class="GtkButton" id="_queue_list_artist_albums">
                             <property name="tooltip-text">Artist albums</property>
                             <property name="icon-name">view-list-symbolic</property>
-                            <style>
-                              <class name="flat"/>
-                            </style>
+                          </object>
+                        </child>
+                        <child type="end">
+                          <object class="GtkButton" id="_queue_list_open_album">
+                            <property name="tooltip-text">Playing album</property>
+                            <property name="icon-name">multimedia-player-symbolic</property>
                           </object>
                         </child>
                       </object>
