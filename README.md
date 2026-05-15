@@ -2,16 +2,16 @@
 
 ![Screenshot of JellyTune](Screenshots/Wide.png)
 
-My idea is to have native Gnome client for Jellyfin that is also fully supported for mobile devices. So simple audio player. That means no massive edit functionality and no video playback. My wish is to use this on my mobile Linux device at some point.
+My idea is to have native Gnome client for [Jellyfin](https://jellyfin.org/) that is also fully supported for mobile devices. So simple audio player. That means no massive edit functionality and no video playback. My wish is to use this on my mobile Linux device at some point.
 
 For now, it only supports one audio and playlist collection. That is the way I use Jellyfin. If you are using some other way, then leave a comment through support ticket and I see what we can do about it.
 
-Oh, and the whole reason for this all is that I like to buy records and have them locally. I don't use streaming services for music :)
+Oh, and the whole reason for this all is that I like to buy records and actually own them. I don't use streaming services for music :)
 
 ## Requirements
-JellyTune for Gnome requires at least Gnome 49 (libAdwaita 1.8 or later). x86_64 and aarch64 versions are both  supported.
+JellyTune for Gnome requires at least Gnome 49 (libAdwaita 1.8 or later). x86_64 and aarch64 versions are both supported.
 
-## Packages
+## Releases
 There will be couple of ways to get JellyTune. Downloading appimage or flatpak from releases. Flathub install coming at some point
 
 ## Project

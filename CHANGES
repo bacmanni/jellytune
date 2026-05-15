@@ -1,9 +1,9 @@
-+ 1.2;2026-02-18
-- Visual fixes and animations
++ 1.2;2026-05-12
+- Security fixes
+- Visual fixes
 - Added keyboard shortcuts
 - Separated extended controls
-- Added ability to show artist albums
-- Added ability to show playing album
+- Added ability to show artist albums and playing album
 
 + 1.1.5;2026-02-17
 - Bug fixes for window update
