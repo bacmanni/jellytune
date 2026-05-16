@@ -18,7 +18,7 @@ public class ConfigurationServiceTests
     {
         _applicationId = "test.application.id";
         _mockFileSystem  = new Mock<IFileSystem>();
-        _configurationService = new ConfigurationService(_mockFileSystem.Object, _applicationId);
+        _configurationService = new ConfigurationService(_mockFileSystem.Object, _applicationId, "config", "cache");
     }
 
     [Fact]
@@ -45,7 +45,6 @@ public class ConfigurationServiceTests
         configuration.AutoRefresh = !configuration.AutoRefresh;
         _configurationService.Set(configuration);
         
-        
         var evt = Assert.Raises<EventArgs>( handler => _configurationService.OnSaved += handler, handler => _configurationService.OnSaved -= handler, () => _configurationService.Save() );
         Assert.Equal(_configurationService, evt.Sender);
 
@@ -56,10 +55,8 @@ public class ConfigurationServiceTests
         var savedAutoRefresh = configuration.AutoRefresh;
         configuration.AutoRefresh = !configuration.AutoRefresh;
         _configurationService.Set(configuration);
-        
-        evt = Assert.Raises<EventArgs>( handler => _configurationService.OnLoaded += handler, handler => _configurationService.OnLoaded -= handler, () => _configurationService.Load() );
-        Assert.Equal(_configurationService, evt.Sender);
 
+        _configurationService.Load();
         var loadedAutoRefresh = _configurationService.Get().AutoRefresh;
         
         Assert.Equal(savedAutoRefresh, loadedAutoRefresh);

@@ -14,8 +14,7 @@ public class FileService : IFileService
     
     // Used for caching already fetched images
     private readonly ConcurrentDictionary<string, byte[]> _artWork = [];
-    private readonly SemaphoreSlim _semaphore = new(3);
-    
+
     public FileService(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService, IFileSystem fileSystem)
     {
         _jellyTuneApiService = jellyTuneApiService;
@@ -36,6 +35,8 @@ public class FileService : IFileService
             return $"{_configurationService.GetCacheDirectory()}/albums/{id.ToString()}.jpg";
         if (type == FileType.Playlist)
             return $"{_configurationService.GetCacheDirectory()}/playlists/{id.ToString()}.jpg";
+        if (type == FileType.Artist)
+            return $"{_configurationService.GetCacheDirectory()}/artists/{id.ToString()}.jpg";
         
         throw new NotImplementedException($"File type {type} not implemented");
     }
@@ -49,53 +50,45 @@ public class FileService : IFileService
     /// <returns></returns>
     public async Task<byte[]?> GetFileAsync(FileType type, Guid id, CancellationToken cancellationToken = default)
     {
-        await _semaphore.WaitAsync(cancellationToken);
-        try
+        var key = $"{type.ToString()}-{id.ToString()}";
+        var filename = GetFilename(type, id);
+    
+        if (type == FileType.AlbumArt && _artWork.TryGetValue(key, out var cachedArt))
         {
-            var key = $"{type.ToString()}-{id.ToString()}";
-            var filename = GetFilename(type, id);
+            return cachedArt;
+        }
+
+        if (_configurationService.Get().CacheAlbumArt)
+        {
+            var dir = _fileSystem.Path.GetDirectoryName(filename);
+            if (!_fileSystem.Directory.Exists(dir))
+                _fileSystem.Directory.CreateDirectory(dir);
+
+            if (_fileSystem.File.Exists(filename))
+            {
+                if (cancellationToken.IsCancellationRequested)
+                    return null;
+                
+                var fileBytes = await _fileSystem.File.ReadAllBytesAsync(filename);
+                _artWork.TryAdd(key, fileBytes);
+                return fileBytes;
+            }
+        }
+
+        if (cancellationToken.IsCancellationRequested)
+            return null;
         
-            if (type == FileType.AlbumArt && _artWork.TryGetValue(key, out var cachedArt))
-            {
-                return cachedArt;
-            }
+        var primaryArt = await _jellyTuneApiService.GetPrimaryArtAsync(id);
+        if (primaryArt == null)
+            return null;
 
-            if (_configurationService.Get().CacheAlbumArt)
-            {
-                var dir = _fileSystem.Path.GetDirectoryName(filename);
-                if (!_fileSystem.Directory.Exists(dir))
-                    _fileSystem.Directory.CreateDirectory(dir);
-
-                if (_fileSystem.File.Exists(filename))
-                {
-                    if (cancellationToken.IsCancellationRequested)
-                        return null;
-                    
-                    var fileBytes = await _fileSystem.File.ReadAllBytesAsync(filename);
-                    _artWork.TryAdd(key, fileBytes);
-                    return fileBytes;
-                }
-            }
-
-            if (cancellationToken.IsCancellationRequested)
-                return null;
-            
-            var primaryArt = await _jellyTuneApiService.GetPrimaryArtAsync(id);
-            if (primaryArt == null)
-                return null;
-
-            if (_configurationService.Get().CacheAlbumArt)
-            {
-                await _fileSystem.File.WriteAllBytesAsync(filename, primaryArt);
-            }
-
-            _artWork.TryAdd(key, primaryArt);
-            return primaryArt;
-        }
-        finally
+        if (_configurationService.Get().CacheAlbumArt)
         {
-            _semaphore.Release();
+            await _fileSystem.File.WriteAllBytesAsync(filename, primaryArt);
         }
+
+        _artWork.TryAdd(key, primaryArt);
+        return primaryArt;
     }
 
     /// <summary>

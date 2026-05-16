@@ -68,17 +68,7 @@ public class StartupView : Adw.Dialog
             var configuration = _controller.ConfigurationService.Get();
             configuration.ServerUrl = _accountController.ServerUrl;
             configuration.Username = _accountController.Username;
-
-            if (_accountController.RememberPassword)
-            {
-                configuration.Password = _accountController.Password;
-                configuration.RememberPassword  = true;
-            }
-            else
-            {
-                configuration.Password = string.Empty;
-                configuration.RememberPassword = false;
-            }
+            configuration.Password = _accountController.Password;
 
             if (_accountController.CollectionId != null)
                 configuration.CollectionId = _accountController.CollectionId.ToString();

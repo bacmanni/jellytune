@@ -14,7 +14,7 @@ public class AccountControllerTests
     {
         _mockJellyTuneApiService = new Mock<IJellyTuneApiService>();
         _mockConfigurationService = new Mock<IConfigurationService>();
-        
+
         _mockJellyTuneApiService.Setup(repo => repo.CheckServerAsync("http://test.com")).ReturnsAsync(true);
         _mockJellyTuneApiService.Setup(repo => repo.CheckServerAsync("https://test.com:8096")).ReturnsAsync(true);
         _mockJellyTuneApiService.Setup(repo => repo.LoginAsync("valid", "test")).ReturnsAsync(true);

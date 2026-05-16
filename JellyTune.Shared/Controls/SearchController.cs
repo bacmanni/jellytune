@@ -62,7 +62,13 @@ public sealed class SearchController : IDisposable
             await _cancellationTokenSource.CancelAsync();
             _cancellationTokenSource.Dispose();
         }
-        
+
+        if (string.IsNullOrEmpty(value))
+        {
+            SearchStateChanged(new SearchStateArgs() { Empty = true });
+            return;
+        }
+            
         _cancellationTokenSource = new CancellationTokenSource();
         
         await GetSearchResultsAsync(value, _cancellationTokenSource.Token);

@@ -16,7 +16,7 @@ public sealed class MainWindowController : IDisposable
     public IPlayerService PlayerService => _playerService;
     public IFileService FileService => _fileService;
 
-    public MainWindowController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService, IPlayerService playerService, IFileService fileService, ApplicationInfo  applicationInfo)
+    public MainWindowController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService, IPlayerService playerService, IFileService fileService, ApplicationInfo applicationInfo)
     {
         _jellyTuneApiService = jellyTuneApiService;
         _configurationService = configurationService;

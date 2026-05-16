@@ -28,18 +28,17 @@
                                 <property name="orientation">1</property>
                                 <property name="spacing">12</property>
                                 <property name="margin-top">12</property>
-                                <property name="margin-start">24</property>
-                                <property name="margin-end">24</property>
-                                <property name="margin-bottom">24</property>
+                                <property name="margin-start">12</property>
+                                <property name="margin-end">12</property>
+                                <property name="margin-bottom">12</property>
                                 <child>
                                     <object class="GtkBox">
                                         <property name="margin-top">12</property>
                                         <property name="margin-bottom">12</property>
                                         <property name="halign">1</property>
                                         <child>
-                                            <object class="AdwClamp">
-                                                <property name="tightening-threshold">150</property>
-                                                <property name="child">
+                                            <object class="GtkBox">
+                                                <child>
                                                     <object class="GtkImage" id="_albumArt">
                                                         <property name="overflow">hidden</property>
                                                         <style>
@@ -48,16 +47,16 @@
                                                         </style>
                                                         <property name="pixel-size">160</property>
                                                     </object>
-                                                </property>
+                                                </child>
                                             </object>
                                         </child>
                                         <child>
                                             <object class="GtkBox">
                                                 <property name="orientation">1</property>
-                                                <property name="margin-start">12</property>
                                                 <property name="halign">1</property>
                                                 <child>
                                                     <object class="GtkLabel" id="_album">
+                                                        <property name="margin-start">12</property>
                                                         <property name="ellipsize">3</property>
                                                         <property name="justify">0</property>
                                                         <property name="halign">1</property>
@@ -68,6 +67,7 @@
                                                 </child>
                                                 <child>
                                                     <object class="GtkLabel" id="_artist">
+                                                        <property name="margin-start">12</property>
                                                         <property name="ellipsize">3</property>
                                                         <property name="justify">0</property>
                                                         <property name="halign">1</property>
@@ -78,41 +78,24 @@
                                                 </child>
                                                 <child>
                                                     <object class="GtkBox">
-                                                        <property name="margin-top">12</property>
+                                                        <property name="margin-start">12</property>
+                                                        <property name="margin-top">6</property>
                                                         <property name="spacing">12</property>
+                                                        <style>
+                                                            <class name="dimmed"/>
+                                                        </style>
                                                         <child>
                                                             <object class="GtkLabel" id="_trackCount">
-                                                                <style>
-                                                                    <class name="dimmed"/>
-                                                                </style>
                                                             </object>
                                                         </child>
                                                         <child>
                                                             <object class="GtkLabel" id="_albumDuration">
-                                                                <style>
-                                                                    <class name="dimmed"/>
-                                                                </style>
                                                             </object>
                                                         </child>
                                                         <child>
                                                             <object class="GtkLabel" id="_albumYear">
-                                                                <style>
-                                                                    <class name="dimmed"/>
-                                                                </style>
                                                             </object>
                                                         </child>
-                                                    </object>
-                                                </child>
-                                                <child>
-                                                    <object class="GtkMenuButton" id="_tracks_modify">
-                                                        <property name="visible">false</property>
-                                                        <property name="halign">1</property>
-                                                        <style>
-                                                            <class name="flat"/>
-                                                        </style>
-                                                        <property name="tooltip-text">Show actions</property>
-                                                        <property name="icon-name">view-more-symbolic</property>
-                                                        <property name="menu-model">tracks_modify</property>
                                                     </object>
                                                 </child>
                                             </object>
@@ -135,14 +118,4 @@
             </object>
         </child>
     </object>
-    <menu id="tracks_modify">
-        <item>
-            <attribute name="label" translatable="true">Refresh</attribute>
-            <attribute name="action">win.refresh</attribute>
-        </item>
-        <item>
-            <attribute name="label" translatable="true">Preferences</attribute>
-            <attribute name="action">win.preferences</attribute>
-        </item>
-    </menu>
 </interface>

@@ -130,6 +130,11 @@ public sealed class PlayerService : IPlayerService, IDisposable
             _artwork = await _jellyTuneApiService.GetPrimaryArtAsync(albumId);
             PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedArtwork, album, _tracks.ToList()));
         }
+        else
+        {
+            _artwork = null;
+            PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedArtwork, album, _tracks.ToList()));
+        }
     }
 
     private async Task OpenAlbumAsync(Guid albumId, CancellationToken cancellationToken = default)
@@ -159,6 +164,11 @@ public sealed class PlayerService : IPlayerService, IDisposable
             if (_cancellationTokenSource is { IsCancellationRequested: true })
                 return;
             
+            PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedArtwork, album, tracks));
+        }
+        else
+        {
+            _artwork = null;
             PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedArtwork, album, tracks));
         }
     }
@@ -192,7 +202,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
                 }
 
                 if (!string.IsNullOrWhiteSpace(_playSessionId))
-                    _ = _jellyTuneApiService.ResumePlaybackAsync(_playSessionId, trackId, position);
+                    await _jellyTuneApiService.ResumePlaybackAsync(_playSessionId, trackId, position);
                 
                 if (!_networkDisconnected)
                 {
@@ -695,15 +705,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// </summary>
     public void ClearTracks()
     {
-       var playingTrack = _tracks.FirstOrDefault(t => t.Id == _playingTrack?.Id);
         _tracks.Clear();
-
-        if (playingTrack != null)
-            _tracks.Add(playingTrack);
-        
-        // Send update with current state as previous/next track need to be updated
-        var currentState = GetPlaybackState();
-        PlayerStateChanged(new PlayerStateArgs(currentState, _album, _tracks.ToList(), _selectedTrack));
     }
 
     /// <summary>

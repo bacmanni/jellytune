@@ -10,12 +10,10 @@ public sealed class AccountController
     private readonly IJellyTuneApiService _jellyTuneApiService;
     private readonly IConfigurationService _configurationService;
     private bool _isValid { get; set; }
-    
     public bool IsValid() => _isValid;
     public string ServerUrl { get; set; }
     public string Username { get; set; }
-    public string Password { get; set; }
-    public bool RememberPassword { get; set; }
+    public string? Password { get; set; }
     public Guid? CollectionId { get; set; }
     public Guid? PlaylistCollectionId { get; set; }
 
@@ -87,13 +85,12 @@ public sealed class AccountController
     /// </summary>
     /// <param name="configuration"></param>
     /// <param name="validate">Should validate when opened</param>
-    public void OpenConfiguration(Configuration configuration, bool validate)
+    public async Task OpenConfiguration(Configuration configuration, bool validate)
     {
         _isValid = true;
         ServerUrl = configuration.ServerUrl;
         Username = configuration.Username;
         Password = configuration.Password;
-        RememberPassword = configuration.RememberPassword;
         
         if (!string.IsNullOrWhiteSpace(configuration.CollectionId))
             CollectionId = Guid.Parse(configuration.CollectionId);
@@ -101,7 +98,7 @@ public sealed class AccountController
         if (!string.IsNullOrWhiteSpace(configuration.PlaylistCollectionId))
             PlaylistCollectionId = Guid.Parse(configuration.PlaylistCollectionId);
         
-        OnConfigurationLoaded?.Invoke(this, new AccountArgs() {Validate = validate, Configuration = configuration });
+        OnConfigurationLoaded?.Invoke(this, new AccountArgs() {Validate = validate });
     }
 
     /// <summary>
@@ -137,7 +134,7 @@ public sealed class AccountController
 
         if (configuration.Username != Username)
             return true;
-        
+
         if (configuration.Password != Password)
             return true;
         

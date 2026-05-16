@@ -17,7 +17,7 @@
       <PackageReference Include="GirCore.Gtk-4.0" Version="0.7.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.4" />
       <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.4" />
-      <PackageReference Include="Tmds.DBus" Version="0.22.0" />
+      <PackageReference Include="Tmds.DBus" Version="0.92.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -27,7 +27,6 @@
       <EmbeddedResource Include="Resources\jellytune-icon.svg" />
       <None Remove="Blueprints\window.blp" />
       <EmbeddedResource Include="Blueprints\window.ui" />
-      <None Remove="Blueprints\album_row.ui" />
       <None Remove="Blueprints\album_details.ui" />
       <None Remove="Blueprints\preferences_dialog.ui" />
       <None Remove="Blueprints\album_dialog.ui" />
@@ -46,13 +45,10 @@
       <None Remove="Blueprints\search.ui" />
       <EmbeddedResource Include="Blueprints\search.ui" />
       <None Remove="Blueprints\search_list_item.ui" />
-      <None Update="Resources\org.bacmanni.jellytune.css">
+      <None Update="Resources\io.github.bacmanni.jellytune-dark.css">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="Resources\org.bacmanni.jellytune-dark.css">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-      <None Update="Resources\org.bacmanni.jellytune.gresource.xml">
+      <None Update="Resources\io.github.bacmanni.jellytune.gresource.xml">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Remove="Blueprints\queue_list.ui" />
@@ -74,7 +70,6 @@
       <None Remove="Blueprints\playlist.ui" />
       <EmbeddedResource Include="Blueprints\playlist.ui" />
       <None Remove="Blueprints\playlist_row.ui" />
-      <EmbeddedResource Include="Blueprints\playlist_row.ui" />
       <None Remove="Blueprints\playlist_tracks.ui" />
       <EmbeddedResource Include="Blueprints\playlist_tracks.ui" />
       <None Remove="Blueprints\playlist_tracks_row.ui" />
@@ -87,23 +82,30 @@
       <EmbeddedResource Include="Blueprints\player_extended_button.ui" />
       <None Remove="Blueprints\player_extended.ui" />
       <EmbeddedResource Include="Blueprints\player_extended.ui" />
+      <None Remove="Blueprints\artist.ui" />
+      <None Remove="Blueprints\artist_album.ui" />
+      <EmbeddedResource Include="Blueprints\artist_album.ui" />
+      <None Remove="Blueprints\album_row.ui" />
+      <EmbeddedResource Include="Blueprints\album_row.ui" />
+      <None Remove="Blueprints\shortcuts.ui" />
+      <EmbeddedResource Include="Blueprints\shortcuts.ui" />
+      <None Remove="Blueprints\information.ui" />
+      <None Remove="Blueprints\album_art.ui" />
+      <EmbeddedResource Include="Blueprints\album_art.ui" />
+      <None Remove="nuget-sources.json" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\JellyTune.Shared\JellyTune.Shared.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <EmbeddedResource Include="Blueprints\login.ui" />
-    </ItemGroup>
-
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
         <Exec Command="echo Compiling gresources" />
-        <Exec Command="glib-compile-resources --sourcedir ./Resources ./Resources/org.bacmanni.jellytune.gresource.xml --target=$(OutDir)/org.bacmanni.jellytune.gresource" />
+        <Exec Command="glib-compile-resources --sourcedir ./Resources ./Resources/io.github.bacmanni.jellytune.gresource.xml --target=$(OutDir)/io.github.bacmanni.jellytune.gresource" />
     </Target>
     
     <Target Name="PostPublish" AfterTargets="Publish">
         <Exec Command="echo Copy resource" />
-        <Exec Command="cp $(OutDir)/org.bacmanni.jellytune.gresource $(PublishDir)/org.bacmanni.jellytune.gresource" />
+        <Exec Command="cp $(OutDir)/io.github.bacmanni.jellytune.gresource $(PublishDir)/io.github.bacmanni.jellytune.gresource" />
     </Target>
 </Project>

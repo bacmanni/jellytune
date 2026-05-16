@@ -5,12 +5,12 @@ using JellyTune.Shared.Models;
 using JellyTune.Shared.Services;
 using Tmds.DBus;
 
-namespace JellyTune.Gnome.MediaPlayer;
+namespace JellyTune.Gnome.DBus.MediaPlayer;
 
 /// <summary>
 /// This will control media player widget in menu
 /// </summary>
-public class MediaPlayerController : IDisposable
+public class MediaPlayerService : IDisposable
 {
     private readonly IFileService _fileService;
     private readonly IPlayerService _playerService;
@@ -21,7 +21,7 @@ public class MediaPlayerController : IDisposable
     private MediaPlayer? _mediaPlayer;
     private RegisterState _registerState = RegisterState.Unregistered;
 
-    public MediaPlayerController(MainWindow mainWindow, IFileService fileService, IPlayerService playerService, ApplicationInfo applicationInfo)
+    public MediaPlayerService(MainWindow mainWindow, IFileService fileService, IPlayerService playerService, ApplicationInfo applicationInfo)
     {
         _fileService = fileService;
         _playerService = playerService;

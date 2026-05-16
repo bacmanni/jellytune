@@ -1,16 +1,18 @@
 using System.IO.Abstractions;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using System.Text.Unicode;
 using JellyTune.Shared.Models;
 
 namespace JellyTune.Shared.Services;
 
-public class ConfigurationService(IFileSystem _fileSystem, string applicationId) : IConfigurationService
+public class ConfigurationService(IFileSystem _fileSystem, string applicationId, string? configurationDir, string? cacheDir) : IConfigurationService
 {
+    private readonly string _keySalt = "37cee24e-26a3-4a71-8e92-3bb5cecfcbc3";
     private readonly Configuration _configuration = new();
 
     /// <summary>
@@ -29,7 +31,11 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId)
     public void Save()
     {
         var filename = GetFilename();
-        var json = JsonSerializer.Serialize(_configuration,  options: new JsonSerializerOptions { WriteIndented = true, Encoder = JavaScriptEncoder.Create(UnicodeRanges.All) });
+        
+        var configuration = _configuration.ShallowCopy();
+        configuration.Password = Encrypt(configuration.Password);
+        
+        var json = JsonSerializer.Serialize(configuration,  options: new JsonSerializerOptions { WriteIndented = true, Encoder = JavaScriptEncoder.Create(UnicodeRanges.All) });
         
         _fileSystem.File.WriteAllText(filename, json);
         OnSaved?.Invoke(this, EventArgs.Empty);
@@ -59,12 +65,82 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId)
                 {
                     property.SetValue(_configuration, property.GetValue(configuration));
                 }
+
+                try
+                {
+                    var decrypted = Decrypt(_configuration.Password);
+                    _configuration.Password = decrypted;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Decrypting password failed: {e}");
+                    _configuration.Password = null;
+                }
             }
         }
-
-        OnLoaded?.Invoke(this, EventArgs.Empty);
     }
 
+    private byte[] DeriveKeyFromGuid(string deviceId)
+    {
+        var input = Encoding.UTF8.GetBytes(deviceId);
+        var salt = Encoding.UTF8.GetBytes(_keySalt);
+
+        using var hmac = new HMACSHA256(salt);
+        var keyBytes = hmac.ComputeHash(input);
+
+        return keyBytes;
+    }
+    
+    private string? Decrypt(string? encrypted)
+    {
+        if (encrypted == null) return null;
+        
+        var key = DeriveKeyFromGuid(_configuration.DeviceId);
+        var aes = new AesGcm(key);
+
+        var combined = Convert.FromBase64String(encrypted);
+
+        var nonce = new byte[12];
+        var tag = new byte[16];
+        var ciphertext = new byte[combined.Length - nonce.Length - tag.Length];
+
+        Buffer.BlockCopy(combined, 0, nonce, 0, nonce.Length);
+        Buffer.BlockCopy(combined, nonce.Length, ciphertext, 0, ciphertext.Length);
+        Buffer.BlockCopy(combined, nonce.Length + ciphertext.Length, tag, 0, tag.Length);
+
+        var plaintextBytes = new byte[ciphertext.Length];
+        aes.Decrypt(nonce, ciphertext, tag, plaintextBytes);
+
+        return System.Text.Encoding.UTF8.GetString(plaintextBytes);
+    }
+    
+    private string? Encrypt(string? password)
+    {
+        if (password == null) return null;
+        
+        var key = DeriveKeyFromGuid(_configuration.DeviceId);
+        var aes = new AesGcm(key);
+
+        var nonce = new byte[12];
+        RandomNumberGenerator.Fill(nonce);
+
+        var plaintextBytes = System.Text.Encoding.UTF8.GetBytes(password);
+        var ciphertext = new byte[plaintextBytes.Length];
+        var tag = new byte[16];
+
+        aes.Encrypt(nonce, plaintextBytes, ciphertext, tag);
+
+        // Combine nonce + ciphertext + tag
+        var combined = new byte[nonce.Length + ciphertext.Length + tag.Length];
+        Buffer.BlockCopy(nonce, 0, combined, 0, nonce.Length);
+        Buffer.BlockCopy(ciphertext, 0, combined, nonce.Length, ciphertext.Length);
+        Buffer.BlockCopy(tag, 0, combined, nonce.Length + ciphertext.Length, tag.Length);
+
+        return Convert.ToBase64String(combined);
+    }
+    
+    
+    
     /// <summary>
     /// Get application configuration file directory
     /// </summary>
@@ -74,14 +150,7 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId)
         var platform = GetOsPlatform();
         if (platform == OSPlatform.Linux)
         {
-            var configHome = Environment.GetEnvironmentVariable("XDG_CONFIG_HOME");
-            if (string.IsNullOrEmpty(configHome))
-            {
-                var home = Environment.GetEnvironmentVariable("HOME");
-                configHome = Path.Combine(home, ".config", applicationId);
-            }
-
-            return configHome;
+            return configurationDir;
         }
         else if (platform == OSPlatform.OSX)
         {
@@ -100,14 +169,7 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId)
         var platform = GetOsPlatform();
         if (platform == OSPlatform.Linux)
         {
-            var configHome = Environment.GetEnvironmentVariable("XDG_CACHE_HOME");
-            if (string.IsNullOrEmpty(configHome))
-            {
-                var home = Environment.GetEnvironmentVariable("HOME");
-                configHome = Path.Combine(home, ".cache", applicationId);
-            }
-
-            return configHome;
+            return cacheDir;
         }
         else if (platform == OSPlatform.OSX)
         {
@@ -145,10 +207,47 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId)
         var properties = typeof(Configuration).GetProperties();
         foreach (var property in properties)
         {
+            if (property.Name == "Password")
+            {
+                
+            }
+            
             property.SetValue(_configuration, property.GetValue(configuration));
         }
     }
 
+    /// <summary>
+    /// Set value in configuration with key
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="value"></param>
+    /// <typeparam name="T"></typeparam>
+    public void Set<T>(string key, T value)
+    {
+        var properties = typeof(Configuration).GetProperties();
+        foreach (var property in properties)
+        {
+            if (property.Name == key)
+            {
+                property.SetValue(_configuration, value);
+            }
+        }
+    }
+    
+    public T Get<T>(string key)
+    {
+        var properties = typeof(Configuration).GetProperties();
+        foreach (var property in properties)
+        {
+            if (property.Name == key)
+            {
+                return (T)property.GetValue(_configuration);
+            }
+        }
+
+        return default;
+    }
+    
     /// <summary>
     /// Get latest changes from CHANGES-file
     /// </summary>

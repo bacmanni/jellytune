@@ -22,12 +22,21 @@ public class HttpClientExceptionHandler : DelegatingHandler
             try
             {
                 var response = await base.SendAsync(request, cancellationToken);
+                if (response.StatusCode.Equals(HttpStatusCode.NotFound))
+                {
+                    Console.WriteLine($"Request failed with status code {response.StatusCode}");
+                    response.Content = new StringContent(string.Empty);
+                    response.StatusCode = HttpStatusCode.Accepted;
+                    return response;
+                }
+
                 if (!response.IsSuccessStatusCode)
                 {
                     if (tries == totalRetries)
                         return response;
                     
                     Console.WriteLine($"Request failed with status code {response.StatusCode}");
+                    await Task.Delay(500, cancellationToken);
                     tries++;
                     continue;
                 }

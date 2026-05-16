@@ -16,7 +16,6 @@ public class AccountView : Adw.PreferencesGroup
     [Gtk.Connect] private readonly Adw.EntryRow _server;
     [Gtk.Connect] private readonly Adw.EntryRow _username;
     [Gtk.Connect] private readonly Adw.PasswordEntryRow _password;
-    [Gtk.Connect] private readonly Adw.SwitchRow _rememberPassword;
     [Gtk.Connect] private readonly Adw.ComboRow _audioCollection;
     [Gtk.Connect] private readonly Adw.ComboRow _playlistCollection;
     
@@ -68,12 +67,6 @@ public class AccountView : Adw.PreferencesGroup
         {
             _passwordLoading.SetVisible(true);
             await CheckLogin();
-        };
-
-        _rememberPassword.OnNotify += (sender, args) =>
-        {
-            if (sender is SwitchRow element)
-                _controller.RememberPassword = element.GetActive();
         };
         
         _audioCollectionItems = Gio.ListStore.New(CollectionRow.GetGType());
@@ -132,11 +125,10 @@ public class AccountView : Adw.PreferencesGroup
         _isAccountValid = false;
         _isServerValid = false;
             
-        _server.SetText(args.Configuration.ServerUrl);
-        _username.SetText(args.Configuration.Username);
-        _password.SetText(args.Configuration.Password);
-        _rememberPassword.SetActive(args.Configuration.RememberPassword);
-
+        _server.SetText(_controller.ServerUrl);
+        _username.SetText(_controller.Username);
+        _password.SetText(_controller.Password ?? "");
+        
         if (!args.Validate)
             return;
         
@@ -181,7 +173,6 @@ public class AccountView : Adw.PreferencesGroup
         _server.RemoveCssClass("error");
         _username.SetSensitive(false);
         _password.SetSensitive(false);
-        _rememberPassword.SetSensitive(false);
         _audioCollection.SetSensitive(false);
             
         if (!string.IsNullOrWhiteSpace(_server.GetText()))
@@ -221,7 +212,6 @@ public class AccountView : Adw.PreferencesGroup
             _password.RemoveCssClass("error");
             _usernameLoading.SetVisible(false);
             _passwordLoading.SetSensitive(false);
-            _rememberPassword.SetSensitive(false);
         }
         
         if (!string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password))
@@ -238,7 +228,6 @@ public class AccountView : Adw.PreferencesGroup
                 _controller.UpdateValidity(true,  true, false);
                 _username.RemoveCssClass("error");
                 _password.RemoveCssClass("error");
-                _rememberPassword.SetSensitive(true);
                 _audioCollection.SetSensitive(true);
                 await UpdateAudioCollections();
                 UpdatePlaylistCollections();

@@ -21,7 +21,7 @@ public interface IJellyTuneApiService
     public Task<List<Models.Search>> SearchTrackAsync(string value, CancellationToken cancellationToken = default);
     public Task<List<Track>> GetTracksAsync(Guid albumId, CancellationToken cancellationToken = default);
     public Task<Models.Track> GetTrackAsync(Guid trackId);
-    public Task<byte[]?> GetPrimaryArtAsync(Guid albumId);
+    public Task<byte[]?> GetPrimaryArtAsync(Guid albumId, int? size = 200);
     public Task<Stream?> GetAudioStreamAsync(Guid trackId);
     public Task<Playlist> GetPlaylistAsync(Guid playlistId);
     public Task<List<Track>> GetPlaylistTracksAsync(Guid playlistId);
@@ -30,6 +30,8 @@ public interface IJellyTuneApiService
     public Task ResumePlaybackAsync(string sessiondId, Guid trackId, int? position);
     public Task<List<Playlist>> GetPlaylistsAsync(Guid collectionId);
     Uri? GetPrimaryArtUrl(Guid id);
-    public string GetWebsocketUrl();
     public Task SeekPlaybackAsync(string sessiondId, Guid trackId, int? position);
+    public Task<List<Album>> GetArtistAlbumsAsync(Guid artistId, Guid?[]? excludeAbumIds = null);
+    public Task<Artist?> GetArtistAsync(Guid artistId);
+    public Task<Guid?> GetArtistByTrackIdAsync(Guid trackId);
 }

@@ -11,12 +11,11 @@ public sealed class AlbumController : IDisposable
     private readonly IConfigurationService _configurationService;
     private readonly IPlayerService _playerService;
     private readonly IFileService _fileService;
-    
-    private CancellationTokenSource? _cancellationTokenSource;
-    
+
     public IPlayerService PlayerService => _playerService;
     public IFileService FileService => _fileService;
-
+    public IConfigurationService ConfigurationService => _configurationService;
+    public IJellyTuneApiService JellyTuneApiService => _jellyTuneApiService;
     public Album? Album { get; private set; }
     public List<Track> Tracks { get; private set; } = [];
     public Track? SelectedTrack { get; private set; }
@@ -64,33 +63,28 @@ public sealed class AlbumController : IDisposable
     /// </summary>
     /// <param name="albumId"></param>
     /// <param name="selectedTrackId"></param>
-    public async Task OpenAsync(Guid albumId, Guid? selectedTrackId = null)
+    public async Task OpenAsync(Guid albumId, Guid? selectedTrackId = null, CancellationToken cancellationToken = default)
     {
         AlbumChanged(new AlbumStateArgs());
-
-        if (_cancellationTokenSource != null)
-        {
-            await _cancellationTokenSource.CancelAsync();
-            _cancellationTokenSource.Dispose();
-        }
+        Album = await _jellyTuneApiService.GetAlbumAsync(albumId, cancellationToken);
+        Tracks = await _jellyTuneApiService.GetTracksAsync(albumId,  cancellationToken);
         
-        _cancellationTokenSource = new CancellationTokenSource();
-        
-        Album = await _jellyTuneApiService.GetAlbumAsync(albumId, _cancellationTokenSource.Token);
-        Tracks = await _jellyTuneApiService.GetTracksAsync(albumId,  _cancellationTokenSource.Token);
-        
-        if (_cancellationTokenSource.IsCancellationRequested)
+        if (cancellationToken.IsCancellationRequested)
             return;
         
         AlbumChanged(new AlbumStateArgs() { UpdateAlbum = true, UpdateTracks = true, SelectedTrackId = selectedTrackId });
         
         if (Album.HasArtwork)
         {
-            Artwork = await _fileService.GetFileAsync(FileType.AlbumArt, albumId, _cancellationTokenSource.Token);
-            if (_cancellationTokenSource.IsCancellationRequested)
+            Artwork = await _fileService.GetFileAsync(FileType.AlbumArt, albumId, cancellationToken);
+            if (cancellationToken.IsCancellationRequested)
                 return;
             
             AlbumChanged(new AlbumStateArgs() { UpdateArtwork = true});    
+        }
+        else
+        {
+            Artwork = null;
         }
     }
 
@@ -108,30 +102,5 @@ public sealed class AlbumController : IDisposable
         {
             await _playerService.StartTrackAsync(trackId);
         }
-    }
-
-    /// <summary>
-    /// Add track to play queue
-    /// </summary>
-    /// <param name="getTrackId"></param>
-    public void AddTrackToQueue(Guid getTrackId)
-    {
-        var track =  Tracks.FirstOrDefault(t => t.Id == getTrackId);
-        if (track != null)
-            _playerService.AddTrack(track);
-    }
-
-    /// <summary>
-    /// Get track position in queue
-    /// </summary>
-    /// <param name="trackId"></param>
-    /// <returns></returns>
-    public int? GetTrackPositionInQueue(Guid trackId)
-    {
-        var track = Tracks.FirstOrDefault(t => t.Id == trackId);
-        if (track != null)
-            _playerService.GetQueuePosition(trackId);
-        
-        return null;
     }
 }

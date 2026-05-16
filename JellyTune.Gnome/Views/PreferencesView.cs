@@ -20,7 +20,10 @@ public partial class PreferencesView : Adw.PreferencesDialog
     [Gtk.Connect] private readonly Adw.SwitchRow _cacheList;
     [Gtk.Connect] private readonly Adw.SwitchRow _cacheArtwork;
     [Gtk.Connect] private readonly Adw.SwitchRow _showListSeparator;
-    [Gtk.Connect] private readonly Adw.SwitchRow _showExtendedControls;
+    [Gtk.Connect] private readonly Adw.SwitchRow _showSeek;
+    [Gtk.Connect] private readonly Adw.SwitchRow _showVolume;
+    [Gtk.Connect] private readonly Adw.SwitchRow _showPlayingAlbum;
+    [Gtk.Connect] private readonly Adw.SwitchRow _showLyrics;
 
     public bool Refresh { get; set; } = false;
     public string? Password { get; set; } = null;
@@ -42,24 +45,15 @@ public partial class PreferencesView : Adw.PreferencesDialog
             configuration.CacheListData = _cacheList.GetActive();
             configuration.CacheAlbumArt = _cacheArtwork.GetActive();
             configuration.ShowListSeparator = _showListSeparator.GetActive();
-            configuration.ShowExtendedControls = _showExtendedControls.GetActive();
+            configuration.ShowLyrics = _showLyrics.GetActive();
+            configuration.ShowSeek = _showSeek.GetActive();
+            configuration.ShowVolume = _showVolume.GetActive();
+            configuration.ShowCurrentAlbum = _showPlayingAlbum.GetActive();
 
             Refresh = _accountController.HasChanges();
             configuration.ServerUrl = _accountController.ServerUrl;
             configuration.Username = _accountController.Username;
-
-            // If password is not saved, we pass it temporarily through variable
-            if (_accountController.RememberPassword)
-            {
-                configuration.Password = _accountController.Password;
-            }
-            else
-            {
-                configuration.Password = string.Empty;
-                Password = _accountController.Password;
-            }
-            
-            configuration.RememberPassword = _accountController.RememberPassword;
+            configuration.Password = _accountController.Password;
             configuration.CollectionId = _accountController.CollectionId?.ToString() ?? throw new NullReferenceException("This should never happen!");
             configuration.PlaylistCollectionId = _accountController.PlaylistCollectionId?.ToString();
             
@@ -85,19 +79,22 @@ public partial class PreferencesView : Adw.PreferencesDialog
     {
         _configurationService = configurationService;
         _jellyTuneApiService = jellyTuneApiService;
-        
+
         _accountController = new AccountController(_configurationService, _jellyTuneApiService);
         _accountView =  new AccountView(_accountController);
-        _preferencesPage1.Add(_accountView);
+        _preferencesPage1.Insert(_accountView, 0);
         
         var configuration =  _configurationService.Get();
-        _accountController.OpenConfiguration(configuration, true);
+        _ = _accountController.OpenConfiguration(configuration, true);
         _useAutoRefresh.SetActive(configuration.AutoRefresh);
         _cacheList.SetActive(configuration.CacheListData);
         _cacheArtwork.SetActive(configuration.CacheAlbumArt);
         _showListSeparator.SetActive(configuration.ShowListSeparator);
         
-        _showExtendedControls.SetActive(configuration.ShowExtendedControls);
+        _showLyrics.SetActive(configuration.ShowLyrics);
+        _showSeek.SetActive(configuration.ShowSeek);
+        _showVolume.SetActive(configuration.ShowVolume);
+        _showPlayingAlbum.SetActive(configuration.ShowCurrentAlbum);
     }
 
     public override void Dispose()

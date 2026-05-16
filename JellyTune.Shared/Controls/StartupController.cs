@@ -11,9 +11,8 @@ public sealed class StartupController : IDisposable
 {
     private readonly IJellyTuneApiService _jellyTuneApiService;
     private readonly IConfigurationService _configurationService;
-
-    public IConfigurationService ConfigurationService => _configurationService;
     
+    public IConfigurationService ConfigurationService => _configurationService;
     public IJellyTuneApiService  JellyTuneApiService => _jellyTuneApiService;
     
     public StartupController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService)
@@ -29,10 +28,9 @@ public sealed class StartupController : IDisposable
     public async Task<StartupState> StartAsync(string? nonStoredPassword = null)
     {
         var configuration = _configurationService.Get();
-        
         var server = configuration.ServerUrl;
         var username = configuration.Username;
-        var password = !string.IsNullOrWhiteSpace(nonStoredPassword) ? nonStoredPassword : configuration.Password;
+        var password = !string.IsNullOrWhiteSpace(nonStoredPassword) ? nonStoredPassword : configuration.Password;;
         var collectionId = configuration.CollectionId;
         
         // This should only happen when no configuration is saved
@@ -52,12 +50,7 @@ public sealed class StartupController : IDisposable
         {
             return StartupState.InvalidServer;
         }
-        
-        if (string.IsNullOrEmpty(password))
-        {
-            return StartupState.RequirePassword;
-        }
-        
+
         var logged = await _jellyTuneApiService.LoginAsync(username, password);
         if (!logged)
         {
@@ -69,21 +62,19 @@ public sealed class StartupController : IDisposable
         {
             return StartupState.MissingCollection;
         }
-        else
+
+        if (!string.IsNullOrWhiteSpace(collectionId))
         {
-            if (!string.IsNullOrWhiteSpace(collectionId))
+            var id = Guid.Parse(collectionId);
+            var collection = collections.FirstOrDefault(c => c.Id == id);
+            if (collection != null)
             {
-                var id = Guid.Parse(collectionId);
-                var collection = collections.FirstOrDefault(c => c.Id == id);
-                if (collection != null)
-                {
-                    _jellyTuneApiService.SetCollectionId(collection.Id);
-                    return StartupState.Finished;
-                }
+                _jellyTuneApiService.SetCollectionId(collection.Id);
+                return StartupState.Finished;
             }
-            
-            return StartupState.SelectCollection;
         }
+            
+        return StartupState.SelectCollection;
     }
 
     /// <summary>

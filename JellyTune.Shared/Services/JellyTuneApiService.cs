@@ -336,6 +336,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
                 Id = baseItem.Id.Value,
                 Artist = baseItem.AlbumArtist,
                 Name = baseItem.Name,
+                ArtistId = baseItem?.AlbumArtists?.FirstOrDefault()?.Id ?? baseItem?.ArtistItems?.FirstOrDefault()?.Id,
                 Year = baseItem.ProductionYear,
                 Runtime = baseItem.RunTimeTicks.HasValue ? new TimeSpan(baseItem.RunTimeTicks.Value) : null,
                 HasArtwork = baseItem.ImageTags?.AdditionalData.ContainsKey(ImageType.Primary.ToString()) == true
@@ -358,11 +359,12 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
 
         if (baseItem == null)
             throw new ArgumentException($"No album found with id {albumId}");
-
+        
         var albumResult = new Models.Album()
         {
             Id = baseItem.Id.GetValueOrDefault(),
             Artist = baseItem.AlbumArtist ?? "",
+            ArtistId = baseItem?.AlbumArtists?.FirstOrDefault()?.Id ?? baseItem?.ArtistItems?.FirstOrDefault()?.Id,
             Name = baseItem.Name ?? "",
             Year = baseItem.ProductionYear,
             Runtime = baseItem.RunTimeTicks.HasValue ? new TimeSpan(baseItem.RunTimeTicks.Value) : null,
@@ -448,16 +450,17 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// Download album art
     /// </summary>
     /// <param name="albumId"></param>
+    /// <param name="size"></param>
     /// <returns></returns>
-    public async Task<byte[]?> GetPrimaryArtAsync(Guid albumId)
+    public async Task<byte[]?> GetPrimaryArtAsync(Guid albumId, int? size = 200)
     {
         try
         {
             await using var stream = await _jellyfinApiClient.Items[albumId].Images[ImageType.Primary.ToString()].GetAsync(configuration =>
             {
-                configuration.QueryParameters.Height = 200;
-                configuration.QueryParameters.Width = 200;
-            }).ConfigureAwait(true);
+                configuration.QueryParameters.Height = size;
+                configuration.QueryParameters.Width = size;
+            }).ConfigureAwait(false);
             
             if (stream == null)
                 return null;
@@ -733,18 +736,6 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
         return _jellyfinApiClient.BuildUri(information);
     }
 
-    /// <summary>
-    /// Get url used for websocket connection
-    /// </summary>
-    /// <returns></returns>
-    public string GetWebsocketUrl()
-    {
-        var root = _sdkClientSettings.ServerUrl.StartsWith("http") ? "ws" :  "wss";
-        var rootUrl = _sdkClientSettings.ServerUrl.Replace("http", root).Replace("https", root);
-        
-        return $"{rootUrl}/socket?api_key={_sdkClientSettings.AccessToken}&deviceId={_deviceId}";
-    }
-
     public async Task SeekPlaybackAsync(string sessiondId, Guid trackId, int? position)
     {
         var body = new GeneralCommand()
@@ -763,6 +754,86 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
         };
 
         await _jellyfinApiClient.Sessions[sessiondId].Command.PostAsync(body).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Get artist albums
+    /// </summary>
+    /// <param name="artistId"></param>
+    /// <param name="excludeAbumIds"></param>
+    /// <param name="albumId"></param>
+    /// <returns></returns>
+    public async Task<List<Album>> GetArtistAlbumsAsync(Guid artistId, Guid?[]? excludeAbumIds = null)
+    {
+        var albumsResult = new List<Album>();
+
+        var excluded = new List<Guid?>();
+
+        if (excludeAbumIds != null)
+            excluded.AddRange(excludeAbumIds);
+        
+        var queryResult2 = await _jellyfinApiClient.Items.GetAsync(configuration =>
+        {
+            configuration.QueryParameters.StartIndex = 0;
+            configuration.QueryParameters.Limit = int.MaxValue;
+            configuration.QueryParameters.Recursive = true;
+            configuration.QueryParameters.ExcludeItemIds = excluded.ToArray();
+            configuration.QueryParameters.Fields = [ItemFields.PrimaryImageAspectRatio, ItemFields.SortName];
+            configuration.QueryParameters.AlbumArtistIds = [artistId];
+            configuration.QueryParameters.IncludeItemTypes = [ BaseItemKind.MusicAlbum ];
+        }).ConfigureAwait(false);
+        
+        if (queryResult2?.Items == null)
+            return albumsResult;
+
+        foreach (var baseItem in queryResult2.Items)
+        {
+            if (baseItem.Id == null || baseItem.Name == null || baseItem.AlbumArtist == null)
+                continue;
+
+            albumsResult.Add(new Models.Album()
+            {
+                Id = baseItem.Id.Value,
+                Artist = baseItem.AlbumArtist,
+                ArtistId = baseItem?.AlbumArtists?.FirstOrDefault()?.Id ?? baseItem?.ArtistItems?.FirstOrDefault()?.Id,
+                Name = baseItem.Name,
+                Year = baseItem.ProductionYear,
+                Runtime = baseItem.RunTimeTicks.HasValue ? new TimeSpan(baseItem.RunTimeTicks.Value) : null,
+                HasArtwork = baseItem.ImageTags?.AdditionalData.ContainsKey(ImageType.Primary.ToString()) == true
+            });
+        }
+
+        return albumsResult.OrderBy(a => a.Year).ToList();
+    }
+
+    /// <summary>
+    /// Get artist
+    /// </summary>
+    /// <param name="artistId"></param>
+    /// <returns></returns>
+    public async Task<Artist?> GetArtistAsync(Guid artistId)
+    {
+        var baseItem = await _jellyfinApiClient.Items[artistId].GetAsync();
+        if (baseItem?.Id == null || baseItem.Name == null) return null;
+
+        var result = new Artist()
+        {
+            Id = baseItem.Id.Value,
+            Name = baseItem.Name,
+            HasArtwork = baseItem.ImageTags?.AdditionalData.ContainsKey(ImageType.Primary.ToString()) == true
+        };
+
+        return result;
+    }
+
+    public async Task<Guid?> GetArtistByTrackIdAsync(Guid trackId)
+    {
+        var baseItem = await _jellyfinApiClient.Items[trackId].GetAsync().ConfigureAwait(false);
+
+        if (baseItem == null)
+            throw new ArgumentException($"No album found with id {trackId}");
+
+        return baseItem?.AlbumArtists?.FirstOrDefault()?.Id ?? baseItem?.ArtistItems?.FirstOrDefault()?.Id;
     }
 
     /// <summary>

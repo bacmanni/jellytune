@@ -1,6 +1,17 @@
+using System.Text.Json.Serialization;
+
 namespace JellyTune.Shared.Models;
 public class Configuration
 {
+    /// <summary>
+    /// Take copy of configuration
+    /// </summary>
+    /// <returns></returns>
+    public Configuration ShallowCopy()
+    {
+        return (Configuration)MemberwiseClone();
+    }
+    
     /// <summary>
     /// Server to be used
     /// </summary>
@@ -10,17 +21,12 @@ public class Configuration
     /// Username for the server
     /// </summary>
     public string Username { get; set; } = string.Empty;
-
+    
     /// <summary>
     /// Password for the server
     /// </summary>
-    public string Password { get; set; } = string.Empty;
-    
-    /// <summary>
-    /// Should password be remembered in configuration
-    /// </summary>
-    public bool RememberPassword { get; set; } = false;
-    
+    public string? Password { get; set; } = string.Empty;
+
     /// <summary>
     /// Selected audio collection id
     /// </summary>
@@ -71,8 +77,27 @@ public class Configuration
     /// </summary>
     public int? WindowHeight { get; set; }
 
+    #region Player
+    
     /// <summary>
-    /// Show extended controls (seek/volume)
+    /// Show button for lyrics dialog
     /// </summary>
-    public bool ShowExtendedControls { get; set; } = false;
+    public bool ShowLyrics { get; set; } = true;
+    
+    /// <summary>
+    /// Show button for seek control
+    /// </summary>
+    public bool ShowSeek {  get; set; } = false;
+    
+    /// <summary>
+    /// Show button for volume control
+    /// </summary>
+    public bool ShowVolume {  get; set; } = false;
+    
+    /// <summary>
+    /// 
+    /// </summary>
+    public bool ShowCurrentAlbum {  get; set; } = false;
+    
+    #endregion
 }

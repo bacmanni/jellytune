@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using Adw.Internal;
 using JellyTune.Shared.Models;
 using JellyTune.Shared.Enums;
@@ -18,7 +16,7 @@ public partial class TrackRow : Adw.ActionRow
     [Gtk.Connect] private readonly Gtk.Image _albumArt;
     [Gtk.Connect] private readonly Gtk.Label _runtime;
     [Gtk.Connect] private readonly Gtk.Label _number;
-    [Gtk.Connect] private readonly Gtk.Button _queue;
+
     public Guid TrackId => _track.Id;
 
     private TrackRow(Gtk.Builder builder) : base(
@@ -41,7 +39,7 @@ public partial class TrackRow : Adw.ActionRow
             _number.SetVisible(false);
             _albumArt.SetVisible(true);
             
-            SetSubtitle(_track.Artist);
+            SetSubtitle(GLib.Markup.EscapeText(_track.Artist));
             
             if (_track.HasArtwork)
                 _ = UpdateArtwork();
@@ -64,6 +62,7 @@ public partial class TrackRow : Adw.ActionRow
         using var bytes = GLib.Bytes.New(albumArt);
         using var texture = Gdk.Texture.NewFromBytes(bytes);
         _albumArt.SetFromPaintable(texture);
+        albumArt = null;
     }
     
     public void UpdateState(PlayerState state)

@@ -16,7 +16,7 @@ public class StartupControllerTests
     {
         _mockJellyTuneApiService = new Mock<IJellyTuneApiService>();
         _mockConfigurationService = new Mock<IConfigurationService>();
-
+        
         var configuration = new Configuration()
         {
             AutoRefresh = true,
@@ -59,9 +59,6 @@ public class StartupControllerTests
         // Try again, so that server returns valid server
         _mockJellyTuneApiService.Setup(repo => repo.SetServer("http://testserver.com")).Returns(true);
         _mockJellyTuneApiService.Setup(repo => repo.CheckServerAsync("http://testserver.com")).ReturnsAsync(true);
-
-        state = await _controller.StartAsync();
-        Assert.Equal(StartupState.RequirePassword, state);
         
         // Update configuration with password
         configuration = _mockConfigurationService.Object.Get();

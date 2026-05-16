@@ -64,15 +64,9 @@ public sealed class PlayerController : IDisposable
         if (Album == null || SelectedTrack == null)
             return;
         
+        if (!SelectedTrack.HasLyrics)
+            return;
+            
         OnShowShowLyricsClicked?.Invoke(this, new AlbumArgs { AlbumId = Album.Id, TrackId = SelectedTrack.Id });
-    }
-
-    /// <summary>
-    /// Seek track 
-    /// </summary>
-    /// <param name="value">Seconds</param>
-    public void SeekTrack(double value)
-    {
-        _playerService.SeekTrack(value);
     }
 }

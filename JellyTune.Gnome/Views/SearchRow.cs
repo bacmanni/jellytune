@@ -60,5 +60,6 @@ public class SearchRow : Adw.ActionRow
         using var bytes = GLib.Bytes.New(albumArt);
         using var texture = Gdk.Texture.NewFromBytes(bytes);
         _albumArt.SetFromPaintable(texture);
+        albumArt = null;
     }
 }

@@ -4,7 +4,7 @@ using JellyTune.Shared.Models;
 using JellyTune.Shared.Services;
 using Tmds.DBus;
 
-namespace JellyTune.Gnome.MediaPlayer;
+namespace JellyTune.Gnome.DBus.MediaPlayer;
 
 public class MediaPlayer : IMediaPlayer2, IPlayer
 {
@@ -46,9 +46,15 @@ public class MediaPlayer : IMediaPlayer2, IPlayer
         _metadata["xesam:artist"] = new string[] { track.Artist };
         _metadata["xesam:album"] = track.Album;
 
-        var url = _fileService.GetFileUrl(FileType.AlbumArt, track.AlbumId);
-        if (url != null)
-            _metadata["mpris:artUrl"] = url.ToString();
+        if (track.HasArtwork)
+        {
+            var url = _fileService.GetFileUrl(FileType.AlbumArt, track.AlbumId);
+            _metadata["mpris:artUrl"] = url?.ToString() ??  string.Empty;
+        }
+        else
+        {
+            _metadata["mpris:artUrl"] = string.Empty;
+        }
         
         _metadata["mpris:length"] = track.RunTime.TotalMicroseconds;
         
