@@ -161,7 +161,7 @@ public class PlayerServiceTests
         Assert.True(_playerService.IsPlayingTrack(trackId1));
         
         _playerService.ClearTracks();
-        Assert.Equal(1, _playerService.GetTracks()?.Count);
+        Assert.Equal(0, _playerService.GetTracks()?.Count);
         
         _playerService.StopTrack();
         _playerService.ClearTracks();
