@@ -160,7 +160,7 @@
                         </child>
                         <child type="end">
                           <object class="GtkButton" id="_queue_list_artist_albums">
-                            <property name="tooltip-text">Artist albums</property>
+                            <property name="tooltip-text">Playing artist albums</property>
                             <property name="icon-name">view-list-symbolic</property>
                           </object>
                         </child>
