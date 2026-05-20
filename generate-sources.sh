@@ -6,17 +6,21 @@ PROJECTS=(
     "JellyTune.Shared/JellyTune.Shared.csproj"
 )
 
-OUTPUT_JSON="nuget-sources.json"
+OUTPUT_JSON="JellyTune.Gnome/nuget-sources.json"
 GENERATOR_SCRIPT="flatpak-dotnet-generator.py"
 
 # Remove old file if exists
 rm -f "$OUTPUT_JSON"
 
-# Loop through all projects and feed them to the generator
+# Build argument list: first the output, then all project files
+ARGS=("$OUTPUT_JSON")
 for PROJECT_FILE in "${PROJECTS[@]}"; do
-    echo "Processing $PROJECT_FILE"
-    python3 "$GENERATOR_SCRIPT" "$OUTPUT_JSON" "$PROJECT_FILE"
+    echo "Including $PROJECT_FILE"
+    ARGS+=("$PROJECT_FILE")
 done
+
+# Single call that processes ALL projects
+python3 "$GENERATOR_SCRIPT" "${ARGS[@]}"
 
 # Verify output
 if [ -f "$OUTPUT_JSON" ]; then
