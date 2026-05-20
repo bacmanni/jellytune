@@ -106,13 +106,6 @@
     },
     {
         "type": "file",
-        "url": "https://api.nuget.org/v3-flatcontainer/gircore.secret-1/0.7.0/gircore.secret-1.0.7.0.nupkg",
-        "sha512": "7e6ba33de555f32a1a454ed158d839f3e764be9f4e64cde40f6d78ac26802415e86af7453e754a00b05d435840767046a965ef54e5d31df18b573e01a87751a3",
-        "dest": "nuget-sources",
-        "dest-filename": "gircore.secret-1.0.7.0.nupkg"
-    },
-    {
-        "type": "file",
         "url": "https://api.nuget.org/v3-flatcontainer/jellyfin.sdk/2024.10.28/jellyfin.sdk.2024.10.28.nupkg",
         "sha512": "81b6e164dbaa61370a4462defd03f8ee835e74eea67af8eeb565e1e2360a1c0a7d41085419bf43c7a0760e4e4278a61fdde168f23e9e0c5fd034f15ae88fe9e8",
         "dest": "nuget-sources",
