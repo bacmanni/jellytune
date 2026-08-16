@@ -37,7 +37,7 @@ public class PlaylistTracksControllerTests
             Name = "Track"
         };
         
-        _mockJellyTuneApiService.Setup(repo => repo.GetPlaylistTracksAsync(_playlistId)).ReturnsAsync([track]);
+        _mockJellyTuneApiService.Setup(repo => repo.GetPlaylistTracksAsync(_playlistId, It.IsAny<CancellationToken>())).ReturnsAsync([track]);
         _mockJellyTuneApiService.Setup(repo => repo.GetPlaylistAsync(_playlistId)).ReturnsAsync(playlist);
     }
     

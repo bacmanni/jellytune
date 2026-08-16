@@ -47,58 +47,49 @@ public sealed class SearchController : IDisposable
     {
         OnSearchStateChanged?.Invoke(this, e);
     }
-    
+
     /// <summary>
     /// Begin searching for value
     /// </summary>
     /// <param name="value"></param>
-    public async Task SearchAlbumsAsync(string value)
+    /// <param name="cancellationToken"></param>
+    public async Task SearchAlbumsAsync(string value, CancellationToken cancellationToken = default)
     {
-        SearchStateChanged(new SearchStateArgs() { Start = true });
-        Results.Clear();
-
-        if (_cancellationTokenSource != null)
+        try
         {
-            await _cancellationTokenSource.CancelAsync();
-            _cancellationTokenSource.Dispose();
+            SearchStateChanged(new SearchStateArgs() { Start = true });
+        
+            var searchresults = await GetSearchResultsAsync(value, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+        
+            Results.Clear();
+            Results.AddRange(searchresults);
+            SearchStateChanged(new SearchStateArgs() { Updated = true });
         }
-
-        if (string.IsNullOrEmpty(value))
+        catch (OperationCanceledException)
         {
-            SearchStateChanged(new SearchStateArgs() { Empty = true });
-            return;
+            // A newer SearchAlbums call cancelled this one.
         }
-            
-        _cancellationTokenSource = new CancellationTokenSource();
-        
-        await GetSearchResultsAsync(value, _cancellationTokenSource.Token);
-        
-        if (_cancellationTokenSource.IsCancellationRequested) return;
-        
-        SearchStateChanged(new SearchStateArgs() { Updated = true });
     }
 
-    private async Task GetSearchResultsAsync(string value, CancellationToken token)
+    private async Task<List<Search>> GetSearchResultsAsync(string value, CancellationToken token)
     {
-        if (token.IsCancellationRequested) return;
-        
         var results = await Task.WhenAll([
-            _jellyTuneApiService.SearchAlbumAsync(value),
-            _jellyTuneApiService.SearchArtistAlbumsAsync(value),
-            _jellyTuneApiService.SearchTrackAsync(value),
+            _jellyTuneApiService.SearchAlbumAsync(value, token),
+            _jellyTuneApiService.SearchArtistAlbumsAsync(value, token),
+            _jellyTuneApiService.SearchTrackAsync(value, token),
         ]);
-        
-        if (token.IsCancellationRequested) return;
-        
+
         var sortList = new List<Search>();
         foreach (var result in results)
         {
-            sortList.AddRange(result);
+            if (result != null)
+                sortList.AddRange(result);
         }
         
         // Removes duplicates and sorts
         var sorted = sortList.GroupBy(x => x.Id).Select(x => x.First()).OrderBy(s => s.Type);
-        Results.AddRange(sorted);
+        return sorted.ToList();
     }
 
     public void Dispose()

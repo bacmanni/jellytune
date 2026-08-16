@@ -46,9 +46,9 @@ public class SearchControllerTests
             HasArtwork = false
         };
         
-        _mockJellyTuneApiService.Setup(repo => repo.SearchAlbumAsync(_searchValue, CancellationToken.None)).ReturnsAsync([album]);
-        _mockJellyTuneApiService.Setup(repo => repo.SearchArtistAlbumsAsync(_searchValue, CancellationToken.None)).ReturnsAsync([artist]);
-        _mockJellyTuneApiService.Setup(repo => repo.SearchTrackAsync(_searchValue, CancellationToken.None)).ReturnsAsync([track]);
+        _mockJellyTuneApiService.Setup(repo => repo.SearchAlbumAsync(_searchValue, It.IsAny<CancellationToken>())).ReturnsAsync([album]);
+        _mockJellyTuneApiService.Setup(repo => repo.SearchArtistAlbumsAsync(_searchValue, It.IsAny<CancellationToken>())).ReturnsAsync([artist]);
+        _mockJellyTuneApiService.Setup(repo => repo.SearchTrackAsync(_searchValue, It.IsAny<CancellationToken>())).ReturnsAsync([track]);
     }
     
     [Fact]
@@ -58,8 +58,5 @@ public class SearchControllerTests
         
         Assert.True(evt.Arguments.Updated);
         Assert.Equal(3, _controller.Results.Count);
-        
-        evt = Assert.Raises<SearchStateArgs>(handler => _controller.OnSearchStateChanged += handler, handler => _controller.OnSearchStateChanged -= handler, () => _controller.SearchAlbumsAsync("").GetAwaiter().GetResult() );
-        Assert.True(evt.Arguments.Empty);
     }
 }

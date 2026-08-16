@@ -24,7 +24,7 @@ public interface IJellyTuneApiService
     public Task<byte[]?> GetPrimaryArtAsync(Guid albumId, int? size = 200);
     public Task<Stream?> GetAudioStreamAsync(Guid trackId);
     public Task<Playlist> GetPlaylistAsync(Guid playlistId);
-    public Task<List<Track>> GetPlaylistTracksAsync(Guid playlistId);
+    public Task<List<Track>> GetPlaylistTracksAsync(Guid playlistId, CancellationToken cancellationToken = default);
     public string GetAudioStreamUrl(string sessiondId, Guid trackId, int? position = null);
     public Task StopPlaybackAsync(string sessiondId, Guid trackId);
     public Task ResumePlaybackAsync(string sessiondId, Guid trackId, int? position);

@@ -15,6 +15,8 @@ public sealed class PlaylistTracksController : IDisposable
     public IFileService FileService => _fileService;
     public IPlayerService PlayerService => _playerService;
 
+    private CancellationTokenSource? _openPlaylistCts;
+    
     public Playlist Playlist { private set; get; }
     public readonly List<Track> Tracks = [];
     public event EventHandler<PlaylistTracksStateArgs>? OnPlaylistTracksStateChanged;
@@ -36,20 +38,37 @@ public sealed class PlaylistTracksController : IDisposable
             OnPlaylistTracksStateChanged?.Invoke(this, new PlaylistTracksStateArgs() {  UpdateTrackState = true, SelectedTrackId = e.SelectedTrack?.Id ?? e.SelectedTrackId });
         }
     }
-
+    
     /// <summary>
     /// Open selected playlist tracks
     /// </summary>
     /// <param name="playlistId"></param>
     public async Task OpenPlaylist(Guid playlistId)
     {
-        OnPlaylistTracksStateChanged?.Invoke(this, new PlaylistTracksStateArgs() { Loading = true });
-        Playlist = await _jellyTuneApiService.GetPlaylistAsync(playlistId);
+        _openPlaylistCts?.Cancel();
+        _openPlaylistCts?.Dispose();
         
-        Tracks.Clear();
-        var tracks = await _jellyTuneApiService.GetPlaylistTracksAsync(playlistId);
-        Tracks.AddRange(tracks);
-        OnPlaylistTracksStateChanged?.Invoke(this, new PlaylistTracksStateArgs());
+        _openPlaylistCts = new CancellationTokenSource();
+        var cancellationToken = _openPlaylistCts.Token;
+        
+        OnPlaylistTracksStateChanged?.Invoke(this, new PlaylistTracksStateArgs() { Loading = true });
+        
+        try
+        {
+            Playlist = await _jellyTuneApiService.GetPlaylistAsync(playlistId);
+            cancellationToken.ThrowIfCancellationRequested();
+            
+            var tracks = await _jellyTuneApiService.GetPlaylistTracksAsync(playlistId, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+            
+            Tracks.Clear();
+            Tracks.AddRange(tracks);
+            OnPlaylistTracksStateChanged?.Invoke(this, new PlaylistTracksStateArgs());
+        }
+        catch (OperationCanceledException)
+        {
+            // A newer OpenPlaylist call cancelled this one.
+        }
     }
 
     /// <summary>

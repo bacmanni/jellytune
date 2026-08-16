@@ -57,6 +57,7 @@ public partial class MainWindow : Adw.ApplicationWindow
     private readonly Gio.SimpleAction _viewAction;
     
     private CancellationTokenSource? _menuUpdateCancellationTokenSource;
+    private CancellationTokenSource? _searchAlbumsCts;
     
     [Gtk.Connect] private readonly Gtk.Button _searchButton;
     [Gtk.Connect] private readonly Gtk.SearchEntry _search_field;
@@ -527,13 +528,22 @@ public partial class MainWindow : Adw.ApplicationWindow
     
     private void SearchFieldOnSearchChanged(SearchEntry sender, EventArgs args)
     {
-        if (string.IsNullOrWhiteSpace(sender.GetText()))
+        _searchAlbumsCts?.Cancel();
+        _searchAlbumsCts?.Dispose();
+        
+        _searchAlbumsCts = new CancellationTokenSource();
+        var cancellationToken = _searchAlbumsCts.Token;
+
+        var value = sender.GetText();
+        
+        if (string.IsNullOrEmpty(value))
         {
             _searchController.StartSearch();
-            return;
         }
-        
-        _ = _searchController.SearchAlbumsAsync(sender.GetText());
+        else
+        {
+            _ = _searchController.SearchAlbumsAsync(value, cancellationToken);
+        }
     }
     
     public (int, int) GetScreenSize()

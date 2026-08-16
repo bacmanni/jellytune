@@ -534,14 +534,14 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// </summary>
     /// <param name="playlistId"></param>
     /// <returns></returns>
-    public async Task<List<Track>> GetPlaylistTracksAsync(Guid playlistId)
+    public async Task<List<Track>> GetPlaylistTracksAsync(Guid playlistId, CancellationToken cancellationToken = default)
     {
         var trackResult = new List<Track>();
 
         var queryResult = await _jellyfinApiClient.Playlists[playlistId].Items.GetAsync(configuration =>
         {
             configuration.QueryParameters.Fields = [ItemFields.SortName];
-        }).ConfigureAwait(false);
+        }, cancellationToken).ConfigureAwait(false);
 
         if (queryResult?.Items == null)
             return trackResult;
@@ -564,8 +564,8 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
                 HasLyrics = baseItem.HasLyrics ?? false,
             });
         }
-        
-        return trackResult;
+
+        return cancellationToken.IsCancellationRequested ? new List<Track>() : trackResult;
     }
 
     /// <summary>
