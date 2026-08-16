@@ -46,12 +46,7 @@ public class Configuration
     /// Should list data be cached
     /// </summary>
     public bool CacheListData { get; set; } = true;
-    
-    /// <summary>
-    /// Automatically refresh lists at start
-    /// </summary>
-    public bool AutoRefresh { get; set; } = true;
-    
+
     /// <summary>
     /// Should list separator be visible
     /// </summary>

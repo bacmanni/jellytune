@@ -19,7 +19,6 @@ public class StartupControllerTests
         
         var configuration = new Configuration()
         {
-            AutoRefresh = true,
             CacheListData = true,
         };
         

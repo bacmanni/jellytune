@@ -27,7 +27,6 @@ public class ListControllerTests
         
         var configuration = new Configuration()
         {
-            AutoRefresh = true,
             CacheListData = true,
         };
         

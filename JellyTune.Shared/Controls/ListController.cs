@@ -138,7 +138,7 @@ public class ListController
         if (Items.Count == 0)
             return true;
 
-        return _configurationService.Get().AutoRefresh;
+        return false;
     }
     
     /// <summary>
