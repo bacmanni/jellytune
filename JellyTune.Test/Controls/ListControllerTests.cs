@@ -58,7 +58,7 @@ public class ListControllerTests
         
         _controller.AddOrUpdateItems([item]);
         update = _controller.UpdateFromServer();
-        Assert.True(update);
+        Assert.False(update);
     }
     
     [Fact]

@@ -3,6 +3,7 @@ using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
 using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Events;
+using SoundFlow.Utils;
 using ListBox = Gtk.ListBox;
 
 namespace JellyTune.Gnome.Views;
@@ -23,33 +24,43 @@ public class SearchView : Gtk.ScrolledWindow
         builder.Connect(this);
     }
 
-    private void SetSpinner(bool? show = null, int? results = null)
+    private void UpdateResults(bool? show = null, int? results = null)
     {
+        _noresults.SetVisible(false);
+        _results.SetVisible(false);
+        _spinner.SetVisible(false);
+        
+        // Startup state
         if (!show.HasValue)
         {
             _startup.SetVisible(true);
-            _noresults.SetVisible(false);
-            _results.SetVisible(false);
-            _spinner.SetVisible(false);
-            return;
-        }
-            
-        _startup.SetVisible(false);
-        
-        if (show.Value)
-        {
-            _noresults.SetVisible(false);
-            _results.SetVisible(false);
-            _spinner.SetVisible(true);
         }
         else
         {
-            _spinner.SetVisible(false);
-            
-            if (results.HasValue && results.Value > 0)
-                _results.SetVisible(true);
+            _startup.SetVisible(false);
+
+            // Spinner should be shown and nothing else
+            if (show == true)
+            {
+                _spinner.SetVisible(true);
+            }
             else
-                _noresults.SetVisible(true);
+            {
+                _searchList.RemoveAll();
+                if (_controller.Results.Count > 0)
+                {
+                    foreach (var result in _controller.Results)
+                    {
+                        _searchList.Append(new SearchRow(_controller.FileService, result));
+                    }
+                    
+                    _results.SetVisible(true);
+                }
+                else
+                {
+                    _noresults.SetVisible(true);
+                }
+            }
         }
     }
     
@@ -75,29 +86,14 @@ public class SearchView : Gtk.ScrolledWindow
         GtkHelper.GtkDispatch(() =>
         {
             if (args.Open)
-                SetSpinner();
+                UpdateResults();
         
             if (args.Start)
-                SetSpinner(true);
+                UpdateResults(true);
 
             if (args.Updated)
-                UpdateSearch();
+                UpdateResults(false, _controller.Results.Count);
         });
-    }
-
-
-    private void UpdateSearch()
-    {
-        if (_controller.Results.Count > 0)
-        {
-            _searchList.RemoveAll();
-            foreach (var result in _controller.Results)
-            {
-                _searchList.Append(new SearchRow(_controller.FileService, result));
-            }
-        }
-        
-        SetSpinner(false, _controller.Results.Count);
     }
 
     public override void Dispose()
