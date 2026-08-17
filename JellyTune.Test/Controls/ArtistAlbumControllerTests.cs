@@ -46,8 +46,8 @@ public class ArtistAlbumControllerTests
             album1, album2
         };
         
-        _mockJellyTuneApiService.Setup(repo => repo.GetArtistAlbumsAsync(_artistId, null)).ReturnsAsync(albums);
-        _mockJellyTuneApiService.Setup(repo => repo.GetArtistByTrackIdAsync(_trackId)).ReturnsAsync(_artistId);
+        _mockJellyTuneApiService.Setup(repo => repo.GetArtistAlbumsAsync(_artistId, null, It.IsAny<CancellationToken>())).ReturnsAsync(albums);
+        _mockJellyTuneApiService.Setup(repo => repo.GetArtistByTrackIdAsync(_trackId, It.IsAny<CancellationToken>())).ReturnsAsync(_artistId);
     }
     
     [Fact]

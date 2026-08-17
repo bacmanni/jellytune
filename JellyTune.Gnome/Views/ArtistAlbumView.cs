@@ -35,12 +35,12 @@ public class ArtistAlbumView : Adw.Dialog
     {
         if (args.Row is AlbumRow row)
         {
-            Close();
-
             if (GetRoot() is Gtk.Window win)
             {
                 win.ActivateAction("win.open_album", GLib.Variant.NewString(row.AlbumId.ToString()));
             }
+            
+            Close();
         }
     }
 

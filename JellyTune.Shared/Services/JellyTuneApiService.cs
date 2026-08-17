@@ -5,7 +5,6 @@ using Jellyfin.Sdk.Generated.Models;
 using Jellyfin.Sdk.Generated.Sessions.Item.Playing;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Models;
-using Microsoft.Kiota.Abstractions;
 
 namespace JellyTune.Shared.Services;
 
@@ -761,9 +760,11 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// </summary>
     /// <param name="artistId"></param>
     /// <param name="excludeAbumIds"></param>
+    /// <param name="cancellationToken"></param>
     /// <param name="albumId"></param>
     /// <returns></returns>
-    public async Task<List<Album>> GetArtistAlbumsAsync(Guid artistId, Guid?[]? excludeAbumIds = null)
+    public async Task<List<Album>> GetArtistAlbumsAsync(Guid artistId, Guid?[]? excludeAbumIds,
+        CancellationToken cancellationToken)
     {
         var albumsResult = new List<Album>();
 
@@ -781,7 +782,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
             configuration.QueryParameters.Fields = [ItemFields.PrimaryImageAspectRatio, ItemFields.SortName];
             configuration.QueryParameters.AlbumArtistIds = [artistId];
             configuration.QueryParameters.IncludeItemTypes = [ BaseItemKind.MusicAlbum ];
-        }).ConfigureAwait(false);
+        }, cancellationToken: cancellationToken).ConfigureAwait(false);
         
         if (queryResult2?.Items == null)
             return albumsResult;
@@ -826,9 +827,9 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
         return result;
     }
 
-    public async Task<Guid?> GetArtistByTrackIdAsync(Guid trackId)
+    public async Task<Guid?> GetArtistByTrackIdAsync(Guid trackId, CancellationToken cancellationToken = default)
     {
-        var baseItem = await _jellyfinApiClient.Items[trackId].GetAsync().ConfigureAwait(false);
+        var baseItem = await _jellyfinApiClient.Items[trackId].GetAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
         if (baseItem == null)
             throw new ArgumentException($"No album found with id {trackId}");
