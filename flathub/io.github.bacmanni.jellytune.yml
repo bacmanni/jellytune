@@ -1,0 +1,50 @@
+app-id: io.github.bacmanni.jellytune
+runtime: org.gnome.Platform
+runtime-version: '49'
+sdk: org.gnome.Sdk
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.dotnet9
+command: JellyTune
+
+build-options:
+  append-path: /usr/lib/sdk/dotnet9/bin
+  append-ld-library-path: /usr/lib/sdk/dotnet9/lib
+  env:
+    DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+    DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "1"
+    DOTNET_CLI_WORKLOAD_UPDATE_NOTIFY_DISABLE: "true"
+
+modules:
+  - name: JellyTune
+    buildsystem: simple
+    build-commands:
+      - dotnet restore JellyTune.Gnome/JellyTune.Gnome.csproj --source ./nuget-sources
+      - dotnet restore JellyTune.Shared/JellyTune.Shared.csproj --source ./nuget-sources
+      - |
+        if [ "$FLATPAK_ARCH" == "aarch64" ]; then
+          DOTNET_ARCH="linux-arm64"
+        else
+          DOTNET_ARCH="linux-x64"
+        fi
+        dotnet publish JellyTune.Gnome/JellyTune.Gnome.csproj -c Release -o publish --runtime $DOTNET_ARCH --self-contained false --no-restore
+      - install -Dm755 publish/JellyTune /app/bin/JellyTune
+      - install -Dm644 Assets/io.github.bacmanni.JellyTune.desktop /app/share/applications/io.github.bacmanni.JellyTune.desktop
+      - install -Dm644 Assets/io.github.bacmanni.JellyTune.metainfo.xml /app/share/metainfo/io.github.bacmanni.JellyTune.metainfo.xml
+      - install -Dm644 Assets/icons/io.github.bacmanni.JellyTune.svg /app/share/icons/hicolor/scalable/apps/io.github.bacmanni.JellyTune.svg
+    sources:
+      - type: git
+        url: https://github.com/bacmanni/jellytune.git
+        branch: 1.2.2
+        
+      - ./gnome-nuget-sources.json
+      
+      - ./shared-nuget-sources.json
+
+finish-args:
+  - --share=network
+  - --device=dri
+  - --socket=pulseaudio
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --share=ipc
+

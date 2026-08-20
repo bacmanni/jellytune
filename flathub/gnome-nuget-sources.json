@@ -57,13 +57,6 @@
   },
   {
     "dest": "nuget-sources",
-    "dest-filename": "gircore.gobject-2.0.integration.0.7.0.nupkg",
-    "sha512": "587c538b3b0a03415b3bd6a2687208550cfd653c12c32ed3a7d621ddd7d83642da8e02279f15002e9b52aeeef2b64f55c95cbc9eaecc03e5dd5b9804fd241ddc",
-    "url": "https://api.nuget.org/v3-flatcontainer/gircore.gobject-2.0.integration/0.7.0/gircore.gobject-2.0.integration.0.7.0.nupkg",
-    "type": "file"
-  },
-  {
-    "dest": "nuget-sources",
     "dest-filename": "gircore.graphene-1.0.0.7.0.nupkg",
     "sha512": "196aff4bfec5391b5ed7a607229d7eca3146bc06568ca5a1af73f09801e793dad3dd58756a849e3fd092c90179d4e92d50343fcce857096e64ff1d658827db63",
     "url": "https://api.nuget.org/v3-flatcontainer/gircore.graphene-1.0/0.7.0/gircore.graphene-1.0.0.7.0.nupkg",
@@ -144,27 +137,6 @@
     "dest-filename": "microsoft.aspnetcore.app.runtime.linux-x64.9.0.14.nupkg",
     "sha512": "8d877ee4a354cdda37eb2b5cd4bcf84e501e1e144d31742bddc741cd802a0b1f707ec3949ea3ccdb89f1ed736f36bc9ac328cf89c6dd3f6c2234181d425b6cec",
     "url": "https://api.nuget.org/v3-flatcontainer/microsoft.aspnetcore.app.runtime.linux-x64/9.0.14/microsoft.aspnetcore.app.runtime.linux-x64.9.0.14.nupkg",
-    "type": "file"
-  },
-  {
-    "dest": "nuget-sources",
-    "dest-filename": "microsoft.codeanalysis.analyzers.3.3.4.nupkg",
-    "sha512": "23e462c3affa5a33480b276888da438cdfc618feeee17b0be95b08f651bf3a316e7c7ddf96f484cbf7f1361183546c195b0abfe41967a97f8b1f676685e68f7e",
-    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.codeanalysis.analyzers/3.3.4/microsoft.codeanalysis.analyzers.3.3.4.nupkg",
-    "type": "file"
-  },
-  {
-    "dest": "nuget-sources",
-    "dest-filename": "microsoft.codeanalysis.common.4.8.0.nupkg",
-    "sha512": "477bbe806b3f45a9221aa9c17fcd27883239ea909a37583eda7eba4262aa8fa7c0bfac70f6e112d81b70b4a3a442c893103a8f9ba564d0ec2b82c3f54bead26c",
-    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.codeanalysis.common/4.8.0/microsoft.codeanalysis.common.4.8.0.nupkg",
-    "type": "file"
-  },
-  {
-    "dest": "nuget-sources",
-    "dest-filename": "microsoft.codeanalysis.csharp.4.8.0.nupkg",
-    "sha512": "d475570908796f4c3f284eea9e2d93d64d9d2bfe7e3fdb97c0e1eef8d0d4c17e99a65a4d1fde054944010bfc30ce3169c5f99d6217a7d4bbc6934878d1aff468",
-    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.codeanalysis.csharp/4.8.0/microsoft.codeanalysis.csharp.4.8.0.nupkg",
     "type": "file"
   },
   {
@@ -337,30 +309,9 @@
   },
   {
     "dest": "nuget-sources",
-    "dest-filename": "system.collections.immutable.7.0.0.nupkg",
-    "sha512": "f084afc9395d74b4f252c47b7d0e378e676d6b8b6033a68636b648b58805e3772dd22ff1ded05d3c8c8553d2e7685b29b753fe1cbb5a333f018abe6422a3ebfa",
-    "url": "https://api.nuget.org/v3-flatcontainer/system.collections.immutable/7.0.0/system.collections.immutable.7.0.0.nupkg",
-    "type": "file"
-  },
-  {
-    "dest": "nuget-sources",
     "dest-filename": "system.io.abstractions.22.0.16.nupkg",
     "sha512": "f7e932e2b1852095ede069a805b9d02b845bbcfe547b81dd51d1f71ceea9a312ab10008cd48720dfc256a2f160452b2f153c010a3a35e52de21750b5134e56da",
     "url": "https://api.nuget.org/v3-flatcontainer/system.io.abstractions/22.0.16/system.io.abstractions.22.0.16.nupkg",
-    "type": "file"
-  },
-  {
-    "dest": "nuget-sources",
-    "dest-filename": "system.reflection.metadata.7.0.0.nupkg",
-    "sha512": "2d93c8ba1a78ceb90d25b7a3b82ae7c7f2452ad29f49ee8e1c60b2bcda19f8f6edf68689d42a586aef5faf9f1049fe5e8095ec9a4ab48a2cd2a950a8b7ec2c85",
-    "url": "https://api.nuget.org/v3-flatcontainer/system.reflection.metadata/7.0.0/system.reflection.metadata.7.0.0.nupkg",
-    "type": "file"
-  },
-  {
-    "dest": "nuget-sources",
-    "dest-filename": "system.runtime.compilerservices.unsafe.6.0.0.nupkg",
-    "sha512": "d4057301be4ec4936f24b9ce003b5ec4d99681ab6d9b65d5393dd38d04cdec37784aaa12c1a8b50ac3767ed878dae425749490773fec01e734f93cf1045822b3",
-    "url": "https://api.nuget.org/v3-flatcontainer/system.runtime.compilerservices.unsafe/6.0.0/system.runtime.compilerservices.unsafe.6.0.0.nupkg",
     "type": "file"
   },
   {

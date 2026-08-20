@@ -14,7 +14,7 @@
     <ItemGroup>
       <PackageReference Include="GirCore.Adw-1" Version="0.7.0" />
       <PackageReference Include="GirCore.GLib-2.0" Version="0.7.0" />
-      <PackageReference Include="GirCore.GObject-2.0.Integration" Version="0.7.0" />
+      <PackageReference Include="GirCore.GObject-2.0" Version="0.7.0" />
       <PackageReference Include="GirCore.Gtk-4.0" Version="0.7.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.4" />
       <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.4" />
