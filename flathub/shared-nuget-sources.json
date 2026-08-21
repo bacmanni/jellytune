@@ -1,9 +1,9 @@
 [
   {
     "dest": "nuget-sources",
-    "dest-filename": "jellyfin.sdk.2024.10.28.nupkg",
-    "sha512": "81b6e164dbaa61370a4462defd03f8ee835e74eea67af8eeb565e1e2360a1c0a7d41085419bf43c7a0760e4e4278a61fdde168f23e9e0c5fd034f15ae88fe9e8",
-    "url": "https://api.nuget.org/v3-flatcontainer/jellyfin.sdk/2024.10.28/jellyfin.sdk.2024.10.28.nupkg",
+    "dest-filename": "jellyfin.sdk.2025.10.21.nupkg",
+    "sha512": "7231b117807490c4953cdb533ded5b555f44770af980a8cab1d46cafafb943eb3a3d0a6020b2c61313a1b37868819c59045685915694cfbf5c6cd5346639ea42",
+    "url": "https://api.nuget.org/v3-flatcontainer/jellyfin.sdk/2025.10.21/jellyfin.sdk.2025.10.21.nupkg",
     "type": "file"
   },
   {
@@ -36,58 +36,58 @@
   },
   {
     "dest": "nuget-sources",
-    "dest-filename": "microsoft.kiota.abstractions.1.13.1.nupkg",
-    "sha512": "6b5790752e99f9f202845578491ddad7cace8beb4f7e35dbc6a35ef9c9b51f36371887309362807d7b913a6531a4a949d9113a07eeefbd8b9634918920e091f4",
-    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.kiota.abstractions/1.13.1/microsoft.kiota.abstractions.1.13.1.nupkg",
+    "dest-filename": "microsoft.kiota.abstractions.1.20.1.nupkg",
+    "sha512": "c2fa9dc780e6e272be405e3e7810c0316c1b6b4ad1ac7f8163351affd493ac2f663d409baa11957d087bc3386d6fae0a99c4aa61178e4a656abeb6d633bead5a",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.kiota.abstractions/1.20.1/microsoft.kiota.abstractions.1.20.1.nupkg",
     "type": "file"
   },
   {
     "dest": "nuget-sources",
-    "dest-filename": "microsoft.kiota.http.httpclientlibrary.1.13.1.nupkg",
-    "sha512": "5aa5a593a170e38ea16d5f1345dbe1d33a58a2bbdf272aa6c5ac961dd1ee97c5820a9be5beb11ba30cdd096f0507e887ddcac0d1938020c3d51959a7920f5a94",
-    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.kiota.http.httpclientlibrary/1.13.1/microsoft.kiota.http.httpclientlibrary.1.13.1.nupkg",
+    "dest-filename": "microsoft.kiota.http.httpclientlibrary.1.20.1.nupkg",
+    "sha512": "2a5b9f390bed77c3daa594dca88bfd9f2acc6176667d33a2fe7c3b35532f23212ad11fc20ee6c9b4786a07bbe87fd2a97c4bc9f42639e0564ae9f0775f6ad342",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.kiota.http.httpclientlibrary/1.20.1/microsoft.kiota.http.httpclientlibrary.1.20.1.nupkg",
     "type": "file"
   },
   {
     "dest": "nuget-sources",
-    "dest-filename": "microsoft.kiota.serialization.form.1.13.1.nupkg",
-    "sha512": "ba330ccd1bd4d4303ad95a1aaf917f3e4d4a6aaa10bb6082b2572351bf2d6b45d4d91bb809179bee8416ce4e89e2717024ec4ca97f0d8191017abc447c80a253",
-    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.kiota.serialization.form/1.13.1/microsoft.kiota.serialization.form.1.13.1.nupkg",
+    "dest-filename": "microsoft.kiota.serialization.form.1.20.1.nupkg",
+    "sha512": "39ba89d0e234694fd34b1f34f84317270ad2fb0d718102618b0bf30ded57fd2d181983ea0326ca2307f3c121e5712eef124bb42d6a86f5752eabcfd69e9cf9ad",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.kiota.serialization.form/1.20.1/microsoft.kiota.serialization.form.1.20.1.nupkg",
     "type": "file"
   },
   {
     "dest": "nuget-sources",
-    "dest-filename": "microsoft.kiota.serialization.json.1.13.1.nupkg",
-    "sha512": "17152abf3367b6d67f47e03d810876f7450f759df0aed2b4801bba9f73c84819ad7652d9cc6803ea4e3a9b6c1d4f0999ed71826aba655b45a81bfe825d6f183e",
-    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.kiota.serialization.json/1.13.1/microsoft.kiota.serialization.json.1.13.1.nupkg",
+    "dest-filename": "microsoft.kiota.serialization.json.1.20.1.nupkg",
+    "sha512": "5f0ada7d75265cf85b9d25854aa77fc68f57e66936a00d9b64945b815206cb1d8c42f8ddafdd0270e4b98718a63e2682fe119418286f4f09c88058abe00614b4",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.kiota.serialization.json/1.20.1/microsoft.kiota.serialization.json.1.20.1.nupkg",
     "type": "file"
   },
   {
     "dest": "nuget-sources",
-    "dest-filename": "microsoft.kiota.serialization.multipart.1.13.1.nupkg",
-    "sha512": "175424c4f614a726534b483d5088f2dcf2fc60c674afdf6749eee51f3b2109f4d9e1a1a0e1d12619a4aaaa722366cd7f2b00d038c9ca5d82b3743f9f4d65928b",
-    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.kiota.serialization.multipart/1.13.1/microsoft.kiota.serialization.multipart.1.13.1.nupkg",
+    "dest-filename": "microsoft.kiota.serialization.multipart.1.20.1.nupkg",
+    "sha512": "0616dd670b86cb1e948f80045e15e94a57ae8747ac58204b76ff171e396c7f273e4da83a3c6fa8a404c0ecb8719fcd0ad50667c9b1e488ddf524225da311fe87",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.kiota.serialization.multipart/1.20.1/microsoft.kiota.serialization.multipart.1.20.1.nupkg",
     "type": "file"
   },
   {
     "dest": "nuget-sources",
-    "dest-filename": "microsoft.kiota.serialization.text.1.13.1.nupkg",
-    "sha512": "acfa1aeefd01a58494d695e84ae6871106aefff0f6991cf8209c3a21acd1d9936668ed15e15afd752600a238f4d6ae22e300781a32fc9f5c0998f15063429402",
-    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.kiota.serialization.text/1.13.1/microsoft.kiota.serialization.text.1.13.1.nupkg",
+    "dest-filename": "microsoft.kiota.serialization.text.1.20.1.nupkg",
+    "sha512": "b4ee3bb03b872dfa1ff6b100141fb2390b992313d7a31109430fa954e39d7aaa140575bc27d6bf612bed5375f22c8b3ca244b7d2810f1ca1ac62a4c881c69cae",
+    "url": "https://api.nuget.org/v3-flatcontainer/microsoft.kiota.serialization.text/1.20.1/microsoft.kiota.serialization.text.1.20.1.nupkg",
     "type": "file"
   },
   {
     "dest": "nuget-sources",
-    "dest-filename": "soundflow.1.4.0.nupkg",
-    "sha512": "b63b159881ca417ab12ce327960bd90fcb3c0ce4b2d5dc6fcc16c2d5feaf6af2bd622f5b6adcbe2b916cba1c0f64b291088b8318a020f1dca6b500553ac672e9",
-    "url": "https://api.nuget.org/v3-flatcontainer/soundflow/1.4.0/soundflow.1.4.0.nupkg",
+    "dest-filename": "soundflow.1.4.1.nupkg",
+    "sha512": "492ae7c2820021ec49d99d757ad05c7ad17698ea7936290d0fb2fc4e5d4ba2e039b2fe8f45d496295d128e1c7f8594d2794284beb8064fd698925521cbef2ee8",
+    "url": "https://api.nuget.org/v3-flatcontainer/soundflow/1.4.1/soundflow.1.4.1.nupkg",
     "type": "file"
   },
   {
     "dest": "nuget-sources",
-    "dest-filename": "std.uritemplate.2.0.0.nupkg",
-    "sha512": "67e1f84fa5277f77947859826a13fab54196ff2da32fbbe3596f7962f24b02f9d1949d200e5b79b7d327389b2947a81e622309f312a74790c2b84b183121e54d",
-    "url": "https://api.nuget.org/v3-flatcontainer/std.uritemplate/2.0.0/std.uritemplate.2.0.0.nupkg",
+    "dest-filename": "std.uritemplate.2.0.5.nupkg",
+    "sha512": "8bacf95545cea7b45610349b3a5b09bc590521593de5de63f350f25aad02fcf958ac9ac24ff7fb51f2f6b34f65b3aebb97829a93f2ad370371e7301215969d12",
+    "url": "https://api.nuget.org/v3-flatcontainer/std.uritemplate/2.0.5/std.uritemplate.2.0.5.nupkg",
     "type": "file"
   },
   {

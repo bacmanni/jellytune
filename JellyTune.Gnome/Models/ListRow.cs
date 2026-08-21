@@ -13,12 +13,16 @@ public partial class ListRow
     public bool HasArtwork { get; set; }
     public FileType FileType { get; set; }
     
-    public ListRow(ListItem item) : this()
+    public static ListRow New(ListItem item)
     {
-        Id = item.Id;
-        Title = item.Title;
-        Description = item.Description;
-        HasArtwork = item.HasArtwork;
-        FileType = item.ArtworkFiletype;
+        var row = NewWithProperties([]);
+
+        row.Id = item.Id;
+        row.Title = item.Title;
+        row.Description = item.Description;
+        row.HasArtwork = item.HasArtwork;
+        row.FileType = item.ArtworkFiletype;
+
+        return row;
     }
 }

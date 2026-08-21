@@ -7,34 +7,34 @@ using ListBox = Gtk.ListBox;
 
 namespace JellyTune.Gnome.Views;
 
-public class AlbumView : Gtk.ScrolledWindow
+[GObject.Subclass<Gtk.ScrolledWindow>(qualifiedName: "JellyTuneAlbumView")]
+[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.album.ui")]
+public partial class AlbumView
 {
     private readonly AlbumController _controller;
     private readonly AlbumArtController _albumArtController;
     
-    [Gtk.Connect] private readonly Gtk.Image _albumArt;
-    [Gtk.Connect] private readonly Gtk.Label _artist;
-    [Gtk.Connect] private readonly Gtk.Label _album;
-    [Gtk.Connect] private readonly Gtk.Label _trackCount;
-    [Gtk.Connect] private readonly Gtk.Label _albumDuration;
-    [Gtk.Connect] private readonly Gtk.Label _albumYear;
-    [Gtk.Connect] private readonly Gtk.ListBox _tracks;
-    [Gtk.Connect] private readonly Adw.Spinner _spinner;
-    [Gtk.Connect] private readonly Adw.Clamp _result;
+    [Gtk.Connect] private Gtk.Image _albumArt;
+    [Gtk.Connect] private Gtk.Label _artist;
+    [Gtk.Connect] private Gtk.Label _album;
+    [Gtk.Connect] private Gtk.Label _trackCount;
+    [Gtk.Connect] private Gtk.Label _albumDuration;
+    [Gtk.Connect] private Gtk.Label _albumYear;
+    [Gtk.Connect] private Gtk.ListBox _tracks;
+    [Gtk.Connect] private Adw.Spinner _spinner;
+    [Gtk.Connect] private Adw.Clamp _result;
 
-    private AlbumView(Gtk.Builder builder) : base(
-        new ScrolledWindowHandle(builder.GetPointer("_root"), false))
-    {
-        builder.Connect(this);
-    }
-    
-    public AlbumView(AlbumController controller) : this(GtkHelper.BuilderFromFile("album"))
+    public AlbumView(AlbumController controller)
     {
         _controller = controller;
         _albumArtController = new AlbumArtController(_controller.JellyTuneApiService);
+        _controller.OnAlbumChanged += ControllerOnAlbumChanged;
+    }
+
+    partial void Initialize()
+    {
         _tracks.OnRowSelected += TracksOnRowSelected;
         _tracks.OnRowActivated += TracksOnRowActivated;
-        _controller.OnAlbumChanged += ControllerOnAlbumChanged;
         
         var click = Gtk.GestureClick.New();
         click.OnPressed += ClickOnPressed;

@@ -6,24 +6,20 @@ using JellyTune.Gnome.Models;
 
 namespace JellyTune.Gnome.Views;
 
-public class GridItem : Gtk.Box
+[GObject.Subclass<Gtk.Box>(qualifiedName: "JellyTuneGridItem")]
+[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.grid_item.ui")]
+public partial class GridItem
 {
     private readonly IFileService _fileService;
     
-    [Gtk.Connect] private readonly Gtk.Image _art;
-    [Gtk.Connect] private readonly Gtk.Label _title;
-    [Gtk.Connect] private readonly Gtk.Label _description;
+    [Gtk.Connect] private Gtk.Image _art;
+    [Gtk.Connect] private Gtk.Label _title;
+    [Gtk.Connect] private Gtk.Label _description;
     
     private FileType _fileType;
     private CancellationTokenSource? _cancellationTokenSource;
-
-    private GridItem(Gtk.Builder builder) : base(
-        new BoxHandle(builder.GetPointer("_root"), false))
-    {
-        builder.Connect(this);
-    }
     
-    public GridItem(IFileService fileService) : this(GtkHelper.BuilderFromFile("grid_item"))
+    public GridItem(IFileService fileService)
     {
         _fileService = fileService;
         CanFocus = false;

@@ -4,9 +4,10 @@ using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Reflection;
 using System.Text;
+using Gio;
 using JellyTune.Shared.Controls;
 using Jellyfin.Sdk;
-using JellyTune.Gnome.DBus.Secret;
+using JellyTune.Gnome.Views;
 using JellyTune.Shared.Handlers;
 using JellyTune.Shared.Models;
 using JellyTune.Shared.Services;
@@ -66,7 +67,6 @@ class Program
         var playerService = _serviceProvider.GetService<IPlayerService>();
         var fileService = _serviceProvider.GetService<IFileService>();
         var configurationService = _serviceProvider.GetService<IConfigurationService>();
-
         configurationService.Load();
         var deviceId = configurationService.Get<string>("DeviceId");
         
@@ -83,19 +83,20 @@ class Program
         _mainWindowController = new MainWindowController(apiService, configurationService, playerService, fileService, _applicationInfo);
         
         _application = Adw.Application.New(_applicationInfo.Id, Gio.ApplicationFlags.NonUnique);
-        _application.OnActivate += async (sender, args) =>
-        {
-            if (_mainWindow != null)
-            {
-                _mainWindow.Present();
-                return;
-            }
-        
-            _mainWindow = new Views.MainWindow((Adw.Application) sender, _mainWindowController, _application);
-            _ = _mainWindow.StartAsync();
-        };
-        
+        _application.OnActivate += ApplicationOnOnActivate;
         _application.OnShutdown += ApplicationOnOnShutdown;
+    }
+
+    private async void ApplicationOnOnActivate(Application sender, EventArgs args)
+    {
+        if (_mainWindow != null)
+        {
+            _mainWindow.Present();
+            return;
+        }
+
+        _mainWindow = new Views.MainWindow(_mainWindowController, _application);
+        await _mainWindow.StartAsync();
     }
 
     private void ApplicationOnOnShutdown(Gio.Application sender, EventArgs args)

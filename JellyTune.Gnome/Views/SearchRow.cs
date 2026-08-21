@@ -6,22 +6,18 @@ using JellyTune.Gnome.Helpers;
 
 namespace JellyTune.Gnome.Views;
 
-public class SearchRow : Adw.ActionRow
+[GObject.Subclass<Adw.ActionRow>]
+[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.search_row.ui")]
+public partial class SearchRow
 {
     private readonly IFileService  _fileService;
     public Guid Id  { get; set; }
     public Guid AlbumId  { get; set; }
     public SearchType Type { get; set; }
     
-    [Gtk.Connect] private readonly Gtk.Image _albumArt;
+    [Gtk.Connect] private Gtk.Image _albumArt;
 
-    private SearchRow(Gtk.Builder builder) : base(
-        new ActionRowHandle(builder.GetPointer("_root"), false))
-    {
-        builder.Connect(this);
-    }
-
-    public SearchRow(IFileService fileService, Search row) : this(GtkHelper.BuilderFromFile("search_row"))
+    public SearchRow(IFileService fileService, Search row)
     {
         _fileService = fileService;
         Id = row.Id;

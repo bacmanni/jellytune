@@ -11,11 +11,15 @@ public partial class AlbumRow
     public string Album { get; set; }
     public bool HasArtwork { get; set; }
     
-    public AlbumRow(Album album) : this()
+    public static AlbumRow New(Album album)
     {
-        Id = album.Id;
-        Artist = album.Artist;
-        Album = album.Name;
-        HasArtwork = album.HasArtwork;
+        var row = NewWithProperties([]);
+
+        row.Id = album.Id;
+        row.Artist = album.Artist;
+        row.Album = album.Name;
+        row.HasArtwork = album.HasArtwork;
+
+        return row;
     }
 }

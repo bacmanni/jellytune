@@ -6,7 +6,10 @@ using AlertDialog = Adw.AlertDialog;
 
 namespace JellyTune.Gnome.Views;
 
-public partial class PreferencesView : Adw.PreferencesDialog
+
+[GObject.Subclass<Adw.PreferencesDialog>(qualifiedName: "JellyTunePreferencesView")]
+[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.preferences.ui")]
+public partial class PreferencesView
 {
     private readonly IConfigurationService _configurationService;
     private readonly IJellyTuneApiService _jellyTuneApiService;
@@ -14,25 +17,18 @@ public partial class PreferencesView : Adw.PreferencesDialog
     private readonly AccountController  _accountController;
     private readonly AccountView _accountView;
     
-    [Gtk.Connect] private readonly Adw.PreferencesPage _preferencesPage1;
+    [Gtk.Connect] private Adw.PreferencesPage _preferencesPage1;
 
-    [Gtk.Connect] private readonly Adw.SwitchRow _cacheList;
-    [Gtk.Connect] private readonly Adw.SwitchRow _cacheArtwork;
-    [Gtk.Connect] private readonly Adw.SwitchRow _showListSeparator;
-    [Gtk.Connect] private readonly Adw.SwitchRow _showSeek;
-    [Gtk.Connect] private readonly Adw.SwitchRow _showVolume;
-    [Gtk.Connect] private readonly Adw.SwitchRow _showPlayingAlbum;
-    [Gtk.Connect] private readonly Adw.SwitchRow _showLyrics;
+    [Gtk.Connect] private Adw.SwitchRow _cacheList;
+    [Gtk.Connect] private Adw.SwitchRow _cacheArtwork;
+    [Gtk.Connect] private Adw.SwitchRow _showListSeparator;
+    [Gtk.Connect] private Adw.SwitchRow _showSeek;
+    [Gtk.Connect] private Adw.SwitchRow _showVolume;
+    [Gtk.Connect] private Adw.SwitchRow _showPlayingAlbum;
+    [Gtk.Connect] private Adw.SwitchRow _showLyrics;
 
     public bool Refresh { get; set; } = false;
     public string? Password { get; set; } = null;
-    
-    private PreferencesView(Gtk.Builder builder) : base(
-        new PreferencesDialogHandle(builder.GetPointer("_root"), false))
-    {
-        builder.Connect(this);
-        OnCloseAttempt += CloseAttempt;
-    }
 
     private void CloseAttempt(Adw.Dialog sender, EventArgs args)
     {
@@ -73,7 +69,7 @@ public partial class PreferencesView : Adw.PreferencesDialog
             ForceClose();
     }
 
-    public PreferencesView(IConfigurationService configurationService, IJellyTuneApiService jellyTuneApiService) : this(GtkHelper.BuilderFromFile("preferences"))
+    public PreferencesView(IConfigurationService configurationService, IJellyTuneApiService jellyTuneApiService)
     {
         _configurationService = configurationService;
         _jellyTuneApiService = jellyTuneApiService;

@@ -4,25 +4,21 @@ using JellyTune.Gnome.Helpers;
 
 namespace JellyTune.Gnome.Views;
 
-public partial class LyricsView : Adw.Dialog
+[GObject.Subclass<Adw.Dialog>(qualifiedName: "JellyTuneLyricsView")]
+[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.lyrics.ui")]
+public partial class LyricsView
 {
     private LyricsController  _controller;
 
-    [Gtk.Connect] private readonly Adw.Spinner _spinner;
-    [Gtk.Connect] private readonly Gtk.Revealer _results;
+    [Gtk.Connect] private Adw.Spinner _spinner;
+    [Gtk.Connect] private Gtk.Revealer _results;
     
-    [Gtk.Connect] private readonly Gtk.Label _lyrics;
-    [Gtk.Connect] private readonly Gtk.Image _albumArt;
-    [Gtk.Connect] private readonly Gtk.Label _track;
-    [Gtk.Connect] private readonly Gtk.Label _artist;
+    [Gtk.Connect] private Gtk.Label _lyrics;
+    [Gtk.Connect] private Gtk.Image _albumArt;
+    [Gtk.Connect] private Gtk.Label _track;
+    [Gtk.Connect] private Gtk.Label _artist;
 
-    private LyricsView(Gtk.Builder builder) : base(
-        new DialogHandle(builder.GetPointer("_root"), false))
-    {
-        builder.Connect(this);
-    }
-    
-    public LyricsView(LyricsController controller) : this(GtkHelper.BuilderFromFile("lyrics"))
+    public LyricsView(LyricsController controller)
     {
         _controller = controller;
         _controller.OnLyricsUpdated += ControllerOnOnLyricsUpdated;

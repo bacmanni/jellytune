@@ -6,26 +6,22 @@ using JellyTune.Gnome.Helpers;
 
 namespace JellyTune.Gnome.Views;
 
-public partial class TrackRow : Adw.ActionRow
+[GObject.Subclass<Adw.ActionRow>]
+[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.track_row.ui")]
+public partial class TrackRow
 {
     private readonly IFileService  _fileService;
     private readonly Track _track;
     
-    [Gtk.Connect] private readonly Gtk.Image _status;
-    [Gtk.Connect] private readonly Adw.Spinner _spinner;
-    [Gtk.Connect] private readonly Gtk.Image _albumArt;
-    [Gtk.Connect] private readonly Gtk.Label _runtime;
-    [Gtk.Connect] private readonly Gtk.Label _number;
+    [Gtk.Connect] private Gtk.Image _status;
+    [Gtk.Connect] private Adw.Spinner _spinner;
+    [Gtk.Connect] private Gtk.Image _albumArt;
+    [Gtk.Connect] private Gtk.Label _runtime;
+    [Gtk.Connect] private Gtk.Label _number;
 
     public Guid TrackId => _track.Id;
 
-    private TrackRow(Gtk.Builder builder) : base(
-        new ActionRowHandle(builder.GetPointer("_root"), false))
-    {
-        builder.Connect(this);
-    }
-    
-    public TrackRow(IFileService fileService, Track track, PlayerState state, bool extended = false) : this(GtkHelper.BuilderFromFile("track_row"))
+    public TrackRow(IFileService fileService, Track track, PlayerState state, bool extended = false)
     {
         _fileService  = fileService;
         _track = track;

@@ -3,15 +3,11 @@ using JellyTune.Gnome.Helpers;
 
 namespace JellyTune.Gnome.Views;
 
-public class PreferencesAlert : Adw.AlertDialog
+[GObject.Subclass<Adw.AlertDialog>(qualifiedName: "JellyTunePreferencesAlert")]
+[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.preferences_alert.ui")]
+public partial class PreferencesAlert
 {
-    private PreferencesAlert(Gtk.Builder builder) : base(
-        new AlertDialogHandle(builder.GetPointer("_root"), false))
-    {
-        builder.Connect(this);
-    }
-
-    public PreferencesAlert() : this(GtkHelper.BuilderFromFile("preferences_alert"))
+    public PreferencesAlert()
     {
     }
 }

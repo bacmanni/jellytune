@@ -8,24 +8,24 @@ using ListBox = Gtk.ListBox;
 
 namespace JellyTune.Gnome.Views;
 
-public class QueueListView : Gtk.ScrolledWindow
+[GObject.Subclass<Gtk.ScrolledWindow>(qualifiedName: "JellyTuneQueueListView")]
+[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.queue_list.ui")]
+public partial class QueueListView
 {
     private readonly QueueListController  _controller;
     
-    [Gtk.Connect] private readonly Gtk.ListBox _queueList;
+    [Gtk.Connect] private Gtk.ListBox _queueList;
 
-    private QueueListView(Gtk.Builder builder) : base(
-        new ScrolledWindowHandle(builder.GetPointer("_root"), false))
-    {
-        builder.Connect(this);
-    }
-
-    public QueueListView(QueueListController controller) : this(GtkHelper.BuilderFromFile("queue_list"))
+    public QueueListView(QueueListController controller)
     {
         _controller = controller;
         _controller.OnQueueUpdated += ControllerOnQueueUpdated;
-        _queueList.OnRowActivated += QueueListOnRowActivated;
         _controller.PlayerService.OnPlayerStateChanged += OnPlayerStateChanged;
+    }
+
+    partial void Initialize()
+    {
+        _queueList.OnRowActivated += QueueListOnRowActivated;
     }
 
     private void OnPlayerStateChanged(object? sender, PlayerStateArgs args)

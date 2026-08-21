@@ -9,15 +9,17 @@ using SwitchRow = Adw.SwitchRow;
 
 namespace JellyTune.Gnome.Views;
 
-public class AccountView : Adw.PreferencesGroup
+[GObject.Subclass<Adw.PreferencesGroup>]
+[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.account.ui")]
+public partial class AccountView
 {
     private readonly AccountController  _controller;
 
-    [Gtk.Connect] private readonly Adw.EntryRow _server;
-    [Gtk.Connect] private readonly Adw.EntryRow _username;
-    [Gtk.Connect] private readonly Adw.PasswordEntryRow _password;
-    [Gtk.Connect] private readonly Adw.ComboRow _audioCollection;
-    [Gtk.Connect] private readonly Adw.ComboRow _playlistCollection;
+    [Gtk.Connect] private Adw.EntryRow _server;
+    [Gtk.Connect] private Adw.EntryRow _username;
+    [Gtk.Connect] private Adw.PasswordEntryRow _password;
+    [Gtk.Connect] private Adw.ComboRow _audioCollection;
+    [Gtk.Connect] private Adw.ComboRow _playlistCollection;
     
     private readonly Gtk.SignalListItemFactory _audioCollectionFactory;
     private readonly Gio.ListStore _audioCollectionItems;
@@ -35,13 +37,7 @@ public class AccountView : Adw.PreferencesGroup
     private bool _isAccountValid;
     private bool _isCollectionValid;
     
-    private AccountView(Gtk.Builder builder) : base(
-        new PreferencesGroupHandle(builder.GetPointer("_root"), false))
-    {
-        builder.Connect(this);
-    }
-    
-    public AccountView(AccountController controller) : this(GtkHelper.BuilderFromFile("account"))
+    public AccountView(AccountController controller)
     {
         _controller = controller;
         _controller.OnConfigurationLoaded += ControllerOnOnConfigurationLoaded;
@@ -265,7 +261,7 @@ public class AccountView : Adw.PreferencesGroup
                 if (collection.Id == collectionId)
                     selectedIndex = index;
                 
-                _audioCollectionItems.Append(new CollectionRow(collection));
+                _audioCollectionItems.Append(CollectionRow.New(collection));
             }
 
             if (selectedIndex != -1)
@@ -312,7 +308,7 @@ public class AccountView : Adw.PreferencesGroup
                 if (collection.Id == collectionId)
                     selectedIndex = index;
                 
-                _playlistCollectionItems.Append(new CollectionRow(collection));
+                _playlistCollectionItems.Append(CollectionRow.New(collection));
             }
             
             if (selectedIndex != -1)

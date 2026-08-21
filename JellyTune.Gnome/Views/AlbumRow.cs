@@ -6,21 +6,17 @@ using JellyTune.Shared.Services;
 
 namespace JellyTune.Gnome.Views;
 
-public partial class AlbumRow : Adw.ActionRow
+
+[GObject.Subclass<Adw.ActionRow>(qualifiedName: "JellyTuneAlbumRow")]
+[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.album_row.ui")]
+public partial class AlbumRow
 {
     private readonly IFileService _fileService;
     private readonly Album _album;
 
-    [Gtk.Connect] private readonly Gtk.Image _albumArt;
+    [Gtk.Connect] private Gtk.Image _albumArt;
 
-    private AlbumRow(Gtk.Builder builder) : base(
-        new ActionRowHandle(builder.GetPointer("_root"), false))
-    {
-        builder.Connect(this);
-    }
-
-    public AlbumRow(IFileService fileService, Album album) : this(
-        GtkHelper.BuilderFromFile("album_row"))
+    public AlbumRow(IFileService fileService, Album album)
     {
         _fileService = fileService;
         _album = album;

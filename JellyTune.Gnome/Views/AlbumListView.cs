@@ -4,19 +4,15 @@ using JellyTune.Gnome.Helpers;
 
 namespace JellyTune.Gnome.Views;
 
-public class AlbumListView : Gtk.Box
+[GObject.Subclass<Gtk.Box>(qualifiedName: "JellyTuneAlbumListView")]
+[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.albumlist.ui")]
+public partial class AlbumListView
 {
     private readonly AlbumlistController _controller;
 
     private readonly ListView _listView;
-    
-    private AlbumListView(Gtk.Builder builder) : base(
-        new BoxHandle(builder.GetPointer("_root"), false))
-    {
-        builder.Connect(this);
-    }
 
-    public AlbumListView(AlbumlistController controller) : this(GtkHelper.BuilderFromFile("albumlist"))
+    public AlbumListView(AlbumlistController controller)
     {
         _controller = controller;
         Append(new Views.ListView(_controller));

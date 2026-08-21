@@ -6,22 +6,18 @@ using ListBox = Gtk.ListBox;
 
 namespace JellyTune.Gnome.Views;
 
-public class ArtistAlbumView : Adw.Dialog
+[GObject.Subclass<Adw.Dialog>(qualifiedName: "JellyTuneArtistAlbumView")]
+[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.artist_album.ui")]
+public partial class ArtistAlbumView
 {
     private readonly ArtistAlbumController  _controller;
 
-    [Gtk.Connect] private readonly Adw.Spinner _spinner;
-    [Gtk.Connect] private readonly Gtk.Revealer _result;
+    [Gtk.Connect] private Adw.Spinner _spinner;
+    [Gtk.Connect] private Gtk.Revealer _result;
     
-    [Gtk.Connect] private readonly Gtk.ListBox _albums;
-    
-    private ArtistAlbumView(Gtk.Builder builder) : base(
-        new DialogHandle(builder.GetPointer("_root"), false))
-    {
-        builder.Connect(this);
-    }
+    [Gtk.Connect] private Gtk.ListBox _albums;
 
-    public ArtistAlbumView(ArtistAlbumController controller) : this(GtkHelper.BuilderFromFile("artist_album"))
+    public ArtistAlbumView(ArtistAlbumController controller)
     {
         _controller = controller;
         _controller.OnAlbumsChanged += ControllerOnAlbumsChanged;

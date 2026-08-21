@@ -8,21 +8,17 @@ using ListBox = Gtk.ListBox;
 
 namespace JellyTune.Gnome.Views;
 
-public class SearchView : Gtk.ScrolledWindow
+[GObject.Subclass<Gtk.ScrolledWindow>(qualifiedName: "JellyTuneSearchView")]
+[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.search.ui")]
+public partial class SearchView
 {
     private readonly SearchController _controller;
 
-    [Gtk.Connect] private readonly Adw.Spinner _spinner;
-    [Gtk.Connect] private readonly Adw.StatusPage _noresults;
-    [Gtk.Connect] private readonly Adw.Clamp _results;
-    [Gtk.Connect] private readonly Gtk.ListBox _searchList;
-    [Gtk.Connect] private readonly Adw.StatusPage _startup;
-
-    private SearchView(Gtk.Builder builder) : base(
-        new ScrolledWindowHandle(builder.GetPointer("_root"), false))
-    {
-        builder.Connect(this);
-    }
+    [Gtk.Connect] private Adw.Spinner _spinner;
+    [Gtk.Connect] private Adw.StatusPage _noresults;
+    [Gtk.Connect] private Adw.Clamp _results;
+    [Gtk.Connect] private Gtk.ListBox _searchList;
+    [Gtk.Connect] private Adw.StatusPage _startup;
 
     private void UpdateResults(bool? show = null, int? results = null)
     {
@@ -64,10 +60,14 @@ public class SearchView : Gtk.ScrolledWindow
         }
     }
     
-    public SearchView(SearchController controller) : this(GtkHelper.BuilderFromFile("search"))
+    public SearchView(SearchController controller)
     {
         _controller = controller;
         _controller.OnSearchStateChanged += ControllerOnOnSearchStateChanged;
+    }
+
+    partial void Initialize()
+    {
         _searchList.OnRowActivated += SearchListOnOnRowActivated;
     }
 

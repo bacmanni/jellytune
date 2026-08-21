@@ -5,24 +5,20 @@ using JellyTune.Shared.Events;
 
 namespace JellyTune.Gnome.Views;
 
-public partial class AlbumArtView : Adw.Dialog
+[GObject.Subclass<Adw.Dialog>(qualifiedName: "JellyTuneAlbumArtView")]
+[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.album_art.ui")]
+public partial class AlbumArtView
 {
     private readonly AlbumArtController _controller;
     
-    [Gtk.Connect] private readonly Adw.Spinner _spinner;
-    [Gtk.Connect] private readonly Gtk.Revealer _results;
+    [Gtk.Connect] private Adw.Spinner _spinner;
+    [Gtk.Connect] private Gtk.Revealer _results;
     
-    [Gtk.Connect] private readonly Gtk.Image _albumArt;
-    [Gtk.Connect] private readonly Gtk.Label _album;
-    [Gtk.Connect] private readonly Gtk.Label _artist;
+    [Gtk.Connect] private Gtk.Image _albumArt;
+    [Gtk.Connect] private Gtk.Label _album;
+    [Gtk.Connect] private Gtk.Label _artist;
     
-    private AlbumArtView(Gtk.Builder builder) : base(
-        new DialogHandle(builder.GetPointer("_root"), false))
-    {
-        builder.Connect(this);
-    }
-    
-    public AlbumArtView(AlbumArtController controller) : this(GtkHelper.BuilderFromFile("album_art"))
+    public AlbumArtView(AlbumArtController controller)
     {
         _controller = controller;
         _controller.OnAlbumArtChanged += ControllerOnAlbumArtChanged;

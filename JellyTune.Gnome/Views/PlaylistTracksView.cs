@@ -6,26 +6,25 @@ using ListBox = Gtk.ListBox;
 
 namespace JellyTune.Gnome.Views;
 
-public class PlaylistTracksView : Gtk.Box
+[GObject.Subclass<Gtk.Box>(qualifiedName: "JellyTunePlaylistTracks")]
+[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.playlist_tracks.ui")]
+public partial class PlaylistTracksView
 {
     private readonly PlaylistTracksController _controller;
     
-    [Gtk.Connect] private readonly Adw.Spinner _spinner;
-    [Gtk.Connect] private readonly Adw.Clamp _results;
-    [Gtk.Connect] private readonly Gtk.ListBox _playlistTracksList;
-    
-    private PlaylistTracksView(Gtk.Builder builder) : base(
-        new BoxHandle(builder.GetPointer("_root"), false))
-    {
-        builder.Connect(this);
-    }
+    [Gtk.Connect] private Adw.Spinner _spinner;
+    [Gtk.Connect] private Adw.Clamp _results;
+    [Gtk.Connect] private Gtk.ListBox _playlistTracksList;
 
-    public PlaylistTracksView(PlaylistTracksController controller) : this(GtkHelper.BuilderFromFile("playlist_tracks"))
+    public PlaylistTracksView(PlaylistTracksController controller)
     {
         _controller = controller;
         _controller.OnPlaylistTracksStateChanged += ControllerOnPlaylistTracksStateChanged;
+    }
+
+    partial void Initialize()
+    {
         _playlistTracksList.OnRowActivated += PlaylistTracksListOnRowActivated;
-        
         _results.SetVisible(false);
         _spinner.SetVisible(true);
     }

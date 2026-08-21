@@ -8,41 +8,39 @@ using Range = Gtk.Range;
 
 namespace JellyTune.Gnome.Views;
 
-public partial class PlayerExtendedView : Gtk.Revealer
+[GObject.Subclass<Gtk.Revealer>(qualifiedName: "JellyTunePlayerExtendedView")]
+[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.player_extended.ui")]
+public partial class PlayerExtendedView
 {
     private readonly PlayerExtendedController _controller;
 
-    [Gtk.Connect] private readonly Gtk.Stack _extendedStack;
-    [Gtk.Connect] private readonly Gtk.Box _position;
-    [Gtk.Connect] private readonly Gtk.Box _volume;
+    [Gtk.Connect] private Gtk.Stack _extendedStack;
+    [Gtk.Connect] private Gtk.Box _position;
+    [Gtk.Connect] private Gtk.Box _volume;
     
     // Volume
-    [Gtk.Connect] private readonly Gtk.Button _muteButton;
-    [Gtk.Connect] private readonly Gtk.Scale _volumeScale;
-    [Gtk.Connect] private readonly Gtk.Button _volumeButton;
+    [Gtk.Connect] private Gtk.Button _muteButton;
+    [Gtk.Connect] private Gtk.Scale _volumeScale;
+    [Gtk.Connect] private Gtk.Button _volumeButton;
     
     // Duration 
-    [Gtk.Connect] private readonly Gtk.Label _currentPosition;
-    [Gtk.Connect] private readonly Gtk.Scale _durationScale;
-    [Gtk.Connect] private readonly Gtk.Label _totalLength;
+    [Gtk.Connect] private Gtk.Label _currentPosition;
+    [Gtk.Connect] private Gtk.Scale _durationScale;
+    [Gtk.Connect] private Gtk.Label _totalLength;
     
     private Guid? _playingTrackId;
-    
-    private PlayerExtendedView(Gtk.Builder builder) : base(
-        new RevealerHandle(builder.GetPointer("_root"), false))
-    {
-        builder.Connect(this);
-    }
 
-    public PlayerExtendedView(PlayerExtendedController controller) : this(
-        GtkHelper.BuilderFromFile("player_extended"))
+    public PlayerExtendedView(PlayerExtendedController controller)
     {
         _controller = controller;
         _controller.OnShowHide += ControllerOnShowHide;
         _controller.PlayerService.OnPlayerStateChanged += PlayerServiceOnPlayerStateChanged;
         _controller.PlayerService.OnPlayerPositionChanged += PlayerServiceOnPlayerPositionChanged;
         _controller.PlayerService.OnPlayerVolumeChanged += PlayerServiceOnPlayerVolumeChanged;
-        
+    }
+
+    partial void Initialize()
+    {
         // Volume
         _muteButton.OnClicked += MuteButtonOnClicked;
         _volumeScale.OnChangeValue += VolumeScaleOnChangeValue;

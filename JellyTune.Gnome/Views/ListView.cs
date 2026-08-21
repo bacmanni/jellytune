@@ -6,47 +6,55 @@ using JellyTune.Shared.Events;
 
 namespace JellyTune.Gnome.Views;
 
-public class ListView : Gtk.Box
+[GObject.Subclass<Gtk.Box>(qualifiedName: "JellyTuneListView")]
+[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.list.ui")]
+public partial class ListView
 {
     private readonly ListController _controller;
     
-    [Gtk.Connect] private readonly Adw.Spinner _loader;
-    [Gtk.Connect] private readonly Gtk.Box _results;
+    [Gtk.Connect] private Adw.Spinner _loader;
+    [Gtk.Connect] private Gtk.Box _results;
     
-    [Gtk.Connect] private readonly Gtk.ListView _list;
-    [Gtk.Connect] private readonly Gtk.ScrolledWindow _listWindow;
+    [Gtk.Connect] private Gtk.ListView _list;
+    [Gtk.Connect] private Gtk.ScrolledWindow _listWindow;
     private readonly Gtk.SignalListItemFactory _listFactory;
     
-    [Gtk.Connect] private readonly Gtk.GridView _grid;
-    [Gtk.Connect] private readonly Gtk.ScrolledWindow _gridWindow;
+    [Gtk.Connect] private Gtk.GridView _grid;
+    [Gtk.Connect] private Gtk.ScrolledWindow _gridWindow;
     private readonly Gtk.SignalListItemFactory _gridFactory;
     
     private readonly Gio.ListStore _listItems;
     private readonly List<JellyTune.Shared.Models.ListItem> _items = [];
+
+    private bool _initialized = false;
     
-    private ListView(Gtk.Builder builder) : base(
-        new BoxHandle(builder.GetPointer("_root"), false))
-    {
-        builder.Connect(this);
-    }
-    
-    public ListView(ListController controller) : this(GtkHelper.BuilderFromFile("list"))
+    public ListView(ListController controller)
     {
         _controller = controller;
         _controller.OnListChanged += ControllerOnListChanged;
-
-        var configuration = _controller.ConfigurationService.Get();
-        _list.SetShowSeparators(configuration.ShowListSeparator);
-        _controller.ConfigurationService.OnSaved += OnSaved;
         
         _listItems = Gio.ListStore.New(ListRow.GetGType());
-        var selectionModel = Gtk.NoSelection.New(_listItems);
-
+        
         //List
         _listFactory = Gtk.SignalListItemFactory.New();
         _listFactory.OnSetup += ListFactoryOnSetup;
         _listFactory.OnBind += ListFactoryOnBind;
         _listFactory.OnUnbind += ListFactoryOnUnbind;
+        
+        // Grid
+        _gridFactory = Gtk.SignalListItemFactory.New();
+        _gridFactory.OnSetup += GridFactoryOnSetup;
+        _gridFactory.OnBind += GridFactoryOnBind;
+        _gridFactory.OnUnbind += GridFactoryOnUnbind;
+    }
+
+    partial void Initialize()
+    {
+        var configuration = _controller.ConfigurationService.Get();
+        _list.SetShowSeparators(configuration.ShowListSeparator);
+        _controller.ConfigurationService.OnSaved += OnSaved;
+        
+        var selectionModel = Gtk.NoSelection.New(_listItems);
         _list.SetFactory(_listFactory);
         _list.SetModel(selectionModel);
         _list.OnActivate += (_, args) =>
@@ -59,11 +67,6 @@ public class ListView : Gtk.Box
             _list.GrabFocus();
         };
         
-        // Grid
-        _gridFactory = Gtk.SignalListItemFactory.New();
-        _gridFactory.OnSetup += GridFactoryOnSetup;
-        _gridFactory.OnBind += GridFactoryOnBind;
-        _gridFactory.OnUnbind += GridFactoryOnUnbind;
         _grid.SetFactory(_gridFactory);
         _grid.SetModel(selectionModel);
         _grid.OnActivate += (_, args) =>
@@ -75,8 +78,10 @@ public class ListView : Gtk.Box
         {
             _grid.GrabFocus();
         };
-    }
 
+        _initialized = true;
+    }
+    
     private void GridFactoryOnUnbind(Gtk.SignalListItemFactory sender, Gtk.SignalListItemFactory.UnbindSignalArgs args)
     {
         var listItem = args.Object as Gtk.ListItem;
@@ -113,6 +118,8 @@ public class ListView : Gtk.Box
 
     private void ControllerOnListChanged(object? sender, ListStateArgs args)
     {
+        if (!_initialized) return;
+        
         GtkHelper.GtkDispatch(() =>
         {
             if (args.Items is not null)
@@ -139,7 +146,7 @@ public class ListView : Gtk.Box
                     {
                         var added = _controller.GetItems().Where(x => addedIds.Contains(x.Id));
                         foreach (var item in added)
-                            _listItems.Append(new ListRow(item));
+                            _listItems.Append(ListRow.New(item));
                     }
                 }
                 else
@@ -148,7 +155,7 @@ public class ListView : Gtk.Box
                     _items.Clear();
                     foreach (var item in args.Items)
                     {
-                        _listItems.Append(new ListRow(item));
+                        _listItems.Append(ListRow.New(item));
                         _items.Add(item);
                     }
                 }

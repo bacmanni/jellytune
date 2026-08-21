@@ -16,7 +16,9 @@ namespace JellyTune.Gnome.Views;
 /// <summary>
 /// The MainWindow for the application
 /// </summary>
-public partial class MainWindow : Adw.ApplicationWindow
+[GObject.Subclass<Adw.ApplicationWindow>(qualifiedName: "JellyTuneMainWindow")]
+[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.albumlist.ui")]
+public partial class MainWindow
 {
     private readonly MainWindowController _controller;
     private readonly Adw.Application _application;
@@ -59,83 +61,57 @@ public partial class MainWindow : Adw.ApplicationWindow
     private CancellationTokenSource? _menuUpdateCancellationTokenSource;
     private CancellationTokenSource? _searchAlbumsCts;
     
-    [Gtk.Connect] private readonly Gtk.Button _searchButton;
-    [Gtk.Connect] private readonly Gtk.SearchEntry _search_field;
+    [Gtk.Connect] private Gtk.Button _searchButton;
+    [Gtk.Connect] private Gtk.SearchEntry _search_field;
     
-    [Gtk.Connect] private readonly Gtk.Box _playerPosition;
+    [Gtk.Connect] private Gtk.Box _playerPosition;
     
-    [Gtk.Connect] private readonly Gtk.Box _player;
-    [Gtk.Connect] private readonly Gtk.Revealer _playerRevealer;
+    [Gtk.Connect] private Gtk.Box _player;
+    [Gtk.Connect] private Gtk.Revealer _playerRevealer;
     
-    [Gtk.Connect] private readonly Gtk.MenuButton _menuButton;
-    [Gtk.Connect] private readonly Adw.Spinner _spinner;
+    [Gtk.Connect] private Gtk.MenuButton _menuButton;
+    [Gtk.Connect] private Adw.Spinner _spinner;
     
-    [Gtk.Connect] private readonly Adw.ViewSwitcher _switcher_title;
-    [Gtk.Connect] private readonly Adw.NavigationPage _main_view;
-    [Gtk.Connect] private readonly Adw.NavigationPage _album_details;
-    [Gtk.Connect] private readonly Adw.NavigationPage _search_albums;
-    [Gtk.Connect] private readonly Adw.NavigationPage _queue_list;
-    [Gtk.Connect] private readonly Adw.NavigationPage _playlist_tracks;
+    [Gtk.Connect] private Adw.ViewSwitcher _switcher_title;
+    [Gtk.Connect] private Adw.NavigationPage _main_view;
+    [Gtk.Connect] private Adw.NavigationPage _album_details;
+    [Gtk.Connect] private Adw.NavigationPage _search_albums;
+    [Gtk.Connect] private Adw.NavigationPage _queue_list;
+    [Gtk.Connect] private Adw.NavigationPage _playlist_tracks;
     
-    [Gtk.Connect] private readonly Adw.NavigationView _album_view;
-    [Gtk.Connect] private readonly Adw.ToolbarView _album_list_view;
-    [Gtk.Connect] private readonly Adw.ToolbarView _album_details_view;
-    [Gtk.Connect] private readonly Adw.ToolbarView _search_albums_view;
-    [Gtk.Connect] private readonly Adw.ToolbarView _queue_list_view;
-    [Gtk.Connect] private readonly Adw.ToolbarView _playlist_tracks_view;
+    [Gtk.Connect] private Adw.NavigationView _album_view;
+    [Gtk.Connect] private Adw.ToolbarView _album_list_view;
+    [Gtk.Connect] private Adw.ToolbarView _album_details_view;
+    [Gtk.Connect] private Adw.ToolbarView _search_albums_view;
+    [Gtk.Connect] private Adw.ToolbarView _queue_list_view;
+    [Gtk.Connect] private Adw.ToolbarView _playlist_tracks_view;
     
-    [Gtk.Connect] private readonly Adw.HeaderBar _main_view_headerbar;
-    [Gtk.Connect] private readonly Adw.ViewStack _main_stack;
+    [Gtk.Connect] private Adw.HeaderBar _main_view_headerbar;
+    [Gtk.Connect] private Adw.ViewStack _main_stack;
     
-    [Gtk.Connect] private readonly Gtk.Box _main_stack_music;
-    [Gtk.Connect] private readonly Gtk.Box _main_stack_playlist;
+    [Gtk.Connect] private Gtk.Box _main_stack_music;
+    [Gtk.Connect] private Gtk.Box _main_stack_playlist;
     
     // This is stupid hack. Used for displaying shadow correctly on player
-    [Gtk.Connect] private readonly Gtk.Box _main_view_footer;
-    [Gtk.Connect] private readonly Gtk.Box _album_details_footer;
-    [Gtk.Connect] private readonly Gtk.Box _search_albums_footer;
-    [Gtk.Connect] private readonly Gtk.Box _queue_list_footer;
-    [Gtk.Connect] private readonly Gtk.Box _playlist_tracks_footer;
+    [Gtk.Connect] private Gtk.Box _main_view_footer;
+    [Gtk.Connect] private Gtk.Box _album_details_footer;
+    [Gtk.Connect] private Gtk.Box _search_albums_footer;
+    [Gtk.Connect] private Gtk.Box _queue_list_footer;
+    [Gtk.Connect] private Gtk.Box _playlist_tracks_footer;
 
     // Navigation view buttons
-    [Gtk.Connect] private readonly Gtk.Button _album_artist_albums;
-    [Gtk.Connect] private readonly Gtk.Button _queue_list_shuffle;
-    [Gtk.Connect] private readonly Gtk.Button _queue_list_open_album;
-    [Gtk.Connect] private readonly Gtk.Button _queue_list_artist_albums;
+    [Gtk.Connect] private Gtk.Button _album_artist_albums;
+    [Gtk.Connect] private Gtk.Button _queue_list_shuffle;
+    [Gtk.Connect] private Gtk.Button _queue_list_open_album;
+    [Gtk.Connect] private Gtk.Button _queue_list_artist_albums;
 
-    private MainWindow(Gtk.Builder builder, MainWindowController controller, Adw.Application application) : base(new Adw.Internal.ApplicationWindowHandle(builder.GetPointer("_root"), false))
+    private bool _initialized = false;
+    
+    public MainWindow(MainWindowController controller, Adw.Application application)
     {
         //Window Settings
         _controller = controller;
         _application = application;
-        SetIconName(_controller.ApplicationInfo.Icon);
-        SetWindowSize(360, 600);
-        
-        //Build UI
-        builder.Connect(this);
-
-        _main_stack.OnNotify += (sender, args) =>
-        {
-            if (args.Pspec.GetName() == "visible-child")
-            {
-                _viewAction.ChangeState(Variant.NewString(_main_stack.VisibleChildName));
-            }
-        };
-
-        // Handle back button clicks
-        _album_view.OnPopped += (sender, args) =>
-        {
-            var poppedPage = args.Page;
-            if (poppedPage == _album_details)
-            {
-                //_albumController.Cancel();
-            }
-        };
-        
-        _album_artist_albums.OnClicked += ShowArtistAlbumsOnClicked;
-        _queue_list_shuffle.OnClicked += QueueListShuffleOnClicked;
-        _queue_list_open_album.OnClicked += QueueListOpenAlbumOnClicked;
-        _queue_list_artist_albums.OnClicked += QueueListArtistAlbumsOnClicked;
         
         _controller.PlayerService.OnPlayerStateChanged += OnPlayerStateChanged;
 
@@ -144,12 +120,10 @@ public partial class MainWindow : Adw.ApplicationWindow
             _controller.ConfigurationService, _controller.PlayerService, _controller.FileService);
         _albumlistController.OnAlbumClicked += AlbumlistControllerOnAlbumClicked;
         _albumListView = new AlbumListView(_albumlistController);
-        _main_stack_music.Append(_albumListView);
         
         //Album details
         _albumController = new AlbumController(_controller.JellyTuneApiService, _controller.ConfigurationService, _controller.PlayerService, _controller.FileService);
         _albumView = new AlbumView(_albumController);
-        _album_details_view.SetContent(_albumView);
 
         _albumController.OnAlbumChanged += AlbumControllerOnAlbumChanged;
         
@@ -166,10 +140,8 @@ public partial class MainWindow : Adw.ApplicationWindow
         _playerController.OnShowPlaylistClicked += PlayerControllerOnShowPlaylistClicked;
         _playerController.OnShowShowLyricsClicked += PlayerControllerOnShowShowLyricsClicked;
         _playerView = new PlayerView(_playerController, _playerExtendedController);
-        _player.Append(_playerView);
 
         _playerExtendedView = new PlayerExtendedView(_playerExtendedController);
-        _playerPosition.Append(_playerExtendedView);
 
         _artistAlbumController = new ArtistAlbumController(_controller.JellyTuneApiService, _controller.FileService);
         
@@ -177,23 +149,18 @@ public partial class MainWindow : Adw.ApplicationWindow
         _searchController = new SearchController(_controller.JellyTuneApiService, _controller.ConfigurationService, _controller.PlayerService, _controller.FileService);
         _searchController.OnAlbumClicked += SearchControllerOnAlbumClicked;
         _searchView = new SearchView(_searchController);
-        _search_albums_view.SetContent(_searchView);
-        _search_field.OnSearchChanged += SearchFieldOnSearchChanged;
         
         // Queue list for currently playling queue
         _queueListController = new QueueListController(_controller.JellyTuneApiService, _controller.ConfigurationService, _controller.PlayerService, _controller.FileService);
         _queueListView = new QueueListView(_queueListController);
-        _queue_list_view.SetContent(_queueListView);
         
         // Playlist
         _playlistController = new PlaylistController(_controller.JellyTuneApiService, _controller.ConfigurationService, _controller.PlayerService, _controller.FileService);
         _playlistView = new PlaylistView(_playlistController);
-        _main_stack_playlist.Append(_playlistView);
         _playlistController.OnPlaylistClicked += PlaylistControllerOnPlaylistClicked;
         
         _playlistTracksController = new PlaylistTracksController(_controller.JellyTuneApiService, _controller.ConfigurationService, _controller.PlayerService, _controller.FileService);
         _playlistTracksView = new PlaylistTracksView(_playlistTracksController);
-        _playlist_tracks_view.SetContent(_playlistTracksView);
 
         //Refresh application
         _refreshAction = Gio.SimpleAction.New("refresh", null);
@@ -287,6 +254,38 @@ public partial class MainWindow : Adw.ApplicationWindow
         OnNotify += OnOnNotify;
     }
 
+    partial void Initialize()
+    {
+        SetIconName(_controller.ApplicationInfo.Icon);
+        SetWindowSize(360, 600);
+
+        _main_stack.OnNotify += (sender, args) =>
+        {
+            if (args.Pspec.GetName() == "visible-child")
+            {
+                _viewAction.ChangeState(Variant.NewString(_main_stack.VisibleChildName));
+            }
+        };
+
+        // Handle back button clicks
+        _album_view.OnPopped += (sender, args) =>
+        {
+            var poppedPage = args.Page;
+            if (poppedPage == _album_details)
+            {
+                //_albumController.Cancel();
+            }
+        };
+        
+        _album_artist_albums.OnClicked += ShowArtistAlbumsOnClicked;
+        _queue_list_shuffle.OnClicked += QueueListShuffleOnClicked;
+        _queue_list_open_album.OnClicked += QueueListOpenAlbumOnClicked;
+        _queue_list_artist_albums.OnClicked += QueueListArtistAlbumsOnClicked;
+        _spinner.SetVisible(false);
+        _album_view.SetVisible(true);
+        _initialized = true;
+    }
+
     private void QueueListArtistAlbumsOnClicked(Button sender, EventArgs args)
     {
         var trackId = _controller.PlayerService.GetSelectedTrack()?.Id;
@@ -337,10 +336,11 @@ public partial class MainWindow : Adw.ApplicationWindow
 
     private void ActShortcutOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
     {
+        /*
         var builder = GtkHelper.BuilderFromFile("shortcuts");
         var shortcutsWindow = (Adw.ShortcutsDialog)builder.GetObject("_root")!;
         shortcutsWindow.Present(this);
-        shortcutsWindow.OnClosed += ShortcutsWindowOnClosed;
+        shortcutsWindow.OnClosed += ShortcutsWindowOnClosed;*/
     }
 
     private void ShortcutsWindowOnClosed(Dialog sender, EventArgs args)
@@ -431,6 +431,7 @@ public partial class MainWindow : Adw.ApplicationWindow
     
     private async Task UpdateMainMenu(bool delay = false)
     {
+        if (!_initialized) return;
         if (!_controller.HasMultipleCollections()) return;
         
         _menuUpdateCancellationTokenSource?.Cancel();
@@ -668,16 +669,6 @@ public partial class MainWindow : Adw.ApplicationWindow
     }
 
     /// <summary>
-    /// Constructs a MainWindow
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="controller">The MainWindowController</param>
-    /// <param name="application">The Adw.Application</param>
-    public MainWindow(Adw.Application sender, MainWindowController controller, Adw.Application application) : this(GtkHelper.BuilderFromFile("window"), controller, application)
-    {
-    }
-
-    /// <summary>
     /// Starts the MainWindow
     /// </summary>
     public async Task StartAsync()
@@ -697,9 +688,6 @@ public partial class MainWindow : Adw.ApplicationWindow
             startup.Present(this);
             await taskCompletionSource.Task;
         }
-
-        _spinner.SetVisible(false);
-        _album_view.SetVisible(true);
         
         await UpdateMainMenu();
         await RefreshLists();

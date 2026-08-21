@@ -6,24 +6,20 @@ using JellyTune.Gnome.Models;
 
 namespace JellyTune.Gnome.Views;
 
-public class ListItem : Gtk.Box
+[GObject.Subclass<Gtk.Box>(qualifiedName: "JellyTuneListItem")]
+[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.list_item.ui")]
+public partial class ListItem
 {
     private readonly IFileService _fileService;
     
-    [Gtk.Connect] private readonly Gtk.Image _art;
-    [Gtk.Connect] private readonly Gtk.Label _description;
-    [Gtk.Connect] private readonly Gtk.Label _title;
+    [Gtk.Connect] private Gtk.Image _art;
+    [Gtk.Connect] private Gtk.Label _description;
+    [Gtk.Connect] private Gtk.Label _title;
 
     private FileType _fileType;
     private CancellationTokenSource? _cancellationTokenSource;
 
-    private ListItem(Gtk.Builder builder) : base(
-        new BoxHandle(builder.GetPointer("_root"), false))
-    {
-        builder.Connect(this);
-    }
-    
-    public ListItem(IFileService fileService) : this(GtkHelper.BuilderFromFile("list_item"))
+    public ListItem(IFileService fileService)
     {
         _fileService = fileService;
         CanFocus = false;

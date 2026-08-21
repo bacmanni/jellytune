@@ -5,7 +5,9 @@ using JellyTune.Gnome.Helpers;
 
 namespace JellyTune.Gnome.Views;
 
-public class StartupView : Adw.Dialog
+[GObject.Subclass<Adw.Dialog>(qualifiedName: "JellyTuneStartupView")]
+[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.startup.ui")]
+public partial class StartupView
 {
     private readonly Adw.Application _application;
     private readonly StartupController  _controller;
@@ -15,23 +17,17 @@ public class StartupView : Adw.Dialog
 
     private readonly TaskCompletionSource _taskCompletionSource;
     
-    [Gtk.Connect] private readonly Adw.Carousel _carousel;
+    [Gtk.Connect] private Adw.Carousel _carousel;
     
-    [Gtk.Connect] private readonly Gtk.Button _close;
-    [Gtk.Connect] private readonly Gtk.Button _continue0;
+    [Gtk.Connect] private Gtk.Button _close;
+    [Gtk.Connect] private Gtk.Button _continue0;
     
-    [Gtk.Connect] private readonly Gtk.Button _back;
-    [Gtk.Connect] private readonly Gtk.Box _accountBox;
-    [Gtk.Connect] private readonly Gtk.Button _continue1;
-    
-    private StartupView(Gtk.Builder builder) : base(
-        new DialogHandle(builder.GetPointer("_root"), false))
-    {
-        builder.Connect(this);
-    }
+    [Gtk.Connect] private Gtk.Button _back;
+    [Gtk.Connect] private Gtk.Box _accountBox;
+    [Gtk.Connect] private Gtk.Button _continue1;
 
     public StartupView(Adw.Application application, StartupState startupState, StartupController controller,
-        TaskCompletionSource taskCompletionSource) : this(GtkHelper.BuilderFromFile("startup"))
+        TaskCompletionSource taskCompletionSource)
     {
         _application = application;
         _controller = controller;

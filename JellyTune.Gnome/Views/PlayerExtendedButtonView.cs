@@ -7,36 +7,41 @@ using Button = Gtk.Button;
 
 namespace JellyTune.Gnome.Views;
 
-public partial class PlayerExtendedButtonView : Gtk.Box
+[GObject.Subclass<Gtk.Box>(qualifiedName: "JellyTunePlayerExtendedButtonView")]
+[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.player_extended_button.ui")]
+public partial class PlayerExtendedButtonView
 {
     private readonly PlayerExtendedController _controller;
 
-    [Gtk.Connect] private readonly Gtk.ToggleButton _position;
-    [Gtk.Connect] private readonly Gtk.ToggleButton _volume;
+    [Gtk.Connect] private Gtk.ToggleButton _position;
+    [Gtk.Connect] private Gtk.ToggleButton _volume;
 
-    private PlayerExtendedButtonView(Gtk.Builder builder) : base(
-        new BoxHandle(builder.GetPointer("_root"), false))
-    {
-        builder.Connect(this);
-    }
-
-    public PlayerExtendedButtonView(PlayerExtendedController controller) : this(
-        GtkHelper.BuilderFromFile("player_extended_button"))
+    private bool _initialized = false;
+    
+    public PlayerExtendedButtonView(PlayerExtendedController controller)
     {
         _controller = controller;
+        _controller.PlayerService.OnPlayerVolumeChanged += PlayerServiceOnPlayerVolumeChanged;
+        _controller.ConfigurationService.OnSaved += ConfigurationServiceOnSaved;
+    }
+
+    partial void Initialize()
+    {
         _position.OnClicked += PositionOnClicked;
         _volume.OnClicked += VolumeOnClicked;
         
-        _controller.PlayerService.OnPlayerVolumeChanged += PlayerServiceOnPlayerVolumeChanged;
-        _controller.ConfigurationService.OnSaved += ConfigurationServiceOnSaved;
-        
         _position.SetVisible(_controller.ConfigurationService.Get().ShowSeek);
         _volume.SetVisible(_controller.ConfigurationService.Get().ShowVolume);
+
+        _initialized = true;
     }
 
     private void ConfigurationServiceOnSaved(object? sender, EventArgs e)
     {
         _controller.CloseExtension();
+        
+        if (!_initialized) return;
+        
         _position.Active = false;
         _volume.Active = false;
         _position.SetVisible(_controller.ConfigurationService.Get().ShowSeek);
