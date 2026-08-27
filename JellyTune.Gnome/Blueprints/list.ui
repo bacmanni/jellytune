@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <interface>
-    <object class="GtkBox" id="_root">
+    <template class="JellyTuneListView">
         <property name="hexpand">true</property>
         <property name="vexpand">true</property>
         <child>
@@ -76,5 +76,5 @@
                 </child>
             </object>
         </child>
-    </object>
+    </template>
 </interface>

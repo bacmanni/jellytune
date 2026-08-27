@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <interface>
-    <object class="GtkBox" id="_root">
+    <template class="JellyTunePlayerExtendedButtonView">
         <child>
             <object class="GtkToggleButton" id="_position">
                 <property name="tooltip-text">Select position</property>
@@ -14,5 +14,5 @@
                 <property name="has-frame">false</property>
             </object>
         </child>
-    </object>
+    </template>
 </interface>

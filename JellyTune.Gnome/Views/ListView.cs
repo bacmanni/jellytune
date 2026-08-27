@@ -1,4 +1,3 @@
-using Gtk.Internal;
 using JellyTune.Gnome.Helpers;
 using JellyTune.Gnome.Models;
 using JellyTune.Shared.Controls;
@@ -10,29 +9,35 @@ namespace JellyTune.Gnome.Views;
 [Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.list.ui")]
 public partial class ListView
 {
-    private readonly ListController _controller;
+    private ListController _controller;
     
     [Gtk.Connect] private Adw.Spinner _loader;
     [Gtk.Connect] private Gtk.Box _results;
     
     [Gtk.Connect] private Gtk.ListView _list;
     [Gtk.Connect] private Gtk.ScrolledWindow _listWindow;
-    private readonly Gtk.SignalListItemFactory _listFactory;
+    private Gtk.SignalListItemFactory _listFactory;
     
     [Gtk.Connect] private Gtk.GridView _grid;
     [Gtk.Connect] private Gtk.ScrolledWindow _gridWindow;
-    private readonly Gtk.SignalListItemFactory _gridFactory;
+    private Gtk.SignalListItemFactory _gridFactory;
     
-    private readonly Gio.ListStore _listItems;
-    private readonly List<JellyTune.Shared.Models.ListItem> _items = [];
+    private Gio.ListStore _listItems;
+    private List<JellyTune.Shared.Models.ListItem> _items = [];
 
     private bool _initialized = false;
     
-    public ListView(ListController controller)
+    public static ListView NewWithValues(ListController controller)
     {
-        _controller = controller;
+        var obj = NewWithProperties([]);
+        obj._controller = controller;
+        obj.InitializeController();
+        return obj;
+    }
+
+    private void InitializeController()
+    {
         _controller.OnListChanged += ControllerOnListChanged;
-        
         _listItems = Gio.ListStore.New(ListRow.GetGType());
         
         //List
@@ -46,10 +51,7 @@ public partial class ListView
         _gridFactory.OnSetup += GridFactoryOnSetup;
         _gridFactory.OnBind += GridFactoryOnBind;
         _gridFactory.OnUnbind += GridFactoryOnUnbind;
-    }
-
-    partial void Initialize()
-    {
+        
         var configuration = _controller.ConfigurationService.Get();
         _list.SetShowSeparators(configuration.ShowListSeparator);
         _controller.ConfigurationService.OnSaved += OnSaved;
@@ -81,7 +83,7 @@ public partial class ListView
 
         _initialized = true;
     }
-    
+
     private void GridFactoryOnUnbind(Gtk.SignalListItemFactory sender, Gtk.SignalListItemFactory.UnbindSignalArgs args)
     {
         var listItem = args.Object as Gtk.ListItem;
@@ -200,7 +202,7 @@ public partial class ListView
             return;
         }
         
-        listItem.SetChild(new GridItem(_controller.FileService));
+        listItem.SetChild(GridItem.NewWithValues(_controller.FileService));
     }
 
     private void ListFactoryOnBind(Gtk.SignalListItemFactory sender, Gtk.SignalListItemFactory.BindSignalArgs args)
@@ -229,7 +231,7 @@ public partial class ListView
             return;
         }
 
-        listItem.SetChild(new ListItem(_controller.FileService));
+        listItem.SetChild(ListItem.NewWithValues(_controller.FileService));
     }
 
     public override void Dispose()

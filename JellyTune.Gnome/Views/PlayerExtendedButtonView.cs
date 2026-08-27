@@ -1,4 +1,3 @@
-using Gtk.Internal;
 using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
@@ -11,22 +10,26 @@ namespace JellyTune.Gnome.Views;
 [Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.player_extended_button.ui")]
 public partial class PlayerExtendedButtonView
 {
-    private readonly PlayerExtendedController _controller;
+    private PlayerExtendedController _controller;
 
     [Gtk.Connect] private Gtk.ToggleButton _position;
     [Gtk.Connect] private Gtk.ToggleButton _volume;
 
     private bool _initialized = false;
     
-    public PlayerExtendedButtonView(PlayerExtendedController controller)
+    public static PlayerExtendedButtonView NewWithValues(PlayerExtendedController controller)
     {
-        _controller = controller;
-        _controller.PlayerService.OnPlayerVolumeChanged += PlayerServiceOnPlayerVolumeChanged;
-        _controller.ConfigurationService.OnSaved += ConfigurationServiceOnSaved;
+        var obj = NewWithProperties([]);
+        obj._controller = controller;
+        obj.InitializeController();
+        return obj;
     }
 
-    partial void Initialize()
+    private void InitializeController()
     {
+        _controller.PlayerService.OnPlayerVolumeChanged += PlayerServiceOnPlayerVolumeChanged;
+        _controller.ConfigurationService.OnSaved += ConfigurationServiceOnSaved;
+        
         _position.OnClicked += PositionOnClicked;
         _volume.OnClicked += VolumeOnClicked;
         

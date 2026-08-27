@@ -1,19 +1,16 @@
-using Adw.Internal;
 using Gtk;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
-using JellyTune.Gnome.Helpers;
 using JellyTune.Gnome.Models;
-using SwitchRow = Adw.SwitchRow;
 
 namespace JellyTune.Gnome.Views;
 
-[GObject.Subclass<Adw.PreferencesGroup>]
+[GObject.Subclass<Adw.PreferencesGroup>(qualifiedName: "JellyTuneAccountView")]
 [Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.account.ui")]
 public partial class AccountView
 {
-    private readonly AccountController  _controller;
+    private AccountController  _controller;
 
     [Gtk.Connect] private Adw.EntryRow _server;
     [Gtk.Connect] private Adw.EntryRow _username;
@@ -21,11 +18,11 @@ public partial class AccountView
     [Gtk.Connect] private Adw.ComboRow _audioCollection;
     [Gtk.Connect] private Adw.ComboRow _playlistCollection;
     
-    private readonly Gtk.SignalListItemFactory _audioCollectionFactory;
-    private readonly Gio.ListStore _audioCollectionItems;
+    private Gtk.SignalListItemFactory _audioCollectionFactory;
+    private Gio.ListStore _audioCollectionItems;
     
-    private readonly Gtk.SignalListItemFactory _playlistCollectionFactory;
-    private readonly Gio.ListStore _playlistCollectionItems;
+    private Gtk.SignalListItemFactory _playlistCollectionFactory;
+    private Gio.ListStore _playlistCollectionItems;
     
     private Adw.Spinner _serverLoading = Adw.Spinner.New();
     private Adw.Spinner _usernameLoading = Adw.Spinner.New();
@@ -36,10 +33,17 @@ public partial class AccountView
     private bool _isServerValid;
     private bool _isAccountValid;
     private bool _isCollectionValid;
-    
-    public AccountView(AccountController controller)
+
+    public static AccountView NewWithValues(AccountController controller)
     {
-        _controller = controller;
+        var obj = NewWithProperties([]);
+        obj._controller = controller;
+        obj.InitializeController();
+        return obj;
+    }
+    
+    private void InitializeController()
+    {
         _controller.OnConfigurationLoaded += ControllerOnOnConfigurationLoaded;
 
         _serverLoading.SetVisible(false);
@@ -116,7 +120,7 @@ public partial class AccountView
             template.SetText(GLib.Markup.EscapeText(item.Name));
     }
 
-    private async void ControllerOnOnConfigurationLoaded(object? sender, AccountArgs args)
+    private void ControllerOnOnConfigurationLoaded(object? sender, AccountArgs args)
     {
         _isAccountValid = false;
         _isServerValid = false;
@@ -127,7 +131,12 @@ public partial class AccountView
         
         if (!args.Validate)
             return;
-        
+
+        _ = Check();
+    }
+
+    private async Task Check()
+    {
         await CheckServer();
         await CheckLogin();
             

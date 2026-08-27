@@ -1,4 +1,3 @@
-using Gtk.Internal;
 using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
@@ -12,7 +11,7 @@ namespace JellyTune.Gnome.Views;
 [Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.player_extended.ui")]
 public partial class PlayerExtendedView
 {
-    private readonly PlayerExtendedController _controller;
+    private PlayerExtendedController _controller;
 
     [Gtk.Connect] private Gtk.Stack _extendedStack;
     [Gtk.Connect] private Gtk.Box _position;
@@ -30,17 +29,21 @@ public partial class PlayerExtendedView
     
     private Guid? _playingTrackId;
 
-    public PlayerExtendedView(PlayerExtendedController controller)
+    public static PlayerExtendedView NewWithValues(PlayerExtendedController controller)
     {
-        _controller = controller;
+        var obj = NewWithProperties([]);
+        obj._controller = controller;
+        obj.InitializeController();
+        return obj;
+    }
+
+    private void InitializeController()
+    {
         _controller.OnShowHide += ControllerOnShowHide;
         _controller.PlayerService.OnPlayerStateChanged += PlayerServiceOnPlayerStateChanged;
         _controller.PlayerService.OnPlayerPositionChanged += PlayerServiceOnPlayerPositionChanged;
         _controller.PlayerService.OnPlayerVolumeChanged += PlayerServiceOnPlayerVolumeChanged;
-    }
-
-    partial void Initialize()
-    {
+        
         // Volume
         _muteButton.OnClicked += MuteButtonOnClicked;
         _volumeScale.OnChangeValue += VolumeScaleOnChangeValue;

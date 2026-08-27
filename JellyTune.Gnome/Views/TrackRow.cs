@@ -1,17 +1,16 @@
-using Adw.Internal;
 using JellyTune.Shared.Models;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Services;
-using JellyTune.Gnome.Helpers;
 
 namespace JellyTune.Gnome.Views;
 
-[GObject.Subclass<Adw.ActionRow>]
+[GObject.Subclass<Adw.ActionRow>(qualifiedName: "JellyTuneTrackRow")]
 [Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.track_row.ui")]
 public partial class TrackRow
 {
-    private readonly IFileService  _fileService;
-    private readonly Track _track;
+    private IFileService  _fileService;
+    private Track _track;
+    private PlayerState _startupState;
     
     [Gtk.Connect] private Gtk.Image _status;
     [Gtk.Connect] private Adw.Spinner _spinner;
@@ -21,34 +20,42 @@ public partial class TrackRow
 
     public Guid TrackId => _track.Id;
 
-    public TrackRow(IFileService fileService, Track track, PlayerState state, bool extended = false)
+    public static TrackRow NewWithValues(IFileService fileService, Track track, PlayerState state, bool extended = false)
     {
-        _fileService  = fileService;
-        _track = track;
-        Activatable = true;
-        CanFocus = false;
+        var obj = NewWithProperties([]);
+        obj._fileService  = fileService;
+        obj._track = track;
+        obj._startupState = state;
+        obj.Activatable = true;
+        obj.CanFocus = false;
         
-        _runtime.SetText(_track.RunTime.ToString("m\\:ss"));
+        obj._runtime.SetText(obj._track.RunTime.ToString("m\\:ss"));
 
         if (extended)
         {
-            _number.SetVisible(false);
-            _albumArt.SetVisible(true);
+            obj._number.SetVisible(false);
+            obj._albumArt.SetVisible(true);
             
-            SetSubtitle(GLib.Markup.EscapeText(_track.Artist));
-            
-            if (_track.HasArtwork)
-                _ = UpdateArtwork();
+            obj.SetSubtitle(GLib.Markup.EscapeText(obj._track.Artist));
         }
         else
         {
-            if (_track.Number > 0)
-                _number.SetText($"{_track.Number.ToString()}.");
+            if (obj._track.Number > 0)
+                obj._number.SetText($"{obj._track.Number.ToString()}.");
         }
-        
-        UpdateState(state);
+
+        obj.InitializeController();
+        return obj;
     }
 
+    private void InitializeController()
+    {
+        UpdateState(_startupState);
+        
+        if (_track.HasArtwork)
+            _ = UpdateArtwork();
+    }
+    
     private async Task UpdateArtwork()
     {
         var albumArt = await _fileService.GetFileAsync(FileType.AlbumArt, _track.AlbumId);

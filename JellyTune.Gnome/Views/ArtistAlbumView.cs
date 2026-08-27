@@ -1,7 +1,6 @@
 using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Events;
-using DialogHandle = Adw.Internal.DialogHandle;
 using ListBox = Gtk.ListBox;
 
 namespace JellyTune.Gnome.Views;
@@ -10,16 +9,23 @@ namespace JellyTune.Gnome.Views;
 [Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.artist_album.ui")]
 public partial class ArtistAlbumView
 {
-    private readonly ArtistAlbumController  _controller;
+    private ArtistAlbumController  _controller;
 
     [Gtk.Connect] private Adw.Spinner _spinner;
     [Gtk.Connect] private Gtk.Revealer _result;
     
     [Gtk.Connect] private Gtk.ListBox _albums;
 
-    public ArtistAlbumView(ArtistAlbumController controller)
+    public static ArtistAlbumView NewWithValues(ArtistAlbumController controller)
     {
-        _controller = controller;
+        var obj = NewWithProperties([]);
+        obj._controller = controller;
+        obj.InitializeController();
+        return obj;
+    }
+
+    private void InitializeController()
+    {
         _controller.OnAlbumsChanged += ControllerOnAlbumsChanged;
         _albums.OnRowActivated += AlbumsOnRowActivated;
         
@@ -56,7 +62,7 @@ public partial class ArtistAlbumView
             _albums.RemoveAll();
             foreach (var album in _controller.Albums)
             {
-                var row = new AlbumRow(_controller.FileService, album);
+                var row = AlbumRow.NewWithValues(_controller.FileService, album);
                 _albums.Append(row);
             }
             

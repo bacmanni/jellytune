@@ -1,4 +1,3 @@
-using Gtk.Internal;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Events;
 using JellyTune.Gnome.Helpers;
@@ -10,20 +9,23 @@ namespace JellyTune.Gnome.Views;
 [Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.playlist_tracks.ui")]
 public partial class PlaylistTracksView
 {
-    private readonly PlaylistTracksController _controller;
+    private PlaylistTracksController _controller;
     
     [Gtk.Connect] private Adw.Spinner _spinner;
     [Gtk.Connect] private Adw.Clamp _results;
     [Gtk.Connect] private Gtk.ListBox _playlistTracksList;
 
-    public PlaylistTracksView(PlaylistTracksController controller)
+    public static PlaylistTracksView NewWithValues(PlaylistTracksController controller)
     {
-        _controller = controller;
-        _controller.OnPlaylistTracksStateChanged += ControllerOnPlaylistTracksStateChanged;
+        var obj = NewWithProperties([]);
+        obj._controller = controller;
+        obj.InitializeController();
+        return obj;
     }
 
-    partial void Initialize()
+    private void InitializeController()
     {
+        _controller.OnPlaylistTracksStateChanged += ControllerOnPlaylistTracksStateChanged;
         _playlistTracksList.OnRowActivated += PlaylistTracksListOnRowActivated;
         _results.SetVisible(false);
         _spinner.SetVisible(true);
@@ -61,7 +63,7 @@ public partial class PlaylistTracksView
             foreach (var track in _controller.Tracks)
             {
                 var state = _controller.PlayerService.GetTrackState(track.Id);
-                _playlistTracksList.Append(new TrackRow(_controller.FileService, track, state, true));
+                _playlistTracksList.Append(TrackRow.NewWithValues(_controller.FileService, track, state, true));
             }
         });
         

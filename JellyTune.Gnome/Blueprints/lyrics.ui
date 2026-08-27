@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <interface>
-    <object class="AdwDialog" id="_root">
+    <template class="JellyTuneLyricsView">
         <property name="follows-content-size">true</property>
         <child>
             <object class="AdwClamp">
@@ -106,5 +106,5 @@
                 </child>
             </object>
         </child>
-    </object>
+    </template>
 </interface>

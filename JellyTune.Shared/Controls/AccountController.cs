@@ -85,7 +85,7 @@ public sealed class AccountController
     /// </summary>
     /// <param name="configuration"></param>
     /// <param name="validate">Should validate when opened</param>
-    public async Task OpenConfiguration(Configuration configuration, bool validate)
+    public void OpenConfiguration(Configuration configuration, bool validate)
     {
         _isValid = true;
         ServerUrl = configuration.ServerUrl;

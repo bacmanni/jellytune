@@ -1,4 +1,3 @@
-using Gtk.Internal;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
@@ -12,19 +11,22 @@ namespace JellyTune.Gnome.Views;
 [Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.queue_list.ui")]
 public partial class QueueListView
 {
-    private readonly QueueListController  _controller;
+    private QueueListController  _controller;
     
     [Gtk.Connect] private Gtk.ListBox _queueList;
 
-    public QueueListView(QueueListController controller)
+    public static QueueListView NewWithValues(QueueListController controller)
     {
-        _controller = controller;
-        _controller.OnQueueUpdated += ControllerOnQueueUpdated;
-        _controller.PlayerService.OnPlayerStateChanged += OnPlayerStateChanged;
+        var obj = NewWithProperties([]);
+        obj._controller = controller;
+        obj.InitializeController();
+        return obj;
     }
 
-    partial void Initialize()
+    private void InitializeController()
     {
+        _controller.OnQueueUpdated += ControllerOnQueueUpdated;
+        _controller.PlayerService.OnPlayerStateChanged += OnPlayerStateChanged;
         _queueList.OnRowActivated += QueueListOnRowActivated;
     }
 
@@ -53,7 +55,7 @@ public partial class QueueListView
             foreach (var track in _controller.Tracks)
             {
                 var state = _controller.PlayerService.GetTrackState(track.Id);
-                _queueList.Append(new TrackRow(_controller.FileService, track, state, true));
+                _queueList.Append(TrackRow.NewWithValues(_controller.FileService, track, state, true));
             } 
         });
     }

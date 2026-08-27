@@ -1,4 +1,3 @@
-using Gtk.Internal;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Events;
 using JellyTune.Gnome.Helpers;
@@ -11,8 +10,8 @@ namespace JellyTune.Gnome.Views;
 [Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.album.ui")]
 public partial class AlbumView
 {
-    private readonly AlbumController _controller;
-    private readonly AlbumArtController _albumArtController;
+    private AlbumController _controller;
+    private AlbumArtController _albumArtController;
     
     [Gtk.Connect] private Gtk.Image _albumArt;
     [Gtk.Connect] private Gtk.Label _artist;
@@ -24,15 +23,18 @@ public partial class AlbumView
     [Gtk.Connect] private Adw.Spinner _spinner;
     [Gtk.Connect] private Adw.Clamp _result;
 
-    public AlbumView(AlbumController controller)
+    public static AlbumView NewWithValues(AlbumController controller)
     {
-        _controller = controller;
-        _albumArtController = new AlbumArtController(_controller.JellyTuneApiService);
-        _controller.OnAlbumChanged += ControllerOnAlbumChanged;
+        var obj = NewWithProperties([]);
+        obj._controller = controller;
+        obj._albumArtController = new AlbumArtController(obj._controller.JellyTuneApiService);
+        obj.InitializeController();
+        return obj;
     }
 
-    partial void Initialize()
+    private void InitializeController()
     {
+        _controller.OnAlbumChanged += ControllerOnAlbumChanged;
         _tracks.OnRowSelected += TracksOnRowSelected;
         _tracks.OnRowActivated += TracksOnRowActivated;
         
@@ -45,7 +47,7 @@ public partial class AlbumView
     {
         if (_controller.Artwork == null || _controller.Album?.Id == null) return;
         
-        var albumArtDialog = new AlbumArtView(_albumArtController);
+        var albumArtDialog = AlbumArtView.NewWithValues(_albumArtController);
         albumArtDialog.Present(this);
         _ = _albumArtController.OpenAsync(_controller.Album);
     }
@@ -144,7 +146,7 @@ public partial class AlbumView
         foreach (var track in _controller.Tracks)
         {
             var state = _controller.PlayerService.GetTrackState(track.Id);
-            var row = new TrackRow(_controller.FileService, track, state);
+            var row = TrackRow.NewWithValues(_controller.FileService, track, state);
             _tracks.Append(row);
         }
     }

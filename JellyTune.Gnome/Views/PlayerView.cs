@@ -1,4 +1,3 @@
-using Gtk.Internal;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
@@ -12,10 +11,10 @@ namespace JellyTune.Gnome.Views;
 [Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.player.ui")]
 public partial class PlayerView
 {
-    private readonly PlayerExtendedController _extendedController;
-    private readonly PlayerController _controller;
+    private PlayerExtendedController _extendedController;
+    private PlayerController _controller;
 
-    private readonly PlayerExtendedButtonView _extendedButtonView;
+    private PlayerExtendedButtonView _extendedButtonView;
     
     [Gtk.Connect] private Gtk.Box _container;
     [Gtk.Connect] private Gtk.Box _actions;
@@ -30,6 +29,47 @@ public partial class PlayerView
 
     private bool _initialized = false;
     
+    public static PlayerView NewWithValues(PlayerController controller, PlayerExtendedController extendedController)
+    {
+        var obj = NewWithProperties([]);
+        obj._controller = controller;
+        obj._extendedController = extendedController;
+        obj.InitializeController();
+        return obj;
+    }
+
+    private void InitializeController()
+    {
+        _extendedButtonView = PlayerExtendedButtonView.NewWithValues(_extendedController);
+        _controller.PlayerService.OnPlayerStateChanged += OnPlayerStateChanged;
+        _controller.ConfigurationService.OnSaved += ConfigurationServiceOnSaved;
+        _actions.Append(_extendedButtonView);
+        _skipBackward.OnClicked += SkipBackwardOnClicked;
+        _play.OnClicked += PlayerPlayOnClicked;
+        _skipForward.OnClicked += SkipForwardOnClicked;
+        _lyrics.OnClicked += LyricsOnOnClicked;
+        _album.OnClicked += AlbumOnClicked;
+        
+        var click = Gtk.GestureClick.New();
+        _albumArt.AddController(click);
+        click.OnReleased += (sender, args) =>
+        {
+            _controller.ShowPlaylist();
+        };
+
+        var key = Gtk.EventControllerKey.New();
+        _albumArt.AddController(key);
+        key.OnKeyReleased += (sender, args) =>
+        {
+            _controller.ShowPlaylist();
+        };
+
+        _lyrics.SetVisible(_controller.ConfigurationService.Get().ShowLyrics);
+        _album.SetVisible(_controller.ConfigurationService.Get().ShowCurrentAlbum);
+
+        _initialized = true;
+    }
+
     private void UpdateTrack()
     {
         if (_controller.Album != null)
@@ -69,45 +109,6 @@ public partial class PlayerView
     {
         _controller.PlayerService.StartOrPauseTrackAsync();
     }
-
-    public PlayerView(PlayerController controller, PlayerExtendedController extendedController)
-    {
-        _controller = controller;
-        _extendedController = extendedController;
-        _extendedButtonView = new PlayerExtendedButtonView(_extendedController);
-        _controller.PlayerService.OnPlayerStateChanged += OnPlayerStateChanged;
-        _controller.ConfigurationService.OnSaved += ConfigurationServiceOnSaved;
-    }
-
-    partial void Initialize()
-    {
-        _actions.Append(_extendedButtonView);
-        _skipBackward.OnClicked += SkipBackwardOnClicked;
-        _play.OnClicked += PlayerPlayOnClicked;
-        _skipForward.OnClicked += SkipForwardOnClicked;
-        _lyrics.OnClicked += LyricsOnOnClicked;
-        _album.OnClicked += AlbumOnClicked;
-        
-        var click = Gtk.GestureClick.New();
-        _albumArt.AddController(click);
-        click.OnReleased += (sender, args) =>
-        {
-            _controller.ShowPlaylist();
-        };
-
-        var key = Gtk.EventControllerKey.New();
-        _albumArt.AddController(key);
-        key.OnKeyReleased += (sender, args) =>
-        {
-            _controller.ShowPlaylist();
-        };
-
-        _lyrics.SetVisible(_controller.ConfigurationService.Get().ShowLyrics);
-        _album.SetVisible(_controller.ConfigurationService.Get().ShowCurrentAlbum);
-
-        _initialized = true;
-    }
-    
     
     private void AlbumOnClicked(Button sender, EventArgs args)
     {

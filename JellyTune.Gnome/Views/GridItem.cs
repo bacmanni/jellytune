@@ -1,7 +1,5 @@
-using Gtk.Internal;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Services;
-using JellyTune.Gnome.Helpers;
 using JellyTune.Gnome.Models;
 
 namespace JellyTune.Gnome.Views;
@@ -10,7 +8,7 @@ namespace JellyTune.Gnome.Views;
 [Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.grid_item.ui")]
 public partial class GridItem
 {
-    private readonly IFileService _fileService;
+    private IFileService _fileService;
     
     [Gtk.Connect] private Gtk.Image _art;
     [Gtk.Connect] private Gtk.Label _title;
@@ -19,12 +17,19 @@ public partial class GridItem
     private FileType _fileType;
     private CancellationTokenSource? _cancellationTokenSource;
     
-    public GridItem(IFileService fileService)
+    public static GridItem NewWithValues(IFileService fileService)
     {
-        _fileService = fileService;
-        CanFocus = false;
+        var obj = NewWithProperties([]);
+        obj._fileService = fileService;
+        obj.InitializeController();
+        return obj;
     }
 
+    private void InitializeController()
+    {
+        CanFocus = false;
+    }
+    
     public void Bind(ListRow row)
     {
         _cancellationTokenSource?.Dispose();

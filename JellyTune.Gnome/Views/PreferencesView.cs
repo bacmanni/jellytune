@@ -1,7 +1,5 @@
-using Adw.Internal;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Services;
-using JellyTune.Gnome.Helpers;
 using AlertDialog = Adw.AlertDialog;
 
 namespace JellyTune.Gnome.Views;
@@ -11,11 +9,11 @@ namespace JellyTune.Gnome.Views;
 [Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.preferences.ui")]
 public partial class PreferencesView
 {
-    private readonly IConfigurationService _configurationService;
-    private readonly IJellyTuneApiService _jellyTuneApiService;
+    private IConfigurationService _configurationService;
+    private IJellyTuneApiService _jellyTuneApiService;
 
-    private readonly AccountController  _accountController;
-    private readonly AccountView _accountView;
+    private AccountController  _accountController;
+    private AccountView _accountView;
     
     [Gtk.Connect] private Adw.PreferencesPage _preferencesPage1;
 
@@ -57,7 +55,7 @@ public partial class PreferencesView
         }
         else
         {
-            var alert = new PreferencesAlert();
+            var alert = PreferencesAlert.NewWithValues();
             alert.Present(this);
             alert.OnResponse += AlertOnResponse;
         }
@@ -69,17 +67,23 @@ public partial class PreferencesView
             ForceClose();
     }
 
-    public PreferencesView(IConfigurationService configurationService, IJellyTuneApiService jellyTuneApiService)
+    public static PreferencesView NewWithValues(IConfigurationService configurationService, IJellyTuneApiService jellyTuneApiService)
     {
-        _configurationService = configurationService;
-        _jellyTuneApiService = jellyTuneApiService;
-
+        var obj = NewWithProperties([]);
+        obj._configurationService = configurationService;
+        obj._jellyTuneApiService = jellyTuneApiService;
+        obj.InitializeController();
+        return obj;
+    }
+    
+    private void InitializeController()
+    {
         _accountController = new AccountController(_configurationService, _jellyTuneApiService);
-        _accountView =  new AccountView(_accountController);
+        _accountView =  AccountView.NewWithValues(_accountController);
         _preferencesPage1.Insert(_accountView, 0);
         
         var configuration =  _configurationService.Get();
-        _ = _accountController.OpenConfiguration(configuration, true);
+        _accountController.OpenConfiguration(configuration, true);
         _cacheList.SetActive(configuration.CacheListData);
         _cacheArtwork.SetActive(configuration.CacheAlbumArt);
         _showListSeparator.SetActive(configuration.ShowListSeparator);
@@ -88,6 +92,8 @@ public partial class PreferencesView
         _showSeek.SetActive(configuration.ShowSeek);
         _showVolume.SetActive(configuration.ShowVolume);
         _showPlayingAlbum.SetActive(configuration.ShowCurrentAlbum);
+        
+        OnCloseAttempt += CloseAttempt;
     }
 
     public override void Dispose()

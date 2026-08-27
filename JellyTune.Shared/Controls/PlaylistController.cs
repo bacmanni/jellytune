@@ -11,9 +11,6 @@ public class PlaylistController : ListController, IDisposable
     private readonly IJellyTuneApiService _jellyTuneApiService;
     private readonly IConfigurationService _configurationService;
     private readonly IPlayerService _playerService;
-    private readonly IFileService _fileService;
-
-    public IFileService FileService => _fileService;
 
     public event EventHandler<Guid> OnPlaylistClicked;
 
@@ -22,8 +19,7 @@ public class PlaylistController : ListController, IDisposable
         _jellyTuneApiService = jellyTuneApiService;
         _configurationService = configurationService;
         _playerService = playerService;
-        _fileService = fileService;
-        
+
         OnItemClicked += ListControllerOnItemClicked;
     }
 

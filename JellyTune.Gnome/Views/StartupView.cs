@@ -1,7 +1,5 @@
-using Adw.Internal;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
-using JellyTune.Gnome.Helpers;
 
 namespace JellyTune.Gnome.Views;
 
@@ -9,13 +7,14 @@ namespace JellyTune.Gnome.Views;
 [Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.startup.ui")]
 public partial class StartupView
 {
-    private readonly Adw.Application _application;
-    private readonly StartupController  _controller;
+    private Adw.Application _application;
+    private StartupController  _controller;
 
-    private readonly AccountController   _accountController;
-    private readonly AccountView _accountView;
+    private AccountController   _accountController;
+    private AccountView _accountView;
 
-    private readonly TaskCompletionSource _taskCompletionSource;
+    private TaskCompletionSource _taskCompletionSource;
+    private StartupState _startupState;
     
     [Gtk.Connect] private Adw.Carousel _carousel;
     
@@ -26,16 +25,23 @@ public partial class StartupView
     [Gtk.Connect] private Gtk.Box _accountBox;
     [Gtk.Connect] private Gtk.Button _continue1;
 
-    public StartupView(Adw.Application application, StartupState startupState, StartupController controller,
+    public static StartupView NewWithValues(Adw.Application application, StartupState startupState, StartupController controller,
         TaskCompletionSource taskCompletionSource)
     {
-        _application = application;
-        _controller = controller;
-        _taskCompletionSource = taskCompletionSource;
-        
+        var obj = NewWithProperties([]);
+        obj._application = application;
+        obj._controller = controller;
+        obj._taskCompletionSource = taskCompletionSource;
+        obj._startupState = startupState;
+        obj.InitializeController();
+        return obj;
+    }
+    
+    private void InitializeController()
+    {
         _accountController = new AccountController(_controller.ConfigurationService, _controller.JellyTuneApiService);
-        _accountView = new AccountView(_accountController);
-        _accountController.OpenConfiguration(_controller.ConfigurationService.Get(), startupState != StartupState.InitialRun);
+        _accountView = AccountView.NewWithValues(_accountController);
+        _accountController.OpenConfiguration(_controller.ConfigurationService.Get(), _startupState != StartupState.InitialRun);
         _accountBox.Prepend(_accountView);
         _accountController.OnUpdate += (sender, b) =>
         {

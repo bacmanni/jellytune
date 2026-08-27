@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <interface>
-    <object class="AdwAlertDialog" id="_root">
+    <template class="JellyTunePreferencesAlert">
         <property name="heading" translatable="yes">Problem with server or account</property>
         <property name="body" translatable="yes">Invalid server, account or collection. Click cancel to go back and fix the problem. Click close to continue without saving.</property>
         <property name="default-response">cancel</property>
@@ -9,5 +9,5 @@
             <response id="cancel" translatable="yes">Cancel</response>
             <response id="close" translatable="yes" appearance="destructive">Close</response>
         </responses>
-    </object>
+    </template>
 </interface>

@@ -2,7 +2,6 @@
 <gresources>
   <gresource prefix="io/github/bacmanni/jellytune">
     <file alias="style.css">io.github.bacmanni.jellytune.css</file>
-    <file alias="style-dark.css">io.github.bacmanni.jellytune-dark.css</file>
   </gresource>
     <gresource prefix="io/github/bacmanni/jellytune/icons/scalable/status/">
         <file preprocess="xml-stripblanks">jellytune-icon.svg</file>

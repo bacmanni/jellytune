@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <interface>
-    <object class="GtkBox" id="_root">
+    <template class="JellyTunePlayerView">
         <property name="hexpand">true</property>
         <property name="margin-end">6</property>
         <property name="margin-start">6</property>
@@ -120,5 +120,5 @@
                 </child>
             </object>
         </child>
-    </object>
+    </template>
 </interface>

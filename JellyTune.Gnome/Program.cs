@@ -94,8 +94,8 @@ class Program
             _mainWindow.Present();
             return;
         }
-
-        _mainWindow = new Views.MainWindow(_mainWindowController, _application);
+        
+        _mainWindow = Views.MainWindow.NewWithValues(_mainWindowController, _application);
         await _mainWindow.StartAsync();
     }
 

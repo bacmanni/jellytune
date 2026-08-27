@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <object class="GtkBox" id="_root">
+  <template class="JellyTuneGridItem">
     <property name="margin-start">6</property>
     <property name="margin-end">6</property>
     <property name="margin-top">6</property>
@@ -37,5 +37,5 @@
         <property name="lines">1</property>
       </object>
     </child>
-  </object>
+  </template>
 </interface>

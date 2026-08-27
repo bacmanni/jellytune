@@ -1,21 +1,26 @@
-using Gtk.Internal;
 using JellyTune.Shared.Controls;
-using JellyTune.Gnome.Helpers;
 
 
 namespace JellyTune.Gnome.Views;
 
-[GObject.Subclass<Gtk.Box>(qualifiedName: "JellyTunePreferencesAlert")]
+[GObject.Subclass<Gtk.Box>(qualifiedName: "JellyTunePlaylistView")]
 [Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.playlist.ui")]
 public partial class PlaylistView
 {
-    private readonly PlaylistController _controller;
+    private PlaylistController _controller;
 
-    private readonly ListView _listView;
+    private ListView _listView;
 
-    public PlaylistView(PlaylistController controller)
+    public static PlaylistView NewWithValues(PlaylistController controller)
     {
-        _controller = controller;
-        Append(new Views.ListView(_controller));
+        var obj = NewWithProperties([]);
+        obj._controller = controller;
+        obj.InitializeController();
+        return obj;
+    }
+    
+    private void InitializeController()
+    {
+        Append(ListView.NewWithValues(_controller));
     }
 }

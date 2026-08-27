@@ -1,52 +1,58 @@
-using Adw.Internal;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Models;
 using JellyTune.Shared.Services;
-using JellyTune.Gnome.Helpers;
 
 namespace JellyTune.Gnome.Views;
 
-[GObject.Subclass<Adw.ActionRow>]
+[GObject.Subclass<Adw.ActionRow>(qualifiedName: "JellyTuneSearchRow")]
 [Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.search_row.ui")]
 public partial class SearchRow
 {
-    private readonly IFileService  _fileService;
+    private IFileService  _fileService;
+    private Search _row;
     public Guid Id  { get; set; }
     public Guid AlbumId  { get; set; }
     public SearchType Type { get; set; }
     
     [Gtk.Connect] private Gtk.Image _albumArt;
 
-    public SearchRow(IFileService fileService, Search row)
+    public static SearchRow NewWithValues(IFileService fileService, Search row)
     {
-        _fileService = fileService;
-        Id = row.Id;
-        AlbumId  = row.AlbumId;
-        
+        var obj = NewWithProperties([]);
+        obj._fileService = fileService;
+        obj._row = row;
+        obj.Id = row.Id;
+        obj.AlbumId  = row.AlbumId;
+        obj.InitializeController();
+        return obj;
+    }
+
+    private void InitializeController()
+    {
         Activatable = true;
         
-        switch (row.Type)
+        switch (_row.Type)
         {
             case SearchType.Album or SearchType.Artist:
-                SetTitle(GLib.Markup.EscapeText(row.AlbumName));
+                SetTitle(GLib.Markup.EscapeText(_row.AlbumName));
                 break;
             default:
-                SetTitle(GLib.Markup.EscapeText(row.TrackName));
+                SetTitle(GLib.Markup.EscapeText(_row.TrackName));
                 break;
         }
         
-        var description = $"by {GLib.Markup.EscapeText(row.ArtistName)}";
-        if (row.Type == SearchType.Track)
-            description += $" on {GLib.Markup.EscapeText(row.AlbumName)}";
+        var description = $"by {GLib.Markup.EscapeText(_row.ArtistName)}";
+        if (_row.Type == SearchType.Track)
+            description += $" on {GLib.Markup.EscapeText(_row.AlbumName)}";
         
         SetSubtitle(description);
         
-        if (!row.HasArtwork)
+        if (!_row.HasArtwork)
             return;
 
-        UpdateArtwork();
+        _ = UpdateArtwork();
     }
-
+    
     private async Task UpdateArtwork()
     {
         var albumArt = await _fileService.GetFileAsync(FileType.AlbumArt, AlbumId);
@@ -56,6 +62,5 @@ public partial class SearchRow
         using var bytes = GLib.Bytes.New(albumArt);
         using var texture = Gdk.Texture.NewFromBytes(bytes);
         _albumArt.SetFromPaintable(texture);
-        albumArt = null;
     }
 }

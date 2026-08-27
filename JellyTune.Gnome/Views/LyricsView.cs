@@ -1,4 +1,3 @@
-using Adw.Internal;
 using JellyTune.Shared.Controls;
 using JellyTune.Gnome.Helpers;
 
@@ -18,9 +17,16 @@ public partial class LyricsView
     [Gtk.Connect] private Gtk.Label _track;
     [Gtk.Connect] private Gtk.Label _artist;
 
-    public LyricsView(LyricsController controller)
+    public static LyricsView NewWithValues(LyricsController controller)
     {
-        _controller = controller;
+        var obj = NewWithProperties([]);
+        obj._controller = controller;
+        obj.InitializeController();
+        return obj;
+    }
+
+    private void InitializeController()
+    {
         _controller.OnLyricsUpdated += ControllerOnOnLyricsUpdated;
         _results.SetVisible(false);
         _spinner.SetVisible(true);

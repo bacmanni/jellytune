@@ -1,9 +1,7 @@
-using Gtk.Internal;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
 using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Events;
-using SoundFlow.Utils;
 using ListBox = Gtk.ListBox;
 
 namespace JellyTune.Gnome.Views;
@@ -12,13 +10,21 @@ namespace JellyTune.Gnome.Views;
 [Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.search.ui")]
 public partial class SearchView
 {
-    private readonly SearchController _controller;
+    private SearchController _controller;
 
     [Gtk.Connect] private Adw.Spinner _spinner;
     [Gtk.Connect] private Adw.StatusPage _noresults;
     [Gtk.Connect] private Adw.Clamp _results;
     [Gtk.Connect] private Gtk.ListBox _searchList;
     [Gtk.Connect] private Adw.StatusPage _startup;
+
+    public static SearchView NewWithValues(SearchController controller)
+    {
+        var obj = NewWithProperties([]);
+        obj._controller = controller;
+        obj.InitializeController();
+        return obj;
+    }
 
     private void UpdateResults(bool? show = null, int? results = null)
     {
@@ -47,7 +53,7 @@ public partial class SearchView
                 {
                     foreach (var result in _controller.Results)
                     {
-                        _searchList.Append(new SearchRow(_controller.FileService, result));
+                        _searchList.Append(SearchRow.NewWithValues(_controller.FileService, result));
                     }
                     
                     _results.SetVisible(true);
@@ -60,14 +66,9 @@ public partial class SearchView
         }
     }
     
-    public SearchView(SearchController controller)
+    private void InitializeController()
     {
-        _controller = controller;
         _controller.OnSearchStateChanged += ControllerOnOnSearchStateChanged;
-    }
-
-    partial void Initialize()
-    {
         _searchList.OnRowActivated += SearchListOnOnRowActivated;
     }
 

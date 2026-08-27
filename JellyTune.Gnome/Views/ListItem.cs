@@ -1,7 +1,5 @@
-using Gtk.Internal;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Services;
-using JellyTune.Gnome.Helpers;
 using JellyTune.Gnome.Models;
 
 namespace JellyTune.Gnome.Views;
@@ -10,7 +8,7 @@ namespace JellyTune.Gnome.Views;
 [Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.list_item.ui")]
 public partial class ListItem
 {
-    private readonly IFileService _fileService;
+    private IFileService _fileService;
     
     [Gtk.Connect] private Gtk.Image _art;
     [Gtk.Connect] private Gtk.Label _description;
@@ -19,9 +17,16 @@ public partial class ListItem
     private FileType _fileType;
     private CancellationTokenSource? _cancellationTokenSource;
 
-    public ListItem(IFileService fileService)
+    public static ListItem NewWithValues(IFileService fileService)
     {
-        _fileService = fileService;
+        var obj = NewWithProperties([]);
+        obj._fileService = fileService;
+        obj.InitializeController();
+        return obj;
+    }
+
+    private void InitializeController()
+    {
         CanFocus = false;
     }
 
@@ -56,7 +61,6 @@ public partial class ListItem
         using var bytes = GLib.Bytes.New(albumArt);
         using var texture = Gdk.Texture.NewFromBytes(bytes);
         _art.SetFromPaintable(texture);
-        albumArt = null;
     }
     
     public void Clear()

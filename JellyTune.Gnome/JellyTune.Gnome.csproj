@@ -47,9 +47,6 @@
       <None Remove="Blueprints\search.ui" />
       <EmbeddedResource Include="Blueprints\search.ui" />
       <None Remove="Blueprints\search_list_item.ui" />
-      <None Update="Resources\io.github.bacmanni.jellytune-dark.css">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
       <None Update="Resources\io.github.bacmanni.jellytune.gresource.xml">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
@@ -90,7 +87,6 @@
       <None Remove="Blueprints\album_row.ui" />
       <EmbeddedResource Include="Blueprints\album_row.ui" />
       <None Remove="Blueprints\shortcuts.ui" />
-      <EmbeddedResource Include="Blueprints\shortcuts.ui" />
       <None Remove="Blueprints\information.ui" />
       <None Remove="Blueprints\album_art.ui" />
       <EmbeddedResource Include="Blueprints\album_art.ui" />

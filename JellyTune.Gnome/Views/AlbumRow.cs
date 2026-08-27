@@ -1,30 +1,34 @@
-using Adw.Internal;
-using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Models;
 using JellyTune.Shared.Services;
 
 namespace JellyTune.Gnome.Views;
 
-
 [GObject.Subclass<Adw.ActionRow>(qualifiedName: "JellyTuneAlbumRow")]
 [Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.album_row.ui")]
 public partial class AlbumRow
 {
-    private readonly IFileService _fileService;
-    private readonly Album _album;
+    private IFileService _fileService;
+    private Album _album;
 
     [Gtk.Connect] private Gtk.Image _albumArt;
 
-    public AlbumRow(IFileService fileService, Album album)
+    public static AlbumRow NewWithValues(IFileService fileService, Album album)
     {
-        _fileService = fileService;
-        _album = album;
+        var obj = NewWithProperties([]);
+        obj._fileService = fileService;
+        obj._album = album;
+        obj.InitializeController();
+        return obj;
+    }
+
+    private void InitializeController()
+    {
         Activatable = true;
         CanFocus = false;
         
-        SetTitle(GLib.Markup.EscapeText(album.Name));
-        SetSubtitle(album.Year.ToString() ?? string.Empty);
+        SetTitle(GLib.Markup.EscapeText(_album.Name));
+        SetSubtitle(_album.Year.ToString() ?? string.Empty);
         _ = UpdateArtwork();
     }
 
@@ -39,6 +43,5 @@ public partial class AlbumRow
         using var bytes = GLib.Bytes.New(albumArt);
         using var texture = Gdk.Texture.NewFromBytes(bytes);
         _albumArt.SetFromPaintable(texture);
-        albumArt = null;
     }
 }

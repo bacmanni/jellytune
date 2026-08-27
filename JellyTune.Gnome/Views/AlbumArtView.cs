@@ -1,4 +1,3 @@
-using Adw.Internal;
 using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Events;
@@ -9,7 +8,7 @@ namespace JellyTune.Gnome.Views;
 [Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.album_art.ui")]
 public partial class AlbumArtView
 {
-    private readonly AlbumArtController _controller;
+    private AlbumArtController _controller;
     
     [Gtk.Connect] private Adw.Spinner _spinner;
     [Gtk.Connect] private Gtk.Revealer _results;
@@ -17,10 +16,17 @@ public partial class AlbumArtView
     [Gtk.Connect] private Gtk.Image _albumArt;
     [Gtk.Connect] private Gtk.Label _album;
     [Gtk.Connect] private Gtk.Label _artist;
-    
-    public AlbumArtView(AlbumArtController controller)
+
+    public static AlbumArtView NewWithValues(AlbumArtController controller)
     {
-        _controller = controller;
+        var obj = NewWithProperties([]);
+        obj._controller = controller;
+        obj.InitializeController();
+        return obj;
+    }
+
+    private void InitializeController()
+    {
         _controller.OnAlbumArtChanged += ControllerOnAlbumArtChanged;
         _results.SetRevealChild(false);
         _spinner.SetVisible(true);
