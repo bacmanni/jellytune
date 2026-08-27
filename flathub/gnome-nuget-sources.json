@@ -309,30 +309,30 @@
   },
   {
     "dest": "nuget-sources",
-    "dest-filename": "system.io.abstractions.22.0.16.nupkg",
-    "sha512": "f7e932e2b1852095ede069a805b9d02b845bbcfe547b81dd51d1f71ceea9a312ab10008cd48720dfc256a2f160452b2f153c010a3a35e52de21750b5134e56da",
-    "url": "https://api.nuget.org/v3-flatcontainer/system.io.abstractions/22.0.16/system.io.abstractions.22.0.16.nupkg",
+    "dest-filename": "system.io.abstractions.22.2.0.nupkg",
+    "sha512": "fcd65cbbc7921f972c619474d2102fa2107ca56eadc492e579d7d8cd89a708562a9a557d46c4f7a248927a1ae35bcdb20c41a8434cd2c2117d846167bb1f1178",
+    "url": "https://api.nuget.org/v3-flatcontainer/system.io.abstractions/22.2.0/system.io.abstractions.22.2.0.nupkg",
     "type": "file"
   },
   {
     "dest": "nuget-sources",
-    "dest-filename": "testableio.system.io.abstractions.22.0.16.nupkg",
-    "sha512": "2c8c16869d8e036a0833e6e4d10d65f4ac40ecaceb2a275c9b30720e1055c3266786e9c12a3b1fd5df80e8c14c7663d1c7ed00c3a3d32d1aa1c05069d789cb30",
-    "url": "https://api.nuget.org/v3-flatcontainer/testableio.system.io.abstractions/22.0.16/testableio.system.io.abstractions.22.0.16.nupkg",
+    "dest-filename": "testableio.system.io.abstractions.22.2.0.nupkg",
+    "sha512": "14c597721cce0c1eafe23b4d88429c5ae765ec0e9a25555686bdc12311836e67908fe6dcf97d12fb6764a6a74dcf9ecaca85b3caf68c4f1b5147135735f9e7cf",
+    "url": "https://api.nuget.org/v3-flatcontainer/testableio.system.io.abstractions/22.2.0/testableio.system.io.abstractions.22.2.0.nupkg",
     "type": "file"
   },
   {
     "dest": "nuget-sources",
-    "dest-filename": "testableio.system.io.abstractions.wrappers.22.0.16.nupkg",
-    "sha512": "7e375bed02f6295d2db9f882d776560c86d4c5e41fb8df7b7e63b25a1f97ed4e4c4c813f1091161a89bb4a2437f86f1319f501e26bf9a58dd2a1f63ac2aa3050",
-    "url": "https://api.nuget.org/v3-flatcontainer/testableio.system.io.abstractions.wrappers/22.0.16/testableio.system.io.abstractions.wrappers.22.0.16.nupkg",
+    "dest-filename": "testableio.system.io.abstractions.wrappers.22.2.0.nupkg",
+    "sha512": "3b5cd9a4dbf6aeb28fb76baaaefc863e65428a880a21764535db30b843fe271c54b6d3de62c4e4c767aa7b0af410bb7236751247f2821bbd0c7fd16713ef650b",
+    "url": "https://api.nuget.org/v3-flatcontainer/testableio.system.io.abstractions.wrappers/22.2.0/testableio.system.io.abstractions.wrappers.22.2.0.nupkg",
     "type": "file"
   },
   {
     "dest": "nuget-sources",
-    "dest-filename": "testably.abstractions.filesystem.interface.9.0.0.nupkg",
-    "sha512": "3f559341ae5b782444b20de32ea71160f2802bd9052a5f5dad8f615ad9843f9b7a672eea94fb8dfd4730b9ee26fe5e4ae62428d517906a0f6168a42742e90c77",
-    "url": "https://api.nuget.org/v3-flatcontainer/testably.abstractions.filesystem.interface/9.0.0/testably.abstractions.filesystem.interface.9.0.0.nupkg",
+    "dest-filename": "testably.abstractions.filesystem.interface.10.3.0.nupkg",
+    "sha512": "a43cbc9323ca3b4525f313e0ae2c03793a604f4e886a3a0bad406cf7c356b6d3ce3f766f00a7e869604c407228a119ff6582cebc1238cb1804a4d3269e07310a",
+    "url": "https://api.nuget.org/v3-flatcontainer/testably.abstractions.filesystem.interface/10.3.0/testably.abstractions.filesystem.interface.10.3.0.nupkg",
     "type": "file"
   },
   {
