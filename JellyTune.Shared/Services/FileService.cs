@@ -2,7 +2,6 @@ using System.Collections.Concurrent;
 using System.IO.Abstractions;
 using System.Text.Json;
 using JellyTune.Shared.Enums;
-using JellyTune.Shared.Models;
 
 namespace JellyTune.Shared.Services;
 
@@ -46,9 +45,8 @@ public class FileService : IFileService
     /// </summary>
     /// <param name="type"></param>
     /// <param name="id"></param>
-    /// <param name="token"></param>
     /// <returns></returns>
-    public async Task<byte[]?> GetFileAsync(FileType type, Guid id, CancellationToken cancellationToken = default)
+    public async Task<byte[]?> GetFileAsync(FileType type, Guid id)
     {
         var key = $"{type.ToString()}-{id.ToString()}";
         var filename = GetFilename(type, id);
@@ -61,23 +59,17 @@ public class FileService : IFileService
         if (_configurationService.Get().CacheAlbumArt)
         {
             var dir = _fileSystem.Path.GetDirectoryName(filename);
-            if (!_fileSystem.Directory.Exists(dir))
+            if (dir is not null && !_fileSystem.Directory.Exists(dir))
                 _fileSystem.Directory.CreateDirectory(dir);
 
             if (_fileSystem.File.Exists(filename))
             {
-                if (cancellationToken.IsCancellationRequested)
-                    return null;
-                
                 var fileBytes = await _fileSystem.File.ReadAllBytesAsync(filename);
                 _artWork.TryAdd(key, fileBytes);
                 return fileBytes;
             }
         }
 
-        if (cancellationToken.IsCancellationRequested)
-            return null;
-        
         var primaryArt = await _jellyTuneApiService.GetPrimaryArtAsync(id);
         if (primaryArt == null)
             return null;
@@ -134,7 +126,7 @@ public class FileService : IFileService
         var json = JsonSerializer.Serialize(data);
         
         var dir = _fileSystem.Path.GetDirectoryName(filename);
-        if (!_fileSystem.Directory.Exists(dir))
+        if (dir is not null && !_fileSystem.Directory.Exists(dir))
             _fileSystem.Directory.CreateDirectory(dir);
         
         if (!_fileSystem.File.Exists(filename))

@@ -8,7 +8,6 @@ namespace JellyTune.Shared.Controls;
 public sealed class PlaylistTracksController : IDisposable
 {
     private readonly IJellyTuneApiService _jellyTuneApiService;
-    private readonly IConfigurationService _configurationService;
     private readonly IPlayerService _playerService;
     private readonly IFileService _fileService;
     
@@ -17,14 +16,13 @@ public sealed class PlaylistTracksController : IDisposable
 
     private CancellationTokenSource? _openPlaylistCts;
     
-    public Playlist Playlist { private set; get; }
+    public Playlist? Playlist { private set; get; }
     public readonly List<Track> Tracks = [];
     public event EventHandler<PlaylistTracksStateArgs>? OnPlaylistTracksStateChanged;
     
-    public PlaylistTracksController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService, IPlayerService playerService, IFileService fileService)
+    public PlaylistTracksController(IJellyTuneApiService jellyTuneApiService, IPlayerService playerService, IFileService fileService)
     {
         _jellyTuneApiService = jellyTuneApiService;
-        _configurationService = configurationService;
         _playerService = playerService;
         _fileService = fileService;
         
@@ -35,7 +33,7 @@ public sealed class PlaylistTracksController : IDisposable
     {
         if (e.State is PlayerState.Playing or PlayerState.Stopped or PlayerState.Paused or PlayerState.Starting)
         {
-            OnPlaylistTracksStateChanged?.Invoke(this, new PlaylistTracksStateArgs() {  UpdateTrackState = true, SelectedTrackId = e.SelectedTrack?.Id ?? e.SelectedTrackId });
+            OnPlaylistTracksStateChanged?.Invoke(this, new PlaylistTracksStateArgs {  UpdateTrackState = true, SelectedTrackId = e.SelectedTrack != null ? e.SelectedTrack.Id : e.SelectedTrackId });
         }
     }
     
@@ -51,7 +49,7 @@ public sealed class PlaylistTracksController : IDisposable
         _openPlaylistCts = new CancellationTokenSource();
         var cancellationToken = _openPlaylistCts.Token;
         
-        OnPlaylistTracksStateChanged?.Invoke(this, new PlaylistTracksStateArgs() { Loading = true });
+        OnPlaylistTracksStateChanged?.Invoke(this, new PlaylistTracksStateArgs { Loading = true });
         
         try
         {

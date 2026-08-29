@@ -1,10 +1,11 @@
 using GObject;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Models;
+using Object = GObject.Object;
 
 namespace JellyTune.Gnome.Models;
 
-[Subclass<GObject.Object>]
+[Subclass<Object>]
 public partial class ListRow
 {
     public Guid Id  { get; set; }
@@ -18,8 +19,8 @@ public partial class ListRow
         var row = NewWithProperties([]);
 
         row.Id = item.Id;
-        row.Title = item.Title;
-        row.Description = item.Description;
+        row.Title = item.Title ?? string.Empty;
+        row.Description = item.Description ?? string.Empty;
         row.HasArtwork = item.HasArtwork;
         row.FileType = item.ArtworkFiletype;
 

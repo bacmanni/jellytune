@@ -1,22 +1,28 @@
-using JellyTune.Shared.Models;
+using Adw;
+using Gdk;
+using GLib;
+using GObject;
+using Gtk;
 using JellyTune.Shared.Enums;
+using JellyTune.Shared.Models;
 using JellyTune.Shared.Services;
+using Spinner = Adw.Spinner;
 
 namespace JellyTune.Gnome.Views;
 
-[GObject.Subclass<Adw.ActionRow>(qualifiedName: "JellyTuneTrackRow")]
-[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.track_row.ui")]
+[Subclass<ActionRow>(qualifiedName: "JellyTuneTrackRow")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.track_row.ui")]
 public partial class TrackRow
 {
     private IFileService  _fileService;
     private Track _track;
     private PlayerState _startupState;
     
-    [Gtk.Connect] private Gtk.Image _status;
-    [Gtk.Connect] private Adw.Spinner _spinner;
-    [Gtk.Connect] private Gtk.Image _albumArt;
-    [Gtk.Connect] private Gtk.Label _runtime;
-    [Gtk.Connect] private Gtk.Label _number;
+    [Connect] private Image _status;
+    [Connect] private Spinner _spinner;
+    [Connect] private Image _albumArt;
+    [Connect] private Label _runtime;
+    [Connect] private Label _number;
 
     public Guid TrackId => _track.Id;
 
@@ -36,7 +42,7 @@ public partial class TrackRow
             obj._number.SetVisible(false);
             obj._albumArt.SetVisible(true);
             
-            obj.SetSubtitle(GLib.Markup.EscapeText(obj._track.Artist));
+            obj.SetSubtitle(Markup.EscapeText(obj._track.Artist != null ? obj._track.Artist : string.Empty));
         }
         else
         {
@@ -62,10 +68,9 @@ public partial class TrackRow
         if  (albumArt == null || albumArt.Length == 0)
             return;
         
-        using var bytes = GLib.Bytes.New(albumArt);
-        using var texture = Gdk.Texture.NewFromBytes(bytes);
+        using var bytes = Bytes.New(albumArt);
+        using var texture = Texture.NewFromBytes(bytes);
         _albumArt.SetFromPaintable(texture);
-        albumArt = null;
     }
     
     public void UpdateState(PlayerState state)
@@ -92,7 +97,7 @@ public partial class TrackRow
     {
         _status.SetVisible(false);
         _spinner.SetVisible(true);
-        SetTitle($"<b>{GLib.Markup.EscapeText(_track.Name)}</b>");
+        SetTitle($"<b>{Markup.EscapeText(_track.Name != null ? _track.Name : string.Empty)}</b>");
     }
     
     private void StartTrack()
@@ -100,7 +105,7 @@ public partial class TrackRow
         _spinner.SetVisible(false);
         _status.SetVisible(true);
         _status.SetFromIconName("media-playback-start-symbolic");
-        SetTitle($"<b>{GLib.Markup.EscapeText(_track.Name)}</b>");
+        SetTitle($"<b>{Markup.EscapeText(_track.Name != null ? _track.Name : string.Empty)}</b>");
     }
 
     private void ClearTrack()
@@ -108,7 +113,7 @@ public partial class TrackRow
         _spinner.SetVisible(false);
         _status.SetVisible(true);
         _status.SetFromIconName(null);
-        SetTitle(GLib.Markup.EscapeText(_track.Name));
+        SetTitle(Markup.EscapeText(_track.Name != null ? _track.Name : string.Empty));
     }
 
     private void StopTrack()
@@ -116,7 +121,7 @@ public partial class TrackRow
         _spinner.SetVisible(false);
         _status.SetVisible(true);
         _status.SetFromIconName("media-playback-pause-symbolic");
-        SetTitle($"<b>{GLib.Markup.EscapeText(_track.Name)}</b>");
+        SetTitle($"<b>{Markup.EscapeText(_track.Name != null ? _track.Name : string.Empty)}</b>");
     }
 
     public override void Dispose()

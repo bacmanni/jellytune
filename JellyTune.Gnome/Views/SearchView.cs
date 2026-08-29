@@ -1,22 +1,26 @@
+using Adw;
+using GObject;
+using Gtk;
+using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
-using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Events;
 using ListBox = Gtk.ListBox;
+using Spinner = Adw.Spinner;
 
 namespace JellyTune.Gnome.Views;
 
-[GObject.Subclass<Gtk.ScrolledWindow>(qualifiedName: "JellyTuneSearchView")]
-[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.search.ui")]
+[Subclass<ScrolledWindow>(qualifiedName: "JellyTuneSearchView")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.search.ui")]
 public partial class SearchView
 {
     private SearchController _controller;
 
-    [Gtk.Connect] private Adw.Spinner _spinner;
-    [Gtk.Connect] private Adw.StatusPage _noresults;
-    [Gtk.Connect] private Adw.Clamp _results;
-    [Gtk.Connect] private Gtk.ListBox _searchList;
-    [Gtk.Connect] private Adw.StatusPage _startup;
+    [Connect] private Spinner _spinner;
+    [Connect] private StatusPage _noresults;
+    [Connect] private Clamp _results;
+    [Connect] private ListBox _searchList;
+    [Connect] private StatusPage _startup;
 
     public static SearchView NewWithValues(SearchController controller)
     {
@@ -26,7 +30,7 @@ public partial class SearchView
         return obj;
     }
 
-    private void UpdateResults(bool? show = null, int? results = null)
+    private void UpdateResults(bool? show = null)
     {
         _noresults.SetVisible(false);
         _results.SetVisible(false);
@@ -42,7 +46,7 @@ public partial class SearchView
             _startup.SetVisible(false);
 
             // Spinner should be shown and nothing else
-            if (show == true)
+            if (show.Value)
             {
                 _spinner.SetVisible(true);
             }
@@ -93,7 +97,7 @@ public partial class SearchView
                 UpdateResults(true);
 
             if (args.Updated)
-                UpdateResults(false, _controller.Results.Count);
+                UpdateResults(false);
         });
     }
 

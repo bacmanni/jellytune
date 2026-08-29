@@ -23,7 +23,7 @@ public sealed class AlbumController : IDisposable
     
     private CancellationTokenSource? _openAlbumCts;
     
-    public event EventHandler<AlbumStateArgs> OnAlbumChanged;
+    public event EventHandler<AlbumStateArgs>? OnAlbumChanged;
     
     public AlbumController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService, IPlayerService playerService, IFileService fileService)
     {
@@ -38,7 +38,7 @@ public sealed class AlbumController : IDisposable
     {
         if (e.State is PlayerState.Playing or PlayerState.Stopped or PlayerState.Paused or PlayerState.Selected or PlayerState.None or PlayerState.Starting)
         {
-            AlbumChanged(new AlbumStateArgs() { UpdateTrackState = true, SelectedTrackId = e.SelectedTrack?.Id });
+            AlbumChanged(new AlbumStateArgs { UpdateTrackState = true, SelectedTrackId = e.SelectedTrack?.Id });
         }
     }
 
@@ -84,15 +84,15 @@ public sealed class AlbumController : IDisposable
             Album = album;
             Tracks = tracks;
             Artwork = null;
-            AlbumChanged(new AlbumStateArgs() { UpdateAlbum = true, UpdateTracks = true, SelectedTrackId = selectedTrackId });
+            AlbumChanged(new AlbumStateArgs { UpdateAlbum = true, UpdateTracks = true, SelectedTrackId = selectedTrackId });
         
             if (Album.HasArtwork)
             {
-                var artwork = await _fileService.GetFileAsync(FileType.AlbumArt, albumId, cancellationToken);
+                var artwork = await _fileService.GetFileAsync(FileType.AlbumArt, albumId);
                 cancellationToken.ThrowIfCancellationRequested();
 
                 Artwork = artwork;
-                AlbumChanged(new AlbumStateArgs() { UpdateArtwork = true});    
+                AlbumChanged(new AlbumStateArgs { UpdateArtwork = true});    
             }
         }
         catch (OperationCanceledException)

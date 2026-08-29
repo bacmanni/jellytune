@@ -18,12 +18,12 @@ public class PlayerStateArgs(
     /// <summary>
     /// Track that state is connected to
     /// </summary>
-    public List<Track> Tracks { get; private set; } = tracks ?? [];
+    public List<Track> Tracks { get; private set; } = tracks != null ? tracks : [];
 
     /// <summary>
     /// Selected track Id. This is available when track is loading
     /// </summary>
-    public Guid? SelectedTrackId { get; internal set; } = selectedTrack?.Id;
+    public Guid? SelectedTrackId { get; internal set; } = selectedTrack != null ? selectedTrack.Id : null;
 
     /// <summary>
     /// State realates to this track guid

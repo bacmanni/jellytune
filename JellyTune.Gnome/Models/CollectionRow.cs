@@ -1,9 +1,10 @@
 using GObject;
 using JellyTune.Shared.Models;
+using Object = GObject.Object;
 
 namespace JellyTune.Gnome.Models;
 
-[Subclass<GObject.Object>]
+[Subclass<Object>]
 public partial class CollectionRow
 {
     public Guid Id { get; set; }

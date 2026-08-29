@@ -1,5 +1,3 @@
-using JellyTune.Shared.Models;
-
 namespace JellyTune.Shared.Events;
 
 public class AccountArgs : EventArgs

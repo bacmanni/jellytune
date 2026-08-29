@@ -1,12 +1,16 @@
+using Adw;
+using GObject;
+using Gtk;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Services;
 using AlertDialog = Adw.AlertDialog;
+using Dialog = Adw.Dialog;
 
 namespace JellyTune.Gnome.Views;
 
 
-[GObject.Subclass<Adw.PreferencesDialog>(qualifiedName: "JellyTunePreferencesView")]
-[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.preferences.ui")]
+[Subclass<PreferencesDialog>(qualifiedName: "JellyTunePreferencesView")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.preferences.ui")]
 public partial class PreferencesView
 {
     private IConfigurationService _configurationService;
@@ -15,23 +19,23 @@ public partial class PreferencesView
     private AccountController  _accountController;
     private AccountView _accountView;
     
-    [Gtk.Connect] private Adw.PreferencesPage _preferencesPage1;
+    [Connect] private PreferencesPage _preferencesPage1;
 
-    [Gtk.Connect] private Adw.SwitchRow _cacheList;
-    [Gtk.Connect] private Adw.SwitchRow _cacheArtwork;
-    [Gtk.Connect] private Adw.SwitchRow _showListSeparator;
-    [Gtk.Connect] private Adw.SwitchRow _showSeek;
-    [Gtk.Connect] private Adw.SwitchRow _showVolume;
-    [Gtk.Connect] private Adw.SwitchRow _showPlayingAlbum;
-    [Gtk.Connect] private Adw.SwitchRow _showLyrics;
+    [Connect] private SwitchRow _cacheList;
+    [Connect] private SwitchRow _cacheArtwork;
+    [Connect] private SwitchRow _showListSeparator;
+    [Connect] private SwitchRow _showSeek;
+    [Connect] private SwitchRow _showVolume;
+    [Connect] private SwitchRow _showPlayingAlbum;
+    [Connect] private SwitchRow _showLyrics;
 
-    public bool Refresh { get; set; } = false;
+    public bool Refresh { get; set; }
     public string? Password { get; set; } = null;
 
-    private void CloseAttempt(Adw.Dialog sender, EventArgs args)
+    private void CloseAttempt(Dialog sender, EventArgs args)
     {
         // We need to validate account so application won't break
-        if (_accountController.IsValid())
+        if (_accountController.IsValid)
         {
             var configuration = _configurationService.Get();
             configuration.CacheListData = _cacheList.GetActive();
@@ -43,10 +47,10 @@ public partial class PreferencesView
             configuration.ShowCurrentAlbum = _showPlayingAlbum.GetActive();
 
             Refresh = _accountController.HasChanges();
-            configuration.ServerUrl = _accountController.ServerUrl;
-            configuration.Username = _accountController.Username;
+            configuration.ServerUrl = _accountController.ServerUrl ?? string.Empty;
+            configuration.Username = _accountController.Username ?? string.Empty;
             configuration.Password = _accountController.Password;
-            configuration.CollectionId = _accountController.CollectionId?.ToString() ?? throw new NullReferenceException("This should never happen!");
+            configuration.CollectionId = _accountController.CollectionId != null ? _accountController.CollectionId.Value.ToString() : throw new NullReferenceException("This should never happen!");
             configuration.PlaylistCollectionId = _accountController.PlaylistCollectionId?.ToString();
             
             _configurationService.Set(configuration);

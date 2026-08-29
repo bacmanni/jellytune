@@ -1,19 +1,21 @@
+using GObject;
+using Gtk;
+using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
 using JellyTune.Shared.Models;
-using JellyTune.Gnome.Helpers;
 using ListBox = Gtk.ListBox;
 
 namespace JellyTune.Gnome.Views;
 
-[GObject.Subclass<Gtk.ScrolledWindow>(qualifiedName: "JellyTuneQueueListView")]
-[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.queue_list.ui")]
+[Subclass<ScrolledWindow>(qualifiedName: "JellyTuneQueueListView")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.queue_list.ui")]
 public partial class QueueListView
 {
     private QueueListController  _controller;
     
-    [Gtk.Connect] private Gtk.ListBox _queueList;
+    [Connect] private ListBox _queueList;
 
     public static QueueListView NewWithValues(QueueListController controller)
     {

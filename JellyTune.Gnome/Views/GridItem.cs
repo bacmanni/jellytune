@@ -1,18 +1,22 @@
+using Gdk;
+using GLib;
+using GObject;
+using Gtk;
+using JellyTune.Gnome.Models;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Services;
-using JellyTune.Gnome.Models;
 
 namespace JellyTune.Gnome.Views;
 
-[GObject.Subclass<Gtk.Box>(qualifiedName: "JellyTuneGridItem")]
-[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.grid_item.ui")]
+[Subclass<Box>(qualifiedName: "JellyTuneGridItem")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.grid_item.ui")]
 public partial class GridItem
 {
     private IFileService _fileService;
     
-    [Gtk.Connect] private Gtk.Image _art;
-    [Gtk.Connect] private Gtk.Label _title;
-    [Gtk.Connect] private Gtk.Label _description;
+    [Connect] private Image _art;
+    [Connect] private Label _title;
+    [Connect] private Label _description;
     
     private FileType _fileType;
     private CancellationTokenSource? _cancellationTokenSource;
@@ -58,10 +62,9 @@ public partial class GridItem
         if  (albumArt == null || albumArt.Length == 0)
             return;
         
-        using var bytes = GLib.Bytes.New(albumArt);
-        using var texture = Gdk.Texture.NewFromBytes(bytes);
+        using var bytes = Bytes.New(albumArt);
+        using var texture = Texture.NewFromBytes(bytes);
         _art.SetFromPaintable(texture);
-        albumArt = null;
     }
     
     public void Clear()

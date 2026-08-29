@@ -9,17 +9,16 @@ public sealed class AccountController
 {
     private readonly IJellyTuneApiService _jellyTuneApiService;
     private readonly IConfigurationService _configurationService;
-    private bool _isValid { get; set; }
-    public bool IsValid() => _isValid;
-    public string ServerUrl { get; set; }
-    public string Username { get; set; }
+    public bool IsValid { get; set; }
+    public string? ServerUrl { get; set; }
+    public string? Username { get; set; }
     public string? Password { get; set; }
     public Guid? CollectionId { get; set; }
     public Guid? PlaylistCollectionId { get; set; }
 
-    public event EventHandler<AccountArgs> OnConfigurationLoaded;
+    public event EventHandler<AccountArgs>? OnConfigurationLoaded;
 
-    public event EventHandler<bool> OnUpdate;
+    public event EventHandler<bool>? OnUpdate;
     
     public AccountController(IConfigurationService configurationService, IJellyTuneApiService jellyTuneApiService)
     {
@@ -73,7 +72,7 @@ public sealed class AccountController
     /// <returns></returns>
     public Guid? GetSelectedAudioCollectionId()
     {
-        var id= _configurationService.Get()?.CollectionId;
+        var id= _configurationService.Get().CollectionId;
         if (!Guid.TryParse(id, out var collectionId))
             return null;
         
@@ -87,7 +86,7 @@ public sealed class AccountController
     /// <param name="validate">Should validate when opened</param>
     public void OpenConfiguration(Configuration configuration, bool validate)
     {
-        _isValid = true;
+        IsValid = true;
         ServerUrl = configuration.ServerUrl;
         Username = configuration.Username;
         Password = configuration.Password;
@@ -98,7 +97,7 @@ public sealed class AccountController
         if (!string.IsNullOrWhiteSpace(configuration.PlaylistCollectionId))
             PlaylistCollectionId = Guid.Parse(configuration.PlaylistCollectionId);
         
-        OnConfigurationLoaded?.Invoke(this, new AccountArgs() {Validate = validate });
+        OnConfigurationLoaded?.Invoke(this, new AccountArgs {Validate = validate });
     }
 
     /// <summary>
@@ -111,14 +110,14 @@ public sealed class AccountController
     {
         if (server && account && collection)
         {
-            _isValid = true;
+            IsValid = true;
         }
         else
         {
-            _isValid = false;
+            IsValid = false;
         }
         
-        OnUpdate?.Invoke(this, _isValid);
+        OnUpdate?.Invoke(this, IsValid);
     }
 
     /// <summary>
@@ -138,10 +137,10 @@ public sealed class AccountController
         if (configuration.Password != Password)
             return true;
         
-        if (configuration.CollectionId != CollectionId?.ToString())
+        if (configuration.CollectionId != (CollectionId != null ? CollectionId.Value.ToString() : null))
             return true;
 
-        if (configuration.PlaylistCollectionId != PlaylistCollectionId?.ToString())
+        if (configuration.PlaylistCollectionId != (PlaylistCollectionId != null ? PlaylistCollectionId.Value.ToString() : null))
             return true;
             
         return false;

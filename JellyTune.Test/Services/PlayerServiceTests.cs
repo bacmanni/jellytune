@@ -23,7 +23,7 @@ public class PlayerServiceTests
         _playerService = new PlayerService(_mockJellyTuneApiService.Object);
         
         _almumId1 = Guid.NewGuid();
-        var album1 = new Album()
+        var album1 = new Album
         {
             Id = _almumId1,
             Artist = "Test artist 1",
@@ -34,7 +34,7 @@ public class PlayerServiceTests
         };
         
         _almumId2 = Guid.NewGuid();
-        var album2 = new Album()
+        var album2 = new Album
         {
             Id = _almumId2,
             Artist = "Test artist 2",
@@ -45,7 +45,7 @@ public class PlayerServiceTests
         };
         
         _trackId1 = Guid.NewGuid();
-        var track1 = new Track()
+        var track1 = new Track
         {
             Id =  _trackId1,
             Artist = "Test artist 1",
@@ -56,7 +56,7 @@ public class PlayerServiceTests
         };
         
         _trackId2 = Guid.NewGuid();
-        var track2 = new Track()
+        var track2 = new Track
         {
             Id =  _trackId2,
             Artist = "Test artist 1",
@@ -67,7 +67,7 @@ public class PlayerServiceTests
         };
         
         _trackId3 = Guid.NewGuid();
-        var track3 = new Track()
+        var track3 = new Track
         {
             Id =  _trackId3,
             Artist = "Test artist 2",
@@ -82,8 +82,8 @@ public class PlayerServiceTests
         _mockJellyTuneApiService.Setup(repo => repo.GetTrackAsync(_trackId3)).ReturnsAsync(track3);
         _mockJellyTuneApiService.Setup(repo => repo.GetAlbumAsync(_almumId1, CancellationToken.None)).ReturnsAsync(album1);
         _mockJellyTuneApiService.Setup(repo => repo.GetAlbumAsync(_almumId2, CancellationToken.None)).ReturnsAsync(album2);
-        _mockJellyTuneApiService.Setup(repo => repo.GetTracksAsync(_almumId1, CancellationToken.None)).ReturnsAsync(new List<Track>() { track1, track2 });
-        _mockJellyTuneApiService.Setup(repo => repo.GetTracksAsync(_almumId2, CancellationToken.None)).ReturnsAsync(new List<Track>() { track3 });
+        _mockJellyTuneApiService.Setup(repo => repo.GetTracksAsync(_almumId1, CancellationToken.None)).ReturnsAsync(new List<Track> { track1, track2 });
+        _mockJellyTuneApiService.Setup(repo => repo.GetTracksAsync(_almumId2, CancellationToken.None)).ReturnsAsync(new List<Track> { track3 });
         _mockJellyTuneApiService.Setup(repo => repo.GetAudioStreamUrl(null, _trackId1, null)).Returns("http://test");
         _mockJellyTuneApiService.Setup(repo => repo.GetAudioStreamUrl(null, _trackId2, null)).Returns("http://test");
         _mockJellyTuneApiService.Setup(repo => repo.GetAudioStreamUrl(null, _trackId3, null)).Returns("http://test");
@@ -127,7 +127,7 @@ public class PlayerServiceTests
         var trackId1 = Guid.NewGuid();
         var trackId2 = Guid.NewGuid();
 
-        var tracks = new List<Track>()
+        var tracks = new List<Track>
         {
             new() 
             {
@@ -161,7 +161,7 @@ public class PlayerServiceTests
         Assert.True(_playerService.IsPlayingTrack(trackId1));
         
         _playerService.ClearTracks();
-        Assert.Equal(0, _playerService.GetTracks()?.Count);
+        Assert.Equal(0, _playerService.GetTracks() != null ? _playerService.GetTracks().Count : (int?)null);
         
         _playerService.StopTrack();
         _playerService.ClearTracks();
@@ -177,8 +177,8 @@ public class PlayerServiceTests
         Assert.Equal(PlayerState.Playing, evt.Arguments.State);
         Assert.Equal(2, evt.Arguments.Tracks.Count);
         Assert.Equal(_trackId1, evt.Arguments.SelectedTrackId);
-        Assert.Equal(_trackId1, evt.Arguments.SelectedTrack?.Id);
-        Assert.Equal(_almumId1, evt.Arguments.Album?.Id);
+        Assert.Equal(_trackId1, evt.Arguments.SelectedTrack != null ? evt.Arguments.SelectedTrack.Id : (Guid?)null);
+        Assert.Equal(_almumId1, evt.Arguments.Album != null ? evt.Arguments.Album.Id : (Guid?)null);
         
         // Next
         evt = Assert.Raises<PlayerStateArgs>( handler => _playerService.OnPlayerStateChanged += handler, handler => _playerService.OnPlayerStateChanged -= handler, () => _playerService.NextTrackAsync().GetAwaiter().GetResult() );
@@ -186,8 +186,8 @@ public class PlayerServiceTests
         Assert.Equal(PlayerState.Playing, evt.Arguments.State);
         Assert.Equal(2, evt.Arguments.Tracks.Count);
         Assert.Equal(_trackId2, evt.Arguments.SelectedTrackId);
-        Assert.Equal(_trackId2, evt.Arguments.SelectedTrack?.Id);
-        Assert.Equal(_almumId1, evt.Arguments.Album?.Id);
+        Assert.Equal(_trackId2, evt.Arguments.SelectedTrack != null ? evt.Arguments.SelectedTrack.Id : (Guid?)null);
+        Assert.Equal(_almumId1, evt.Arguments.Album != null ? evt.Arguments.Album.Id : (Guid?)null);
         
         // Previous
         evt = Assert.Raises<PlayerStateArgs>( handler => _playerService.OnPlayerStateChanged += handler, handler => _playerService.OnPlayerStateChanged -= handler, () => _playerService.PreviousTrackAsync().GetAwaiter().GetResult() );
@@ -195,8 +195,8 @@ public class PlayerServiceTests
         Assert.Equal(PlayerState.Playing, evt.Arguments.State);
         Assert.Equal(2, evt.Arguments.Tracks.Count);
         Assert.Equal(_trackId1, evt.Arguments.SelectedTrackId);
-        Assert.Equal(_trackId1, evt.Arguments.SelectedTrack?.Id);
-        Assert.Equal(_almumId1, evt.Arguments.Album?.Id);
+        Assert.Equal(_trackId1, evt.Arguments.SelectedTrack != null ? evt.Arguments.SelectedTrack.Id : (Guid?)null);
+        Assert.Equal(_almumId1, evt.Arguments.Album != null ? evt.Arguments.Album.Id : (Guid?)null);
         
         // Start or pause
         var playerState = _playerService.GetPlaybackState() == PlayerState.Playing ? PlayerState.Paused : PlayerState.Playing;
@@ -205,8 +205,8 @@ public class PlayerServiceTests
         Assert.Equal(playerState, evt.Arguments.State);
         Assert.Equal(2, evt.Arguments.Tracks.Count);
         Assert.Equal(_trackId1, evt.Arguments.SelectedTrackId);
-        Assert.Equal(_trackId1, evt.Arguments.SelectedTrack?.Id);
-        Assert.Equal(_almumId1, evt.Arguments.Album?.Id);
+        Assert.Equal(_trackId1, evt.Arguments.SelectedTrack != null ? evt.Arguments.SelectedTrack.Id : (Guid?)null);
+        Assert.Equal(_almumId1, evt.Arguments.Album != null ? evt.Arguments.Album.Id : (Guid?)null);
         
         // Another way round
         playerState = _playerService.GetPlaybackState() == PlayerState.Playing ? PlayerState.Paused : PlayerState.Playing;
@@ -215,8 +215,8 @@ public class PlayerServiceTests
         Assert.Equal(playerState, evt.Arguments.State);
         Assert.Equal(2, evt.Arguments.Tracks.Count);
         Assert.Equal(_trackId1, evt.Arguments.SelectedTrackId);
-        Assert.Equal(_trackId1, evt.Arguments.SelectedTrack?.Id);
-        Assert.Equal(_almumId1, evt.Arguments.Album?.Id);
+        Assert.Equal(_trackId1, evt.Arguments.SelectedTrack != null ? evt.Arguments.SelectedTrack.Id : (Guid?)null);
+        Assert.Equal(_almumId1, evt.Arguments.Album != null ? evt.Arguments.Album.Id : (Guid?)null);
         
         // Select
         evt = Assert.Raises<PlayerStateArgs>( handler => _playerService.OnPlayerStateChanged += handler, handler => _playerService.OnPlayerStateChanged -= handler, () => _playerService.SelectTrack(_trackId1) );
@@ -224,7 +224,7 @@ public class PlayerServiceTests
         Assert.Equal(PlayerState.Selected, evt.Arguments.State);
         Assert.Equal(2, evt.Arguments.Tracks.Count);
         Assert.Equal(_trackId1, evt.Arguments.SelectedTrackId);
-        Assert.Equal(_trackId1, evt.Arguments.SelectedTrack?.Id);
-        Assert.Equal(_almumId1, evt.Arguments.Album?.Id);
+        Assert.Equal(_trackId1, evt.Arguments.SelectedTrack != null ? evt.Arguments.SelectedTrack.Id : (Guid?)null);
+        Assert.Equal(_almumId1, evt.Arguments.Album != null ? evt.Arguments.Album.Id : (Guid?)null);
     }
 }

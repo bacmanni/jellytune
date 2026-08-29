@@ -1,15 +1,14 @@
+using GObject;
+using Gtk;
 using JellyTune.Shared.Controls;
-
 
 namespace JellyTune.Gnome.Views;
 
-[GObject.Subclass<Gtk.Box>(qualifiedName: "JellyTunePlaylistView")]
-[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.playlist.ui")]
+[Subclass<Box>(qualifiedName: "JellyTunePlaylistView")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.playlist.ui")]
 public partial class PlaylistView
 {
     private PlaylistController _controller;
-
-    private ListView _listView;
 
     public static PlaylistView NewWithValues(PlaylistController controller)
     {

@@ -17,21 +17,21 @@ public class StartupControllerTests
         _mockJellyTuneApiService = new Mock<IJellyTuneApiService>();
         _mockConfigurationService = new Mock<IConfigurationService>();
         
-        var configuration = new Configuration()
+        var configuration = new Configuration
         {
             CacheListData = true,
         };
         
         _mockConfigurationService.Setup(repo => repo.Get()).Returns(configuration);
 
-        var collection1 = new Collection()
+        var collection1 = new Collection
         {
             Id = Guid.NewGuid(),
             Name = "Audio Collection",
         };
         _mockJellyTuneApiService.Setup(repo => repo.GetCollectionsAsync(CollectionType.Audio)).ReturnsAsync([collection1]);
         
-        var collection2 = new Collection()
+        var collection2 = new Collection
         {
             Id = Guid.NewGuid(),
             Name = "Playlist Collection",

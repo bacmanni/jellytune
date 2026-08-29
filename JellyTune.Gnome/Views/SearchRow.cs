@@ -1,11 +1,16 @@
+using Adw;
+using Gdk;
+using GLib;
+using GObject;
+using Gtk;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Models;
 using JellyTune.Shared.Services;
 
 namespace JellyTune.Gnome.Views;
 
-[GObject.Subclass<Adw.ActionRow>(qualifiedName: "JellyTuneSearchRow")]
-[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.search_row.ui")]
+[Subclass<ActionRow>(qualifiedName: "JellyTuneSearchRow")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.search_row.ui")]
 public partial class SearchRow
 {
     private IFileService  _fileService;
@@ -14,7 +19,7 @@ public partial class SearchRow
     public Guid AlbumId  { get; set; }
     public SearchType Type { get; set; }
     
-    [Gtk.Connect] private Gtk.Image _albumArt;
+    [Connect] private Image _albumArt;
 
     public static SearchRow NewWithValues(IFileService fileService, Search row)
     {
@@ -23,6 +28,7 @@ public partial class SearchRow
         obj._row = row;
         obj.Id = row.Id;
         obj.AlbumId  = row.AlbumId;
+        obj.Type = row.Type;
         obj.InitializeController();
         return obj;
     }
@@ -34,16 +40,16 @@ public partial class SearchRow
         switch (_row.Type)
         {
             case SearchType.Album or SearchType.Artist:
-                SetTitle(GLib.Markup.EscapeText(_row.AlbumName));
+                SetTitle(Markup.EscapeText(_row.AlbumName != null ? _row.AlbumName : string.Empty));
                 break;
             default:
-                SetTitle(GLib.Markup.EscapeText(_row.TrackName));
+                SetTitle(Markup.EscapeText(_row.TrackName != null ? _row.TrackName : string.Empty));
                 break;
         }
         
-        var description = $"by {GLib.Markup.EscapeText(_row.ArtistName)}";
+        var description = $"by {Markup.EscapeText(_row.ArtistName != null ? _row.ArtistName : string.Empty)}";
         if (_row.Type == SearchType.Track)
-            description += $" on {GLib.Markup.EscapeText(_row.AlbumName)}";
+            description += $" on {Markup.EscapeText(_row.AlbumName != null ? _row.AlbumName : string.Empty)}";
         
         SetSubtitle(description);
         
@@ -59,8 +65,8 @@ public partial class SearchRow
         if  (albumArt == null || albumArt.Length == 0)
             return;
         
-        using var bytes = GLib.Bytes.New(albumArt);
-        using var texture = Gdk.Texture.NewFromBytes(bytes);
+        using var bytes = Bytes.New(albumArt);
+        using var texture = Texture.NewFromBytes(bytes);
         _albumArt.SetFromPaintable(texture);
     }
 }

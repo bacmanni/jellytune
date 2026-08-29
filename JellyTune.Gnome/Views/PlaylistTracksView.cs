@@ -1,19 +1,23 @@
+using Adw;
+using GObject;
+using Gtk;
+using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Events;
-using JellyTune.Gnome.Helpers;
 using ListBox = Gtk.ListBox;
+using Spinner = Adw.Spinner;
 
 namespace JellyTune.Gnome.Views;
 
-[GObject.Subclass<Gtk.Box>(qualifiedName: "JellyTunePlaylistTracks")]
-[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.playlist_tracks.ui")]
+[Subclass<Box>(qualifiedName: "JellyTunePlaylistTracks")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.playlist_tracks.ui")]
 public partial class PlaylistTracksView
 {
     private PlaylistTracksController _controller;
     
-    [Gtk.Connect] private Adw.Spinner _spinner;
-    [Gtk.Connect] private Adw.Clamp _results;
-    [Gtk.Connect] private Gtk.ListBox _playlistTracksList;
+    [Connect] private Spinner _spinner;
+    [Connect] private Clamp _results;
+    [Connect] private ListBox _playlistTracksList;
 
     public static PlaylistTracksView NewWithValues(PlaylistTracksController controller)
     {
@@ -55,7 +59,9 @@ public partial class PlaylistTracksView
         {
             if (updateTrackState)
             {
-                UpdateTrackState(trackId.Value);
+                if (trackId.HasValue)
+                    UpdateTrackState();
+                
                 return;
             }
         
@@ -71,7 +77,7 @@ public partial class PlaylistTracksView
         _results.SetVisible(true);
     }
 
-    private void UpdateTrackState(Guid trackId)
+    private void UpdateTrackState()
     {
         for (var i = 0; i < _controller.Tracks.Count; i++)
         {

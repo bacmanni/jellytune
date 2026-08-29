@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace JellyTune.Shared.Models;
 public class Configuration
 {
@@ -60,7 +58,7 @@ public class Configuration
     /// <summary>
     /// Device id. This specifies the current device. Is generated at startup, if not found
     /// </summary>
-    public string DeviceId { get; set; }
+    public string? DeviceId { get; set; }
     
     /// <summary>
     /// Application window width

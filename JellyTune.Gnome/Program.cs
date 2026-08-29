@@ -5,24 +5,27 @@ using System.Net.Mime;
 using System.Reflection;
 using System.Text;
 using Gio;
-using JellyTune.Shared.Controls;
 using Jellyfin.Sdk;
 using JellyTune.Gnome.Views;
+using JellyTune.Shared.Controls;
 using JellyTune.Shared.Handlers;
 using JellyTune.Shared.Models;
 using JellyTune.Shared.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Kiota.Abstractions;
 using Microsoft.Kiota.Abstractions.Authentication;
+using Application = Adw.Application;
+using Functions = Gio.Functions;
+using Module = Gtk.Module;
 
 namespace JellyTune.Gnome;
 
 class Program
 {
-    private readonly Adw.Application _application;
+    private readonly Application _application;
     private readonly IServiceProvider _serviceProvider;
     private readonly MainWindowController  _mainWindowController;
-    private Views.MainWindow? _mainWindow;
+    private MainWindow? _mainWindow;
 
     private readonly ApplicationInfo _applicationInfo = new()
     {
@@ -43,7 +46,7 @@ class Program
     {
         try
         {
-            return _application.RunWithSynchronizationContext([_applicationInfo.Id]);
+            return _application.RunWithSynchronizationContext([_applicationInfo.Id != null ? _applicationInfo.Id : throw new Exception("Missing application Id")]);
         }
         catch (Exception e)
         {
@@ -55,7 +58,7 @@ class Program
 
     private Program()
     {
-        Gtk.Module.Initialize();
+        Module.Initialize();
         Adw.Module.Initialize();
         Gio.Module.Initialize();
 
@@ -67,27 +70,34 @@ class Program
         var playerService = _serviceProvider.GetService<IPlayerService>();
         var fileService = _serviceProvider.GetService<IFileService>();
         var configurationService = _serviceProvider.GetService<IConfigurationService>();
+
+        if (configurationService == null)
+            throw new Exception("Failed to get configuration service");
+            
         configurationService.Load();
         var deviceId = configurationService.Get<string>("DeviceId");
         
         var sdkClientSettings = _serviceProvider.GetRequiredService<JellyfinSdkSettings>();
         sdkClientSettings.Initialize(
-            _applicationInfo.Name,
-            _applicationInfo.Version,
+            _applicationInfo.Name != null ? _applicationInfo.Name : throw new Exception("Missing application name"),
+            _applicationInfo.Version != null ? _applicationInfo.Version : string.Empty,
             "JellyTune Gnome",
             $"jellytune-{deviceId}");
         
-        var resourceFile = Path.GetFullPath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)) + $"/{_applicationInfo.Id}.gresource";
-        Gio.Functions.ResourcesRegister(Gio.Functions.ResourceLoad(resourceFile));
+        var resourceFile = Path.GetFullPath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? throw new Exception("Could not get executing assembly location")) + $"/{_applicationInfo.Id}.gresource";
+        Functions.ResourcesRegister(Functions.ResourceLoad(resourceFile));
+        
+        if (apiService == null || playerService == null || fileService == null)
+            throw new Exception("Failed to load required services");
         
         _mainWindowController = new MainWindowController(apiService, configurationService, playerService, fileService, _applicationInfo);
         
-        _application = Adw.Application.New(_applicationInfo.Id, Gio.ApplicationFlags.NonUnique);
+        _application = Application.New(_applicationInfo.Id, ApplicationFlags.NonUnique);
         _application.OnActivate += ApplicationOnOnActivate;
         _application.OnShutdown += ApplicationOnOnShutdown;
     }
 
-    private async void ApplicationOnOnActivate(Application sender, EventArgs args)
+    private async void ApplicationOnOnActivate(Gio.Application sender, EventArgs args)
     {
         if (_mainWindow != null)
         {
@@ -95,7 +105,7 @@ class Program
             return;
         }
         
-        _mainWindow = Views.MainWindow.NewWithValues(_mainWindowController, _application);
+        _mainWindow = MainWindow.NewWithValues(_mainWindowController, _application);
         await _mainWindow.StartAsync();
     }
 
@@ -123,7 +133,7 @@ class Program
             {
                 c.DefaultRequestHeaders.UserAgent.Add(
                     new ProductInfoHeaderValue(
-                        applicationInfo.Name,
+                        applicationInfo.Name != null ? applicationInfo.Name : throw new Exception("Missing application name"),
                         applicationInfo.Version));
                 c.DefaultRequestHeaders.Accept.Add(
                     new MediaTypeWithQualityHeaderValue(MediaTypeNames.Application.Json, 1.0));
@@ -150,7 +160,7 @@ class Program
         
         // Project related
         serviceCollection.AddSingleton<IConfigurationService, ConfigurationService>(
-            serviceProvider => new ConfigurationService(_fileSystem: serviceProvider.GetRequiredService<IFileSystem>(), applicationId: _applicationInfo.Id, GLib.Functions.GetUserConfigDir(), GLib.Functions.GetUserCacheDir())
+            serviceProvider => new ConfigurationService(fileSystem: serviceProvider.GetRequiredService<IFileSystem>(), GLib.Functions.GetUserConfigDir(), GLib.Functions.GetUserCacheDir())
         );
         
         serviceCollection.AddSingleton<IFileSystem, FileSystem>();

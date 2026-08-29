@@ -22,24 +22,24 @@ public class SearchControllerTests
         _mockPlayerService = new Mock<IPlayerService>();
         _mockConfigurationService = new Mock<IConfigurationService>();
         _mockFileService = new Mock<IFileService>();
-        _controller = new SearchController(_mockJellyTuneApiService.Object, _mockConfigurationService.Object, _mockPlayerService.Object, _mockFileService.Object);
+        _controller = new SearchController(_mockJellyTuneApiService.Object, _mockFileService.Object);
 
         
-        var artist = new Search()
+        var artist = new Search
         {
             Id = Guid.NewGuid(),
             ArtistName = "Artist",
             HasArtwork = false
         };
 
-        var album = new Search()
+        var album = new Search
         {
             Id = Guid.NewGuid(),
             AlbumName =  "Album",
             HasArtwork = false
         };
         
-        var track = new Search()
+        var track = new Search
         {
             Id = Guid.NewGuid(),
             TrackName = "Track",

@@ -1,6 +1,4 @@
-using System.Collections.Concurrent;
 using JellyTune.Shared.Enums;
-using JellyTune.Shared.Events;
 using JellyTune.Shared.Models;
 using JellyTune.Shared.Services;
 
@@ -9,22 +7,16 @@ namespace JellyTune.Shared.Controls;
 public class AlbumlistController : ListController, IDisposable
 {
     private readonly IJellyTuneApiService _jellyTuneApiService;
-    private readonly IConfigurationService _configurationService;
-    private readonly IPlayerService _playerService;
-    private readonly IFileService _fileService;
 
     /// <summary>
     /// Called when album is clicked on the list
     /// </summary>
     public event EventHandler<Guid>? OnAlbumClicked;
     
-    public AlbumlistController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService, IPlayerService playerService, IFileService fileService) : base(jellyTuneApiService, configurationService, playerService, fileService)
+    public AlbumlistController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService, IFileService fileService) : base(configurationService, fileService)
     {
         _jellyTuneApiService = jellyTuneApiService;
-        _configurationService = configurationService;
-        _playerService = playerService;
-        _fileService = fileService;
-        
+
         OnItemClicked += ListControllerOnItemClicked;
     }
 
@@ -70,11 +62,11 @@ public class AlbumlistController : ListController, IDisposable
         var listItems = new List<ListItem>();
         foreach (var album in albums)
         {
-            listItems.Add(new ListItem()
+            listItems.Add(new ListItem
             {
                 Id = album.Id,
-                Title = album.Name,
-                Description = album.Artist,
+                Title = album.Name ?? string.Empty,
+                Description = album.Artist ?? string.Empty,
                 HasArtwork = album.HasArtwork,
                 ArtworkFiletype = FileType.AlbumArt
             });

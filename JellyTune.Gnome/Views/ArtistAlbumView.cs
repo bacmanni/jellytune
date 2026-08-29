@@ -1,20 +1,25 @@
+using GLib;
+using GObject;
+using Gtk;
 using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Events;
+using Dialog = Adw.Dialog;
 using ListBox = Gtk.ListBox;
+using Spinner = Adw.Spinner;
 
 namespace JellyTune.Gnome.Views;
 
-[GObject.Subclass<Adw.Dialog>(qualifiedName: "JellyTuneArtistAlbumView")]
-[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.artist_album.ui")]
+[Subclass<Dialog>(qualifiedName: "JellyTuneArtistAlbumView")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.artist_album.ui")]
 public partial class ArtistAlbumView
 {
     private ArtistAlbumController  _controller;
 
-    [Gtk.Connect] private Adw.Spinner _spinner;
-    [Gtk.Connect] private Gtk.Revealer _result;
+    [Connect] private Spinner _spinner;
+    [Connect] private Revealer _result;
     
-    [Gtk.Connect] private Gtk.ListBox _albums;
+    [Connect] private ListBox _albums;
 
     public static ArtistAlbumView NewWithValues(ArtistAlbumController controller)
     {
@@ -37,9 +42,9 @@ public partial class ArtistAlbumView
     {
         if (args.Row is AlbumRow row)
         {
-            if (GetRoot() is Gtk.Window win)
+            if (GetRoot() is Window win)
             {
-                win.ActivateAction("win.open_album", GLib.Variant.NewString(row.AlbumId.ToString()));
+                win.ActivateAction("win.open_album", Variant.NewString(row.AlbumId.ToString()));
             }
             
             Close();

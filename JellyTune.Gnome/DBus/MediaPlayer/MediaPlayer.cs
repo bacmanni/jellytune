@@ -42,14 +42,14 @@ public class MediaPlayer : IMediaPlayer2, IPlayer
         if (track == null)
             return;
         
-        _metadata["xesam:title"] = track.Name;
-        _metadata["xesam:artist"] = new string[] { track.Artist };
-        _metadata["xesam:album"] = track.Album;
+        _metadata["xesam:title"] = track.Name != null ? track.Name : string.Empty;
+        _metadata["xesam:artist"] = new[] { track.Artist };
+        _metadata["xesam:album"] = track.Album != null ? track.Album : string.Empty;
 
         if (track.HasArtwork)
         {
             var url = _fileService.GetFileUrl(FileType.AlbumArt, track.AlbumId);
-            _metadata["mpris:artUrl"] = url?.ToString() ??  string.Empty;
+            _metadata["mpris:artUrl"] = url != null ? url.ToString() : string.Empty;
         }
         else
         {
@@ -67,9 +67,6 @@ public class MediaPlayer : IMediaPlayer2, IPlayer
 
     public Task RaiseAsync()
     {
-        // Use token when PresentWithToken is found in window
-        var token = Environment.GetEnvironmentVariable("XDG_ACTIVATION_TOKEN");
-        
         _mainWindow.PresentWithTime(0);
         return Task.CompletedTask;
     }
@@ -78,8 +75,8 @@ public class MediaPlayer : IMediaPlayer2, IPlayer
     {
         return Task.FromResult<IDictionary<string, object>>(new Dictionary<string, object>
         {
-            { "Identity", _applicationInfo.Name },
-            { "DesktopEntry", _applicationInfo.Name },
+            { "Identity", _applicationInfo.Name != null ? _applicationInfo.Name : string.Empty },
+            { "DesktopEntry", _applicationInfo.Name != null ? _applicationInfo.Name : string.Empty },
             { "CanQuit", false },
             { "CanRaise", true },
             { "HasTrackList", false }

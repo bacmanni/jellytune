@@ -22,16 +22,16 @@ public class PlaylistTracksControllerTests
         _mockPlayerService = new Mock<IPlayerService>();
         _mockConfigurationService = new Mock<IConfigurationService>();
         _mockFileService = new Mock<IFileService>();
-        _controller = new PlaylistTracksController(_mockJellyTuneApiService.Object, _mockConfigurationService.Object,
+        _controller = new PlaylistTracksController(_mockJellyTuneApiService.Object,
             _mockPlayerService.Object, _mockFileService.Object);
 
-        var playlist = new Playlist()
+        var playlist = new Playlist
         {
             Id =  _playlistId,
             Name = "Test Playlist"
         };
         
-        var track = new Track()
+        var track = new Track
         {
             Id = Guid.NewGuid(),
             Name = "Track"

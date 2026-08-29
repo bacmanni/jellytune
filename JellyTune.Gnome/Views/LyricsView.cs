@@ -1,21 +1,27 @@
-using JellyTune.Shared.Controls;
+using Gdk;
+using GLib;
+using GObject;
+using Gtk;
 using JellyTune.Gnome.Helpers;
+using JellyTune.Shared.Controls;
+using Dialog = Adw.Dialog;
+using Spinner = Adw.Spinner;
 
 namespace JellyTune.Gnome.Views;
 
-[GObject.Subclass<Adw.Dialog>(qualifiedName: "JellyTuneLyricsView")]
-[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.lyrics.ui")]
+[Subclass<Dialog>(qualifiedName: "JellyTuneLyricsView")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.lyrics.ui")]
 public partial class LyricsView
 {
     private LyricsController  _controller;
 
-    [Gtk.Connect] private Adw.Spinner _spinner;
-    [Gtk.Connect] private Gtk.Revealer _results;
+    [Connect] private Spinner _spinner;
+    [Connect] private Revealer _results;
     
-    [Gtk.Connect] private Gtk.Label _lyrics;
-    [Gtk.Connect] private Gtk.Image _albumArt;
-    [Gtk.Connect] private Gtk.Label _track;
-    [Gtk.Connect] private Gtk.Label _artist;
+    [Connect] private Label _lyrics;
+    [Connect] private Image _albumArt;
+    [Connect] private Label _track;
+    [Connect] private Label _artist;
 
     public static LyricsView NewWithValues(LyricsController controller)
     {
@@ -36,16 +42,16 @@ public partial class LyricsView
     {
         GtkHelper.GtkDispatch(() =>
         {
-            _track.SetLabel(_controller.TrackName);
-            _artist.SetLabel(_controller.ArtistName);
+            _track.SetLabel(_controller.TrackName ?? string.Empty);
+            _artist.SetLabel(_controller.ArtistName ?? string.Empty);
         
             if (!string.IsNullOrWhiteSpace(_controller.Lyrics))
-                _lyrics.SetLabel(_controller.Lyrics);;
+                _lyrics.SetLabel(_controller.Lyrics);
 
             if (_controller.AlbumArt != null)
             {
-                var bytes = GLib.Bytes.New(_controller.AlbumArt);
-                var texture = Gdk.Texture.NewFromBytes(bytes);
+                var bytes = Bytes.New(_controller.AlbumArt);
+                var texture = Texture.NewFromBytes(bytes);
                 _albumArt.SetFromPaintable(texture);
             }
             

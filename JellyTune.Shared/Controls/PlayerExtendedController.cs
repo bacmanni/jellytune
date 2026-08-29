@@ -25,13 +25,13 @@ public class PlayerExtendedController
     public void ShowExtension(ExtendedType type)
     {
         _activeType = type;
-        OnShowHide?.Invoke(this, new ExtendedShow() { IsVisible = true, Type = type });
+        OnShowHide?.Invoke(this, new ExtendedShow { IsVisible = true, Type = type });
     }
 
     public void CloseExtension()
     {
         _activeType = ExtendedType.None;
-        OnShowHide?.Invoke(this, new ExtendedShow() { IsVisible = false });
+        OnShowHide?.Invoke(this, new ExtendedShow { IsVisible = false });
     }
 
     public bool IsActive(ExtendedType type)

@@ -1,9 +1,11 @@
+using GObject;
+using Gtk;
 using JellyTune.Shared.Controls;
 
 namespace JellyTune.Gnome.Views;
 
-[GObject.Subclass<Gtk.Box>(qualifiedName: "JellyTuneAlbumListView")]
-[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.albumlist.ui")]
+[Subclass<Box>(qualifiedName: "JellyTuneAlbumListView")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.albumlist.ui")]
 public partial class AlbumListView
 {
     private AlbumlistController _controller;

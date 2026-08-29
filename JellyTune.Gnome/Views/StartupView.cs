@@ -1,13 +1,18 @@
+using Adw;
+using GObject;
+using Gtk;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
+using Application = Adw.Application;
+using Dialog = Adw.Dialog;
 
 namespace JellyTune.Gnome.Views;
 
-[GObject.Subclass<Adw.Dialog>(qualifiedName: "JellyTuneStartupView")]
-[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.startup.ui")]
+[Subclass<Dialog>(qualifiedName: "JellyTuneStartupView")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.startup.ui")]
 public partial class StartupView
 {
-    private Adw.Application _application;
+    private Application _application;
     private StartupController  _controller;
 
     private AccountController   _accountController;
@@ -16,16 +21,16 @@ public partial class StartupView
     private TaskCompletionSource _taskCompletionSource;
     private StartupState _startupState;
     
-    [Gtk.Connect] private Adw.Carousel _carousel;
+    [Connect] private Carousel _carousel;
     
-    [Gtk.Connect] private Gtk.Button _close;
-    [Gtk.Connect] private Gtk.Button _continue0;
+    [Connect] private Button _close;
+    [Connect] private Button _continue0;
     
-    [Gtk.Connect] private Gtk.Button _back;
-    [Gtk.Connect] private Gtk.Box _accountBox;
-    [Gtk.Connect] private Gtk.Button _continue1;
+    [Connect] private Button _back;
+    [Connect] private Box _accountBox;
+    [Connect] private Button _continue1;
 
-    public static StartupView NewWithValues(Adw.Application application, StartupState startupState, StartupController controller,
+    public static StartupView NewWithValues(Application application, StartupState startupState, StartupController controller,
         TaskCompletionSource taskCompletionSource)
     {
         var obj = NewWithProperties([]);
@@ -43,37 +48,37 @@ public partial class StartupView
         _accountView = AccountView.NewWithValues(_accountController);
         _accountController.OpenConfiguration(_controller.ConfigurationService.Get(), _startupState != StartupState.InitialRun);
         _accountBox.Prepend(_accountView);
-        _accountController.OnUpdate += (sender, b) =>
+        _accountController.OnUpdate += (_, b) =>
         {
             _continue1.SetSensitive(b);
         };
 
-        _close.OnClicked += (sender, args) =>
+        _close.OnClicked += (_, _) =>
         {
             _application.Quit();
         };
         
-        _continue0.OnClicked += (sender, args) =>
+        _continue0.OnClicked += (_, _) =>
         {
             _carousel.ScrollTo(_carousel.GetNthPage(1), true);
         };
 
-        _back.OnClicked += (sender, args) =>
+        _back.OnClicked += (_, _) =>
         {
             _carousel.ScrollTo(_carousel.GetNthPage(0), true);
         };
         
         // Save configuration
-        _continue1.OnClicked += async (sender, args) =>
+        _continue1.OnClicked += async (_, _) =>
         {
             _continue1.SetSensitive(false);
             var configuration = _controller.ConfigurationService.Get();
-            configuration.ServerUrl = _accountController.ServerUrl;
-            configuration.Username = _accountController.Username;
+            configuration.ServerUrl = _accountController.ServerUrl ?? string.Empty;
+            configuration.Username = _accountController.Username ?? string.Empty;
             configuration.Password = _accountController.Password;
 
             if (_accountController.CollectionId != null)
-                configuration.CollectionId = _accountController.CollectionId.ToString();
+                configuration.CollectionId = _accountController.CollectionId.ToString() ?? throw new Exception("CollectionId is null when it should not!");
             
             if (_accountController.PlaylistCollectionId != null)
                 configuration.PlaylistCollectionId = _accountController.PlaylistCollectionId.ToString();

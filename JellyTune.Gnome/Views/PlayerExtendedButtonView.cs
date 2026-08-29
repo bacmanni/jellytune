@@ -1,3 +1,5 @@
+using GObject;
+using Gtk;
 using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
@@ -6,16 +8,16 @@ using Button = Gtk.Button;
 
 namespace JellyTune.Gnome.Views;
 
-[GObject.Subclass<Gtk.Box>(qualifiedName: "JellyTunePlayerExtendedButtonView")]
-[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.player_extended_button.ui")]
+[Subclass<Box>(qualifiedName: "JellyTunePlayerExtendedButtonView")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.player_extended_button.ui")]
 public partial class PlayerExtendedButtonView
 {
     private PlayerExtendedController _controller;
 
-    [Gtk.Connect] private Gtk.ToggleButton _position;
-    [Gtk.Connect] private Gtk.ToggleButton _volume;
+    [Connect] private ToggleButton _position;
+    [Connect] private ToggleButton _volume;
 
-    private bool _initialized = false;
+    private bool _initialized;
     
     public static PlayerExtendedButtonView NewWithValues(PlayerExtendedController controller)
     {

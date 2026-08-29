@@ -1,4 +1,3 @@
-using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
 using JellyTune.Shared.Models;
 using JellyTune.Shared.Services;
@@ -15,7 +14,7 @@ public class ArtistAlbumController
     public List<Album> Albums { get; private set; } = [];
     private CancellationTokenSource? _openByArtistIdCts;
     private CancellationTokenSource? _openByTrackIdCts;
-    public event EventHandler<ArtistAlbumArgs> OnAlbumsChanged;
+    public event EventHandler<ArtistAlbumArgs>? OnAlbumsChanged;
     
     public ArtistAlbumController(IJellyTuneApiService jellyTuneApiService, IFileService fileService)
     {
@@ -36,12 +35,12 @@ public class ArtistAlbumController
 
         try
         {
-            OnAlbumsChanged.Invoke(this, new ArtistAlbumArgs() { IsLoading = true });
+            OnAlbumsChanged?.Invoke(this, new ArtistAlbumArgs { IsLoading = true });
             var albums = await _jellyTuneApiService.GetArtistAlbumsAsync(artistId, null, cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
             
             Albums = albums;
-            OnAlbumsChanged.Invoke(this, new ArtistAlbumArgs());
+            OnAlbumsChanged?.Invoke(this, new ArtistAlbumArgs());
         }
         catch (OperationCanceledException)
         {
@@ -63,21 +62,21 @@ public class ArtistAlbumController
 
         try
         {
-            OnAlbumsChanged.Invoke(this, new ArtistAlbumArgs() { IsLoading = true });
+            OnAlbumsChanged?.Invoke(this, new ArtistAlbumArgs { IsLoading = true });
             var artistId = await _jellyTuneApiService.GetArtistByTrackIdAsync(trackId, cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
             
             if (!artistId.HasValue)
             {
                 Albums = [];
-                OnAlbumsChanged.Invoke(this, new ArtistAlbumArgs());
+                OnAlbumsChanged?.Invoke(this, new ArtistAlbumArgs());
                 return;
             }
         
             var albums = await _jellyTuneApiService.GetArtistAlbumsAsync(artistId.Value, null, cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
             Albums = albums;
-            OnAlbumsChanged.Invoke(this, new ArtistAlbumArgs());
+            OnAlbumsChanged?.Invoke(this, new ArtistAlbumArgs());
         }
         catch (OperationCanceledException)
         {

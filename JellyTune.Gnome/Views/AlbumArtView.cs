@@ -1,21 +1,27 @@
+using Gdk;
+using GLib;
+using GObject;
+using Gtk;
 using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Events;
+using Dialog = Adw.Dialog;
+using Spinner = Adw.Spinner;
 
 namespace JellyTune.Gnome.Views;
 
-[GObject.Subclass<Adw.Dialog>(qualifiedName: "JellyTuneAlbumArtView")]
-[Gtk.Template<Gtk.AssemblyResource>("JellyTune.Gnome.Blueprints.album_art.ui")]
+[Subclass<Dialog>(qualifiedName: "JellyTuneAlbumArtView")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.album_art.ui")]
 public partial class AlbumArtView
 {
     private AlbumArtController _controller;
     
-    [Gtk.Connect] private Adw.Spinner _spinner;
-    [Gtk.Connect] private Gtk.Revealer _results;
+    [Connect] private Spinner _spinner;
+    [Connect] private Revealer _results;
     
-    [Gtk.Connect] private Gtk.Image _albumArt;
-    [Gtk.Connect] private Gtk.Label _album;
-    [Gtk.Connect] private Gtk.Label _artist;
+    [Connect] private Image _albumArt;
+    [Connect] private Label _album;
+    [Connect] private Label _artist;
 
     public static AlbumArtView NewWithValues(AlbumArtController controller)
     {
@@ -40,8 +46,8 @@ public partial class AlbumArtView
         {
             if (isLoading)
             {
-                _artist.SetText(_controller.Album.Artist);
-                _album.SetText(_controller.Album.Name);
+                _artist.SetText(_controller.Album != null ? _controller.Album.Artist != null ? _controller.Album.Artist : string.Empty : string.Empty);
+                _album.SetText(_controller.Album != null ? _controller.Album.Name != null ? _controller.Album.Name : string.Empty : string.Empty);
                 _results.SetRevealChild(false);
                 _spinner.SetVisible(true);
                 return;
@@ -58,8 +64,8 @@ public partial class AlbumArtView
         _albumArt.Clear();
         if (_controller.ArtWork == null) return;
         
-        using var bytes = GLib.Bytes.New(_controller.ArtWork);
-        using var texture = Gdk.Texture.NewFromBytes(bytes);
+        using var bytes = Bytes.New(_controller.ArtWork);
+        using var texture = Texture.NewFromBytes(bytes);
         _albumArt.SetFromPaintable(texture);
     }
     
