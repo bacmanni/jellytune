@@ -28,11 +28,14 @@ modules:
           DOTNET_ARCH="linux-x64"
         fi
         dotnet publish JellyTune.Gnome/JellyTune.Gnome.csproj -c Release -o publish --runtime $DOTNET_ARCH --self-contained false --no-restore --packages ./nuget-cache
-      - install -Dm755 publish/JellyTune /app/bin/JellyTune
-      - install -Dm644 Icons/JellyTune.svg /app/share/icons/hicolor/scalable/apps/io.github.bacmanni.JellyTune.svg
-      - install -Dm644 flathub/io.github.bacmanni.jellytune.desktop /app/share/applications/io.github.bacmanni.JellyTune.desktop
-      - install -Dm644 flathub/io.github.bacmanni.jellytune.metainfo.xml /app/share/metainfo/io.github.bacmanni.JellyTune.metainfo.xml
-      
+      - /usr/lib/sdk/dotnet9/bin/install.sh
+      - install -d /app/bin
+      - cp -a publish/. /app/bin/
+      - chmod +x /app/bin/JellyTune
+      - install -Dm644 Icons/JellyTune.svg /app/share/icons/hicolor/scalable/apps/io.github.bacmanni.jellytune.svg
+      - install -Dm644 flathub/io.github.bacmanni.jellytune.desktop /app/share/applications/io.github.bacmanni.jellytune.desktop
+      - install -Dm644 flathub/io.github.bacmanni.jellytune.metainfo.xml /app/share/metainfo/io.github.bacmanni.jellytune.metainfo.xml
+
     sources:
       - type: git
         url: https://github.com/bacmanni/jellytune.git
@@ -49,4 +52,5 @@ finish-args:
   - --socket=wayland
   - --socket=fallback-x11
   - --share=ipc
+  - --env=DOTNET_ROOT=/app/lib/dotnet
 
