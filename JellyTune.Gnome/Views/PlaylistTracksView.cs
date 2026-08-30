@@ -9,7 +9,7 @@ using Spinner = Adw.Spinner;
 
 namespace JellyTune.Gnome.Views;
 
-[Subclass<Box>(qualifiedName: "JellyTunePlaylistTracks")]
+[Subclass<ScrolledWindow>(qualifiedName: "JellyTunePlaylistTracks")]
 [Template<AssemblyResource>("JellyTune.Gnome.Blueprints.playlist_tracks.ui")]
 public partial class PlaylistTracksView
 {
