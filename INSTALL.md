@@ -6,4 +6,5 @@ Nugets changed:
 
 Version update:
 [] Update CHANGES-file
+[] Check version in Program.cs at ApplicationInfo (at least version)
 [] Check that JellyTune.pupnet.conf and update AppVersionRelease to match release. Also check FlatpakPlatformVersion

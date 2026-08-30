@@ -666,7 +666,7 @@ public partial class MainWindow
         about.ApplicationName = _controller.ApplicationInfo.Name;
         about.ApplicationIcon = _controller.ApplicationInfo.Icon;
         about.DeveloperName = _controller.ApplicationInfo.Developer;
-        about.Version = $"{Assembly.GetExecutingAssembly().GetName().Version?.Major}.{Assembly.GetExecutingAssembly().GetName().Version?.Minor}.{Assembly.GetExecutingAssembly().GetName().Version?.Build}";
+        about.Version = _controller.ApplicationInfo.Version;
         about.Website = _controller.ApplicationInfo.Website;
         about.IssueUrl = _controller.ApplicationInfo.IssueUrl;
         about.LicenseType = License.Gpl30;

@@ -33,11 +33,10 @@ class Program
         Developer = "Joni Bäckström",
         Email = "joni.j.backstrom@gmail.com",
         Name = "JellyTune",
-        Version = "1.0",
+        Version = "2.2.2",
         Website = "https://github.com/bacmanni/jellytune",
         IssueUrl = "https://github.com/bacmanni/jellytune/issues/new",
         Icon = "jellytune-icon",
-        ReleaseNotes = "<p>Initial release</p>",
         Artists = [ "Ruut Kiiskilä" ]
     };
     
@@ -79,8 +78,8 @@ class Program
         
         var sdkClientSettings = _serviceProvider.GetRequiredService<JellyfinSdkSettings>();
         sdkClientSettings.Initialize(
-            _applicationInfo.Name != null ? _applicationInfo.Name : throw new Exception("Missing application name"),
-            _applicationInfo.Version != null ? _applicationInfo.Version : string.Empty,
+            _applicationInfo.Name ?? throw new Exception("Missing application name"),
+            _applicationInfo.Version ?? string.Empty,
             "JellyTune Gnome",
             $"jellytune-{deviceId}");
         
