@@ -27,7 +27,7 @@ modules:
         else
           DOTNET_ARCH="linux-x64"
         fi
-        dotnet publish JellyTune.Gnome/JellyTune.Gnome.csproj -c Release -o publish --runtime $DOTNET_ARCH --self-contained false --no-restore --packages ./nuget-cache
+        dotnet publish JellyTune.Gnome/JellyTune.Gnome.csproj -c Release -o publish --runtime $DOTNET_ARCH --self-contained false --no-restore --packages ./nuget-cache -p DebugType=None -p DebugSymbols=false
       - /usr/lib/sdk/dotnet9/bin/install.sh
       - install -d /app/bin
       - cp -a publish/. /app/bin/
