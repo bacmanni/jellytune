@@ -9,6 +9,7 @@ namespace JellyTune.Shared.Services;
 
 public class JellyTuneApiService : IJellyTuneApiService, IDisposable
 {
+    private readonly IConfigurationService _configurationService;
     private readonly JellyfinSdkSettings _sdkClientSettings;
     private readonly JellyfinApiClient _jellyfinApiClient;
 
@@ -17,8 +18,9 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     private string? _sessionId;
     private Guid? _userId;
 
-    public JellyTuneApiService(JellyfinSdkSettings sdkClientSettings, JellyfinApiClient jellyfinApiClient)
+    public JellyTuneApiService(IConfigurationService configurationService, JellyfinSdkSettings sdkClientSettings, JellyfinApiClient jellyfinApiClient)
     {
+        _configurationService = configurationService;
         _sdkClientSettings = sdkClientSettings;
         _jellyfinApiClient = jellyfinApiClient;
     }
@@ -596,6 +598,18 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
         return $"{url}&api_key={_sdkClientSettings.AccessToken}&PlaySessionId={sessionId}";
     }
 
+    public async Task<string?> GetPlaybackAsync()
+    {
+        var deviceId = _configurationService.Get().DeviceId;
+        var result = await _jellyfinApiClient.Sessions.GetAsync(configuration =>
+        {
+            configuration.QueryParameters.DeviceId = $"jellytune-{deviceId}";
+        });
+
+        if (result == null || result.Count < 1) return null;
+        return result[0].Id;
+    }
+    
     /// <summary>
     /// Send server information about starting playback
     /// </summary>

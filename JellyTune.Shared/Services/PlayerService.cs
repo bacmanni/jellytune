@@ -180,8 +180,19 @@ public sealed class PlayerService : IPlayerService, IDisposable
         int? position = null;
         
         // Create session
-        if (string.IsNullOrWhiteSpace(_playSessionId)) 
-            _playSessionId = await _jellyTuneApiService.StartPlaybackAsync(trackId);
+        if (string.IsNullOrWhiteSpace(_playSessionId))
+        {
+            var existingSession = await _jellyTuneApiService.GetPlaybackAsync();
+            
+            if (!string.IsNullOrWhiteSpace(existingSession))
+            {
+                _playSessionId = existingSession;
+            }
+            else
+            {
+                _playSessionId = await _jellyTuneApiService.StartPlaybackAsync(trackId);
+            }
+        }
         
         // Check player status
         if (_player != null)

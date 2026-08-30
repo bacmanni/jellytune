@@ -11,6 +11,7 @@ public interface IJellyTuneApiService
     public Task<bool> CheckServerAsync(string serverUrl);
     public Task<bool> LoginAsync(string username, string password);
     public Task<string?> StartPlaybackAsync(Guid trackId);
+    public Task<string?> GetPlaybackAsync();
     public Task PausePlaybackAsync(string sessiondId, Guid trackId, int? position);
     public Task<string?> GetTrackLyricsAsync(Guid trackId);
     public Task<List<Collection>> GetCollectionsAsync(CollectionType type);

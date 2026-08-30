@@ -45,7 +45,7 @@ class Program
     {
         try
         {
-            return _application.RunWithSynchronizationContext([_applicationInfo.Id != null ? _applicationInfo.Id : throw new Exception("Missing application Id")]);
+            return _application.RunWithSynchronizationContext([_applicationInfo.Id ?? throw new Exception("Missing application Id")]);
         }
         catch (Exception e)
         {
@@ -75,6 +75,9 @@ class Program
             
         configurationService.Load();
         var deviceId = configurationService.Get<string>("DeviceId");
+
+        if (deviceId == null)
+            throw new Exception("Missing deviceId");
         
         var sdkClientSettings = _serviceProvider.GetRequiredService<JellyfinSdkSettings>();
         sdkClientSettings.Initialize(
