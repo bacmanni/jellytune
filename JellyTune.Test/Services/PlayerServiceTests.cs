@@ -16,6 +16,7 @@ public class PlayerServiceTests
     private readonly Guid _trackId1;
     private readonly Guid _trackId2;
     private readonly Guid _trackId3;
+    private readonly string _sessionId = "6532FB1C-A836-491D-9F02-119877FE7ABB";
     
     public PlayerServiceTests()
     {
@@ -84,9 +85,10 @@ public class PlayerServiceTests
         _mockJellyTuneApiService.Setup(repo => repo.GetAlbumAsync(_almumId2, CancellationToken.None)).ReturnsAsync(album2);
         _mockJellyTuneApiService.Setup(repo => repo.GetTracksAsync(_almumId1, CancellationToken.None)).ReturnsAsync(new List<Track> { track1, track2 });
         _mockJellyTuneApiService.Setup(repo => repo.GetTracksAsync(_almumId2, CancellationToken.None)).ReturnsAsync(new List<Track> { track3 });
-        _mockJellyTuneApiService.Setup(repo => repo.GetAudioStreamUrl(null, _trackId1, null)).Returns("http://test");
-        _mockJellyTuneApiService.Setup(repo => repo.GetAudioStreamUrl(null, _trackId2, null)).Returns("http://test");
-        _mockJellyTuneApiService.Setup(repo => repo.GetAudioStreamUrl(null, _trackId3, null)).Returns("http://test");
+        _mockJellyTuneApiService.Setup(repo => repo.GetAudioStreamUrl(_sessionId, _trackId1, null)).Returns("http://test");
+        _mockJellyTuneApiService.Setup(repo => repo.GetAudioStreamUrl(_sessionId, _trackId2, null)).Returns("http://test");
+        _mockJellyTuneApiService.Setup(repo => repo.GetAudioStreamUrl(_sessionId, _trackId3, null)).Returns("http://test");
+        _mockJellyTuneApiService.Setup(repo => repo.StartPlaybackAsync(_trackId1)).ReturnsAsync(_sessionId);
     }
 
     [Fact]
