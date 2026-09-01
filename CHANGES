@@ -1,4 +1,4 @@
-+ 1.2.2;2026-07-20
++ 1.2.2;2026-09-02
 - Fixes on async data loading
 - Fixed icon size
 - Removed automatic fetch as it caused problems
