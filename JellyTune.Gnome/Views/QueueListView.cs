@@ -34,7 +34,7 @@ public partial class QueueListView
 
     private void OnPlayerStateChanged(object? sender, PlayerStateArgs args)
     {
-        if (args.State is PlayerState.Playing or PlayerState.Paused or PlayerState.None)
+        if (args.State is PlayerState.Playing or PlayerState.Paused or PlayerState.None or PlayerState.Stopped)
         {
             UpdateRowState();
         }
