@@ -1,61 +1,77 @@
-using Gtk.Internal;
+using Adw;
+using GObject;
+using Gtk;
+using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
-using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Events;
 using ListBox = Gtk.ListBox;
+using Spinner = Adw.Spinner;
 
 namespace JellyTune.Gnome.Views;
 
-public class SearchView : Gtk.ScrolledWindow
+[Subclass<ScrolledWindow>(qualifiedName: "JellyTuneSearchView")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.search.ui")]
+public partial class SearchView
 {
-    private readonly SearchController _controller;
+    private SearchController _controller;
 
-    [Gtk.Connect] private readonly Adw.Spinner _spinner;
-    [Gtk.Connect] private readonly Adw.StatusPage _noresults;
-    [Gtk.Connect] private readonly Adw.Clamp _results;
-    [Gtk.Connect] private readonly Gtk.ListBox _searchList;
-    [Gtk.Connect] private readonly Adw.StatusPage _startup;
+    [Connect] private Spinner _spinner;
+    [Connect] private StatusPage _noresults;
+    [Connect] private Clamp _results;
+    [Connect] private ListBox _searchList;
+    [Connect] private StatusPage _startup;
 
-    private SearchView(Gtk.Builder builder) : base(
-        new ScrolledWindowHandle(builder.GetPointer("_root"), false))
+    public static SearchView NewWithValues(SearchController controller)
     {
-        builder.Connect(this);
+        var obj = NewWithProperties([]);
+        obj._controller = controller;
+        obj.InitializeController();
+        return obj;
     }
 
-    private void SetSpinner(bool? show = null, int? results = null)
+    private void UpdateResults(bool? show = null)
     {
+        _noresults.SetVisible(false);
+        _results.SetVisible(false);
+        _spinner.SetVisible(false);
+        
+        // Startup state
         if (!show.HasValue)
         {
             _startup.SetVisible(true);
-            _noresults.SetVisible(false);
-            _results.SetVisible(false);
-            _spinner.SetVisible(false);
-            return;
-        }
-            
-        _startup.SetVisible(false);
-        
-        if (show.Value)
-        {
-            _noresults.SetVisible(false);
-            _results.SetVisible(false);
-            _spinner.SetVisible(true);
         }
         else
         {
-            _spinner.SetVisible(false);
-            
-            if (results.HasValue && results.Value > 0)
-                _results.SetVisible(true);
+            _startup.SetVisible(false);
+
+            // Spinner should be shown and nothing else
+            if (show.Value)
+            {
+                _spinner.SetVisible(true);
+            }
             else
-                _noresults.SetVisible(true);
+            {
+                _searchList.RemoveAll();
+                if (_controller.Results.Count > 0)
+                {
+                    foreach (var result in _controller.Results)
+                    {
+                        _searchList.Append(SearchRow.NewWithValues(_controller.FileService, result));
+                    }
+                    
+                    _results.SetVisible(true);
+                }
+                else
+                {
+                    _noresults.SetVisible(true);
+                }
+            }
         }
     }
     
-    public SearchView(SearchController controller) : this(GtkHelper.BuilderFromFile("search"))
+    private void InitializeController()
     {
-        _controller = controller;
         _controller.OnSearchStateChanged += ControllerOnOnSearchStateChanged;
         _searchList.OnRowActivated += SearchListOnOnRowActivated;
     }
@@ -75,29 +91,14 @@ public class SearchView : Gtk.ScrolledWindow
         GtkHelper.GtkDispatch(() =>
         {
             if (args.Open)
-                SetSpinner();
+                UpdateResults();
         
             if (args.Start)
-                SetSpinner(true);
+                UpdateResults(true);
 
             if (args.Updated)
-                UpdateSearch();
+                UpdateResults(false);
         });
-    }
-
-
-    private void UpdateSearch()
-    {
-        if (_controller.Results.Count > 0)
-        {
-            _searchList.RemoveAll();
-            foreach (var result in _controller.Results)
-            {
-                _searchList.Append(new SearchRow(_controller.FileService, result));
-            }
-        }
-        
-        SetSpinner(false, _controller.Results.Count);
     }
 
     public override void Dispose()

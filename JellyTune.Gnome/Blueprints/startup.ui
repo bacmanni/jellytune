@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <interface>
-    <object class="AdwDialog" id="_root">
+    <template class="JellyTuneStartupView">
         <property name="follows-content-size">true</property>
         <property name="content-width">360</property>
         <property name="can-close">false</property>
@@ -91,5 +91,5 @@
                 </child>
             </object>
         </property>
-    </object>
+    </template>
 </interface>

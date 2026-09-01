@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <interface>
-    <object class="AdwActionRow" id="_root">
+    <template class="JellyTuneTrackRow">
         <style>
             <class name="track-row"/>
         </style>
@@ -43,5 +43,5 @@
             <object class="GtkLabel" id="_runtime">
             </object>
         </child>
-    </object>
+    </template>
 </interface>

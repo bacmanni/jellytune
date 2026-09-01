@@ -1,65 +1,72 @@
-using Adw.Internal;
+using Adw;
+using Gdk;
+using GLib;
+using GObject;
+using Gtk;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Models;
 using JellyTune.Shared.Services;
-using JellyTune.Gnome.Helpers;
 
 namespace JellyTune.Gnome.Views;
 
-public class SearchRow : Adw.ActionRow
+[Subclass<ActionRow>(qualifiedName: "JellyTuneSearchRow")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.search_row.ui")]
+public partial class SearchRow
 {
-    private readonly IFileService  _fileService;
+    private IFileService  _fileService;
+    private Search _row;
     public Guid Id  { get; set; }
     public Guid AlbumId  { get; set; }
     public SearchType Type { get; set; }
     
-    [Gtk.Connect] private readonly Gtk.Image _albumArt;
+    [Connect] private Image _albumArt;
 
-    private SearchRow(Gtk.Builder builder) : base(
-        new ActionRowHandle(builder.GetPointer("_root"), false))
+    public static SearchRow NewWithValues(IFileService fileService, Search row)
     {
-        builder.Connect(this);
+        var obj = NewWithProperties([]);
+        obj._fileService = fileService;
+        obj._row = row;
+        obj.Id = row.Id;
+        obj.AlbumId  = row.AlbumId;
+        obj.Type = row.Type;
+        obj.InitializeController();
+        return obj;
     }
 
-    public SearchRow(IFileService fileService, Search row) : this(GtkHelper.BuilderFromFile("search_row"))
+    private void InitializeController()
     {
-        _fileService = fileService;
-        Id = row.Id;
-        AlbumId  = row.AlbumId;
-        
         Activatable = true;
         
-        switch (row.Type)
+        switch (_row.Type)
         {
             case SearchType.Album or SearchType.Artist:
-                SetTitle(GLib.Markup.EscapeText(row.AlbumName));
+                SetTitle(Markup.EscapeText(_row.AlbumName != null ? _row.AlbumName : string.Empty));
                 break;
             default:
-                SetTitle(GLib.Markup.EscapeText(row.TrackName));
+                SetTitle(Markup.EscapeText(_row.TrackName != null ? _row.TrackName : string.Empty));
                 break;
         }
         
-        var description = $"by {GLib.Markup.EscapeText(row.ArtistName)}";
-        if (row.Type == SearchType.Track)
-            description += $" on {GLib.Markup.EscapeText(row.AlbumName)}";
+        var description = $"by {Markup.EscapeText(_row.ArtistName != null ? _row.ArtistName : string.Empty)}";
+        if (_row.Type == SearchType.Track)
+            description += $" on {Markup.EscapeText(_row.AlbumName != null ? _row.AlbumName : string.Empty)}";
         
         SetSubtitle(description);
         
-        if (!row.HasArtwork)
+        if (!_row.HasArtwork)
             return;
 
-        UpdateArtwork();
+        _ = UpdateArtwork();
     }
-
+    
     private async Task UpdateArtwork()
     {
         var albumArt = await _fileService.GetFileAsync(FileType.AlbumArt, AlbumId);
         if  (albumArt == null || albumArt.Length == 0)
             return;
         
-        using var bytes = GLib.Bytes.New(albumArt);
-        using var texture = Gdk.Texture.NewFromBytes(bytes);
+        using var bytes = Bytes.New(albumArt);
+        using var texture = Texture.NewFromBytes(bytes);
         _albumArt.SetFromPaintable(texture);
-        albumArt = null;
     }
 }

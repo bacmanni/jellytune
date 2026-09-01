@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <object class="GtkBox" id="_root">
+  <template class="JellyTuneListItem">
     <property name="margin-top">6</property>
     <property name="margin-bottom">6</property>
     <child>
@@ -44,5 +44,5 @@
         </child>
       </object>
     </child>
-  </object>
+  </template>
 </interface>

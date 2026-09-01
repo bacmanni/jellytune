@@ -1,4 +1,5 @@
-using Gtk.Internal;
+using GObject;
+using Gtk;
 using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
@@ -7,36 +8,45 @@ using Button = Gtk.Button;
 
 namespace JellyTune.Gnome.Views;
 
-public partial class PlayerExtendedButtonView : Gtk.Box
+[Subclass<Box>(qualifiedName: "JellyTunePlayerExtendedButtonView")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.player_extended_button.ui")]
+public partial class PlayerExtendedButtonView
 {
-    private readonly PlayerExtendedController _controller;
+    private PlayerExtendedController _controller;
 
-    [Gtk.Connect] private readonly Gtk.ToggleButton _position;
-    [Gtk.Connect] private readonly Gtk.ToggleButton _volume;
+    [Connect] private ToggleButton _position;
+    [Connect] private ToggleButton _volume;
 
-    private PlayerExtendedButtonView(Gtk.Builder builder) : base(
-        new BoxHandle(builder.GetPointer("_root"), false))
+    private bool _initialized;
+    
+    public static PlayerExtendedButtonView NewWithValues(PlayerExtendedController controller)
     {
-        builder.Connect(this);
+        var obj = NewWithProperties([]);
+        obj._controller = controller;
+        obj.InitializeController();
+        return obj;
     }
 
-    public PlayerExtendedButtonView(PlayerExtendedController controller) : this(
-        GtkHelper.BuilderFromFile("player_extended_button"))
+    private void InitializeController()
     {
-        _controller = controller;
-        _position.OnClicked += PositionOnClicked;
-        _volume.OnClicked += VolumeOnClicked;
-        
         _controller.PlayerService.OnPlayerVolumeChanged += PlayerServiceOnPlayerVolumeChanged;
         _controller.ConfigurationService.OnSaved += ConfigurationServiceOnSaved;
         
+        _position.OnClicked += PositionOnClicked;
+        _volume.OnClicked += VolumeOnClicked;
+        
         _position.SetVisible(_controller.ConfigurationService.Get().ShowSeek);
         _volume.SetVisible(_controller.ConfigurationService.Get().ShowVolume);
+
+        _initialized = true;
     }
 
     private void ConfigurationServiceOnSaved(object? sender, EventArgs e)
     {
         _controller.CloseExtension();
+        
+        if (!_initialized) return;
+        
         _position.Active = false;
         _volume.Active = false;
         _position.SetVisible(_controller.ConfigurationService.Get().ShowSeek);

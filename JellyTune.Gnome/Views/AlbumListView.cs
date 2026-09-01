@@ -1,24 +1,20 @@
-using Gtk.Internal;
+using GObject;
+using Gtk;
 using JellyTune.Shared.Controls;
-using JellyTune.Gnome.Helpers;
 
 namespace JellyTune.Gnome.Views;
 
-public class AlbumListView : Gtk.Box
+[Subclass<Box>(qualifiedName: "JellyTuneAlbumListView")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.albumlist.ui")]
+public partial class AlbumListView
 {
-    private readonly AlbumlistController _controller;
+    private AlbumlistController _controller;
 
-    private readonly ListView _listView;
-    
-    private AlbumListView(Gtk.Builder builder) : base(
-        new BoxHandle(builder.GetPointer("_root"), false))
+    public static AlbumListView NewWithValues(AlbumlistController controller)
     {
-        builder.Connect(this);
-    }
-
-    public AlbumListView(AlbumlistController controller) : this(GtkHelper.BuilderFromFile("albumlist"))
-    {
-        _controller = controller;
-        Append(new Views.ListView(_controller));
+        var obj = NewWithProperties([]);
+        obj._controller = controller;
+        obj.Append(ListView.NewWithValues(obj._controller));
+        return obj;
     }
 }

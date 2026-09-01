@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <interface>
-    <object class="AdwActionRow" id="_root">
+    <template class="JellyTuneAlbumRow">
         <property name="title-lines">1</property>
         <child type="prefix">
             <object class="GtkImage" id="_albumArt">
@@ -14,5 +14,5 @@
                 <property name="pixel-size">40</property>
             </object>
         </child>
-    </object>
+    </template>
 </interface>

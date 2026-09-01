@@ -6,20 +6,16 @@ namespace JellyTune.Shared.Controls;
 
 public class ListController
 {
-    private readonly IJellyTuneApiService _jellyTuneApiService;
     private readonly IConfigurationService _configurationService;
-    private readonly IPlayerService _playerService;
     private readonly IFileService _fileService;
 
     public IFileService FileService => _fileService;
     
     public IConfigurationService ConfigurationService => _configurationService;
     
-    public ListController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService, IPlayerService playerService, IFileService fileService)
+    public ListController(IConfigurationService configurationService, IFileService fileService)
     {
-        _jellyTuneApiService = jellyTuneApiService;
         _configurationService = configurationService;
-        _playerService = playerService;
         _fileService = fileService;
     }
     
@@ -33,7 +29,7 @@ public class ListController
     /// <summary>
     /// Every time data is loaded some more, this event is fired
     /// </summary>
-    public event EventHandler<ListStateArgs> OnListChanged;
+    public event EventHandler<ListStateArgs>? OnListChanged;
 
     /// <summary>
     /// Called when item is clicked on the list
@@ -138,7 +134,7 @@ public class ListController
         if (Items.Count == 0)
             return true;
 
-        return _configurationService.Get().AutoRefresh;
+        return false;
     }
     
     /// <summary>

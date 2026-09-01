@@ -1,31 +1,36 @@
-using Gtk.Internal;
+using Adw;
+using GObject;
+using Gtk;
+using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Events;
-using JellyTune.Gnome.Helpers;
 using ListBox = Gtk.ListBox;
+using Spinner = Adw.Spinner;
 
 namespace JellyTune.Gnome.Views;
 
-public class PlaylistTracksView : Gtk.Box
+[Subclass<ScrolledWindow>(qualifiedName: "JellyTunePlaylistTracks")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.playlist_tracks.ui")]
+public partial class PlaylistTracksView
 {
-    private readonly PlaylistTracksController _controller;
+    private PlaylistTracksController _controller;
     
-    [Gtk.Connect] private readonly Adw.Spinner _spinner;
-    [Gtk.Connect] private readonly Adw.Clamp _results;
-    [Gtk.Connect] private readonly Gtk.ListBox _playlistTracksList;
-    
-    private PlaylistTracksView(Gtk.Builder builder) : base(
-        new BoxHandle(builder.GetPointer("_root"), false))
+    [Connect] private Spinner _spinner;
+    [Connect] private Clamp _results;
+    [Connect] private ListBox _playlistTracksList;
+
+    public static PlaylistTracksView NewWithValues(PlaylistTracksController controller)
     {
-        builder.Connect(this);
+        var obj = NewWithProperties([]);
+        obj._controller = controller;
+        obj.InitializeController();
+        return obj;
     }
 
-    public PlaylistTracksView(PlaylistTracksController controller) : this(GtkHelper.BuilderFromFile("playlist_tracks"))
+    private void InitializeController()
     {
-        _controller = controller;
         _controller.OnPlaylistTracksStateChanged += ControllerOnPlaylistTracksStateChanged;
         _playlistTracksList.OnRowActivated += PlaylistTracksListOnRowActivated;
-        
         _results.SetVisible(false);
         _spinner.SetVisible(true);
     }
@@ -54,7 +59,9 @@ public class PlaylistTracksView : Gtk.Box
         {
             if (updateTrackState)
             {
-                UpdateTrackState(trackId.Value);
+                if (trackId.HasValue)
+                    UpdateTrackState();
+                
                 return;
             }
         
@@ -62,7 +69,7 @@ public class PlaylistTracksView : Gtk.Box
             foreach (var track in _controller.Tracks)
             {
                 var state = _controller.PlayerService.GetTrackState(track.Id);
-                _playlistTracksList.Append(new TrackRow(_controller.FileService, track, state, true));
+                _playlistTracksList.Append(TrackRow.NewWithValues(_controller.FileService, track, state, true));
             }
         });
         
@@ -70,7 +77,7 @@ public class PlaylistTracksView : Gtk.Box
         _results.SetVisible(true);
     }
 
-    private void UpdateTrackState(Guid trackId)
+    private void UpdateTrackState()
     {
         for (var i = 0; i < _controller.Tracks.Count; i++)
         {

@@ -1,4 +1,5 @@
-using Gtk.Internal;
+using GObject;
+using Gtk;
 using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
@@ -8,36 +9,38 @@ using Range = Gtk.Range;
 
 namespace JellyTune.Gnome.Views;
 
-public partial class PlayerExtendedView : Gtk.Revealer
+[Subclass<Revealer>(qualifiedName: "JellyTunePlayerExtendedView")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.player_extended.ui")]
+public partial class PlayerExtendedView
 {
-    private readonly PlayerExtendedController _controller;
+    private PlayerExtendedController _controller;
 
-    [Gtk.Connect] private readonly Gtk.Stack _extendedStack;
-    [Gtk.Connect] private readonly Gtk.Box _position;
-    [Gtk.Connect] private readonly Gtk.Box _volume;
+    [Connect] private Stack _extendedStack;
+    [Connect] private Box _position;
+    [Connect] private Box _volume;
     
     // Volume
-    [Gtk.Connect] private readonly Gtk.Button _muteButton;
-    [Gtk.Connect] private readonly Gtk.Scale _volumeScale;
-    [Gtk.Connect] private readonly Gtk.Button _volumeButton;
+    [Connect] private Button _muteButton;
+    [Connect] private Scale _volumeScale;
+    [Connect] private Button _volumeButton;
     
     // Duration 
-    [Gtk.Connect] private readonly Gtk.Label _currentPosition;
-    [Gtk.Connect] private readonly Gtk.Scale _durationScale;
-    [Gtk.Connect] private readonly Gtk.Label _totalLength;
+    [Connect] private Label _currentPosition;
+    [Connect] private Scale _durationScale;
+    [Connect] private Label _totalLength;
     
     private Guid? _playingTrackId;
-    
-    private PlayerExtendedView(Gtk.Builder builder) : base(
-        new RevealerHandle(builder.GetPointer("_root"), false))
+
+    public static PlayerExtendedView NewWithValues(PlayerExtendedController controller)
     {
-        builder.Connect(this);
+        var obj = NewWithProperties([]);
+        obj._controller = controller;
+        obj.InitializeController();
+        return obj;
     }
 
-    public PlayerExtendedView(PlayerExtendedController controller) : this(
-        GtkHelper.BuilderFromFile("player_extended"))
+    private void InitializeController()
     {
-        _controller = controller;
         _controller.OnShowHide += ControllerOnShowHide;
         _controller.PlayerService.OnPlayerStateChanged += PlayerServiceOnPlayerStateChanged;
         _controller.PlayerService.OnPlayerPositionChanged += PlayerServiceOnPlayerPositionChanged;
@@ -101,7 +104,9 @@ public partial class PlayerExtendedView : Gtk.Revealer
         GtkHelper.GtkDispatch(() =>
         {
             _currentPosition.SetText($"{(int)time.TotalMinutes}:{time.Seconds:00}");
-            _durationScale.Adjustment.Value = position;
+            
+            if (_durationScale.Adjustment != null)
+                _durationScale.Adjustment.Value = position;
         });
     }
 
@@ -118,20 +123,28 @@ public partial class PlayerExtendedView : Gtk.Revealer
         
         var selectedTrack = e.SelectedTrack;
         
-        if (selectedTrack?.Id == _playingTrackId) return;
+        if (selectedTrack != null ? selectedTrack.Id == _playingTrackId : false) return;
         
         var volume = _controller.PlayerService.GetVolumePercent();
-        var runtime = selectedTrack.RunTime;
+        var runtime = selectedTrack != null ? selectedTrack.RunTime : TimeSpan.MinValue;
         
         GtkHelper.GtkDispatch(() =>
         {
-            _volumeScale.Adjustment.Value = volume;
-            _durationScale.Adjustment.Lower = 0;
-            _durationScale.Adjustment.Value = 0;
-            _durationScale.Adjustment.Upper = runtime.TotalSeconds;
+            if (_volumeScale.Adjustment != null)
+                _volumeScale.Adjustment.Value = volume;
+
+            if (_durationScale.Adjustment != null)
+            {
+                _durationScale.Adjustment.Lower = 0;
+                _durationScale.Adjustment.Value = 0;
+                _durationScale.Adjustment.Upper = runtime.TotalSeconds;
+            }
+            
             _currentPosition.SetText("0:00");
             _totalLength.SetText($"{(int)runtime.TotalMinutes}:{runtime.Seconds:00}");
-            _playingTrackId = selectedTrack.Id;
+            
+            if (selectedTrack != null)
+                _playingTrackId = selectedTrack.Id;
         });
     }
 

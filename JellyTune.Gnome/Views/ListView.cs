@@ -1,52 +1,66 @@
-using Gtk.Internal;
+using GObject;
+using Gtk;
 using JellyTune.Gnome.Helpers;
 using JellyTune.Gnome.Models;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Events;
+using ListStore = Gio.ListStore;
+using Spinner = Adw.Spinner;
 
 namespace JellyTune.Gnome.Views;
 
-public class ListView : Gtk.Box
+[Subclass<Box>(qualifiedName: "JellyTuneListView")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.list.ui")]
+public partial class ListView
 {
-    private readonly ListController _controller;
+    private ListController _controller;
     
-    [Gtk.Connect] private readonly Adw.Spinner _loader;
-    [Gtk.Connect] private readonly Gtk.Box _results;
+    [Connect] private Spinner _loader;
+    [Connect] private Box _results;
     
-    [Gtk.Connect] private readonly Gtk.ListView _list;
-    [Gtk.Connect] private readonly Gtk.ScrolledWindow _listWindow;
-    private readonly Gtk.SignalListItemFactory _listFactory;
+    [Connect] private Gtk.ListView _list;
+    [Connect] private ScrolledWindow _listWindow;
+    private SignalListItemFactory _listFactory;
     
-    [Gtk.Connect] private readonly Gtk.GridView _grid;
-    [Gtk.Connect] private readonly Gtk.ScrolledWindow _gridWindow;
-    private readonly Gtk.SignalListItemFactory _gridFactory;
+    [Connect] private GridView _grid;
+    [Connect] private ScrolledWindow _gridWindow;
+    private SignalListItemFactory _gridFactory;
     
-    private readonly Gio.ListStore _listItems;
-    private readonly List<JellyTune.Shared.Models.ListItem> _items = [];
-    
-    private ListView(Gtk.Builder builder) : base(
-        new BoxHandle(builder.GetPointer("_root"), false))
-    {
-        builder.Connect(this);
-    }
-    
-    public ListView(ListController controller) : this(GtkHelper.BuilderFromFile("list"))
-    {
-        _controller = controller;
-        _controller.OnListChanged += ControllerOnListChanged;
+    private ListStore _listItems;
+    private List<Shared.Models.ListItem> _items = [];
 
+    private bool _initialized;
+    
+    public static ListView NewWithValues(ListController controller)
+    {
+        var obj = NewWithProperties([]);
+        obj._controller = controller;
+        obj.InitializeController();
+        return obj;
+    }
+
+    private void InitializeController()
+    {
+        _controller.OnListChanged += ControllerOnListChanged;
+        _listItems = ListStore.New(ListRow.GetGType());
+        
+        //List
+        _listFactory = SignalListItemFactory.New();
+        _listFactory.OnSetup += ListFactoryOnSetup;
+        _listFactory.OnBind += ListFactoryOnBind;
+        _listFactory.OnUnbind += ListFactoryOnUnbind;
+        
+        // Grid
+        _gridFactory = SignalListItemFactory.New();
+        _gridFactory.OnSetup += GridFactoryOnSetup;
+        _gridFactory.OnBind += GridFactoryOnBind;
+        _gridFactory.OnUnbind += GridFactoryOnUnbind;
+        
         var configuration = _controller.ConfigurationService.Get();
         _list.SetShowSeparators(configuration.ShowListSeparator);
         _controller.ConfigurationService.OnSaved += OnSaved;
         
-        _listItems = Gio.ListStore.New(ListRow.GetGType());
-        var selectionModel = Gtk.NoSelection.New(_listItems);
-
-        //List
-        _listFactory = Gtk.SignalListItemFactory.New();
-        _listFactory.OnSetup += ListFactoryOnSetup;
-        _listFactory.OnBind += ListFactoryOnBind;
-        _listFactory.OnUnbind += ListFactoryOnUnbind;
+        var selectionModel = NoSelection.New(_listItems);
         _list.SetFactory(_listFactory);
         _list.SetModel(selectionModel);
         _list.OnActivate += (_, args) =>
@@ -54,16 +68,11 @@ public class ListView : Gtk.Box
             if (_listItems.GetObject(args.Position) is ListRow row)
                 _controller.OpenItem(row.Id);
         };
-        _list.OnRealize += (sender, args) =>
+        _list.OnRealize += (_, _) =>
         {
             _list.GrabFocus();
         };
         
-        // Grid
-        _gridFactory = Gtk.SignalListItemFactory.New();
-        _gridFactory.OnSetup += GridFactoryOnSetup;
-        _gridFactory.OnBind += GridFactoryOnBind;
-        _gridFactory.OnUnbind += GridFactoryOnUnbind;
         _grid.SetFactory(_gridFactory);
         _grid.SetModel(selectionModel);
         _grid.OnActivate += (_, args) =>
@@ -71,13 +80,15 @@ public class ListView : Gtk.Box
             if (_listItems.GetObject(args.Position) is ListRow row)
                 _controller.OpenItem(row.Id);
         };
-        _grid.OnRealize += (sender, args) =>
+        _grid.OnRealize += (_, _) =>
         {
             _grid.GrabFocus();
         };
+
+        _initialized = true;
     }
 
-    private void GridFactoryOnUnbind(Gtk.SignalListItemFactory sender, Gtk.SignalListItemFactory.UnbindSignalArgs args)
+    private void GridFactoryOnUnbind(SignalListItemFactory sender, SignalListItemFactory.UnbindSignalArgs args)
     {
         var listItem = args.Object as Gtk.ListItem;
         if (listItem is null)
@@ -94,7 +105,7 @@ public class ListView : Gtk.Box
         template.Clear();
     }
 
-    private void ListFactoryOnUnbind(Gtk.SignalListItemFactory sender, Gtk.SignalListItemFactory.UnbindSignalArgs args)
+    private void ListFactoryOnUnbind(SignalListItemFactory sender, SignalListItemFactory.UnbindSignalArgs args)
     {
         var listItem = args.Object as Gtk.ListItem;
         if (listItem is null)
@@ -113,6 +124,8 @@ public class ListView : Gtk.Box
 
     private void ControllerOnListChanged(object? sender, ListStateArgs args)
     {
+        if (!_initialized) return;
+        
         GtkHelper.GtkDispatch(() =>
         {
             if (args.Items is not null)
@@ -127,7 +140,7 @@ public class ListView : Gtk.Box
 
                     if (removedIds.Any())
                     {
-                        for (var i = _listItems.GetNItems() - 1; i >= 0; i--)
+                        for (var i = _listItems.GetNItems() - 1; i > 0; i--)
                         {
                             if (_listItems.GetObject(i) is ListRow row &&
                                 removedIds.Contains(row.Id))
@@ -139,7 +152,7 @@ public class ListView : Gtk.Box
                     {
                         var added = _controller.GetItems().Where(x => addedIds.Contains(x.Id));
                         foreach (var item in added)
-                            _listItems.Append(new ListRow(item));
+                            _listItems.Append(ListRow.New(item));
                     }
                 }
                 else
@@ -148,7 +161,7 @@ public class ListView : Gtk.Box
                     _items.Clear();
                     foreach (var item in args.Items)
                     {
-                        _listItems.Append(new ListRow(item));
+                        _listItems.Append(ListRow.New(item));
                         _items.Add(item);
                     }
                 }
@@ -167,7 +180,7 @@ public class ListView : Gtk.Box
         });
     }
     
-    private void GridFactoryOnBind(Gtk.SignalListItemFactory sender, Gtk.SignalListItemFactory.BindSignalArgs args)
+    private void GridFactoryOnBind(SignalListItemFactory sender, SignalListItemFactory.BindSignalArgs args)
     {
         var listItem = args.Object as Gtk.ListItem;
         if (listItem is null)
@@ -185,7 +198,7 @@ public class ListView : Gtk.Box
             template.Bind(item);
     }
 
-    private void GridFactoryOnSetup(Gtk.SignalListItemFactory sender, Gtk.SignalListItemFactory.SetupSignalArgs args)
+    private void GridFactoryOnSetup(SignalListItemFactory sender, SignalListItemFactory.SetupSignalArgs args)
     {
         var listItem = args.Object as Gtk.ListItem;
         if (listItem is null)
@@ -193,10 +206,10 @@ public class ListView : Gtk.Box
             return;
         }
         
-        listItem.SetChild(new GridItem(_controller.FileService));
+        listItem.SetChild(GridItem.NewWithValues(_controller.FileService));
     }
 
-    private void ListFactoryOnBind(Gtk.SignalListItemFactory sender, Gtk.SignalListItemFactory.BindSignalArgs args)
+    private void ListFactoryOnBind(SignalListItemFactory sender, SignalListItemFactory.BindSignalArgs args)
     {
         var listItem = args.Object as Gtk.ListItem;
         if (listItem is null)
@@ -214,7 +227,7 @@ public class ListView : Gtk.Box
             template.Bind(item);
     }
 
-    private void ListFactoryOnSetup(Gtk.SignalListItemFactory sender, Gtk.SignalListItemFactory.SetupSignalArgs args)
+    private void ListFactoryOnSetup(SignalListItemFactory sender, SignalListItemFactory.SetupSignalArgs args)
     {
         var listItem = args.Object as Gtk.ListItem;
         if (listItem is null)
@@ -222,14 +235,14 @@ public class ListView : Gtk.Box
             return;
         }
 
-        listItem.SetChild(new ListItem(_controller.FileService));
+        listItem.SetChild(ListItem.NewWithValues(_controller.FileService));
     }
 
     public override void Dispose()
     {
         _controller.OnListChanged -= ControllerOnListChanged;
         _controller.ConfigurationService.OnSaved -= OnSaved;
-        _listItems?.RunDispose();
+        _listItems.RunDispose();
         base.Dispose();
     }
 

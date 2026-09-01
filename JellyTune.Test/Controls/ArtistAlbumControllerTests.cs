@@ -24,30 +24,30 @@ public class ArtistAlbumControllerTests
         _artistId = Guid.NewGuid();
         _trackId = Guid.NewGuid();
 
-        var artist = new Artist()
+        var artist = new Artist
         {
             Id =  _artistId
         };
         
-        var album1 = new Album()
+        var album1 = new Album
         {
             Id = Guid.NewGuid(),
             ArtistId =  _artistId,
         };
         
-        var album2 = new Album()
+        var album2 = new Album
         {
             Id = Guid.NewGuid(),
             ArtistId =  _artistId,
         };
 
-        var albums = new List<Album>()
+        var albums = new List<Album>
         {
             album1, album2
         };
         
-        _mockJellyTuneApiService.Setup(repo => repo.GetArtistAlbumsAsync(_artistId, null)).ReturnsAsync(albums);
-        _mockJellyTuneApiService.Setup(repo => repo.GetArtistByTrackIdAsync(_trackId)).ReturnsAsync(_artistId);
+        _mockJellyTuneApiService.Setup(repo => repo.GetArtistAlbumsAsync(_artistId, null, It.IsAny<CancellationToken>())).ReturnsAsync(albums);
+        _mockJellyTuneApiService.Setup(repo => repo.GetArtistByTrackIdAsync(_trackId, It.IsAny<CancellationToken>())).ReturnsAsync(_artistId);
     }
     
     [Fact]

@@ -1,36 +1,40 @@
-using Gtk.Internal;
+using GObject;
+using Gtk;
+using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
 using JellyTune.Shared.Models;
-using JellyTune.Gnome.Helpers;
 using ListBox = Gtk.ListBox;
 
 namespace JellyTune.Gnome.Views;
 
-public class QueueListView : Gtk.ScrolledWindow
+[Subclass<ScrolledWindow>(qualifiedName: "JellyTuneQueueListView")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.queue_list.ui")]
+public partial class QueueListView
 {
-    private readonly QueueListController  _controller;
+    private QueueListController  _controller;
     
-    [Gtk.Connect] private readonly Gtk.ListBox _queueList;
+    [Connect] private ListBox _queueList;
 
-    private QueueListView(Gtk.Builder builder) : base(
-        new ScrolledWindowHandle(builder.GetPointer("_root"), false))
+    public static QueueListView NewWithValues(QueueListController controller)
     {
-        builder.Connect(this);
+        var obj = NewWithProperties([]);
+        obj._controller = controller;
+        obj.InitializeController();
+        return obj;
     }
 
-    public QueueListView(QueueListController controller) : this(GtkHelper.BuilderFromFile("queue_list"))
+    private void InitializeController()
     {
-        _controller = controller;
         _controller.OnQueueUpdated += ControllerOnQueueUpdated;
-        _queueList.OnRowActivated += QueueListOnRowActivated;
         _controller.PlayerService.OnPlayerStateChanged += OnPlayerStateChanged;
+        _queueList.OnRowActivated += QueueListOnRowActivated;
     }
 
     private void OnPlayerStateChanged(object? sender, PlayerStateArgs args)
     {
-        if (args.State is PlayerState.Playing or PlayerState.Paused or PlayerState.None)
+        if (args.State is PlayerState.Playing or PlayerState.Paused or PlayerState.None or PlayerState.Stopped)
         {
             UpdateRowState();
         }
@@ -53,7 +57,7 @@ public class QueueListView : Gtk.ScrolledWindow
             foreach (var track in _controller.Tracks)
             {
                 var state = _controller.PlayerService.GetTrackState(track.Id);
-                _queueList.Append(new TrackRow(_controller.FileService, track, state, true));
+                _queueList.Append(TrackRow.NewWithValues(_controller.FileService, track, state, true));
             } 
         });
     }

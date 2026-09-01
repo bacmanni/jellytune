@@ -10,9 +10,9 @@ public sealed class PlayerController : IDisposable
     private readonly IConfigurationService _configurationService;
     private readonly IPlayerService _playerService;
 
-    public event EventHandler<AlbumArgs> OnShowPlaylistClicked;
+    public event EventHandler<AlbumArgs>? OnShowPlaylistClicked;
     
-    public event EventHandler<AlbumArgs> OnShowShowLyricsClicked;
+    public event EventHandler<AlbumArgs>? OnShowShowLyricsClicked;
     
     public IPlayerService PlayerService => _playerService;
     public IJellyTuneApiService JellyTuneApiService => _jellyTuneApiService;

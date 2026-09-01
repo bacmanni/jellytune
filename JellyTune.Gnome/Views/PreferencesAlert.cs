@@ -1,17 +1,16 @@
-using Adw.Internal;
-using JellyTune.Gnome.Helpers;
+using GObject;
+using Gtk;
+using AlertDialog = Adw.AlertDialog;
 
 namespace JellyTune.Gnome.Views;
 
-public class PreferencesAlert : Adw.AlertDialog
+[Subclass<AlertDialog>(qualifiedName: "JellyTunePreferencesAlert")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.preferences_alert.ui")]
+public partial class PreferencesAlert
 {
-    private PreferencesAlert(Gtk.Builder builder) : base(
-        new AlertDialogHandle(builder.GetPointer("_root"), false))
+    public static PreferencesAlert NewWithValues()
     {
-        builder.Connect(this);
-    }
-
-    public PreferencesAlert() : this(GtkHelper.BuilderFromFile("preferences_alert"))
-    {
+        var obj = NewWithProperties([]);
+        return obj;
     }
 }

@@ -1,34 +1,39 @@
-using Gtk.Internal;
+using Gdk;
+using GLib;
+using GObject;
+using Gtk;
+using JellyTune.Gnome.Models;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Services;
-using JellyTune.Gnome.Helpers;
-using JellyTune.Gnome.Models;
 
 namespace JellyTune.Gnome.Views;
 
-public class GridItem : Gtk.Box
+[Subclass<Box>(qualifiedName: "JellyTuneGridItem")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.grid_item.ui")]
+public partial class GridItem
 {
-    private readonly IFileService _fileService;
+    private IFileService _fileService;
     
-    [Gtk.Connect] private readonly Gtk.Image _art;
-    [Gtk.Connect] private readonly Gtk.Label _title;
-    [Gtk.Connect] private readonly Gtk.Label _description;
+    [Connect] private Image _art;
+    [Connect] private Label _title;
+    [Connect] private Label _description;
     
     private FileType _fileType;
     private CancellationTokenSource? _cancellationTokenSource;
-
-    private GridItem(Gtk.Builder builder) : base(
-        new BoxHandle(builder.GetPointer("_root"), false))
-    {
-        builder.Connect(this);
-    }
     
-    public GridItem(IFileService fileService) : this(GtkHelper.BuilderFromFile("grid_item"))
+    public static GridItem NewWithValues(IFileService fileService)
     {
-        _fileService = fileService;
+        var obj = NewWithProperties([]);
+        obj._fileService = fileService;
+        obj.InitializeController();
+        return obj;
+    }
+
+    private void InitializeController()
+    {
         CanFocus = false;
     }
-
+    
     public void Bind(ListRow row)
     {
         _cancellationTokenSource?.Dispose();
@@ -57,10 +62,9 @@ public class GridItem : Gtk.Box
         if  (albumArt == null || albumArt.Length == 0)
             return;
         
-        using var bytes = GLib.Bytes.New(albumArt);
-        using var texture = Gdk.Texture.NewFromBytes(bytes);
+        using var bytes = Bytes.New(albumArt);
+        using var texture = Texture.NewFromBytes(bytes);
         _art.SetFromPaintable(texture);
-        albumArt = null;
     }
     
     public void Clear()

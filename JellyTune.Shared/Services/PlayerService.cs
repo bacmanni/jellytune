@@ -1,6 +1,4 @@
-
 using System.Collections.Concurrent;
-using System.Globalization;
 using System.Net.NetworkInformation;
 using System.Timers;
 using JellyTune.Shared.Enums;
@@ -20,7 +18,7 @@ namespace JellyTune.Shared.Services;
 public sealed class PlayerService : IPlayerService, IDisposable
 {
     private readonly IJellyTuneApiService _jellyTuneApiService;
-    private readonly Configuration _configuration;
+    //private readonly Configuration _configuration;
 
     private readonly MiniAudioEngine _engine = new();
     private readonly AudioFormat _format = AudioFormat.Dvd;
@@ -35,17 +33,17 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <summary>
     /// Currently selected album
     /// </summary>
-    private Album? _album { get; set; }
+    private Album? Album { get; set; }
     
     /// <summary>
     /// Currently selected albums tracks
     /// </summary>
-    private ConcurrentBag<Track> _tracks { get; } = [];
+    private ConcurrentBag<Track> Tracks { get; } = [];
     
     /// <summary>
     /// Album artwork if found
     /// </summary>
-    private byte[]? _artwork { get; set; }
+    private byte[]? Artwork { get; set; }
 
     /// <summary>
     /// Currently starting track
@@ -67,11 +65,6 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// </summary>
     private string? _playSessionId;
 
-    /// <summary>
-    /// Currently playing track position
-    /// </summary>
-    private double? _trackPosition;
-    
     /// <summary>
     /// Event for all playing related changes
     /// </summary>
@@ -99,7 +92,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
             _device = _engine.InitializePlaybackDevice(defaultDevice, _format);
             _device.Start();
         }
-        catch (Exception e)
+        catch (Exception)
         {
             Console.WriteLine("Failed to start default audio device");
         }
@@ -117,23 +110,23 @@ public sealed class PlayerService : IPlayerService, IDisposable
         PlayerStateChanged(new PlayerStateArgs(PlayerState.Loading));
 
         var album = await _jellyTuneApiService.GetAlbumAsync(albumId, cancellationToken);
-        _album = album ?? throw new Exception($"Album with id {albumId} not found");
+        Album = album != null ? album : throw new Exception($"Album with id {albumId} not found");
         _selectedTrack = null;
         
         if (_cancellationTokenSource is { IsCancellationRequested: true })
             return;
         
-        PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedInfo, album, _tracks.ToList()));
+        PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedInfo, album, Tracks.ToList()));
 
         if (album.HasArtwork)
         {
-            _artwork = await _jellyTuneApiService.GetPrimaryArtAsync(albumId);
-            PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedArtwork, album, _tracks.ToList()));
+            Artwork = await _jellyTuneApiService.GetPrimaryArtAsync(albumId);
+            PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedArtwork, album, Tracks.ToList()));
         }
         else
         {
-            _artwork = null;
-            PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedArtwork, album, _tracks.ToList()));
+            Artwork = null;
+            PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedArtwork, album, Tracks.ToList()));
         }
     }
 
@@ -141,14 +134,14 @@ public sealed class PlayerService : IPlayerService, IDisposable
     {
         PlayerStateChanged(new PlayerStateArgs(PlayerState.Loading));
 
-        _tracks.Clear();
+        Tracks.Clear();
         var album = await _jellyTuneApiService.GetAlbumAsync(albumId, cancellationToken);
-        _album = album ?? throw new Exception($"Album with id {albumId} not found");
+        Album = album != null ? album : throw new Exception($"Album with id {albumId} not found");
         
-        var tracks = await _jellyTuneApiService.GetTracksAsync(_album.Id, cancellationToken);
+        var tracks = await _jellyTuneApiService.GetTracksAsync(Album.Id, cancellationToken);
 
         foreach (var track in tracks)
-            _tracks.Add(track);
+            Tracks.Add(track);
         
         _selectedTrack = null;
 
@@ -159,7 +152,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
 
         if (album.HasArtwork)
         {
-            _artwork = await _jellyTuneApiService.GetPrimaryArtAsync(albumId);
+            Artwork = await _jellyTuneApiService.GetPrimaryArtAsync(albumId);
             
             if (_cancellationTokenSource is { IsCancellationRequested: true })
                 return;
@@ -168,7 +161,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
         }
         else
         {
-            _artwork = null;
+            Artwork = null;
             PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedArtwork, album, tracks));
         }
     }
@@ -187,14 +180,25 @@ public sealed class PlayerService : IPlayerService, IDisposable
         int? position = null;
         
         // Create session
-        if (string.IsNullOrWhiteSpace(_playSessionId)) 
-            _playSessionId = await _jellyTuneApiService.StartPlaybackAsync(trackId);
+        if (string.IsNullOrWhiteSpace(_playSessionId))
+        {
+            var existingSession = await _jellyTuneApiService.GetPlaybackAsync();
+            
+            if (!string.IsNullOrWhiteSpace(existingSession))
+            {
+                _playSessionId = existingSession;
+            }
+            else
+            {
+                _playSessionId = await _jellyTuneApiService.StartPlaybackAsync(trackId);
+            }
+        }
         
         // Check player status
         if (_player != null)
         {
             // Still same as selected, so we keep playing
-            if (trackId == _playingTrack?.Id)
+            if (_playingTrack != null ? trackId == _playingTrack.Id : false)
             {
                 if (_networkDataProvider != null)
                 {
@@ -216,10 +220,10 @@ public sealed class PlayerService : IPlayerService, IDisposable
             StopPlaying(false);    
         }
         
-        _playingTrack = _tracks.FirstOrDefault(t => t.Id == trackId);
+        _playingTrack = Tracks.FirstOrDefault(t => t.Id == trackId);
 
         // Get stream url and start playing
-        _streamingUrl = _jellyTuneApiService.GetAudioStreamUrl(_playSessionId, trackId, position) ?? throw new Exception($"Streaming url for track with id {trackId} not found");
+        _streamingUrl = _jellyTuneApiService.GetAudioStreamUrl(_playSessionId ?? string.Empty, trackId, position) != null ? _jellyTuneApiService.GetAudioStreamUrl(_playSessionId ?? string.Empty, trackId, position) : throw new Exception($"Streaming url for track with id {trackId} not found");
 
         if (_device != null)
         {
@@ -232,9 +236,9 @@ public sealed class PlayerService : IPlayerService, IDisposable
             var muted = IsMuted();
             var volume = GetVolumePercent();
             
-            OnPlayerVolumeChanged?.Invoke(this, new PlayerVolumeArgs() { IsMuted = muted, Volume = volume});
+            OnPlayerVolumeChanged?.Invoke(this, new PlayerVolumeArgs { IsMuted = muted, Volume = volume});
             
-            _player.PlaybackEnded += async (_, args) => await OnPlaybackEnded(_, args);
+            _player.PlaybackEnded += async (_, _) => await OnPlaybackEnded();
             _playTimer?.Close();
             _playTimer?.Dispose();
             
@@ -246,17 +250,14 @@ public sealed class PlayerService : IPlayerService, IDisposable
 
     private void TimerOnElapsed(object? sender, ElapsedEventArgs e)
     {
-        if (_player?.State == PlaybackState.Playing)
+        if (_player != null && _player.State == PlaybackState.Playing)
         {
-            double? seconds = _player.Time;
-            if (seconds.HasValue)
-            {
-                OnPlayerPositionChanged?.Invoke(this, new PlayerPositionArgs() { Position = seconds.Value });
-            }
+            double seconds = _player.Time;
+            OnPlayerPositionChanged?.Invoke(this, new PlayerPositionArgs { Position = seconds });
         }
     }
 
-    private Task OnPlaybackEnded(object? sender, EventArgs args)
+    private Task OnPlaybackEnded()
     {
         _ = NextTrackAsync();
         return Task.CompletedTask;
@@ -266,19 +267,21 @@ public sealed class PlayerService : IPlayerService, IDisposable
     {
         if (_playingTrack == null && _selectedTrack == null)
             return;
-
-        var trackId = _playingTrack?.Id ?? _selectedTrack.Id;
-
+        
         if (_player != null)
         {
-            _player.PlaybackEnded -= async (_, args) => await OnPlaybackEnded(_, args);
+            _player.PlaybackEnded -= playerOnPlaybackEnded;
 
-            if (endPlayback && !string.IsNullOrWhiteSpace(_playSessionId))
-                _jellyTuneApiService.StopPlaybackAsync(_playSessionId, trackId);
+            var trackId = _playingTrack?.Id ?? _selectedTrack?.Id;
+            if (endPlayback && !string.IsNullOrWhiteSpace(_playSessionId) && trackId.HasValue)
+                _jellyTuneApiService.StopPlaybackAsync(_playSessionId, trackId.Value);
 
             _player?.Stop();
-            _device.MasterMixer.RemoveComponent(_player);
-            _player.Dispose();
+            
+            if (_device is not null && _player is not null)
+                _device.MasterMixer.RemoveComponent(_player);
+            
+            _player?.Dispose();
             _networkDataProvider?.Dispose();
             _player = null;
             _networkDataProvider = null;
@@ -302,7 +305,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
         
         if (_player != null)
         {
-            var position = _networkDataProvider?.Position ?? null;
+            var position = _networkDataProvider != null ? _networkDataProvider.Position : (int?)null;
             
             if (!string.IsNullOrWhiteSpace(_playSessionId))
                 _jellyTuneApiService.PausePlaybackAsync(_playSessionId, trackId, position);
@@ -317,11 +320,11 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <param name="trackId">Id of the track</param>
     public void SelectTrack(Guid trackId)
     {
-        var track = _tracks.FirstOrDefault(t => t.Id == trackId);
+        var track = Tracks.FirstOrDefault(t => t.Id == trackId);
         if (track == null) return;
         
         _selectedTrack = track;
-        PlayerStateChanged(new PlayerStateArgs(PlayerState.Selected, _album, _tracks.ToList(), _selectedTrack));
+        PlayerStateChanged(new PlayerStateArgs(PlayerState.Selected, Album, Tracks.ToList(), _selectedTrack));
     }
 
     /// <summary>
@@ -340,8 +343,8 @@ public sealed class PlayerService : IPlayerService, IDisposable
         
         if (!trackId.HasValue)
         {
-            if (_tracks.Count > 0)
-                trackId = _tracks.First().Id;
+            if (Tracks.Count > 0)
+                trackId = Tracks.First().Id;
         }
         
         // Can't start anything :(
@@ -353,7 +356,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
         
         _startingTrack = trackId.Value;
         PlayerStateChanged(new PlayerStateArgs(PlayerState.Starting) { SelectedTrackId = trackId });
-        var track = _tracks.FirstOrDefault(t => t.Id == trackId.Value);
+        var track = Tracks.FirstOrDefault(t => t.Id == trackId.Value);
         
         // Null when trying to start from album details
         if (track == null)
@@ -363,7 +366,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
             await OpenAlbumAsync(track.AlbumId);
         }
         // Invalid id when trying to start from queue
-        else if (track.AlbumId != _album?.Id)
+        else if (Album != null ? track.AlbumId != Album.Id : true)
         {
             await OpenAlbumWithoutTracksAsync(track.AlbumId);
         }
@@ -374,7 +377,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
         }
         
         await PlayTrackAsync();
-        PlayerStateChanged(new PlayerStateArgs(PlayerState.Playing, _album, _tracks.ToList(), _selectedTrack));
+        PlayerStateChanged(new PlayerStateArgs(PlayerState.Playing, Album, Tracks.ToList(), _selectedTrack));
     }
 
     /// <summary>
@@ -383,7 +386,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <returns>True, if has</returns>
     public bool HasNextTrack()
     {
-        var nextTrack = _tracks.Reverse().SkipWhile(t => t != _selectedTrack).Skip(1).FirstOrDefault();
+        var nextTrack = Tracks.Reverse().SkipWhile(t => t != _selectedTrack).Skip(1).FirstOrDefault();
         return nextTrack != null;
     }
 
@@ -393,7 +396,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <returns>True, if has</returns>
     public bool HasPreviousTrack()
     {
-        var previousTrack = _tracks.SkipWhile(t => t != _selectedTrack).Skip(1).FirstOrDefault();
+        var previousTrack = Tracks.SkipWhile(t => t != _selectedTrack).Skip(1).FirstOrDefault();
         return previousTrack != null;
     }
 
@@ -408,10 +411,8 @@ public sealed class PlayerService : IPlayerService, IDisposable
             PauseTrack();
             return Task.CompletedTask;
         }
-        else
-        {
-            return StartTrackAsync(_selectedTrack?.Id);
-        }
+
+        return StartTrackAsync(_selectedTrack != null ? _selectedTrack.Id : null);
     }
 
     /// <summary>
@@ -433,7 +434,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <returns></returns>
     public double GetVolume()
     {
-        return _player?.Volume ?? 0;
+        return _player != null ? _player.Volume : 0;
     }
 
     /// <summary>
@@ -455,7 +456,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
         if (_player == null) return;
 
         _player.Volume = (float)volume;
-        OnPlayerVolumeChanged?.Invoke(this, new PlayerVolumeArgs() { Volume = _player.Volume, IsMuted = _player.Mute });
+        OnPlayerVolumeChanged?.Invoke(this, new PlayerVolumeArgs { Volume = _player.Volume, IsMuted = _player.Mute });
     }
 
     /// <summary>
@@ -473,7 +474,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <returns></returns>
     public bool IsMuted()
     {
-        return _player?.Mute ?? false;
+        return _player != null ? _player.Mute : false;
     }
 
     /// <summary>
@@ -486,7 +487,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
         
         _player.Mute = muted;
         
-        OnPlayerVolumeChanged?.Invoke(this, new PlayerVolumeArgs() { Volume = _player.Volume, IsMuted = _player.Mute });
+        OnPlayerVolumeChanged?.Invoke(this, new PlayerVolumeArgs { Volume = _player.Volume, IsMuted = _player.Mute });
     }
 
     /// <summary>
@@ -523,7 +524,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
         if (_playingTrack != null)
         {
             PausePlaying();
-            PlayerStateChanged(new PlayerStateArgs(PlayerState.Paused, _album, _tracks.ToList(), _selectedTrack));
+            PlayerStateChanged(new PlayerStateArgs(PlayerState.Paused, Album, Tracks.ToList(), _selectedTrack));
         }
     }
 
@@ -544,7 +545,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
         if (_playingTrack != null ||  _selectedTrack != null)
         {
             StopPlaying();
-            PlayerStateChanged(new PlayerStateArgs(PlayerState.None, _album, _tracks.ToList(), _selectedTrack));
+            PlayerStateChanged(new PlayerStateArgs(PlayerState.None, Album, Tracks.ToList(), _selectedTrack));
         }
     }
 
@@ -553,9 +554,9 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// </summary>
     public void ShuffleTracks()
     {
-        var tracks = _tracks.ToArray();
+        var tracks = Tracks.ToArray();
         Random.Shared.Shuffle(tracks);
-        _tracks.Clear();
+        Tracks.Clear();
         AddTracks(tracks.ToList());
     }
 
@@ -568,13 +569,12 @@ public sealed class PlayerService : IPlayerService, IDisposable
     {
         if (countSelected)
         {
-            return _tracks.Any();
+            return Tracks.Any();
         }
 
-        if (_tracks.Count == 1)
-            return _tracks.First().Id != _selectedTrack?.Id;
-        else
-            return true;
+        if (Tracks.Count == 1)
+            return _selectedTrack != null ? Tracks.First().Id != _selectedTrack.Id : true;
+        return true;
     }
     
     /// <summary>
@@ -585,16 +585,16 @@ public sealed class PlayerService : IPlayerService, IDisposable
         if (_selectedTrack != null)
         {
             var isPlaying = IsPlayingTrack(_selectedTrack.Id);
-            var nextTrack = _tracks.Reverse().SkipWhile(t => t != _selectedTrack).Skip(1).FirstOrDefault();
+            var nextTrack = Tracks.Reverse().SkipWhile(t => t != _selectedTrack).Skip(1).FirstOrDefault();
 
             if (nextTrack == null)
             {
                 StopTrack();
                 return;
-            };
+            }
             
             SelectTrack(nextTrack.Id);
-            PlayerStateChanged(new PlayerStateArgs(PlayerState.SkipNext, _album, _tracks.ToList(), _selectedTrack));
+            PlayerStateChanged(new PlayerStateArgs(PlayerState.SkipNext, Album, Tracks.ToList(), _selectedTrack));
 
             if (isPlaying)
             {
@@ -611,12 +611,12 @@ public sealed class PlayerService : IPlayerService, IDisposable
         if (_selectedTrack != null)
         {
             var isPlaying = IsPlayingTrack(_selectedTrack.Id);
-            var previousTrack = _tracks.SkipWhile(t => t != _selectedTrack).Skip(1).FirstOrDefault();
+            var previousTrack = Tracks.SkipWhile(t => t != _selectedTrack).Skip(1).FirstOrDefault();
             
             if (previousTrack == null) return;
             
             SelectTrack(previousTrack.Id);
-            PlayerStateChanged(new PlayerStateArgs(PlayerState.SkipPrevious, _album, _tracks.ToList(), _selectedTrack));
+            PlayerStateChanged(new PlayerStateArgs(PlayerState.SkipPrevious, Album, Tracks.ToList(), _selectedTrack));
             
             if (isPlaying)
             {
@@ -644,7 +644,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <returns>Selected track id. Null if not found</returns>
     public Guid? GetSelectedTrackId()
     {
-        return _selectedTrack?.Id;
+        return _selectedTrack != null ? _selectedTrack.Id : null;
     }
     
     /// <summary>
@@ -662,7 +662,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <returns>Selected album. Null if not found</returns>
     public Album? GetSelectedAlbum()
     {
-        return _album;
+        return Album;
     }
 
     /// <summary>
@@ -671,7 +671,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <returns></returns>
     public List<Track> GetTracks()
     {
-        return _tracks.ToList();
+        return Tracks.ToList();
     }
 
     /// <summary>
@@ -680,7 +680,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <param name="track"></param>
     public void AddTrack(Track track)
     {
-        _tracks.Add(track);
+        Tracks.Add(track);
 
         if (!IsPlaying())
         {
@@ -692,12 +692,11 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <summary>
     /// Add more tracks to play queue
     /// </summary>
-    /// <param name="playlistId"></param>
     /// <param name="tracks"></param>
     public void AddTracks(List<Track> tracks)
     {
         foreach (var track in tracks)
-            _tracks.Add(track);
+            Tracks.Add(track);
     }
 
     /// <summary>
@@ -705,7 +704,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// </summary>
     public void ClearTracks()
     {
-        _tracks.Clear();
+        Tracks.Clear();
     }
 
     /// <summary>
@@ -714,7 +713,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <param name="track"></param>
     public void PlayTrack(Track track)
     {
-        if (_tracks.Contains(track))
+        if (Tracks.Contains(track))
         {
             _ = StartTrackAsync(track.Id);
         }
@@ -727,14 +726,14 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <returns></returns>
     public PlayerState GetTrackState(Guid trackId)
     {
-        if (_playingTrack?.Id == trackId)
+        if (_playingTrack != null ? _playingTrack.Id == trackId : false)
         {
             if (IsPlaying())
                 return PlayerState.Playing;
             return PlayerState.Paused;
         }
 
-        if (_selectedTrack?.Id == trackId)
+        if (_selectedTrack != null ? _selectedTrack.Id == trackId : false)
         {
             return PlayerState.Selected;
         }
@@ -753,7 +752,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <returns></returns>
     public bool IsPlaying()
     {
-        return _player?.State == PlaybackState.Playing;
+        return _player != null ? _player.State == PlaybackState.Playing : false;
     }
 
     /// <summary>
@@ -762,7 +761,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <returns></returns>
     public bool IsPaused()
     {
-        return _player?.State == PlaybackState.Paused;
+        return _player != null ? _player.State == PlaybackState.Paused : false;
     }
     
     /// <summary>
@@ -780,7 +779,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
                 // Album id has value. Check against that too
                 if (albumId.HasValue)
                 {
-                    return _album?.Id == albumId.Value;
+                    return Album != null ? Album.Id == albumId : false;
                 }
                 
                 return true;
@@ -797,8 +796,8 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <returns></returns>
     public int? GetQueuePosition(Guid trackId)
     {
-        if (_tracks.Any(t => t.Id == trackId))
-            return _tracks.ToList().FindIndex(t => t.Id == trackId);
+        if (Tracks.Any(t => t.Id == trackId))
+            return Tracks.ToList().FindIndex(t => t.Id == trackId);
         
         return null;
     }
@@ -809,7 +808,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <returns>Artwork, null if none found</returns>
     public byte[]? GetArtwork()
     {
-        return _artwork;
+        return Artwork;
     }
 
     public void Dispose()
@@ -818,7 +817,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
         
         if (_player != null)
         {
-            _player.PlaybackEnded -= async (_, args) => await OnPlaybackEnded(_, args);
+            _player.PlaybackEnded -= playerOnPlaybackEnded;
             _player.Stop();
             _player.Dispose();
             _player = null;
@@ -829,5 +828,10 @@ public sealed class PlayerService : IPlayerService, IDisposable
         _device?.Stop();
         _device?.Dispose();
         _engine.Dispose();
+    }
+
+    private async void playerOnPlaybackEnded(object? sender, EventArgs args)
+    {
+        await OnPlaybackEnded();
     }
 }

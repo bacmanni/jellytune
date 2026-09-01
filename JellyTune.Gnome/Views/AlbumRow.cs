@@ -1,34 +1,39 @@
-using Adw.Internal;
-using JellyTune.Gnome.Helpers;
+using Adw;
+using Gdk;
+using GLib;
+using GObject;
+using Gtk;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Models;
 using JellyTune.Shared.Services;
 
 namespace JellyTune.Gnome.Views;
 
-public partial class AlbumRow : Adw.ActionRow
+[Subclass<ActionRow>(qualifiedName: "JellyTuneAlbumRow")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.album_row.ui")]
+public partial class AlbumRow
 {
-    private readonly IFileService _fileService;
-    private readonly Album _album;
+    private IFileService _fileService;
+    private Album _album;
 
-    [Gtk.Connect] private readonly Gtk.Image _albumArt;
+    [Connect] private Image _albumArt;
 
-    private AlbumRow(Gtk.Builder builder) : base(
-        new ActionRowHandle(builder.GetPointer("_root"), false))
+    public static AlbumRow NewWithValues(IFileService fileService, Album album)
     {
-        builder.Connect(this);
+        var obj = NewWithProperties([]);
+        obj._fileService = fileService;
+        obj._album = album;
+        obj.InitializeController();
+        return obj;
     }
 
-    public AlbumRow(IFileService fileService, Album album) : this(
-        GtkHelper.BuilderFromFile("album_row"))
+    private void InitializeController()
     {
-        _fileService = fileService;
-        _album = album;
         Activatable = true;
         CanFocus = false;
         
-        SetTitle(GLib.Markup.EscapeText(album.Name));
-        SetSubtitle(album.Year.ToString() ?? string.Empty);
+        SetTitle(Markup.EscapeText(_album.Name != null ? _album.Name : string.Empty));
+        SetSubtitle(_album.Year.ToString() ?? string.Empty);
         _ = UpdateArtwork();
     }
 
@@ -40,9 +45,8 @@ public partial class AlbumRow : Adw.ActionRow
         if  (albumArt == null || albumArt.Length == 0)
             return;
         
-        using var bytes = GLib.Bytes.New(albumArt);
-        using var texture = Gdk.Texture.NewFromBytes(bytes);
+        using var bytes = Bytes.New(albumArt);
+        using var texture = Texture.NewFromBytes(bytes);
         _albumArt.SetFromPaintable(texture);
-        albumArt = null;
     }
 }

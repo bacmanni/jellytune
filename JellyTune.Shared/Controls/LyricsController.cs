@@ -1,4 +1,3 @@
-using JellyTune.Shared.Models;
 using JellyTune.Shared.Services;
 
 namespace JellyTune.Shared.Controls;
@@ -7,18 +6,16 @@ public sealed class LyricsController
 {
     private readonly IJellyTuneApiService _jellyTuneApiService;
     private readonly IPlayerService _playerService;
-    
-    private Guid TrackId { get; set; }
-    
+
     /// <summary>
     /// Artist name for the track
     /// </summary>
-    public string ArtistName { get; private set; }
+    public string? ArtistName { get; private set; }
     
     /// <summary>
     /// Currently selected track name
     /// </summary>
-    public string TrackName { get; private set; }
+    public string? TrackName { get; private set; }
     
     /// <summary>
     /// Currently loaded lyrics
@@ -33,7 +30,7 @@ public sealed class LyricsController
     /// <summary>
     /// Called when lyrics data is updated
     /// </summary>
-    public event EventHandler<EventArgs> OnLyricsUpdated;
+    public event EventHandler<EventArgs>? OnLyricsUpdated;
     
     
     public LyricsController(IJellyTuneApiService jellyTuneApiService, IPlayerService playerService)
@@ -52,11 +49,11 @@ public sealed class LyricsController
         if (album == null)
             return;
         
-        ArtistName = album.Artist;
-        TrackName  = track.Name;
+        ArtistName = album.Artist ?? string.Empty;
+        TrackName  = track.Name ?? string.Empty;
         AlbumArt = _playerService.GetArtwork();
         
         Lyrics = await _jellyTuneApiService.GetTrackLyricsAsync(track.Id); 
-        OnLyricsUpdated.Invoke(this, EventArgs.Empty);
+        OnLyricsUpdated?.Invoke(this, EventArgs.Empty);
     }
 }

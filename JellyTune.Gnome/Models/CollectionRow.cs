@@ -1,17 +1,22 @@
 using GObject;
 using JellyTune.Shared.Models;
+using Object = GObject.Object;
 
 namespace JellyTune.Gnome.Models;
 
-[Subclass<GObject.Object>]
+[Subclass<Object>]
 public partial class CollectionRow
 {
     public Guid Id { get; set; }
     public string Name { get; set; }
-    
-    public CollectionRow(Collection collection) : this()
+
+    public static CollectionRow New(Collection collection)
     {
-        Id = collection.Id;
-        Name = collection.Name;
+        var row = NewWithProperties([]);
+
+        row.Id = collection.Id;
+        row.Name = collection.Name;
+
+        return row;
     }
 }

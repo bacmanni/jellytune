@@ -1,4 +1,3 @@
-using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
 using JellyTune.Shared.Models;
 using JellyTune.Shared.Services;
@@ -13,8 +12,9 @@ public class ArtistAlbumController
     public IFileService FileService => _fileService;
     public byte[]? ArtWork = null;
     public List<Album> Albums { get; private set; } = [];
-    private CancellationTokenSource? _cancellationTokenSource;
-    public event EventHandler<ArtistAlbumArgs> OnAlbumsChanged;
+    private CancellationTokenSource? _openByArtistIdCts;
+    private CancellationTokenSource? _openByTrackIdCts;
+    public event EventHandler<ArtistAlbumArgs>? OnAlbumsChanged;
     
     public ArtistAlbumController(IJellyTuneApiService jellyTuneApiService, IFileService fileService)
     {
@@ -27,42 +27,60 @@ public class ArtistAlbumController
     /// </summary>
     public async Task OpenByArtistIdAsync(Guid artistId)
     {
-        if (_cancellationTokenSource != null)
-        {
-            await _cancellationTokenSource.CancelAsync();
-            _cancellationTokenSource.Dispose();
-        }
+        _openByArtistIdCts?.Cancel();
+        _openByArtistIdCts?.Dispose();
         
-        if (_cancellationTokenSource?.IsCancellationRequested == true) return;
-        OnAlbumsChanged.Invoke(this, new ArtistAlbumArgs() { IsLoading = true });
-        Albums = await _jellyTuneApiService.GetArtistAlbumsAsync(artistId);
-        OnAlbumsChanged.Invoke(this, new ArtistAlbumArgs());
+        _openByArtistIdCts = new CancellationTokenSource();
+        var cancellationToken = _openByArtistIdCts.Token;
+
+        try
+        {
+            OnAlbumsChanged?.Invoke(this, new ArtistAlbumArgs { IsLoading = true });
+            var albums = await _jellyTuneApiService.GetArtistAlbumsAsync(artistId, null, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+            
+            Albums = albums;
+            OnAlbumsChanged?.Invoke(this, new ArtistAlbumArgs());
+        }
+        catch (OperationCanceledException)
+        {
+            // A newer OpenByArtistId call cancelled this one.
+        }
     }
-    
+
     /// <summary>
     /// Load description for currently active artist using trackId
     /// </summary>
     /// <param name="trackId"></param>
     public async Task OpenByTrackIdAsync(Guid trackId)
     {
-        if (_cancellationTokenSource != null)
-        {
-            await _cancellationTokenSource.CancelAsync();
-            _cancellationTokenSource.Dispose();
-        }
-        
-        if (_cancellationTokenSource?.IsCancellationRequested == true) return;
-        OnAlbumsChanged.Invoke(this, new ArtistAlbumArgs() { IsLoading = true });
-        var artistId = await _jellyTuneApiService.GetArtistByTrackIdAsync(trackId);
+        _openByTrackIdCts?.Cancel();
+        _openByTrackIdCts?.Dispose();
 
-        if (!artistId.HasValue)
+        _openByTrackIdCts = new CancellationTokenSource();
+        var cancellationToken = _openByTrackIdCts.Token;
+
+        try
         {
-            Albums = [];
-            OnAlbumsChanged.Invoke(this, new ArtistAlbumArgs());
-            return;
-        }
+            OnAlbumsChanged?.Invoke(this, new ArtistAlbumArgs { IsLoading = true });
+            var artistId = await _jellyTuneApiService.GetArtistByTrackIdAsync(trackId, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+            
+            if (!artistId.HasValue)
+            {
+                Albums = [];
+                OnAlbumsChanged?.Invoke(this, new ArtistAlbumArgs());
+                return;
+            }
         
-        Albums = await _jellyTuneApiService.GetArtistAlbumsAsync(artistId.Value);
-        OnAlbumsChanged.Invoke(this, new ArtistAlbumArgs());
+            var albums = await _jellyTuneApiService.GetArtistAlbumsAsync(artistId.Value, null, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+            Albums = albums;
+            OnAlbumsChanged?.Invoke(this, new ArtistAlbumArgs());
+        }
+        catch (OperationCanceledException)
+        {
+            // A newer OpenByTrackId call cancelled this one.
+        }
     }
 }

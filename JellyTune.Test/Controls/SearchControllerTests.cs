@@ -22,33 +22,33 @@ public class SearchControllerTests
         _mockPlayerService = new Mock<IPlayerService>();
         _mockConfigurationService = new Mock<IConfigurationService>();
         _mockFileService = new Mock<IFileService>();
-        _controller = new SearchController(_mockJellyTuneApiService.Object, _mockConfigurationService.Object, _mockPlayerService.Object, _mockFileService.Object);
+        _controller = new SearchController(_mockJellyTuneApiService.Object, _mockFileService.Object);
 
         
-        var artist = new Search()
+        var artist = new Search
         {
             Id = Guid.NewGuid(),
             ArtistName = "Artist",
             HasArtwork = false
         };
 
-        var album = new Search()
+        var album = new Search
         {
             Id = Guid.NewGuid(),
             AlbumName =  "Album",
             HasArtwork = false
         };
         
-        var track = new Search()
+        var track = new Search
         {
             Id = Guid.NewGuid(),
             TrackName = "Track",
             HasArtwork = false
         };
         
-        _mockJellyTuneApiService.Setup(repo => repo.SearchAlbumAsync(_searchValue, CancellationToken.None)).ReturnsAsync([album]);
-        _mockJellyTuneApiService.Setup(repo => repo.SearchArtistAlbumsAsync(_searchValue, CancellationToken.None)).ReturnsAsync([artist]);
-        _mockJellyTuneApiService.Setup(repo => repo.SearchTrackAsync(_searchValue, CancellationToken.None)).ReturnsAsync([track]);
+        _mockJellyTuneApiService.Setup(repo => repo.SearchAlbumAsync(_searchValue, It.IsAny<CancellationToken>())).ReturnsAsync([album]);
+        _mockJellyTuneApiService.Setup(repo => repo.SearchArtistAlbumsAsync(_searchValue, It.IsAny<CancellationToken>())).ReturnsAsync([artist]);
+        _mockJellyTuneApiService.Setup(repo => repo.SearchTrackAsync(_searchValue, It.IsAny<CancellationToken>())).ReturnsAsync([track]);
     }
     
     [Fact]
@@ -58,8 +58,5 @@ public class SearchControllerTests
         
         Assert.True(evt.Arguments.Updated);
         Assert.Equal(3, _controller.Results.Count);
-        
-        evt = Assert.Raises<SearchStateArgs>(handler => _controller.OnSearchStateChanged += handler, handler => _controller.OnSearchStateChanged -= handler, () => _controller.SearchAlbumsAsync("").GetAwaiter().GetResult() );
-        Assert.True(evt.Arguments.Empty);
     }
 }

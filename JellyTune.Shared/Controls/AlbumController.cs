@@ -20,7 +20,10 @@ public sealed class AlbumController : IDisposable
     public List<Track> Tracks { get; private set; } = [];
     public Track? SelectedTrack { get; private set; }
     public byte[]? Artwork { get; private set; }
-    public event EventHandler<AlbumStateArgs> OnAlbumChanged;
+    
+    private CancellationTokenSource? _openAlbumCts;
+    
+    public event EventHandler<AlbumStateArgs>? OnAlbumChanged;
     
     public AlbumController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService, IPlayerService playerService, IFileService fileService)
     {
@@ -35,7 +38,7 @@ public sealed class AlbumController : IDisposable
     {
         if (e.State is PlayerState.Playing or PlayerState.Stopped or PlayerState.Paused or PlayerState.Selected or PlayerState.None or PlayerState.Starting)
         {
-            AlbumChanged(new AlbumStateArgs() { UpdateTrackState = true, SelectedTrackId = e.SelectedTrack?.Id });
+            AlbumChanged(new AlbumStateArgs { UpdateTrackState = true, SelectedTrackId = e.SelectedTrack?.Id });
         }
     }
 
@@ -63,28 +66,38 @@ public sealed class AlbumController : IDisposable
     /// </summary>
     /// <param name="albumId"></param>
     /// <param name="selectedTrackId"></param>
-    public async Task OpenAsync(Guid albumId, Guid? selectedTrackId = null, CancellationToken cancellationToken = default)
+    public async Task OpenAsync(Guid albumId, Guid? selectedTrackId = null)
     {
+        _openAlbumCts?.Cancel();
+        _openAlbumCts?.Dispose();
+        
+        _openAlbumCts = new CancellationTokenSource();
+        var cancellationToken = _openAlbumCts.Token;
+
         AlbumChanged(new AlbumStateArgs());
-        Album = await _jellyTuneApiService.GetAlbumAsync(albumId, cancellationToken);
-        Tracks = await _jellyTuneApiService.GetTracksAsync(albumId,  cancellationToken);
-        
-        if (cancellationToken.IsCancellationRequested)
-            return;
-        
-        AlbumChanged(new AlbumStateArgs() { UpdateAlbum = true, UpdateTracks = true, SelectedTrackId = selectedTrackId });
-        
-        if (Album.HasArtwork)
+        try
         {
-            Artwork = await _fileService.GetFileAsync(FileType.AlbumArt, albumId, cancellationToken);
-            if (cancellationToken.IsCancellationRequested)
-                return;
-            
-            AlbumChanged(new AlbumStateArgs() { UpdateArtwork = true});    
-        }
-        else
-        {
+            var album = await _jellyTuneApiService.GetAlbumAsync(albumId, cancellationToken);
+            var tracks = await _jellyTuneApiService.GetTracksAsync(albumId,  cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+
+            Album = album;
+            Tracks = tracks;
             Artwork = null;
+            AlbumChanged(new AlbumStateArgs { UpdateAlbum = true, UpdateTracks = true, SelectedTrackId = selectedTrackId });
+        
+            if (Album.HasArtwork)
+            {
+                var artwork = await _fileService.GetFileAsync(FileType.AlbumArt, albumId);
+                cancellationToken.ThrowIfCancellationRequested();
+
+                Artwork = artwork;
+                AlbumChanged(new AlbumStateArgs { UpdateArtwork = true});    
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // A newer OpenAlbum call cancelled this one.
         }
     }
 

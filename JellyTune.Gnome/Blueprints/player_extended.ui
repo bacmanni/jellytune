@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <interface>
-    <object class="GtkRevealer" id="_root">
+    <template class="JellyTunePlayerExtendedView">
         <property name="transition-type">slide-down</property>
         <property name="reveal-child">false</property>
         <child>
@@ -83,7 +83,7 @@
                 </child>
             </object>
         </child>
-    </object>
+    </template>
 </interface>
 
 

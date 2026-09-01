@@ -18,7 +18,7 @@ public class ConfigurationServiceTests
     {
         _applicationId = "test.application.id";
         _mockFileSystem  = new Mock<IFileSystem>();
-        _configurationService = new ConfigurationService(_mockFileSystem.Object, _applicationId, "config", "cache");
+        _configurationService = new ConfigurationService(_mockFileSystem.Object, "config", "cache");
     }
 
     [Fact]
@@ -42,22 +42,22 @@ public class ConfigurationServiceTests
         Assert.NotEqual(deviceId, Guid.Empty);
         
         // Test save and load saved
-        configuration.AutoRefresh = !configuration.AutoRefresh;
+        configuration.ShowListSeparator = !configuration.ShowListSeparator;
         _configurationService.Set(configuration);
         
         var evt = Assert.Raises<EventArgs>( handler => _configurationService.OnSaved += handler, handler => _configurationService.OnSaved -= handler, () => _configurationService.Save() );
         Assert.Equal(_configurationService, evt.Sender);
 
         var configurationResult = new Configuration();
-        configurationResult.AutoRefresh = !configurationResult.AutoRefresh;
+        configurationResult.ShowListSeparator = !configurationResult.ShowListSeparator;
         _mockFileSystem.Setup(repo => repo.File.ReadAllText(configurationFile)).Returns(JsonSerializer.Serialize(configurationResult));
         
-        var savedAutoRefresh = configuration.AutoRefresh;
-        configuration.AutoRefresh = !configuration.AutoRefresh;
+        var savedAutoRefresh = configuration.ShowListSeparator;
+        configuration.ShowListSeparator = !configuration.ShowListSeparator;
         _configurationService.Set(configuration);
 
         _configurationService.Load();
-        var loadedAutoRefresh = _configurationService.Get().AutoRefresh;
+        var loadedAutoRefresh = _configurationService.Get().ShowListSeparator;
         
         Assert.Equal(savedAutoRefresh, loadedAutoRefresh);
     }

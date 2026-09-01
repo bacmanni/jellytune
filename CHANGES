@@ -1,3 +1,11 @@
++ 1.2.2;2026-09-02
+- Fixes on async data loading
+- Fixed icon size
+- Removed automatic fetch as it caused problems
+
++ 1.2.1;2026-05-23
+- Flathub related fixes
+
 + 1.2;2026-05-12
 - Security fixes
 - Visual fixes

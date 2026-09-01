@@ -10,7 +10,7 @@ using JellyTune.Shared.Models;
 
 namespace JellyTune.Shared.Services;
 
-public class ConfigurationService(IFileSystem _fileSystem, string applicationId, string? configurationDir, string? cacheDir) : IConfigurationService
+public class ConfigurationService(IFileSystem fileSystem, string? configurationDir, string? cacheDir) : IConfigurationService
 {
     private readonly string _keySalt = "37cee24e-26a3-4a71-8e92-3bb5cecfcbc3";
     private readonly Configuration _configuration = new();
@@ -19,11 +19,6 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId,
     /// Occurs when the configuration object is saved
     /// </summary>
     public event EventHandler<EventArgs>? OnSaved;
-
-    /// <summary>
-    /// Occurs when the configuration object is loaded
-    /// </summary>
-    public event EventHandler<EventArgs>? OnLoaded;
 
     /// <summary>
     /// Saves the configuration file
@@ -37,7 +32,7 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId,
         
         var json = JsonSerializer.Serialize(configuration,  options: new JsonSerializerOptions { WriteIndented = true, Encoder = JavaScriptEncoder.Create(UnicodeRanges.All) });
         
-        _fileSystem.File.WriteAllText(filename, json);
+        fileSystem.File.WriteAllText(filename, json);
         OnSaved?.Invoke(this, EventArgs.Empty);
     }
 
@@ -47,12 +42,12 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId,
     public void Load()
     {
         var filename = GetFilename();
-        if (!_fileSystem.File.Exists(filename))
+        if (!fileSystem.File.Exists(filename))
         {
             CreateConfigurationFile(filename);
         }
         
-        var json = _fileSystem.File.ReadAllText(filename);
+        var json = fileSystem.File.ReadAllText(filename);
         
         if (!string.IsNullOrEmpty(json))
         {
@@ -94,9 +89,11 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId,
     private string? Decrypt(string? encrypted)
     {
         if (encrypted == null) return null;
+
+        if (_configuration.DeviceId == null) throw new Exception("Device Id missing!");
         
         var key = DeriveKeyFromGuid(_configuration.DeviceId);
-        var aes = new AesGcm(key);
+        var aes = new AesGcm(key, 16);
 
         var combined = Convert.FromBase64String(encrypted);
 
@@ -111,20 +108,22 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId,
         var plaintextBytes = new byte[ciphertext.Length];
         aes.Decrypt(nonce, ciphertext, tag, plaintextBytes);
 
-        return System.Text.Encoding.UTF8.GetString(plaintextBytes);
+        return Encoding.UTF8.GetString(plaintextBytes);
     }
     
     private string? Encrypt(string? password)
     {
         if (password == null) return null;
         
+        if (_configuration.DeviceId == null) throw new Exception("Device Id missing!");
+        
         var key = DeriveKeyFromGuid(_configuration.DeviceId);
-        var aes = new AesGcm(key);
+        var aes = new AesGcm(key, 16);
 
         var nonce = new byte[12];
         RandomNumberGenerator.Fill(nonce);
 
-        var plaintextBytes = System.Text.Encoding.UTF8.GetBytes(password);
+        var plaintextBytes = Encoding.UTF8.GetBytes(password);
         var ciphertext = new byte[plaintextBytes.Length];
         var tag = new byte[16];
 
@@ -145,18 +144,19 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId,
     /// Get application configuration file directory
     /// </summary>
     /// <returns></returns>
-    public string GetConfigurationDirectory()
+    public string? GetConfigurationDirectory()
     {
         var platform = GetOsPlatform();
         if (platform == OSPlatform.Linux)
         {
             return configurationDir;
         }
-        else if (platform == OSPlatform.OSX)
+
+        if (platform == OSPlatform.OSX)
         {
             return $"/Users/{Environment.UserName}/.jellytune";
         }
-        
+
         throw new PlatformNotSupportedException();
     }
 
@@ -164,18 +164,19 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId,
     /// Get application cache directory
     /// </summary>
     /// <returns></returns>
-    public string GetCacheDirectory()
+    public string? GetCacheDirectory()
     {
         var platform = GetOsPlatform();
         if (platform == OSPlatform.Linux)
         {
             return cacheDir;
         }
-        else if (platform == OSPlatform.OSX)
+
+        if (platform == OSPlatform.OSX)
         {
             return $"/Users/{Environment.UserName}/.jellytune";
         }
-        
+
         throw new PlatformNotSupportedException();
     }
     
@@ -234,14 +235,15 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId,
         }
     }
     
-    public T Get<T>(string key)
+    public T? Get<T>(string key)
     {
         var properties = typeof(Configuration).GetProperties();
         foreach (var property in properties)
         {
             if (property.Name == key)
             {
-                return (T)property.GetValue(_configuration);
+                var value = property.GetValue(_configuration);
+                return value != null ? (T)value : default;
             }
         }
 
@@ -260,7 +262,7 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId,
 
         var changes = ParseChanges(lines);
 
-        var latest = changes.FirstOrDefault()?.Changes.ToArray();
+        var latest = changes.FirstOrDefault() != null ? changes.FirstOrDefault()?.Changes.ToArray() : null;
         return latest ?? [];
     }
 
@@ -280,7 +282,7 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId,
                 var version = parts[0].Trim();
                 var date = parts.Length > 1 ? DateTime.Parse(parts[1].Trim()) : DateTime.MinValue;
  
-                result.Add(new Change() { Version =  version, Date = date });
+                result.Add(new Change { Version =  version, Date = date });
             }
             else
             {
@@ -298,13 +300,13 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId,
     {
         try
         {
-            var dir = _fileSystem.Path.GetDirectoryName(filename);
-            if (!_fileSystem.Directory.Exists(dir))
-                _fileSystem.Directory.CreateDirectory(dir);
+            var dir = fileSystem.Path.GetDirectoryName(filename);
+            if (dir is not null && !fileSystem.Directory.Exists(dir))
+                fileSystem.Directory.CreateDirectory(dir);
 
-            if (!_fileSystem.File.Exists(filename))
+            if (!fileSystem.File.Exists(filename))
             {
-                _fileSystem.File.CreateText(filename).Close();
+                fileSystem.File.CreateText(filename).Close();
                 _configuration.DeviceId = Guid.NewGuid().ToString();
                 Save();
             }
@@ -322,15 +324,17 @@ public class ConfigurationService(IFileSystem _fileSystem, string applicationId,
         {
             return $"{GetConfigurationDirectory()}/configuration.json";
         }
-        else if (platform == OSPlatform.OSX)
+
+        if (platform == OSPlatform.OSX)
         {
             return $"{GetConfigurationDirectory()}/configuration.json";
         }
-        else if (platform == OSPlatform.Windows)
+
+        if (platform == OSPlatform.Windows)
         {
             return $"{GetConfigurationDirectory()}/configuration.json";
         }
-        
+
         throw new PlatformNotSupportedException();
     }
     private OSPlatform GetOsPlatform()

@@ -1,47 +1,43 @@
-using Adw.Internal;
+using Adw;
+using GObject;
+using Gtk;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Services;
-using JellyTune.Gnome.Helpers;
 using AlertDialog = Adw.AlertDialog;
+using Dialog = Adw.Dialog;
 
 namespace JellyTune.Gnome.Views;
 
-public partial class PreferencesView : Adw.PreferencesDialog
+
+[Subclass<PreferencesDialog>(qualifiedName: "JellyTunePreferencesView")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.preferences.ui")]
+public partial class PreferencesView
 {
-    private readonly IConfigurationService _configurationService;
-    private readonly IJellyTuneApiService _jellyTuneApiService;
+    private IConfigurationService _configurationService;
+    private IJellyTuneApiService _jellyTuneApiService;
 
-    private readonly AccountController  _accountController;
-    private readonly AccountView _accountView;
+    private AccountController  _accountController;
+    private AccountView _accountView;
     
-    [Gtk.Connect] private readonly Adw.PreferencesPage _preferencesPage1;
+    [Connect] private PreferencesPage _preferencesPage1;
 
-    [Gtk.Connect] private readonly Adw.SwitchRow _useAutoRefresh;
-    [Gtk.Connect] private readonly Adw.SwitchRow _cacheList;
-    [Gtk.Connect] private readonly Adw.SwitchRow _cacheArtwork;
-    [Gtk.Connect] private readonly Adw.SwitchRow _showListSeparator;
-    [Gtk.Connect] private readonly Adw.SwitchRow _showSeek;
-    [Gtk.Connect] private readonly Adw.SwitchRow _showVolume;
-    [Gtk.Connect] private readonly Adw.SwitchRow _showPlayingAlbum;
-    [Gtk.Connect] private readonly Adw.SwitchRow _showLyrics;
+    [Connect] private SwitchRow _cacheList;
+    [Connect] private SwitchRow _cacheArtwork;
+    [Connect] private SwitchRow _showListSeparator;
+    [Connect] private SwitchRow _showSeek;
+    [Connect] private SwitchRow _showVolume;
+    [Connect] private SwitchRow _showPlayingAlbum;
+    [Connect] private SwitchRow _showLyrics;
 
-    public bool Refresh { get; set; } = false;
+    public bool Refresh { get; set; }
     public string? Password { get; set; } = null;
-    
-    private PreferencesView(Gtk.Builder builder) : base(
-        new PreferencesDialogHandle(builder.GetPointer("_root"), false))
-    {
-        builder.Connect(this);
-        OnCloseAttempt += CloseAttempt;
-    }
 
-    private void CloseAttempt(Adw.Dialog sender, EventArgs args)
+    private void CloseAttempt(Dialog sender, EventArgs args)
     {
         // We need to validate account so application won't break
-        if (_accountController.IsValid())
+        if (_accountController.IsValid)
         {
             var configuration = _configurationService.Get();
-            configuration.AutoRefresh = _useAutoRefresh.GetActive();
             configuration.CacheListData = _cacheList.GetActive();
             configuration.CacheAlbumArt = _cacheArtwork.GetActive();
             configuration.ShowListSeparator = _showListSeparator.GetActive();
@@ -51,10 +47,10 @@ public partial class PreferencesView : Adw.PreferencesDialog
             configuration.ShowCurrentAlbum = _showPlayingAlbum.GetActive();
 
             Refresh = _accountController.HasChanges();
-            configuration.ServerUrl = _accountController.ServerUrl;
-            configuration.Username = _accountController.Username;
+            configuration.ServerUrl = _accountController.ServerUrl ?? string.Empty;
+            configuration.Username = _accountController.Username ?? string.Empty;
             configuration.Password = _accountController.Password;
-            configuration.CollectionId = _accountController.CollectionId?.ToString() ?? throw new NullReferenceException("This should never happen!");
+            configuration.CollectionId = _accountController.CollectionId != null ? _accountController.CollectionId.Value.ToString() : throw new NullReferenceException("This should never happen!");
             configuration.PlaylistCollectionId = _accountController.PlaylistCollectionId?.ToString();
             
             _configurationService.Set(configuration);
@@ -63,7 +59,7 @@ public partial class PreferencesView : Adw.PreferencesDialog
         }
         else
         {
-            var alert = new PreferencesAlert();
+            var alert = PreferencesAlert.NewWithValues();
             alert.Present(this);
             alert.OnResponse += AlertOnResponse;
         }
@@ -75,18 +71,23 @@ public partial class PreferencesView : Adw.PreferencesDialog
             ForceClose();
     }
 
-    public PreferencesView(IConfigurationService configurationService, IJellyTuneApiService jellyTuneApiService) : this(GtkHelper.BuilderFromFile("preferences"))
+    public static PreferencesView NewWithValues(IConfigurationService configurationService, IJellyTuneApiService jellyTuneApiService)
     {
-        _configurationService = configurationService;
-        _jellyTuneApiService = jellyTuneApiService;
-
+        var obj = NewWithProperties([]);
+        obj._configurationService = configurationService;
+        obj._jellyTuneApiService = jellyTuneApiService;
+        obj.InitializeController();
+        return obj;
+    }
+    
+    private void InitializeController()
+    {
         _accountController = new AccountController(_configurationService, _jellyTuneApiService);
-        _accountView =  new AccountView(_accountController);
+        _accountView =  AccountView.NewWithValues(_accountController);
         _preferencesPage1.Insert(_accountView, 0);
         
         var configuration =  _configurationService.Get();
-        _ = _accountController.OpenConfiguration(configuration, true);
-        _useAutoRefresh.SetActive(configuration.AutoRefresh);
+        _accountController.OpenConfiguration(configuration, true);
         _cacheList.SetActive(configuration.CacheListData);
         _cacheArtwork.SetActive(configuration.CacheAlbumArt);
         _showListSeparator.SetActive(configuration.ShowListSeparator);
@@ -95,6 +96,8 @@ public partial class PreferencesView : Adw.PreferencesDialog
         _showSeek.SetActive(configuration.ShowSeek);
         _showVolume.SetActive(configuration.ShowVolume);
         _showPlayingAlbum.SetActive(configuration.ShowCurrentAlbum);
+        
+        OnCloseAttempt += CloseAttempt;
     }
 
     public override void Dispose()

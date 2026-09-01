@@ -47,6 +47,11 @@
     </screenshots>
 
     <releases>
+    <release version="1.2.2" date="2026-09-02"><description><ul>
+<li>Fixes on async data loading</li>
+<li>Fixed icon size</li>
+<li>Removed automatic fetch as it caused problems</li>
+</ul></description></release>
         <release version="1.2.1" date="2026-05-22"><description><ul>
 <li>Flathub related fixes</li>
 </ul></description></release>

@@ -35,7 +35,7 @@ public class FileServiceTests
         _playlistId = Guid.NewGuid();
         _url = "http://test.com/";
         
-        var configuration = new Configuration()
+        var configuration = new Configuration
         {
             CacheAlbumArt = true
         };
@@ -50,8 +50,8 @@ public class FileServiceTests
         _mockFileSystem.Setup(repo => repo.File.Exists($"/albums/{_albumId2.ToString()}.jpg")).Returns(true);
         _mockFileSystem.Setup(repo => repo.Directory.Exists($"/albums/{_albumId2.ToString()}.jpg")).Returns(true);
         _mockFileSystem.Setup(repo => repo.Path.GetDirectoryName(It.IsAny<string>())).Returns("/");
-        _mockFileSystem.Setup(repo => repo.Directory.Exists($"/")).Returns(true);
-        _mockFileSystem.Setup(repo => repo.File.Exists($"/cache/test.json")).Returns(true);
+        _mockFileSystem.Setup(repo => repo.Directory.Exists("/")).Returns(true);
+        _mockFileSystem.Setup(repo => repo.File.Exists("/cache/test.json")).Returns(true);
     }
 
     [Fact]
@@ -89,7 +89,7 @@ public class FileServiceTests
         var file = await _fileService.GetCacheFile<FileExample>("test");
         Assert.Null(file);
 
-        var fileExample = new FileExample()
+        var fileExample = new FileExample
         {
             Value1 = "value1",
             Value2 = "value2",

@@ -1,25 +1,25 @@
-using Gtk.Internal;
+using GObject;
+using Gtk;
 using JellyTune.Shared.Controls;
-using JellyTune.Gnome.Helpers;
-
 
 namespace JellyTune.Gnome.Views;
 
-public class PlaylistView : Gtk.Box
+[Subclass<Box>(qualifiedName: "JellyTunePlaylistView")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.playlist.ui")]
+public partial class PlaylistView
 {
-    private readonly PlaylistController _controller;
+    private PlaylistController _controller;
 
-    private readonly ListView _listView;
-    
-    private PlaylistView(Gtk.Builder builder) : base(
-        new BoxHandle(builder.GetPointer("_root"), false))
+    public static PlaylistView NewWithValues(PlaylistController controller)
     {
-        builder.Connect(this);
+        var obj = NewWithProperties([]);
+        obj._controller = controller;
+        obj.InitializeController();
+        return obj;
     }
-
-    public PlaylistView(PlaylistController controller) : this(GtkHelper.BuilderFromFile("playlist"))
+    
+    private void InitializeController()
     {
-        _controller = controller;
-        Append(new Views.ListView(_controller));
+        Append(ListView.NewWithValues(_controller));
     }
 }

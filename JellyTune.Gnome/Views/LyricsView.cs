@@ -1,30 +1,38 @@
-using Adw.Internal;
-using JellyTune.Shared.Controls;
+using Gdk;
+using GLib;
+using GObject;
+using Gtk;
 using JellyTune.Gnome.Helpers;
+using JellyTune.Shared.Controls;
+using Dialog = Adw.Dialog;
+using Spinner = Adw.Spinner;
 
 namespace JellyTune.Gnome.Views;
 
-public partial class LyricsView : Adw.Dialog
+[Subclass<Dialog>(qualifiedName: "JellyTuneLyricsView")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.lyrics.ui")]
+public partial class LyricsView
 {
     private LyricsController  _controller;
 
-    [Gtk.Connect] private readonly Adw.Spinner _spinner;
-    [Gtk.Connect] private readonly Gtk.Revealer _results;
+    [Connect] private Spinner _spinner;
+    [Connect] private Revealer _results;
     
-    [Gtk.Connect] private readonly Gtk.Label _lyrics;
-    [Gtk.Connect] private readonly Gtk.Image _albumArt;
-    [Gtk.Connect] private readonly Gtk.Label _track;
-    [Gtk.Connect] private readonly Gtk.Label _artist;
+    [Connect] private Label _lyrics;
+    [Connect] private Image _albumArt;
+    [Connect] private Label _track;
+    [Connect] private Label _artist;
 
-    private LyricsView(Gtk.Builder builder) : base(
-        new DialogHandle(builder.GetPointer("_root"), false))
+    public static LyricsView NewWithValues(LyricsController controller)
     {
-        builder.Connect(this);
+        var obj = NewWithProperties([]);
+        obj._controller = controller;
+        obj.InitializeController();
+        return obj;
     }
-    
-    public LyricsView(LyricsController controller) : this(GtkHelper.BuilderFromFile("lyrics"))
+
+    private void InitializeController()
     {
-        _controller = controller;
         _controller.OnLyricsUpdated += ControllerOnOnLyricsUpdated;
         _results.SetVisible(false);
         _spinner.SetVisible(true);
@@ -34,16 +42,16 @@ public partial class LyricsView : Adw.Dialog
     {
         GtkHelper.GtkDispatch(() =>
         {
-            _track.SetLabel(_controller.TrackName);
-            _artist.SetLabel(_controller.ArtistName);
+            _track.SetLabel(_controller.TrackName ?? string.Empty);
+            _artist.SetLabel(_controller.ArtistName ?? string.Empty);
         
             if (!string.IsNullOrWhiteSpace(_controller.Lyrics))
-                _lyrics.SetLabel(_controller.Lyrics);;
+                _lyrics.SetLabel(_controller.Lyrics);
 
             if (_controller.AlbumArt != null)
             {
-                var bytes = GLib.Bytes.New(_controller.AlbumArt);
-                var texture = Gdk.Texture.NewFromBytes(bytes);
+                var bytes = Bytes.New(_controller.AlbumArt);
+                var texture = Texture.NewFromBytes(bytes);
                 _albumArt.SetFromPaintable(texture);
             }
             

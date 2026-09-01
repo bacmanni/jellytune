@@ -1,68 +1,76 @@
-using Adw.Internal;
-using JellyTune.Shared.Models;
+using Adw;
+using Gdk;
+using GLib;
+using GObject;
+using Gtk;
 using JellyTune.Shared.Enums;
+using JellyTune.Shared.Models;
 using JellyTune.Shared.Services;
-using JellyTune.Gnome.Helpers;
+using Spinner = Adw.Spinner;
 
 namespace JellyTune.Gnome.Views;
 
-public partial class TrackRow : Adw.ActionRow
+[Subclass<ActionRow>(qualifiedName: "JellyTuneTrackRow")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.track_row.ui")]
+public partial class TrackRow
 {
-    private readonly IFileService  _fileService;
-    private readonly Track _track;
+    private IFileService  _fileService;
+    private Track _track;
+    private PlayerState _startupState;
     
-    [Gtk.Connect] private readonly Gtk.Image _status;
-    [Gtk.Connect] private readonly Adw.Spinner _spinner;
-    [Gtk.Connect] private readonly Gtk.Image _albumArt;
-    [Gtk.Connect] private readonly Gtk.Label _runtime;
-    [Gtk.Connect] private readonly Gtk.Label _number;
+    [Connect] private Image _status;
+    [Connect] private Spinner _spinner;
+    [Connect] private Image _albumArt;
+    [Connect] private Label _runtime;
+    [Connect] private Label _number;
 
     public Guid TrackId => _track.Id;
 
-    private TrackRow(Gtk.Builder builder) : base(
-        new ActionRowHandle(builder.GetPointer("_root"), false))
+    public static TrackRow NewWithValues(IFileService fileService, Track track, PlayerState state, bool extended = false)
     {
-        builder.Connect(this);
-    }
-    
-    public TrackRow(IFileService fileService, Track track, PlayerState state, bool extended = false) : this(GtkHelper.BuilderFromFile("track_row"))
-    {
-        _fileService  = fileService;
-        _track = track;
-        Activatable = true;
-        CanFocus = false;
+        var obj = NewWithProperties([]);
+        obj._fileService  = fileService;
+        obj._track = track;
+        obj._startupState = state;
+        obj.Activatable = true;
+        obj.CanFocus = false;
         
-        _runtime.SetText(_track.RunTime.ToString("m\\:ss"));
+        obj._runtime.SetText(obj._track.RunTime.ToString("m\\:ss"));
 
         if (extended)
         {
-            _number.SetVisible(false);
-            _albumArt.SetVisible(true);
+            obj._number.SetVisible(false);
+            obj._albumArt.SetVisible(true);
             
-            SetSubtitle(GLib.Markup.EscapeText(_track.Artist));
-            
-            if (_track.HasArtwork)
-                _ = UpdateArtwork();
+            obj.SetSubtitle(Markup.EscapeText(obj._track.Artist != null ? obj._track.Artist : string.Empty));
         }
         else
         {
-            if (_track.Number > 0)
-                _number.SetText($"{_track.Number.ToString()}.");
+            if (obj._track.Number > 0)
+                obj._number.SetText($"{obj._track.Number.ToString()}.");
         }
-        
-        UpdateState(state);
+
+        obj.InitializeController();
+        return obj;
     }
 
+    private void InitializeController()
+    {
+        UpdateState(_startupState);
+        
+        if (_track.HasArtwork)
+            _ = UpdateArtwork();
+    }
+    
     private async Task UpdateArtwork()
     {
         var albumArt = await _fileService.GetFileAsync(FileType.AlbumArt, _track.AlbumId);
         if  (albumArt == null || albumArt.Length == 0)
             return;
         
-        using var bytes = GLib.Bytes.New(albumArt);
-        using var texture = Gdk.Texture.NewFromBytes(bytes);
+        using var bytes = Bytes.New(albumArt);
+        using var texture = Texture.NewFromBytes(bytes);
         _albumArt.SetFromPaintable(texture);
-        albumArt = null;
     }
     
     public void UpdateState(PlayerState state)
@@ -89,7 +97,7 @@ public partial class TrackRow : Adw.ActionRow
     {
         _status.SetVisible(false);
         _spinner.SetVisible(true);
-        SetTitle($"<b>{GLib.Markup.EscapeText(_track.Name)}</b>");
+        SetTitle($"<b>{Markup.EscapeText(_track.Name != null ? _track.Name : string.Empty)}</b>");
     }
     
     private void StartTrack()
@@ -97,7 +105,7 @@ public partial class TrackRow : Adw.ActionRow
         _spinner.SetVisible(false);
         _status.SetVisible(true);
         _status.SetFromIconName("media-playback-start-symbolic");
-        SetTitle($"<b>{GLib.Markup.EscapeText(_track.Name)}</b>");
+        SetTitle($"<b>{Markup.EscapeText(_track.Name != null ? _track.Name : string.Empty)}</b>");
     }
 
     private void ClearTrack()
@@ -105,7 +113,7 @@ public partial class TrackRow : Adw.ActionRow
         _spinner.SetVisible(false);
         _status.SetVisible(true);
         _status.SetFromIconName(null);
-        SetTitle(GLib.Markup.EscapeText(_track.Name));
+        SetTitle(Markup.EscapeText(_track.Name != null ? _track.Name : string.Empty));
     }
 
     private void StopTrack()
@@ -113,7 +121,7 @@ public partial class TrackRow : Adw.ActionRow
         _spinner.SetVisible(false);
         _status.SetVisible(true);
         _status.SetFromIconName("media-playback-pause-symbolic");
-        SetTitle($"<b>{GLib.Markup.EscapeText(_track.Name)}</b>");
+        SetTitle($"<b>{Markup.EscapeText(_track.Name != null ? _track.Name : string.Empty)}</b>");
     }
 
     public override void Dispose()

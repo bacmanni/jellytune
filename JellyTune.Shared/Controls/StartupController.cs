@@ -30,7 +30,7 @@ public sealed class StartupController : IDisposable
         var configuration = _configurationService.Get();
         var server = configuration.ServerUrl;
         var username = configuration.Username;
-        var password = !string.IsNullOrWhiteSpace(nonStoredPassword) ? nonStoredPassword : configuration.Password;;
+        var password = !string.IsNullOrWhiteSpace(nonStoredPassword) ? nonStoredPassword : configuration.Password;
         var collectionId = configuration.CollectionId;
         
         // This should only happen when no configuration is saved
@@ -51,7 +51,7 @@ public sealed class StartupController : IDisposable
             return StartupState.InvalidServer;
         }
 
-        var logged = await _jellyTuneApiService.LoginAsync(username, password);
+        var logged = await _jellyTuneApiService.LoginAsync(username, password ?? string.Empty);
         if (!logged)
         {
             return StartupState.AccountProblem;

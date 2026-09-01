@@ -1,16 +1,15 @@
-using System.Net;
 using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Audio.Item.Universal;
 using Jellyfin.Sdk.Generated.Models;
-using Jellyfin.Sdk.Generated.Sessions.Item.Playing;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Models;
-using Microsoft.Kiota.Abstractions;
+using CollectionType = JellyTune.Shared.Enums.CollectionType;
 
 namespace JellyTune.Shared.Services;
 
 public class JellyTuneApiService : IJellyTuneApiService, IDisposable
 {
+    private readonly IConfigurationService _configurationService;
     private readonly JellyfinSdkSettings _sdkClientSettings;
     private readonly JellyfinApiClient _jellyfinApiClient;
 
@@ -18,10 +17,10 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     private Guid? _collectionId;
     private string? _sessionId;
     private Guid? _userId;
-    private string? _deviceId;
-    
-    public JellyTuneApiService(JellyfinSdkSettings sdkClientSettings, JellyfinApiClient jellyfinApiClient)
+
+    public JellyTuneApiService(IConfigurationService configurationService, JellyfinSdkSettings sdkClientSettings, JellyfinApiClient jellyfinApiClient)
     {
+        _configurationService = configurationService;
         _sdkClientSettings = sdkClientSettings;
         _jellyfinApiClient = jellyfinApiClient;
     }
@@ -42,7 +41,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
             _sdkClientSettings.SetServerUrl(serverUrl);
             return true;
         }
-        catch (Exception e)
+        catch (Exception)
         {
             return false;
         }
@@ -76,12 +75,12 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
         try
         {
             _sdkClientSettings.SetServerUrl(serverUrl);
-            var systemInfo = await _jellyfinApiClient.System.Info.Public.GetAsync()
+            await _jellyfinApiClient.System.Info.Public.GetAsync()
                 .ConfigureAwait(true);
 
             return true;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return false;
         }
@@ -108,16 +107,13 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
             {
                 _sessionId = authenticationResult.SessionInfo?.Id;
                 _userId = authenticationResult.User?.Id;
-                _deviceId = authenticationResult.SessionInfo?.DeviceId;
                 _sdkClientSettings.SetAccessToken(authenticationResult.AccessToken);
                 return true;
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
-        catch (Exception e)
+        catch (Exception)
         {
             return false;
         }
@@ -131,7 +127,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// <returns></returns>
     public async Task<List<Search>> SearchAlbumAsync(string value, CancellationToken cancellationToken = default)
     {
-        var searchResults = new List<Models.Search>();
+        var searchResults = new List<Search>();
 
         var queryResult = await _jellyfinApiClient.Items.GetAsync(configuration =>
         {
@@ -146,7 +142,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
             configuration.QueryParameters.IncludeItemTypes = [ BaseItemKind.MusicAlbum ];
         }, cancellationToken).ConfigureAwait(false);
 
-        if (queryResult?.Items == null)
+        if (queryResult != null ? queryResult.Items == null : true)
             return searchResults;
         
         foreach (var baseItem in queryResult.Items)
@@ -154,14 +150,14 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
             if (baseItem.Id == null)
                 continue;
 
-            var album = new Models.Search()
+            var album = new Search
             {
                 Id = baseItem.Id.GetValueOrDefault(),
                 Type = SearchType.Album,
                 ArtistName = baseItem.AlbumArtist ?? string.Empty,
                 AlbumName = baseItem.Name ?? string.Empty,
                 AlbumId = baseItem.Id.GetValueOrDefault(),
-                HasArtwork = baseItem.ImageTags?.AdditionalData.ContainsKey(ImageType.Primary.ToString()) == true
+                HasArtwork = baseItem.ImageTags != null ? baseItem.ImageTags.AdditionalData.ContainsKey(ImageType.Primary.ToString()) : false
             };
             
             searchResults.Add(album);
@@ -169,15 +165,16 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
         
         return searchResults;
     }
-    
+
     /// <summary>
     /// Search available artist by search criteria
     /// </summary>
     /// <param name="value"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<List<Models.Search>> SearchArtistAlbumsAsync(string value, CancellationToken cancellationToken = default)
+    public async Task<List<Search>> SearchArtistAlbumsAsync(string value, CancellationToken cancellationToken = default)
     {
-        var searchResults = new List<Models.Search>();
+        var searchResults = new List<Search>();
         var queryResult = await _jellyfinApiClient.Artists.GetAsync(configuration =>
         {
             configuration.QueryParameters.Limit = _searchCount;
@@ -186,7 +183,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
             configuration.QueryParameters.SearchTerm = value;
         }, cancellationToken).ConfigureAwait(false);
         
-        if (queryResult?.Items == null || queryResult.Items.Count == 0)
+        if ((queryResult != null ? queryResult.Items == null : true) || queryResult.Items.Count == 0)
             return searchResults;
 
         var artistIds = queryResult.Items.Select(i => i.Id).ToArray();
@@ -204,7 +201,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
                configuration.QueryParameters.IncludeItemTypes = [ BaseItemKind.MusicAlbum ];
            }, cancellationToken).ConfigureAwait(false);
         
-        if (queryResult2?.Items == null)
+        if (queryResult2 != null ? queryResult2.Items == null : true)
             return searchResults;
 
         foreach (var baseItem in queryResult2.Items)
@@ -212,14 +209,14 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
             if (baseItem.Id == null)
                 continue;
 
-            var album = new Models.Search()
+            var album = new Search
             {
                 Id = baseItem.Id.GetValueOrDefault(),
                 Type = SearchType.Artist,
                 ArtistName = baseItem.AlbumArtist ?? string.Empty,
                 AlbumName = baseItem.Name ?? string.Empty,
                 AlbumId = baseItem.Id.GetValueOrDefault(),
-                HasArtwork = baseItem.ImageTags?.AdditionalData.ContainsKey(ImageType.Primary.ToString()) == true
+                HasArtwork = baseItem.ImageTags != null ? baseItem.ImageTags.AdditionalData.ContainsKey(ImageType.Primary.ToString()) : false
             };
             
             searchResults.Add(album);
@@ -227,15 +224,16 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
         
         return searchResults;
     }
-    
+
     /// <summary>
     /// Search available tracks by search criteria
     /// </summary>
     /// <param name="value"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<List<Models.Search>> SearchTrackAsync(string value, CancellationToken cancellationToken = default)
+    public async Task<List<Search>> SearchTrackAsync(string value, CancellationToken cancellationToken = default)
     {
-        var searchResults = new List<Models.Search>();
+        var searchResults = new List<Search>();
 
         var queryResult = await _jellyfinApiClient.Items.GetAsync(configuration =>
         {
@@ -250,7 +248,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
             configuration.QueryParameters.IncludeItemTypes = [ BaseItemKind.Audio ];
         }, cancellationToken).ConfigureAwait(false);
         
-        if (queryResult?.Items == null)
+        if (queryResult != null ? queryResult.Items == null : true)
             return searchResults;
         
         foreach (var baseItem in queryResult.Items)
@@ -258,7 +256,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
             if (baseItem.Id == null || baseItem.Name == null || baseItem.AlbumArtist == null)
                 continue;
 
-            var track = new Models.Search()
+            var track = new Search
             {
                 Id = baseItem.Id.GetValueOrDefault(),
                 Type = SearchType.Track,
@@ -280,14 +278,14 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// </summary>
     /// <param name="type"></param>
     /// <returns></returns>
-    public async Task<List<Models.Collection>> GetCollectionsAsync(Enums.CollectionType type)
+    public async Task<List<Collection>> GetCollectionsAsync(CollectionType type)
     {
-        var collectionResult = new List<Models.Collection>();
+        var collectionResult = new List<Collection>();
         var queryResult = await _jellyfinApiClient.Items.GetAsync().ConfigureAwait(false);
 
-        if (queryResult?.Items == null) return collectionResult;
+        if (queryResult != null ? queryResult.Items == null : true) return collectionResult;
 
-        var collectionType = type == Enums.CollectionType.Audio
+        var collectionType = type == CollectionType.Audio
             ? BaseItemDto_CollectionType.Music
             : BaseItemDto_CollectionType.Playlists;
         
@@ -296,7 +294,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
             if (baseItem.CollectionType == null || baseItem.Id == null || baseItem.Name == null)
                 continue;
             
-            collectionResult.Add(new Models.Collection()
+            collectionResult.Add(new Collection
             {
                 Id = baseItem.Id.Value,
                 Name = baseItem.Name
@@ -310,9 +308,9 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// Get all available artists/albums from collection
     /// </summary>
     /// <returns></returns>
-    public async Task<List<Models.Album>> GetArtistsAndAlbumsAsync()
+    public async Task<List<Album>> GetArtistsAndAlbumsAsync()
     {
-        var albumResult = new List<Models.Album>();
+        var albumResult = new List<Album>();
         var queryResult = await _jellyfinApiClient.Items.GetAsync(configuration =>
         {
             configuration.QueryParameters.StartIndex = 0;
@@ -323,7 +321,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
             configuration.QueryParameters.IncludeItemTypes = [ BaseItemKind.MusicAlbum ];
         }).ConfigureAwait(false);
 
-        if (queryResult?.Items == null)
+        if (queryResult != null ? queryResult.Items == null : true)
             return albumResult;
 
         foreach (var baseItem in queryResult.Items)
@@ -331,15 +329,15 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
             if (baseItem.Id == null || baseItem.Name == null || baseItem.AlbumArtist == null)
                 continue;
 
-            albumResult.Add(new Models.Album()
+            albumResult.Add(new Album
             {
                 Id = baseItem.Id.Value,
                 Artist = baseItem.AlbumArtist,
                 Name = baseItem.Name,
-                ArtistId = baseItem?.AlbumArtists?.FirstOrDefault()?.Id ?? baseItem?.ArtistItems?.FirstOrDefault()?.Id,
+                ArtistId = baseItem.AlbumArtists != null ? baseItem.AlbumArtists.FirstOrDefault() != null ? baseItem.AlbumArtists.FirstOrDefault()?.Id != null ? baseItem.AlbumArtists.FirstOrDefault()?.Id : baseItem.ArtistItems != null ? baseItem.ArtistItems.FirstOrDefault() != null ? baseItem.ArtistItems.FirstOrDefault()?.Id : null : null : baseItem.ArtistItems != null ? baseItem.ArtistItems.FirstOrDefault() != null ? baseItem.ArtistItems.FirstOrDefault()?.Id : null : null : baseItem.ArtistItems != null ? baseItem.ArtistItems.FirstOrDefault() != null ? baseItem.ArtistItems.FirstOrDefault()?.Id : null : null,
                 Year = baseItem.ProductionYear,
                 Runtime = baseItem.RunTimeTicks.HasValue ? new TimeSpan(baseItem.RunTimeTicks.Value) : null,
-                HasArtwork = baseItem.ImageTags?.AdditionalData.ContainsKey(ImageType.Primary.ToString()) == true
+                HasArtwork = baseItem.ImageTags != null ? baseItem.ImageTags.AdditionalData.ContainsKey(ImageType.Primary.ToString()) : false
             });
         }
 
@@ -360,15 +358,15 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
         if (baseItem == null)
             throw new ArgumentException($"No album found with id {albumId}");
         
-        var albumResult = new Models.Album()
+        var albumResult = new Album
         {
             Id = baseItem.Id.GetValueOrDefault(),
-            Artist = baseItem.AlbumArtist ?? "",
-            ArtistId = baseItem?.AlbumArtists?.FirstOrDefault()?.Id ?? baseItem?.ArtistItems?.FirstOrDefault()?.Id,
-            Name = baseItem.Name ?? "",
+            Artist = baseItem.AlbumArtist ?? string.Empty,
+            ArtistId = baseItem.AlbumArtists != null ? baseItem.AlbumArtists.FirstOrDefault() != null ? baseItem.AlbumArtists.FirstOrDefault()?.Id != null ? baseItem.AlbumArtists.FirstOrDefault()?.Id : baseItem.ArtistItems != null ? baseItem.ArtistItems.FirstOrDefault() != null ? baseItem.ArtistItems.FirstOrDefault()?.Id : null : null : baseItem.ArtistItems != null ? baseItem.ArtistItems.FirstOrDefault() != null ? baseItem.ArtistItems.FirstOrDefault()?.Id : null : null : baseItem.ArtistItems != null ? baseItem.ArtistItems.FirstOrDefault() != null ? baseItem.ArtistItems.FirstOrDefault()?.Id : null : null,
+            Name = baseItem.Name ?? string.Empty,
             Year = baseItem.ProductionYear,
-            Runtime = baseItem.RunTimeTicks.HasValue ? new TimeSpan(baseItem.RunTimeTicks.Value) : null,
-            HasArtwork = baseItem.ImageTags?.AdditionalData.ContainsKey(ImageType.Primary.ToString()) == true
+            Runtime = baseItem.RunTimeTicks != null ? new TimeSpan(baseItem.RunTimeTicks.Value) : null,
+            HasArtwork = baseItem.ImageTags != null && baseItem.ImageTags.AdditionalData.ContainsKey(nameof(ImageType.Primary))
         };
         
         return albumResult;
@@ -382,14 +380,14 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// <returns></returns>
     public async Task<List<Track>> GetTracksAsync(Guid albumId, CancellationToken token)
     {
-        var trackResult = new List<Models.Track>();
+        var trackResult = new List<Track>();
         var queryResult = await _jellyfinApiClient.Items.GetAsync(configuration =>
         {
             configuration.QueryParameters.Fields = [ItemFields.SortName];
             configuration.QueryParameters.ParentId = albumId;
         }).ConfigureAwait(false);
 
-        if (queryResult?.Items == null)
+        if (queryResult != null ? queryResult.Items == null : true)
             return trackResult;
         
         foreach (var baseItem in queryResult.Items)
@@ -397,10 +395,10 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
             if (baseItem.Id == null || baseItem.Name == null && !baseItem.IndexNumber.HasValue || !baseItem.AlbumId.HasValue)
                 continue;
 
-            trackResult.Add(new Models.Track()
+            trackResult.Add(new Track
             {
                 Id = baseItem.Id.GetValueOrDefault(),
-                Number = baseItem.IndexNumber.Value,
+                Number = baseItem.IndexNumber ?? 0,
                 Name = baseItem.Name,
                 Artist = baseItem.AlbumArtist ?? string.Empty,
                 Album = baseItem.Album ?? string.Empty,
@@ -430,10 +428,10 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
         if (baseItem.Id == null || baseItem.Name == null && !baseItem.IndexNumber.HasValue || !baseItem.AlbumId.HasValue)
             throw new ArgumentException($"Missing required data from track id {trackId}");
         
-        var trackResult = new Models.Track()
+        var trackResult = new Track
         {
             Id = baseItem.Id.GetValueOrDefault(),
-            Number = baseItem.IndexNumber.Value,
+            Number = baseItem.IndexNumber ?? 0,
             Name = baseItem.Name,
             Artist = baseItem.AlbumArtist ?? string.Empty,
             Album = baseItem.Album ?? string.Empty,
@@ -469,7 +467,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
             await stream.CopyToAsync(ms);
             return ms.ToArray();
         }
-        catch (Exception e)
+        catch (Exception)
         {
             return null;
         }
@@ -515,15 +513,17 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     public async Task<Playlist> GetPlaylistAsync(Guid playlistId)
     {
         var baseItem = await _jellyfinApiClient.Items[playlistId].GetAsync();
+        if (baseItem == null) throw new Exception("No playlist found");
+        
         TimeSpan? duration = baseItem.RunTimeTicks.HasValue ? TimeSpan.FromTicks(baseItem.RunTimeTicks.Value) : null;
         
-        var playlist = new Playlist()
+        var playlist = new Playlist
         {
-            Id = baseItem.Id.Value,
+            Id = baseItem.Id ?? throw new Exception("No playlist id found"),
             Name = baseItem.Name ?? string.Empty,
             Duration = duration,
             TrackCount = baseItem.ChildCount ?? 0,
-            HasArtwork = baseItem.ImageTags?.AdditionalData.ContainsKey(ImageType.Primary.ToString()) == true
+            HasArtwork = baseItem.ImageTags != null && baseItem.ImageTags.AdditionalData.ContainsKey(nameof(ImageType.Primary))
         };
         
         return playlist;
@@ -533,17 +533,18 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// Get available tracks from playlist
     /// </summary>
     /// <param name="playlistId"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<List<Track>> GetPlaylistTracksAsync(Guid playlistId)
+    public async Task<List<Track>> GetPlaylistTracksAsync(Guid playlistId, CancellationToken cancellationToken = default)
     {
         var trackResult = new List<Track>();
 
         var queryResult = await _jellyfinApiClient.Playlists[playlistId].Items.GetAsync(configuration =>
         {
             configuration.QueryParameters.Fields = [ItemFields.SortName];
-        }).ConfigureAwait(false);
+        }, cancellationToken).ConfigureAwait(false);
 
-        if (queryResult?.Items == null)
+        if (queryResult != null ? queryResult.Items == null : true)
             return trackResult;
         
         foreach (var baseItem in queryResult.Items)
@@ -551,31 +552,31 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
             if (baseItem.Id == null || baseItem.Name == null && !baseItem.IndexNumber.HasValue || !baseItem.AlbumId.HasValue)
                 continue;
 
-            trackResult.Add(new Models.Track()
+            trackResult.Add(new Track
             {
                 Id = baseItem.Id.GetValueOrDefault(),
-                Number = baseItem.IndexNumber.Value,
+                Number = baseItem.IndexNumber ?? 0,
                 Name = baseItem.Name,
                 Artist = baseItem.AlbumArtist ?? string.Empty,
                 Album = baseItem.Album ?? string.Empty,
                 RunTime = baseItem.RunTimeTicks.HasValue ? TimeSpan.FromTicks(baseItem.RunTimeTicks.Value) : TimeSpan.Zero,
                 AlbumId = baseItem.AlbumId.Value,
                 HasArtwork = !string.IsNullOrWhiteSpace(baseItem.AlbumPrimaryImageTag),
-                HasLyrics = baseItem.HasLyrics ?? false,
+                HasLyrics = baseItem.HasLyrics != null && baseItem.HasLyrics.Value,
             });
         }
-        
-        return trackResult;
+
+        return cancellationToken.IsCancellationRequested ? new List<Track>() : trackResult;
     }
 
     /// <summary>
     /// Get url for audio streaming
     /// </summary>
-    /// <param name="sessiondId"></param>
+    /// <param name="sessionId"></param>
     /// <param name="trackId"></param>
     /// <param name="position"></param>
     /// <returns></returns>
-    public string GetAudioStreamUrl(string sessiondId, Guid trackId, int? position)
+    public string GetAudioStreamUrl(string sessionId, Guid trackId, int? position)
     {
         long? ticks = position.HasValue ? TimeSpan.FromMilliseconds(position.Value).Ticks : null;
 
@@ -594,16 +595,28 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
 
         // PlaySessionId is part of the api, but not updated to library
         var url = _jellyfinApiClient.BuildUri(information);
-        return $"{url}&api_key={_sdkClientSettings.AccessToken}&PlaySessionId={sessiondId}";
+        return $"{url}&api_key={_sdkClientSettings.AccessToken}&PlaySessionId={sessionId}";
+    }
+
+    public async Task<string?> GetPlaybackAsync()
+    {
+        var deviceId = _configurationService.Get().DeviceId;
+        var result = await _jellyfinApiClient.Sessions.GetAsync(configuration =>
+        {
+            configuration.QueryParameters.DeviceId = $"jellytune-{deviceId}";
+        });
+
+        if (result == null || result.Count < 1) return null;
+        return result[0].Id;
     }
     
     /// <summary>
     /// Send server information about starting playback
     /// </summary>
     /// <param name="trackId"></param>
-    public async Task<string> StartPlaybackAsync(Guid trackId)
+    public async Task<string?> StartPlaybackAsync(Guid trackId)
     {
-        var body1 = new PlaybackInfoDto()
+        var body1 = new PlaybackInfoDto
         {
             UserId = _userId,
             StartTimeTicks = TimeSpan.FromSeconds(0).Ticks,
@@ -616,7 +629,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
         if (result == null)
             throw new Exception("Could not get PlaySessionId");
         
-        var body2 = new PlaybackStartInfo()
+        var body2 = new PlaybackStartInfo
         {
             ItemId = trackId,
             PlayMethod = PlaybackStartInfo_PlayMethod.Transcode,
@@ -640,7 +653,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     {
         long? ticks = position.HasValue ? TimeSpan.FromMilliseconds(position.Value).Ticks : null;
 
-        var body = new PlaybackStartInfo()
+        var body = new PlaybackStartInfo
         {
             ItemId = trackId,
             PlayMethod = PlaybackStartInfo_PlayMethod.Transcode,
@@ -657,21 +670,21 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// <summary>
     /// Send server information about resuming playback 
     /// </summary>
-    /// <param name="sessiondId"></param>
+    /// <param name="sessionId"></param>
     /// <param name="trackId"></param>
     /// <param name="position"></param>
-    public async Task ResumePlaybackAsync(string sessiondId, Guid trackId, int? position)
+    public async Task ResumePlaybackAsync(string sessionId, Guid trackId, int? position)
     {
         long? ticks = position.HasValue ? TimeSpan.FromMilliseconds(position.Value).Ticks : null;
         
-        var body = new PlaybackStartInfo()
+        var body = new PlaybackStartInfo
         {
             ItemId = trackId,
             PlayMethod = PlaybackStartInfo_PlayMethod.Transcode,
             IsPaused = false,
             PositionTicks = ticks,
             CanSeek = true,
-            PlaySessionId = sessiondId,
+            PlaySessionId = sessionId,
             SessionId = _sessionId,
         };
 
@@ -694,7 +707,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
             configuration.QueryParameters.Recursive = true;
         }).ConfigureAwait(false);
         
-        if (queryResult?.Items == null)
+        if (queryResult != null ? queryResult.Items == null : true)
             return playlistResults;
         
         foreach (var baseItem in queryResult.Items)
@@ -704,13 +717,13 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
 
             TimeSpan? duration = baseItem.RunTimeTicks.HasValue ? TimeSpan.FromTicks(baseItem.RunTimeTicks.Value) : null;
             
-            var playlist = new Playlist()
+            var playlist = new Playlist
             {
                 Id = baseItem.Id.Value,
                 Name = baseItem.Name ?? string.Empty,
                 Duration = duration,
                 TrackCount = baseItem.ChildCount ?? 0,
-                HasArtwork = baseItem.ImageTags?.AdditionalData.ContainsKey(ImageType.Primary.ToString()) == true
+                HasArtwork = baseItem.ImageTags != null ? baseItem.ImageTags.AdditionalData.ContainsKey(ImageType.Primary.ToString()) : false
             };
             
             playlistResults.Add(playlist);
@@ -724,9 +737,9 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    public Uri? GetPrimaryArtUrl(Guid id)
+    public Uri GetPrimaryArtUrl(Guid id)
     {
-        var information = _jellyfinApiClient.Items[id].Images[ImageType.Primary.ToString()]
+        var information = _jellyfinApiClient.Items[id].Images[nameof(ImageType.Primary)]
             .ToGetRequestInformation(configuration =>
             {
                 configuration.QueryParameters.Height = 200;
@@ -736,15 +749,15 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
         return _jellyfinApiClient.BuildUri(information);
     }
 
-    public async Task SeekPlaybackAsync(string sessiondId, Guid trackId, int? position)
+    public async Task SeekPlaybackAsync(string sessionId, Guid trackId, int? position)
     {
-        var body = new GeneralCommand()
+        var body = new GeneralCommand
         {
             Name = GeneralCommand_Name.Play,
             ControllingUserId = _userId,
-            Arguments = new GeneralCommand_Arguments()
+            Arguments = new GeneralCommand_Arguments
             {
-                AdditionalData =  new Dictionary<string, object>()
+                AdditionalData =  new Dictionary<string, object>
                 {
                     { "ItemIds", new[] { trackId } },
                     { "PlayCommand", "PlayNow" },
@@ -753,7 +766,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
             }
         };
 
-        await _jellyfinApiClient.Sessions[sessiondId].Command.PostAsync(body).ConfigureAwait(false);
+        await _jellyfinApiClient.Sessions[sessionId].Command.PostAsync(body).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -761,9 +774,10 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// </summary>
     /// <param name="artistId"></param>
     /// <param name="excludeAbumIds"></param>
-    /// <param name="albumId"></param>
+    /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    public async Task<List<Album>> GetArtistAlbumsAsync(Guid artistId, Guid?[]? excludeAbumIds = null)
+    public async Task<List<Album>> GetArtistAlbumsAsync(Guid artistId, Guid?[]? excludeAbumIds,
+        CancellationToken cancellationToken)
     {
         var albumsResult = new List<Album>();
 
@@ -781,9 +795,9 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
             configuration.QueryParameters.Fields = [ItemFields.PrimaryImageAspectRatio, ItemFields.SortName];
             configuration.QueryParameters.AlbumArtistIds = [artistId];
             configuration.QueryParameters.IncludeItemTypes = [ BaseItemKind.MusicAlbum ];
-        }).ConfigureAwait(false);
+        }, cancellationToken: cancellationToken).ConfigureAwait(false);
         
-        if (queryResult2?.Items == null)
+        if (queryResult2 == null || queryResult2.Items == null)
             return albumsResult;
 
         foreach (var baseItem in queryResult2.Items)
@@ -791,15 +805,15 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
             if (baseItem.Id == null || baseItem.Name == null || baseItem.AlbumArtist == null)
                 continue;
 
-            albumsResult.Add(new Models.Album()
+            albumsResult.Add(new Album
             {
                 Id = baseItem.Id.Value,
                 Artist = baseItem.AlbumArtist,
-                ArtistId = baseItem?.AlbumArtists?.FirstOrDefault()?.Id ?? baseItem?.ArtistItems?.FirstOrDefault()?.Id,
+                ArtistId = baseItem.AlbumArtists != null ? baseItem.AlbumArtists.FirstOrDefault() != null ? baseItem.AlbumArtists.FirstOrDefault()?.Id != null ? baseItem.AlbumArtists.FirstOrDefault()?.Id : baseItem.ArtistItems != null ? baseItem.ArtistItems.FirstOrDefault() != null ? baseItem.ArtistItems.FirstOrDefault()?.Id : null : null : null : baseItem.ArtistItems != null ? baseItem.ArtistItems.FirstOrDefault() != null ? baseItem.ArtistItems.FirstOrDefault()?.Id : null : null,
                 Name = baseItem.Name,
                 Year = baseItem.ProductionYear,
                 Runtime = baseItem.RunTimeTicks.HasValue ? new TimeSpan(baseItem.RunTimeTicks.Value) : null,
-                HasArtwork = baseItem.ImageTags?.AdditionalData.ContainsKey(ImageType.Primary.ToString()) == true
+                HasArtwork = baseItem.ImageTags != null ? baseItem.ImageTags.AdditionalData.ContainsKey(ImageType.Primary.ToString()) : false
             });
         }
 
@@ -814,39 +828,39 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     public async Task<Artist?> GetArtistAsync(Guid artistId)
     {
         var baseItem = await _jellyfinApiClient.Items[artistId].GetAsync();
-        if (baseItem?.Id == null || baseItem.Name == null) return null;
+        if ((baseItem != null ? baseItem.Id == null : true) || baseItem.Name == null) return null;
 
-        var result = new Artist()
+        var result = new Artist
         {
             Id = baseItem.Id.Value,
             Name = baseItem.Name,
-            HasArtwork = baseItem.ImageTags?.AdditionalData.ContainsKey(ImageType.Primary.ToString()) == true
+            HasArtwork = baseItem.ImageTags != null ? baseItem.ImageTags.AdditionalData.ContainsKey(ImageType.Primary.ToString()) : false
         };
 
         return result;
     }
 
-    public async Task<Guid?> GetArtistByTrackIdAsync(Guid trackId)
+    public async Task<Guid?> GetArtistByTrackIdAsync(Guid trackId, CancellationToken cancellationToken = default)
     {
-        var baseItem = await _jellyfinApiClient.Items[trackId].GetAsync().ConfigureAwait(false);
+        var baseItem = await _jellyfinApiClient.Items[trackId].GetAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
         if (baseItem == null)
             throw new ArgumentException($"No album found with id {trackId}");
 
-        return baseItem?.AlbumArtists?.FirstOrDefault()?.Id ?? baseItem?.ArtistItems?.FirstOrDefault()?.Id;
+        return baseItem.AlbumArtists != null ? baseItem.AlbumArtists.FirstOrDefault() != null ? baseItem.AlbumArtists.FirstOrDefault()?.Id != null ? baseItem.AlbumArtists.FirstOrDefault()?.Id : baseItem.ArtistItems != null ? baseItem.ArtistItems.FirstOrDefault() != null ? baseItem.ArtistItems.FirstOrDefault()?.Id : null : null : baseItem.ArtistItems != null ? baseItem.ArtistItems.FirstOrDefault() != null ? baseItem.ArtistItems.FirstOrDefault()?.Id : null : null : baseItem.ArtistItems != null ? baseItem.ArtistItems.FirstOrDefault() != null ? baseItem.ArtistItems.FirstOrDefault()?.Id : null : null;
     }
 
     /// <summary>
     /// Send server information about stopping playback
     /// </summary>
-    /// <param name="sessiondId"></param>
+    /// <param name="sessionId"></param>
     /// <param name="trackId"></param>
-    public async Task StopPlaybackAsync(string sessiondId, Guid trackId)
+    public async Task StopPlaybackAsync(string sessionId, Guid trackId)
     {
-        var body = new PlaybackStopInfo()
+        var body = new PlaybackStopInfo
         {
             ItemId = trackId,
-            PlaySessionId = sessiondId,
+            PlaySessionId = sessionId,
             SessionId = _sessionId,
         };
         

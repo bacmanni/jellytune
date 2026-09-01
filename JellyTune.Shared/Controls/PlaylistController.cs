@@ -1,6 +1,4 @@
-using System.Collections.Concurrent;
 using JellyTune.Shared.Enums;
-using JellyTune.Shared.Events;
 using JellyTune.Shared.Models;
 using JellyTune.Shared.Services;
 
@@ -10,20 +8,14 @@ public class PlaylistController : ListController, IDisposable
 {
     private readonly IJellyTuneApiService _jellyTuneApiService;
     private readonly IConfigurationService _configurationService;
-    private readonly IPlayerService _playerService;
-    private readonly IFileService _fileService;
 
-    public IFileService FileService => _fileService;
+    public event EventHandler<Guid>? OnPlaylistClicked;
 
-    public event EventHandler<Guid> OnPlaylistClicked;
-
-    public PlaylistController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService, IPlayerService playerService, IFileService fileService) : base(jellyTuneApiService, configurationService, playerService, fileService)
+    public PlaylistController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService, IFileService fileService) : base(configurationService, fileService)
     {
         _jellyTuneApiService = jellyTuneApiService;
         _configurationService = configurationService;
-        _playerService = playerService;
-        _fileService = fileService;
-        
+
         OnItemClicked += ListControllerOnItemClicked;
     }
 
@@ -68,11 +60,11 @@ public class PlaylistController : ListController, IDisposable
         var listItems = new List<ListItem>();
         foreach (var playlist in playlists)
         {
-            listItems.Add(new ListItem()
+            listItems.Add(new ListItem
             {
                 Id = playlist.Id,
                 Title = playlist.Name,
-                Description = $"{playlist.TrackCount} tracks, {playlist.Duration.Value.TotalHours:N1}h",
+                Description = playlist.Duration == null ? $"{playlist.TrackCount} tracks" : $"{playlist.TrackCount} tracks, {playlist.Duration.Value.TotalHours:N1}h",
                 HasArtwork = playlist.HasArtwork,
                 ArtworkFiletype = FileType.Playlist
             });

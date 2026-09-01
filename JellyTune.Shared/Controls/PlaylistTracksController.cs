@@ -8,21 +8,21 @@ namespace JellyTune.Shared.Controls;
 public sealed class PlaylistTracksController : IDisposable
 {
     private readonly IJellyTuneApiService _jellyTuneApiService;
-    private readonly IConfigurationService _configurationService;
     private readonly IPlayerService _playerService;
     private readonly IFileService _fileService;
     
     public IFileService FileService => _fileService;
     public IPlayerService PlayerService => _playerService;
 
-    public Playlist Playlist { private set; get; }
+    private CancellationTokenSource? _openPlaylistCts;
+    
+    public Playlist? Playlist { private set; get; }
     public readonly List<Track> Tracks = [];
     public event EventHandler<PlaylistTracksStateArgs>? OnPlaylistTracksStateChanged;
     
-    public PlaylistTracksController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService, IPlayerService playerService, IFileService fileService)
+    public PlaylistTracksController(IJellyTuneApiService jellyTuneApiService, IPlayerService playerService, IFileService fileService)
     {
         _jellyTuneApiService = jellyTuneApiService;
-        _configurationService = configurationService;
         _playerService = playerService;
         _fileService = fileService;
         
@@ -33,23 +33,40 @@ public sealed class PlaylistTracksController : IDisposable
     {
         if (e.State is PlayerState.Playing or PlayerState.Stopped or PlayerState.Paused or PlayerState.Starting)
         {
-            OnPlaylistTracksStateChanged?.Invoke(this, new PlaylistTracksStateArgs() {  UpdateTrackState = true, SelectedTrackId = e.SelectedTrack?.Id ?? e.SelectedTrackId });
+            OnPlaylistTracksStateChanged?.Invoke(this, new PlaylistTracksStateArgs {  UpdateTrackState = true, SelectedTrackId = e.SelectedTrack != null ? e.SelectedTrack.Id : e.SelectedTrackId });
         }
     }
-
+    
     /// <summary>
     /// Open selected playlist tracks
     /// </summary>
     /// <param name="playlistId"></param>
     public async Task OpenPlaylist(Guid playlistId)
     {
-        OnPlaylistTracksStateChanged?.Invoke(this, new PlaylistTracksStateArgs() { Loading = true });
-        Playlist = await _jellyTuneApiService.GetPlaylistAsync(playlistId);
+        _openPlaylistCts?.Cancel();
+        _openPlaylistCts?.Dispose();
         
-        Tracks.Clear();
-        var tracks = await _jellyTuneApiService.GetPlaylistTracksAsync(playlistId);
-        Tracks.AddRange(tracks);
-        OnPlaylistTracksStateChanged?.Invoke(this, new PlaylistTracksStateArgs());
+        _openPlaylistCts = new CancellationTokenSource();
+        var cancellationToken = _openPlaylistCts.Token;
+        
+        OnPlaylistTracksStateChanged?.Invoke(this, new PlaylistTracksStateArgs { Loading = true });
+        
+        try
+        {
+            Playlist = await _jellyTuneApiService.GetPlaylistAsync(playlistId);
+            cancellationToken.ThrowIfCancellationRequested();
+            
+            var tracks = await _jellyTuneApiService.GetPlaylistTracksAsync(playlistId, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+            
+            Tracks.Clear();
+            Tracks.AddRange(tracks);
+            OnPlaylistTracksStateChanged?.Invoke(this, new PlaylistTracksStateArgs());
+        }
+        catch (OperationCanceledException)
+        {
+            // A newer OpenPlaylist call cancelled this one.
+        }
     }
 
     /// <summary>

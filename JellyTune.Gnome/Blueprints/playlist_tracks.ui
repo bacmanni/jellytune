@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <interface>
-    <object class="GtkScrolledWindow" id="_root">
+    <template class="JellyTunePlaylistTracks">
         <property name="hscrollbar-policy">2</property>
-        <property name="propagate-natural-height">true</property>
-        <property name="propagate-natural-width">true</property>
-        <property name="has-frame">false</property>
         <property name="hexpand">true</property>
         <property name="vexpand">true</property>
         <child>
@@ -48,5 +45,5 @@
                 </child>
             </object>
         </child>
-    </object>
+    </template>
 </interface>

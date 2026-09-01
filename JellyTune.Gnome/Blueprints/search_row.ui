@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <interface>
-    <object class="AdwActionRow" id="_root">
+    <template class="JellyTuneSearchRow">
         <property name="title-lines">1</property>
         <property name="subtitle-lines">1</property>
         <child type="prefix">
@@ -16,5 +16,5 @@
                 <property name="margin-end">8</property>
             </object>
         </child>
-    </object>
+    </template>
 </interface>

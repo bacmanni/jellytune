@@ -25,9 +25,8 @@ public class ListControllerTests
 
         _collectionId = Guid.NewGuid();
         
-        var configuration = new Configuration()
+        var configuration = new Configuration
         {
-            AutoRefresh = true,
             CacheListData = true,
         };
         
@@ -38,7 +37,7 @@ public class ListControllerTests
         _mockJellyTuneApiService.Setup(repo => repo.CheckServerAsync("https://test.com:8096")).ReturnsAsync(true);
         _mockJellyTuneApiService.Setup(repo => repo.LoginAsync("valid", "test")).ReturnsAsync(true);
         */
-        _controller = new ListController(_mockJellyTuneApiService.Object, _mockConfigurationService.Object, _mockPlayerService.Object, _mockFileService.Object);
+        _controller = new ListController(_mockConfigurationService.Object, _mockFileService.Object);
     }
 
     [Fact]
@@ -48,7 +47,7 @@ public class ListControllerTests
         var update = _controller.UpdateFromServer();
         Assert.True(update);
 
-        var item = new ListItem()
+        var item = new ListItem
         {
             Id = Guid.NewGuid(),
             Title = "Test titlet",
@@ -59,13 +58,13 @@ public class ListControllerTests
         
         _controller.AddOrUpdateItems([item]);
         update = _controller.UpdateFromServer();
-        Assert.True(update);
+        Assert.False(update);
     }
     
     [Fact]
     public async Task GetFromCacheAsync()
     {
-        var item = new ListItem()
+        var item = new ListItem
         {
             Id = Guid.NewGuid(),
             Title = "Test titlet",

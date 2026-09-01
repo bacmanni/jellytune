@@ -1,42 +1,50 @@
-using Gtk.Internal;
+using Adw;
+using Gdk;
+using GLib;
+using GObject;
+using Gtk;
+using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Events;
-using JellyTune.Gnome.Helpers;
 using GestureClick = Gtk.GestureClick;
 using ListBox = Gtk.ListBox;
+using Spinner = Adw.Spinner;
 
 namespace JellyTune.Gnome.Views;
 
-public class AlbumView : Gtk.ScrolledWindow
+[Subclass<ScrolledWindow>(qualifiedName: "JellyTuneAlbumView")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.album.ui")]
+public partial class AlbumView
 {
-    private readonly AlbumController _controller;
-    private readonly AlbumArtController _albumArtController;
+    private AlbumController _controller;
+    private AlbumArtController _albumArtController;
     
-    [Gtk.Connect] private readonly Gtk.Image _albumArt;
-    [Gtk.Connect] private readonly Gtk.Label _artist;
-    [Gtk.Connect] private readonly Gtk.Label _album;
-    [Gtk.Connect] private readonly Gtk.Label _trackCount;
-    [Gtk.Connect] private readonly Gtk.Label _albumDuration;
-    [Gtk.Connect] private readonly Gtk.Label _albumYear;
-    [Gtk.Connect] private readonly Gtk.ListBox _tracks;
-    [Gtk.Connect] private readonly Adw.Spinner _spinner;
-    [Gtk.Connect] private readonly Adw.Clamp _result;
+    [Connect] private Image _albumArt;
+    [Connect] private Label _artist;
+    [Connect] private Label _album;
+    [Connect] private Label _trackCount;
+    [Connect] private Label _albumDuration;
+    [Connect] private Label _albumYear;
+    [Connect] private ListBox _tracks;
+    [Connect] private Spinner _spinner;
+    [Connect] private Clamp _result;
 
-    private AlbumView(Gtk.Builder builder) : base(
-        new ScrolledWindowHandle(builder.GetPointer("_root"), false))
+    public static AlbumView NewWithValues(AlbumController controller)
     {
-        builder.Connect(this);
+        var obj = NewWithProperties([]);
+        obj._controller = controller;
+        obj._albumArtController = new AlbumArtController(obj._controller.JellyTuneApiService);
+        obj.InitializeController();
+        return obj;
     }
-    
-    public AlbumView(AlbumController controller) : this(GtkHelper.BuilderFromFile("album"))
+
+    private void InitializeController()
     {
-        _controller = controller;
-        _albumArtController = new AlbumArtController(_controller.JellyTuneApiService);
+        _controller.OnAlbumChanged += ControllerOnAlbumChanged;
         _tracks.OnRowSelected += TracksOnRowSelected;
         _tracks.OnRowActivated += TracksOnRowActivated;
-        _controller.OnAlbumChanged += ControllerOnAlbumChanged;
         
-        var click = Gtk.GestureClick.New();
+        var click = GestureClick.New();
         click.OnPressed += ClickOnPressed;
         _albumArt.AddController(click);
     }
@@ -45,7 +53,7 @@ public class AlbumView : Gtk.ScrolledWindow
     {
         if (_controller.Artwork == null || _controller.Album?.Id == null) return;
         
-        var albumArtDialog = new AlbumArtView(_albumArtController);
+        var albumArtDialog = AlbumArtView.NewWithValues(_albumArtController);
         albumArtDialog.Present(this);
         _ = _albumArtController.OpenAsync(_controller.Album);
     }
@@ -116,14 +124,14 @@ public class AlbumView : Gtk.ScrolledWindow
 
         SetSpinner(false);
         
-        _artist.SetText(_controller.Album.Artist);
-        _album.SetText(_controller.Album.Name);
+        _artist.SetText(_controller.Album != null ? _controller.Album.Artist != null ? _controller.Album.Artist : "No artist" : "No artist");
+        _album.SetText(_controller.Album != null ? _controller.Album.Name != null ? _controller.Album.Name : "No album" : "No album");
         _trackCount.SetText($"{_controller.Tracks.Count.ToString()} tracks");
         
-        if (_controller.Album?.Runtime != null)
+        if (_controller.Album != null && _controller.Album.Runtime != null)
             _albumDuration.SetText($"{_controller.Album.Runtime.Value.TotalMinutes:F0}m");
         
-        if (_controller.Album?.Year != null)
+        if (_controller.Album != null && _controller.Album.Year != null)
             _albumYear.SetText(_controller.Album.Year.Value.ToString());
     }
 
@@ -132,8 +140,8 @@ public class AlbumView : Gtk.ScrolledWindow
         if (_controller.Artwork != null)
         {
             _albumArt.Clear();
-            using var bytes = GLib.Bytes.New(_controller.Artwork);
-            using var texture = Gdk.Texture.NewFromBytes(bytes);
+            using var bytes = Bytes.New(_controller.Artwork);
+            using var texture = Texture.NewFromBytes(bytes);
             _albumArt.SetFromPaintable(texture);
         }
     }
@@ -144,7 +152,7 @@ public class AlbumView : Gtk.ScrolledWindow
         foreach (var track in _controller.Tracks)
         {
             var state = _controller.PlayerService.GetTrackState(track.Id);
-            var row = new TrackRow(_controller.FileService, track, state);
+            var row = TrackRow.NewWithValues(_controller.FileService, track, state);
             _tracks.Append(row);
         }
     }

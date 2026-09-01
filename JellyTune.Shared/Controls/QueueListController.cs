@@ -5,22 +5,18 @@ namespace JellyTune.Shared.Controls;
 
 public sealed class QueueListController : IDisposable
 {
-    private readonly IJellyTuneApiService _jellyTuneApiService;
-    private readonly IConfigurationService _configurationService;
     private readonly IPlayerService _playerService;
     private readonly IFileService _fileService;
     
-    public readonly List<Models.Track> Tracks = [];
+    public readonly List<Track> Tracks = [];
     
     public IFileService FileService => _fileService;
     public IPlayerService PlayerService => _playerService;
     
-    public event EventHandler<QueueArgs> OnQueueUpdated;
+    public event EventHandler<QueueArgs>? OnQueueUpdated;
     
-    public QueueListController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService, IPlayerService playerService, IFileService fileService)
+    public QueueListController(IPlayerService playerService, IFileService fileService)
     {
-        _jellyTuneApiService = jellyTuneApiService;
-        _configurationService = configurationService;
         _playerService = playerService;
         _fileService = fileService;
     }
@@ -35,7 +31,7 @@ public sealed class QueueListController : IDisposable
         tracks.Reverse();
         Tracks.AddRange(tracks);
 
-        OnQueueUpdated.Invoke(this, new QueueArgs());
+        OnQueueUpdated?.Invoke(this, new QueueArgs());
     }
     
     

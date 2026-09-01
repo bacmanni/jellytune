@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <interface>
-    <object class="AdwPreferencesGroup" id="_root">
+    <template class="JellyTuneAccountView">
         <property name="title">Server and account</property>
         <child>
             <object class="AdwEntryRow" id="_server">
@@ -35,5 +35,5 @@
                 <property name="sensitive">false</property>
             </object>
         </child>
-    </object>
+    </template>
 </interface>

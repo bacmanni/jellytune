@@ -1,45 +1,88 @@
-using Gtk.Internal;
+using Gdk;
+using GLib;
+using GObject;
+using Gtk;
+using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
-using JellyTune.Gnome.Helpers;
 using Button = Gtk.Button;
 
 namespace JellyTune.Gnome.Views;
 
-public class PlayerView : Gtk.Box
+
+[Subclass<Box>(qualifiedName: "JellyTunePlayerView")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.player.ui")]
+public partial class PlayerView
 {
-    private readonly PlayerExtendedController _extendedController;
-    private readonly PlayerController _controller;
+    private PlayerExtendedController _extendedController;
+    private PlayerController _controller;
 
-    private readonly PlayerExtendedButtonView _extendedButtonView;
+    private PlayerExtendedButtonView _extendedButtonView;
     
-    [Gtk.Connect] private readonly Gtk.Box _container;
-    [Gtk.Connect] private readonly Gtk.Box _actions;
-    [Gtk.Connect] private readonly Gtk.Image _albumArt;
-    [Gtk.Connect] private readonly Gtk.Button _skipBackward;
-    [Gtk.Connect] private readonly Gtk.Button _play;
-    [Gtk.Connect] private readonly Gtk.Button _skipForward;
-    [Gtk.Connect] private readonly Gtk.Button _lyrics;
-    [Gtk.Connect] private readonly Gtk.Button _album;
-    [Gtk.Connect] private readonly Gtk.Label _track;
-    [Gtk.Connect] private readonly Gtk.Label _artist;
+    [Connect] private Box _container;
+    [Connect] private Box _actions;
+    [Connect] private Image _albumArt;
+    [Connect] private Button _skipBackward;
+    [Connect] private Button _play;
+    [Connect] private Button _skipForward;
+    [Connect] private Button _lyrics;
+    [Connect] private Button _album;
+    [Connect] private Label _track;
+    [Connect] private Label _artist;
 
-    private PlayerView(Gtk.Builder builder) : base(
-        new BoxHandle(builder.GetPointer("_root"), false))
+    private bool _initialized;
+    
+    public static PlayerView NewWithValues(PlayerController controller, PlayerExtendedController extendedController)
     {
-        builder.Connect(this);
+        var obj = NewWithProperties([]);
+        obj._controller = controller;
+        obj._extendedController = extendedController;
+        obj.InitializeController();
+        return obj;
+    }
+
+    private void InitializeController()
+    {
+        _extendedButtonView = PlayerExtendedButtonView.NewWithValues(_extendedController);
+        _controller.PlayerService.OnPlayerStateChanged += OnPlayerStateChanged;
+        _controller.ConfigurationService.OnSaved += ConfigurationServiceOnSaved;
+        _actions.Append(_extendedButtonView);
+        _skipBackward.OnClicked += SkipBackwardOnClicked;
+        _play.OnClicked += PlayerPlayOnClicked;
+        _skipForward.OnClicked += SkipForwardOnClicked;
+        _lyrics.OnClicked += LyricsOnOnClicked;
+        _album.OnClicked += AlbumOnClicked;
+        
+        var click = GestureClick.New();
+        _albumArt.AddController(click);
+        click.OnReleased += (_, _) =>
+        {
+            _controller.ShowPlaylist();
+        };
+
+        var key = EventControllerKey.New();
+        _albumArt.AddController(key);
+        key.OnKeyReleased += (_, _) =>
+        {
+            _controller.ShowPlaylist();
+        };
+
+        _lyrics.SetVisible(_controller.ConfigurationService.Get().ShowLyrics);
+        _album.SetVisible(_controller.ConfigurationService.Get().ShowCurrentAlbum);
+
+        _initialized = true;
     }
 
     private void UpdateTrack()
     {
         if (_controller.Album != null)
-            _artist.SetText(_controller.Album.Artist);
+            _artist.SetText(_controller.Album.Artist != null ? _controller.Album.Artist : string.Empty);
         
         if (_controller.Artwork != null)
         {
-            var bytes = GLib.Bytes.New(_controller.Artwork);
-            var texture = Gdk.Texture.NewFromBytes(bytes);
+            var bytes = Bytes.New(_controller.Artwork);
+            var texture = Texture.NewFromBytes(bytes);
             _albumArt.SetFromPaintable(texture);
         }
         else
@@ -49,78 +92,48 @@ public class PlayerView : Gtk.Box
         
         if (_controller.SelectedTrack != null)
         {
-            _track.SetText(_controller.SelectedTrack.Name);
+            _track.SetText(_controller.SelectedTrack.Name != null ? _controller.SelectedTrack.Name : string.Empty);
             _lyrics.SetSensitive(_controller.SelectedTrack.HasLyrics);
             _skipForward.SetSensitive(_controller.PlayerService.HasNextTrack());
             _skipBackward.SetSensitive(_controller.PlayerService.HasPreviousTrack());
         }
     }
     
-    private void SkipForwardOnClicked(Gtk.Button sender, EventArgs args)
+    private void SkipForwardOnClicked(Button sender, EventArgs args)
     {
         _controller.PlayerService.NextTrackAsync();
     }
 
-    private void SkipBackwardOnClicked(Gtk.Button sender, EventArgs args)
+    private void SkipBackwardOnClicked(Button sender, EventArgs args)
     {
         _controller.PlayerService.PreviousTrackAsync();
     }
     
-    private void PlayerPlayOnClicked(Gtk.Button sender, EventArgs args)
+    private void PlayerPlayOnClicked(Button sender, EventArgs args)
     {
         _controller.PlayerService.StartOrPauseTrackAsync();
     }
-
-    public PlayerView(PlayerController controller, PlayerExtendedController extendedController) : this(GtkHelper.BuilderFromFile("player"))
-    {
-        _controller = controller;
-        _extendedController = extendedController;
-        _extendedButtonView = new PlayerExtendedButtonView(_extendedController);
-        _actions.Append(_extendedButtonView);
-        _skipBackward.OnClicked += SkipBackwardOnClicked;
-        _play.OnClicked += PlayerPlayOnClicked;
-        _skipForward.OnClicked += SkipForwardOnClicked;
-        _lyrics.OnClicked += LyricsOnOnClicked;
-        _album.OnClicked += AlbumOnClicked;
-        _controller.PlayerService.OnPlayerStateChanged += OnPlayerStateChanged;
-        _controller.ConfigurationService.OnSaved += ConfigurationServiceOnSaved;
-        
-        var click = Gtk.GestureClick.New();
-        _albumArt.AddController(click);
-        click.OnReleased += (sender, args) =>
-        {
-            _controller.ShowPlaylist();
-        };
-
-        var key = Gtk.EventControllerKey.New();
-        _albumArt.AddController(key);
-        key.OnKeyReleased += (sender, args) =>
-        {
-            _controller.ShowPlaylist();
-        };
-
-        _lyrics.SetVisible(_controller.ConfigurationService.Get().ShowLyrics);
-        _album.SetVisible(_controller.ConfigurationService.Get().ShowCurrentAlbum);
-    }
-
+    
     private void AlbumOnClicked(Button sender, EventArgs args)
     {
-        if (GetRoot() is Gtk.Window win)
+        if (GetRoot() is Window win)
         {
-            var albumId = _controller.PlayerService.GetSelectedAlbum()?.Id;
+            var albumId = _controller.PlayerService.GetSelectedAlbum() != null ? _controller.PlayerService.GetSelectedAlbum()?.Id : null;
             if (!albumId.HasValue) return;
             
-            win.ActivateAction("win.open_album", GLib.Variant.NewString(albumId.ToString()));
+            win.ActivateAction("win.open_album", Variant.NewString(albumId.ToString() ?? string.Empty));
         }
     }
 
     private void ConfigurationServiceOnSaved(object? sender, EventArgs e)
     {
+        if (!_initialized) return;
+        
         _lyrics.SetVisible(_controller.ConfigurationService.Get().ShowLyrics);
         _album.SetVisible(_controller.ConfigurationService.Get().ShowCurrentAlbum);
     }
 
-    private void LyricsOnOnClicked(Gtk.Button sender, EventArgs args)
+    private void LyricsOnOnClicked(Button sender, EventArgs args)
     {
         _controller.ShowShowLyrics();
     }

@@ -1,31 +1,36 @@
-using Gtk.Internal;
+using Gdk;
+using GLib;
+using GObject;
+using Gtk;
+using JellyTune.Gnome.Models;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Services;
-using JellyTune.Gnome.Helpers;
-using JellyTune.Gnome.Models;
 
 namespace JellyTune.Gnome.Views;
 
-public class ListItem : Gtk.Box
+[Subclass<Box>(qualifiedName: "JellyTuneListItem")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.list_item.ui")]
+public partial class ListItem
 {
-    private readonly IFileService _fileService;
+    private IFileService _fileService;
     
-    [Gtk.Connect] private readonly Gtk.Image _art;
-    [Gtk.Connect] private readonly Gtk.Label _description;
-    [Gtk.Connect] private readonly Gtk.Label _title;
+    [Connect] private Image _art;
+    [Connect] private Label _description;
+    [Connect] private Label _title;
 
     private FileType _fileType;
     private CancellationTokenSource? _cancellationTokenSource;
 
-    private ListItem(Gtk.Builder builder) : base(
-        new BoxHandle(builder.GetPointer("_root"), false))
+    public static ListItem NewWithValues(IFileService fileService)
     {
-        builder.Connect(this);
+        var obj = NewWithProperties([]);
+        obj._fileService = fileService;
+        obj.InitializeController();
+        return obj;
     }
-    
-    public ListItem(IFileService fileService) : this(GtkHelper.BuilderFromFile("list_item"))
+
+    private void InitializeController()
     {
-        _fileService = fileService;
         CanFocus = false;
     }
 
@@ -57,10 +62,9 @@ public class ListItem : Gtk.Box
         if  (albumArt == null || albumArt.Length == 0)
             return;
         
-        using var bytes = GLib.Bytes.New(albumArt);
-        using var texture = Gdk.Texture.NewFromBytes(bytes);
+        using var bytes = Bytes.New(albumArt);
+        using var texture = Texture.NewFromBytes(bytes);
         _art.SetFromPaintable(texture);
-        albumArt = null;
     }
     
     public void Clear()

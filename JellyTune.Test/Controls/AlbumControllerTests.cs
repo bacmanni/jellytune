@@ -28,36 +28,36 @@ public class AlbumControllerTests
         _albumId = Guid.NewGuid();
         _trackId = Guid.NewGuid();
         
-        var album = new Album()
+        var album = new Album
         {
             Id = _albumId,
             ArtistId =  Guid.NewGuid(),
             HasArtwork = false
         };
 
-        var track1 = new Track()
+        var track1 = new Track
         {
             Id = _trackId,
             AlbumId =  _albumId,
             Name =  "Track 1"
         };
         
-        var track2 = new Track()
+        var track2 = new Track
         {
             Id = Guid.NewGuid(),
             AlbumId =  _albumId,
             Name =  "Track 2"
         };
         
-        var tracks = new List<Track>() {track1, track2};
-        _mockJellyTuneApiService.Setup(repo => repo.GetAlbumAsync(_albumId, CancellationToken.None)).ReturnsAsync(album);
-        _mockJellyTuneApiService.Setup(repo => repo.GetTracksAsync(_albumId, CancellationToken.None)).ReturnsAsync(tracks);
+        var tracks = new List<Track> {track1, track2};
+        _mockJellyTuneApiService.Setup(repo => repo.GetAlbumAsync(_albumId, It.IsAny<CancellationToken>())).ReturnsAsync(album);
+        _mockJellyTuneApiService.Setup(repo => repo.GetTracksAsync(_albumId, It.IsAny<CancellationToken>())).ReturnsAsync(tracks);
     }
     
     [Fact]
     public async Task OpenAsync()
     {
-        var evt = Assert.Raises<AlbumStateArgs>(handler => _controller.OnAlbumChanged += handler, handler => _controller.OnAlbumChanged -= handler, () => _controller.OpenAsync(_albumId, null, CancellationToken.None).GetAwaiter().GetResult() );
+        var evt = Assert.Raises<AlbumStateArgs>(handler => _controller.OnAlbumChanged += handler, handler => _controller.OnAlbumChanged -= handler, () => _controller.OpenAsync(_albumId).GetAwaiter().GetResult() );
         
         Assert.Equal(_controller, evt.Sender);
         Assert.True(evt.Arguments.UpdateAlbum);

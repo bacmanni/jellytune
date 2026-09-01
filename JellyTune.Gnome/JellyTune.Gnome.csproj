@@ -3,6 +3,7 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net9.0</TargetFramework>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <RuntimeIdentifiers>linux-x64;linux-arm64</RuntimeIdentifiers>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
@@ -12,13 +13,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="GirCore.Adw-1" Version="0.7.0" />
-      <PackageReference Include="GirCore.GLib-2.0" Version="0.7.0" />
-      <PackageReference Include="GirCore.GObject-2.0.Integration" Version="0.7.0" />
-      <PackageReference Include="GirCore.Gtk-4.0" Version="0.7.0" />
+      <PackageReference Include="GirCore.Adw-1" Version="0.8.1" />
+      <PackageReference Include="GirCore.GLib-2.0" Version="0.8.1" />
+      <PackageReference Include="GirCore.GObject-2.0" Version="0.8.1" />
+      <PackageReference Include="GirCore.Gtk-4.0" Version="0.8.1" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.4" />
       <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.4" />
-      <PackageReference Include="Tmds.DBus" Version="0.92.0" />
+      <PackageReference Include="Tmds.DBus" Version="0.94.2" />
     </ItemGroup>
 
     <ItemGroup>
@@ -46,9 +47,6 @@
       <None Remove="Blueprints\search.ui" />
       <EmbeddedResource Include="Blueprints\search.ui" />
       <None Remove="Blueprints\search_list_item.ui" />
-      <None Update="Resources\io.github.bacmanni.jellytune-dark.css">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
       <None Update="Resources\io.github.bacmanni.jellytune.gresource.xml">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
@@ -89,7 +87,6 @@
       <None Remove="Blueprints\album_row.ui" />
       <EmbeddedResource Include="Blueprints\album_row.ui" />
       <None Remove="Blueprints\shortcuts.ui" />
-      <EmbeddedResource Include="Blueprints\shortcuts.ui" />
       <None Remove="Blueprints\information.ui" />
       <None Remove="Blueprints\album_art.ui" />
       <EmbeddedResource Include="Blueprints\album_art.ui" />

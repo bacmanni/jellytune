@@ -1,29 +1,36 @@
+using GLib;
+using GObject;
+using Gtk;
 using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Events;
-using DialogHandle = Adw.Internal.DialogHandle;
+using Dialog = Adw.Dialog;
 using ListBox = Gtk.ListBox;
+using Spinner = Adw.Spinner;
 
 namespace JellyTune.Gnome.Views;
 
-public class ArtistAlbumView : Adw.Dialog
+[Subclass<Dialog>(qualifiedName: "JellyTuneArtistAlbumView")]
+[Template<AssemblyResource>("JellyTune.Gnome.Blueprints.artist_album.ui")]
+public partial class ArtistAlbumView
 {
-    private readonly ArtistAlbumController  _controller;
+    private ArtistAlbumController  _controller;
 
-    [Gtk.Connect] private readonly Adw.Spinner _spinner;
-    [Gtk.Connect] private readonly Gtk.Revealer _result;
+    [Connect] private Spinner _spinner;
+    [Connect] private Revealer _result;
     
-    [Gtk.Connect] private readonly Gtk.ListBox _albums;
-    
-    private ArtistAlbumView(Gtk.Builder builder) : base(
-        new DialogHandle(builder.GetPointer("_root"), false))
+    [Connect] private ListBox _albums;
+
+    public static ArtistAlbumView NewWithValues(ArtistAlbumController controller)
     {
-        builder.Connect(this);
+        var obj = NewWithProperties([]);
+        obj._controller = controller;
+        obj.InitializeController();
+        return obj;
     }
 
-    public ArtistAlbumView(ArtistAlbumController controller) : this(GtkHelper.BuilderFromFile("artist_album"))
+    private void InitializeController()
     {
-        _controller = controller;
         _controller.OnAlbumsChanged += ControllerOnAlbumsChanged;
         _albums.OnRowActivated += AlbumsOnRowActivated;
         
@@ -35,12 +42,12 @@ public class ArtistAlbumView : Adw.Dialog
     {
         if (args.Row is AlbumRow row)
         {
-            Close();
-
-            if (GetRoot() is Gtk.Window win)
+            if (GetRoot() is Window win)
             {
-                win.ActivateAction("win.open_album", GLib.Variant.NewString(row.AlbumId.ToString()));
+                win.ActivateAction("win.open_album", Variant.NewString(row.AlbumId.ToString()));
             }
+            
+            Close();
         }
     }
 
@@ -60,7 +67,7 @@ public class ArtistAlbumView : Adw.Dialog
             _albums.RemoveAll();
             foreach (var album in _controller.Albums)
             {
-                var row = new AlbumRow(_controller.FileService, album);
+                var row = AlbumRow.NewWithValues(_controller.FileService, album);
                 _albums.Append(row);
             }
             

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <interface>
-    <object class="GtkScrolledWindow" id="_root">
+    <template class="JellyTuneSearchView">
         <property name="hscrollbar-policy">2</property>
         <property name="propagate-natural-height">true</property>
         <property name="propagate-natural-width">true</property>
@@ -55,5 +55,5 @@
                 </child>
             </object>
         </child>
-    </object>
+    </template>
 </interface>
