@@ -51,6 +51,11 @@ public class Configuration
     public bool ShowListSeparator {  get; set; } = false;
     
     /// <summary>
+    /// Should album art be shown as application background
+    /// </summary>
+    public bool ShowAlbumAsBackground {  get; set; } = false;
+    
+    /// <summary>
     /// How many retries request tries if failed
     /// </summary>
     public int RetryCount {  get; set; } = 3;
@@ -88,7 +93,7 @@ public class Configuration
     public bool ShowVolume {  get; set; } = false;
     
     /// <summary>
-    /// 
+    /// Show button currently playing album
     /// </summary>
     public bool ShowCurrentAlbum {  get; set; } = false;
     

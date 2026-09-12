@@ -1,5 +1,6 @@
 using System.Reflection;
 using Adw;
+using Gdk;
 using Gio;
 using GLib;
 using GObject;
@@ -12,6 +13,7 @@ using AboutDialog = Adw.AboutDialog;
 using Application = Adw.Application;
 using ApplicationWindow = Adw.ApplicationWindow;
 using Dialog = Adw.Dialog;
+using FileType = JellyTune.Shared.Enums.FileType;
 using HeaderBar = Adw.HeaderBar;
 using Object = GObject.Object;
 using ShortcutsSection = Adw.ShortcutsSection;
@@ -65,8 +67,12 @@ public partial class MainWindow
     private SimpleAction _refreshAction;
     private SimpleAction _viewAction;
     
-    private CancellationTokenSource? _menuUpdateCancellationTokenSource;
+    private Adw.TimedAnimation? _backgroundAnimation;
+    private CancellationTokenSource? _menuUpdateCancellationCts;
     private CancellationTokenSource? _searchAlbumsCts;
+
+    [Connect] private Picture _applicationBackground1;
+    [Connect] private Picture _applicationBackground2;
     
     [Connect] private Button _searchButton;
     [Connect] private SearchEntry _searchField;
@@ -125,8 +131,9 @@ public partial class MainWindow
 
     private void InitializeController()
     {
+        _controller.OnApplicationBackgroundChanged += ControllerOnApplicationBackgroundChanged;
         _controller.PlayerService.OnPlayerStateChanged += OnPlayerStateChanged;
-
+        
         // Album list
         _albumlistController = new AlbumlistController(_controller.JellyTuneApiService,
             _controller.ConfigurationService, _controller.FileService);
@@ -152,7 +159,7 @@ public partial class MainWindow
         _playerController.OnShowPlaylistClicked += PlayerControllerOnShowPlaylistClicked;
         _playerController.OnShowShowLyricsClicked += PlayerControllerOnShowShowLyricsClicked;
         _playerView = PlayerView.NewWithValues(_playerController, _playerExtendedController);
-
+        
         _playerExtendedView = PlayerExtendedView.NewWithValues(_playerExtendedController);
 
         _artistAlbumController = new ArtistAlbumController(_controller.JellyTuneApiService, _controller.FileService);
@@ -298,6 +305,50 @@ public partial class MainWindow
         _initialized = true;
     }
 
+    private void ControllerOnApplicationBackgroundChanged(object? sender, EventArgs e)
+    {
+        if (_controller.Background != null)
+        {
+            using var bytes = Bytes.New(_controller.Background);
+            using var texture = Texture.NewFromBytes(bytes);
+            FadeTo(texture);
+        }
+        else
+        {
+            FadeTo(null);
+        }
+    }
+
+    private void FadeTo(Paintable? paintable)
+    {
+        if (paintable == null)
+        {
+            _applicationBackground2.SetPaintable(null);
+            
+            var target = Adw.PropertyAnimationTarget.New(_applicationBackground1, "opacity");
+            _backgroundAnimation = TimedAnimation.New(_applicationBackground1, 1, 0, 500, target);
+            _backgroundAnimation.Easing = Easing.EaseOutCubic;
+            _backgroundAnimation.Play();
+        }
+        else
+        {
+            _applicationBackground1.SetOpacity(0);
+            _applicationBackground1.SetPaintable(paintable);
+
+            var target = Adw.PropertyAnimationTarget.New(_applicationBackground1, "opacity");
+            _backgroundAnimation = TimedAnimation.New(_applicationBackground1, 0, 1, 500, target);
+            _backgroundAnimation.Easing = Easing.EaseOutCubic;
+        
+            _backgroundAnimation.OnDone += (_, _) =>
+            {
+                _applicationBackground2.SetPaintable(_applicationBackground1.GetPaintable());
+                _backgroundAnimation = null;
+            };
+
+            _backgroundAnimation.Play();
+        }
+    }
+    
     private void QueueListArtistAlbumsButtonOnClicked(Button sender, EventArgs args)
     {
         var trackId = _controller.PlayerService.GetSelectedTrack() != null ? _controller.PlayerService.GetSelectedTrack()?.Id : null;
@@ -476,8 +527,8 @@ public partial class MainWindow
         if (!_initialized) return;
         if (!_controller.HasMultipleCollections()) return;
         
-        _menuUpdateCancellationTokenSource?.Cancel();
-        _menuUpdateCancellationTokenSource = new CancellationTokenSource();
+        _menuUpdateCancellationCts?.Cancel();
+        _menuUpdateCancellationCts = new CancellationTokenSource();
         var width1 = GetScreenSize().Item1;
 
         if (delay)
@@ -487,11 +538,11 @@ public partial class MainWindow
             do
             {
                 width1 = GetAllocatedWidth();
-                await Task.Delay(50, _menuUpdateCancellationTokenSource.Token);
+                await Task.Delay(50, _menuUpdateCancellationCts.Token);
                 width2 = GetAllocatedWidth();
             } while (width1 != width2);
             
-            if (_menuUpdateCancellationTokenSource.IsCancellationRequested) return;
+            if (_menuUpdateCancellationCts.IsCancellationRequested) return;
         }
 
         var show = width1 < _breakpoint;
@@ -550,7 +601,7 @@ public partial class MainWindow
 
             if (!_playlistTracksFooter.IsVisible())
                 _playlistTracksFooter.SetVisible(true);
-
+            
             UpdateHeader(true);
         }
         else if (args.State is PlayerState.None)
@@ -741,6 +792,7 @@ public partial class MainWindow
     
     public override void Dispose()
     {
+        _controller.OnApplicationBackgroundChanged -= ControllerOnApplicationBackgroundChanged;
         _controller.PlayerService.OnPlayerStateChanged -= OnPlayerStateChanged;
         _searchField.OnSearchChanged -= SearchFieldOnSearchChanged;
         

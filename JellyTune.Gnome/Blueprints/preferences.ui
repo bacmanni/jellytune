@@ -11,6 +11,11 @@
                     <object class="AdwPreferencesGroup" id="_generalGroup">
                         <property name="title" translatable="yes">General</property>
                         <child>
+                            <object class="AdwSwitchRow" id="_showPlayingAlbumBackground">
+                                <property name="title" translatable="yes">Show playing album art as application background</property>
+                            </object>
+                        </child>
+                        <child>
                             <object class="AdwSwitchRow" id="_cacheList">
                                 <property name="title" translatable="yes">Store list data to device memory</property>
                             </object>

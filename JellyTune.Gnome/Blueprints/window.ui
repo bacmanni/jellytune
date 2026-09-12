@@ -4,7 +4,32 @@
   <requires lib="adw" version="1.0"/>
   <template class="JellyTuneMainWindow" parent="AdwApplicationWindow">
     <property name="content">
-      <object class="GtkBox">
+      <object class="GtkOverlay" id="overlay">
+      <!-- Background image 1 -->
+      <child>
+        <object class="GtkPicture" id="_applicationBackground1">
+          <property name="content-fit">cover</property>
+          <property name="opacity">0</property>
+        </object>
+      </child>
+      <!-- Background image 2 -->
+      <child type="overlay">
+        <object class="GtkPicture" id="_applicationBackground2">
+          <property name="content-fit">cover</property>
+          <property name="opacity">0</property>
+        </object>
+      </child>
+      <!-- Dark tint -->
+      <child type="overlay">
+        <object class="GtkBox" id="tint">
+          <style>
+            <class name="background-tint"/>
+          </style>
+        </object>
+      </child>
+      <!-- Main UI -->
+      <child type="overlay">
+        <object class="GtkBox">
         <property name="hexpand">true</property>
         <property name="vexpand">true</property>
         <property name="orientation">1</property>
@@ -268,6 +293,8 @@
             </child>
           </object>
         </child>
+      </object>
+      </child>
       </object>
     </property>
   </template>
