@@ -22,7 +22,7 @@ public interface IJellyTuneApiService
     public Task<List<Search>> SearchTrackAsync(string value, CancellationToken cancellationToken = default);
     public Task<List<Track>> GetTracksAsync(Guid albumId, CancellationToken cancellationToken = default);
     public Task<Track> GetTrackAsync(Guid trackId);
-    public Task<byte[]?> GetPrimaryArtAsync(Guid albumId, int? size = 200);
+    public Task<byte[]?> GetPrimaryArtAsync(Guid albumId, int? size = 200, bool blur = false);
     public Task<Stream?> GetAudioStreamAsync(Guid trackId);
     public Task<Playlist> GetPlaylistAsync(Guid playlistId);
     public Task<List<Track>> GetPlaylistTracksAsync(Guid playlistId, CancellationToken cancellationToken = default);

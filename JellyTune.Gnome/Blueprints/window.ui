@@ -4,297 +4,294 @@
   <requires lib="adw" version="1.0"/>
   <template class="JellyTuneMainWindow" parent="AdwApplicationWindow">
     <property name="content">
-      <object class="GtkOverlay" id="overlay">
-      <!-- Background image 1 -->
-      <child>
-        <object class="GtkPicture" id="_applicationBackground1">
-          <property name="content-fit">cover</property>
-          <property name="opacity">0</property>
-        </object>
-      </child>
-      <!-- Background image 2 -->
-      <child type="overlay">
-        <object class="GtkPicture" id="_applicationBackground2">
-          <property name="content-fit">cover</property>
-          <property name="opacity">0</property>
-        </object>
-      </child>
-      <!-- Dark tint -->
-      <child type="overlay">
-        <object class="GtkBox" id="tint">
-          <style>
-            <class name="background-tint"/>
-          </style>
-        </object>
-      </child>
-      <!-- Main UI -->
-      <child type="overlay">
         <object class="GtkBox">
-        <property name="hexpand">true</property>
-        <property name="vexpand">true</property>
         <property name="orientation">1</property>
-        <child>
-          <object class="AdwSpinner" id="_spinner">
-            <property name="margin-top">46</property>
-            <property name="halign">3</property>
-            <property name="valign">3</property>
-            <property name="vexpand">true</property>
-            <property name="hexpand">true</property>
-            <property name="width-request">48</property>
-            <property name="height-request">48</property>
-          </object>
-        </child>
-        <child>
-          <object class="AdwNavigationView" id="_rootView">
-            <property name="visible">false</property>
-            <property name="hexpand">true</property>
-            <property name="vexpand">true</property>
-            <child>
-              <object class="AdwNavigationPage" id="_mainView">
-                <property name="title" translatable="yes">Main</property>
-                <property name="hexpand">true</property>
-                <property name="vexpand">true</property>
-                <property name="tag">main_view</property>
-                <property name="child">
-                  <object class="AdwToolbarView" id="_mainToolbarView">
-                    <property name="top-bar-style">raised</property>
-                    <property name="bottom-bar-style">raised</property>
-                    <child type="top">
-                      <object class="AdwHeaderBar" id="_mainHeaderBar">
-                        <child type="start">
-                          <object class="GtkToggleButton" id="_searchButton">
-                            <property name="tooltip-text">Search</property>
-                            <property name="icon-name">system-search-symbolic</property>
-                            <property name="action-name">win.search</property>
-                          </object>
-                        </child>
-                        <child type="end">
-                          <object class="GtkMenuButton" id="_menuButton">
-                            <property name="tooltip-text" translatable="yes">Main Menu</property>
-                            <property name="icon-name">open-menu-symbolic</property>
-                            <property name="menu-model">main_menu</property>
-                            <property name="primary">true</property>
-                          </object>
-                        </child>
-                        <property name="title-widget">
-                          <object class="AdwViewSwitcher" id="_switcherTitle">
-                            <property name="visible">false</property>
-                            <property name="stack">_mainViewStack</property>
-                            <property name="policy">1</property>
-                          </object>
-                        </property>
-                      </object>
-                    </child>
-                    <child type="bottom">
-                      <object class="GtkBox" id="_mainFooter">
-                        <property name="visible">false</property>
-                        <property name="height-request">1</property>
-                      </object>
-                    </child>
-                    <property name="content">
-                      <object class="AdwViewStack" id="_mainViewStack">
-                        <property name="enable-transitions">true</property>
-                        <property name="hexpand">true</property>
-                        <property name="vexpand">true</property>
-                        <child>
-                          <object class="AdwViewStackPage">
-                            <property name="name">page1</property>
-                            <property name="title" translatable="yes">Music</property>
-                            <property name="icon-name">folder-music-symbolic</property>
-                            <property name="use-underline">true</property>
-                            <property name="child">
-                              <object class="GtkBox" id="_mainStackAlbums">
-                                <property name="hexpand">true</property>
-                                <property name="vexpand">true</property>
-                              </object>
-                            </property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="AdwViewStackPage">
-                            <property name="name">page2</property>
-                            <property name="title" translatable="yes">Playlist</property>
-                            <property name="icon-name">view-list-bullet-symbolic</property>
-                            <property name="use-underline">true</property>
-                            <property name="child">
-                              <object class="GtkBox" id="_mainStackPlaylists">
-                                <property name="hexpand">true</property>
-                                <property name="vexpand">true</property>
-                              </object>
-                            </property>
-                          </object>
-                        </child>
-                      </object>
-                    </property>
-                  </object>
-                </property>
-              </object>
-            </child>
-            <child>
-              <object class="AdwNavigationPage" id="_searchAlbums">
-                <property name="title" translatable="yes">Search</property>
-                <property name="tag">search_albums</property>
-                <property name="child">
-                  <object class="AdwToolbarView" id="_searchToolbarView">
-                    <property name="bottom-bar-style">raised</property>
-                    <child type="top">
-                      <object class="AdwHeaderBar">
-                        <property name="title-widget">
-                          <object class="GtkSearchEntry" id="_searchField">
-                            <style>
-                              <class name="inline"/>
-                            </style>
-                            <property name="hexpand">true</property>
-                            <property name="search-delay">800</property>
-                          </object>
-                        </property>
-                      </object>
-                    </child>
-                    <child type="bottom">
-                      <object class="GtkBox" id="_searchFooter">
-                        <property name="visible">false</property>
-                        <property name="height-request">1</property>
-                      </object>
-                    </child>
-                  </object>
-                </property>
-              </object>
-            </child>
-            <child>
-              <object class="AdwNavigationPage" id="_queueList">
-                <property name="title" translatable="yes">Queue</property>
-                <property name="tag">queue_list</property>
-                <child type="top">
-                  <object class="AdwHeaderBar">
-                  </object>
-                </child>
-                <property name="child">
-                  <object class="AdwToolbarView" id="_queueListToolbarView">
-                    <property name="bottom-bar-style">raised</property>
-                    <child type="top">
-                      <object class="AdwHeaderBar">
-                        <property name="title-widget">
-                          <object class="AdwWindowTitle">
-                          </object>
-                        </property>
-                        <child type="end">
-                          <object class="GtkButton" id="_queueListShuffleButton">
-                            <property name="tooltip-text">Shuffle tracks</property>
-                            <property name="icon-name">media-playlist-shuffle-symbolic</property>
-                          </object>
-                        </child>
-                        <child type="end">
-                          <object class="GtkButton" id="_queueListArtistAlbumsButton">
-                            <property name="tooltip-text">Playing artist albums</property>
-                            <property name="icon-name">view-list-symbolic</property>
-                          </object>
-                        </child>
-                        <child type="end">
-                          <object class="GtkButton" id="_queueListAlbumButton">
-                            <property name="tooltip-text">Playing album</property>
-                            <property name="icon-name">multimedia-player-symbolic</property>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child type="bottom">
-                      <object class="GtkBox" id="_queueListFooter">
-                        <property name="visible">false</property>
-                        <property name="height-request">1</property>
-                      </object>
-                    </child>
-                  </object>
-                </property>
-              </object>
-            </child>
-            <child>
-              <object class="AdwNavigationPage" id="_albumDetails">
-                <property name="title" translatable="yes">Album details</property>
-                <property name="tag">album_details</property>
-                <child type="top">
-                  <object class="AdwHeaderBar">
-                  </object>
-                </child>
-                <property name="child">
-                  <object class="AdwToolbarView" id="_albumDetailsToolbarView">
-                    <property name="bottom-bar-style">raised</property>
-                    <child type="top">
-                      <object class="AdwHeaderBar">
-                        <child type="end">
-                          <object class="GtkButton" id="_artistAlbumsButton">
-                            <property name="tooltip-text">Artist albums</property>
-                            <property name="icon-name">view-list-symbolic</property>
-                            <style>
-                              <class name="flat"/>
-                            </style>
-                          </object>
-                        </child>
-                        <property name="title-widget">
-                          <object class="AdwWindowTitle">
-                          </object>
-                        </property>
-                      </object>
-                    </child>
-                    <child type="bottom">
-                      <object class="GtkBox" id="_albumDetailsFooter">
-                        <property name="visible">false</property>
-                        <property name="height-request">1</property>
-                      </object>
-                    </child>
-                  </object>
-                </property>
-              </object>
-            </child>
-            <child>
-            </child>
-            <child>
-              <object class="AdwNavigationPage" id="_playlistTracks">
-                <property name="title" translatable="yes">Playlist</property>
-                <property name="tag">playlist_tracks</property>
-                <child type="top">
-                  <object class="AdwHeaderBar">
-                  </object>
-                </child>
-                <property name="child">
-                  <object class="AdwToolbarView" id="_playlistTracksToolbarView">
-                    <property name="bottom-bar-style">raised</property>
-                    <child type="top">
-                      <object class="AdwHeaderBar">
-                        <property name="title-widget">
-                          <object class="AdwWindowTitle">
-                          </object>
-                        </property>
-                      </object>
-                    </child>
-                    <child type="bottom">
-                      <object class="GtkBox" id="_playlistTracksFooter">
-                        <property name="visible">false</property>
-                        <property name="height-request">1</property>
-                      </object>
-                    </child>
-                  </object>
-                </property>
-              </object>
-            </child>
-          </object>
-        </child>
-        <child>
-          <object class="GtkBox" id="_playerPosition">
-            <property name="hexpand">true</property>
-          </object>
-        </child>
-        <child>
-          <object class="GtkRevealer" id="_playerRevealer">
-            <property name="transition-type">slide-up</property>
-            <property name="reveal-child">false</property>
-            <child>
-              <object class="GtkBox" id="_player">
-              </object>
-            </child>
-          </object>
-        </child>
-      </object>
-      </child>
+          <child>
+            <object class="GtkOverlay">
+              <property name="vexpand">true</property>
+              <!-- Background image 1 -->
+              <child>
+                <object class="GtkPicture" id="_applicationBackground1">
+                  <property name="content-fit">cover</property>
+                  <property name="opacity">0</property>
+                </object>
+              </child>
+              <!-- Background image 2 -->
+              <child type="overlay">
+                <object class="GtkPicture" id="_applicationBackground2">
+                  <property name="content-fit">cover</property>
+                  <property name="opacity">0</property>
+                </object>
+              </child>
+              <!-- Dark tint -->
+              <child type="overlay">
+                <object class="GtkBox" id="tint">
+                  <property name="opacity">0</property>
+                  <style>
+                    <class name="background-tint"/>
+                  </style>
+                </object>
+              </child>
+              <!-- Main UI -->
+              <child type="overlay">
+                <object class="GtkBox">
+                <property name="orientation">1</property>
+                  <child>
+                    <object class="AdwSpinner" id="_spinner">
+                      <property name="margin-top">46</property>
+                      <property name="halign">3</property>
+                      <property name="valign">3</property>
+                      <property name="vexpand">true</property>
+                      <property name="hexpand">true</property>
+                      <property name="width-request">48</property>
+                      <property name="height-request">48</property>
+                    </object>
+                  </child>
+                  <child>
+                    <object class="AdwNavigationView" id="_rootView">
+                      <property name="visible">false</property>
+                      <child>
+                        <object class="AdwNavigationPage" id="_mainView">
+                          <property name="title" translatable="yes">Main</property>
+                          <property name="tag">main_view</property>
+                          <property name="child">
+                            <object class="AdwToolbarView" id="_mainToolbarView">
+                              <property name="top-bar-style">raised</property>
+                              <property name="bottom-bar-style">raised</property>
+                              <child type="top">
+                                <object class="AdwHeaderBar" id="_mainHeaderBar">
+                                  <child type="start">
+                                    <object class="GtkToggleButton" id="_searchButton">
+                                      <property name="tooltip-text">Search</property>
+                                      <property name="icon-name">system-search-symbolic</property>
+                                      <property name="action-name">win.search</property>
+                                    </object>
+                                  </child>
+                                  <child type="end">
+                                    <object class="GtkMenuButton" id="_menuButton">
+                                      <property name="tooltip-text" translatable="yes">Main Menu</property>
+                                      <property name="icon-name">open-menu-symbolic</property>
+                                      <property name="menu-model">main_menu</property>
+                                      <property name="primary">true</property>
+                                    </object>
+                                  </child>
+                                  <property name="title-widget">
+                                    <object class="AdwViewSwitcher" id="_switcherTitle">
+                                      <property name="visible">false</property>
+                                      <property name="stack">_mainViewStack</property>
+                                      <property name="policy">1</property>
+                                    </object>
+                                  </property>
+                                </object>
+                              </child>
+                              <child type="bottom">
+                                <object class="GtkBox" id="_mainFooter">
+                                  <property name="visible">false</property>
+                                  <property name="height-request">1</property>
+                                </object>
+                              </child>
+                              <property name="content">
+                                <object class="AdwViewStack" id="_mainViewStack">
+                                  <property name="enable-transitions">true</property>
+                                  <child>
+                                    <object class="AdwViewStackPage">
+                                      <property name="name">page1</property>
+                                      <property name="title" translatable="yes">Music</property>
+                                      <property name="icon-name">folder-music-symbolic</property>
+                                      <property name="use-underline">true</property>
+                                      <property name="child">
+                                        <object class="GtkBox" id="_mainStackAlbums">
+                                        </object>
+                                      </property>
+                                    </object>
+                                  </child>
+                                  <child>
+                                    <object class="AdwViewStackPage">
+                                      <property name="name">page2</property>
+                                      <property name="title" translatable="yes">Playlist</property>
+                                      <property name="icon-name">view-list-bullet-symbolic</property>
+                                      <property name="use-underline">true</property>
+                                      <property name="child">
+                                        <object class="GtkBox" id="_mainStackPlaylists">
+                                          <property name="hexpand">true</property>
+                                          <property name="vexpand">true</property>
+                                        </object>
+                                      </property>
+                                    </object>
+                                  </child>
+                                </object>
+                              </property>
+                            </object>
+                          </property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="AdwNavigationPage" id="_searchAlbums">
+                          <property name="title" translatable="yes">Search</property>
+                          <property name="tag">search_albums</property>
+                          <property name="child">
+                            <object class="AdwToolbarView" id="_searchToolbarView">
+                              <property name="bottom-bar-style">raised</property>
+                              <child type="top">
+                                <object class="AdwHeaderBar">
+                                  <property name="title-widget">
+                                    <object class="GtkSearchEntry" id="_searchField">
+                                      <style>
+                                        <class name="inline"/>
+                                      </style>
+                                      <property name="hexpand">true</property>
+                                      <property name="search-delay">800</property>
+                                    </object>
+                                  </property>
+                                </object>
+                              </child>
+                              <child type="bottom">
+                                <object class="GtkBox" id="_searchFooter">
+                                  <property name="visible">false</property>
+                                  <property name="height-request">1</property>
+                                </object>
+                              </child>
+                            </object>
+                          </property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="AdwNavigationPage" id="_queueList">
+                          <property name="title" translatable="yes">Queue</property>
+                          <property name="tag">queue_list</property>
+                          <child type="top">
+                            <object class="AdwHeaderBar">
+                            </object>
+                          </child>
+                          <property name="child">
+                            <object class="AdwToolbarView" id="_queueListToolbarView">
+                              <property name="bottom-bar-style">raised</property>
+                              <child type="top">
+                                <object class="AdwHeaderBar">
+                                  <property name="title-widget">
+                                    <object class="AdwWindowTitle">
+                                    </object>
+                                  </property>
+                                  <child type="end">
+                                    <object class="GtkButton" id="_queueListShuffleButton">
+                                      <property name="tooltip-text">Shuffle tracks</property>
+                                      <property name="icon-name">media-playlist-shuffle-symbolic</property>
+                                    </object>
+                                  </child>
+                                  <child type="end">
+                                    <object class="GtkButton" id="_queueListArtistAlbumsButton">
+                                      <property name="tooltip-text">Playing artist albums</property>
+                                      <property name="icon-name">view-list-symbolic</property>
+                                    </object>
+                                  </child>
+                                  <child type="end">
+                                    <object class="GtkButton" id="_queueListAlbumButton">
+                                      <property name="tooltip-text">Playing album</property>
+                                      <property name="icon-name">multimedia-player-symbolic</property>
+                                    </object>
+                                  </child>
+                                </object>
+                              </child>
+                              <child type="bottom">
+                                <object class="GtkBox" id="_queueListFooter">
+                                  <property name="visible">false</property>
+                                  <property name="height-request">1</property>
+                                </object>
+                              </child>
+                            </object>
+                          </property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="AdwNavigationPage" id="_albumDetails">
+                          <property name="title" translatable="yes">Album details</property>
+                          <property name="tag">album_details</property>
+                          <child type="top">
+                            <object class="AdwHeaderBar">
+                            </object>
+                          </child>
+                          <property name="child">
+                            <object class="AdwToolbarView" id="_albumDetailsToolbarView">
+                              <property name="bottom-bar-style">raised</property>
+                              <child type="top">
+                                <object class="AdwHeaderBar">
+                                  <child type="end">
+                                    <object class="GtkButton" id="_artistAlbumsButton">
+                                      <property name="tooltip-text">Artist albums</property>
+                                      <property name="icon-name">view-list-symbolic</property>
+                                      <style>
+                                        <class name="flat"/>
+                                      </style>
+                                    </object>
+                                  </child>
+                                  <property name="title-widget">
+                                    <object class="AdwWindowTitle">
+                                    </object>
+                                  </property>
+                                </object>
+                              </child>
+                              <child type="bottom">
+                                <object class="GtkBox" id="_albumDetailsFooter">
+                                  <property name="visible">false</property>
+                                  <property name="height-request">1</property>
+                                </object>
+                              </child>
+                            </object>
+                          </property>
+                        </object>
+                      </child>
+                      <child>
+                      </child>
+                      <child>
+                        <object class="AdwNavigationPage" id="_playlistTracks">
+                          <property name="title" translatable="yes">Playlist</property>
+                          <property name="tag">playlist_tracks</property>
+                          <child type="top">
+                            <object class="AdwHeaderBar">
+                            </object>
+                          </child>
+                          <property name="child">
+                            <object class="AdwToolbarView" id="_playlistTracksToolbarView">
+                              <property name="bottom-bar-style">raised</property>
+                              <child type="top">
+                                <object class="AdwHeaderBar">
+                                  <property name="title-widget">
+                                    <object class="AdwWindowTitle">
+                                    </object>
+                                  </property>
+                                </object>
+                              </child>
+                              <child type="bottom">
+                                <object class="GtkBox" id="_playlistTracksFooter">
+                                  <property name="visible">false</property>
+                                  <property name="height-request">1</property>
+                                </object>
+                              </child>
+                            </object>
+                          </property>
+                        </object>
+                      </child>
+                    </object>
+                  </child>
+                  <child>
+                    <object class="GtkBox" id="_playerPosition">
+                      <property name="hexpand">true</property>
+                    </object>
+                  </child>
+                  <child>
+                    <object class="GtkRevealer" id="_playerRevealer">
+                      <property name="transition-type">slide-up</property>
+                      <property name="reveal-child">false</property>
+                      <child>
+                        <object class="GtkBox" id="_player">
+                        </object>
+                      </child>
+                    </object>
+                  </child>
+                </object>
+              </child>
+            </object>
+          </child>
       </object>
     </property>
   </template>

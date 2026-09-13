@@ -80,11 +80,11 @@ public sealed class MainWindowController : IDisposable
         return !string.IsNullOrWhiteSpace(configuration.PlaylistCollectionId);
     }
 
-    public async Task UpdateApplicationBackground(bool visible)
+    private async Task UpdateApplicationBackground(bool visible)
     {
         if (visible && ConfigurationService.Get().ShowAlbumAsBackground)
-        {
-            _applicationBackgroundCts?.Cancel();
+        { 
+            _applicationBackgroundCts?.CancelAsync();
             _applicationBackgroundCts?.Dispose();
         
             _applicationBackgroundCts = new CancellationTokenSource();
@@ -94,7 +94,7 @@ public sealed class MainWindowController : IDisposable
                 var albumId = PlayerService.GetSelectedAlbum()?.Id;
                 if (albumId.HasValue)
                 {
-                    var albumArt = await FileService.GetFileAsync(FileType.AlbumArt, albumId.Value);
+                    var albumArt = await JellyTuneApiService.GetPrimaryArtAsync(albumId.Value, 200, true);
                     Background = albumArt;
                     OnApplicationBackgroundChanged?.Invoke(this, EventArgs.Empty);
                 }
