@@ -535,6 +535,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     public void SeekTrack(double seconds)
     {
         _player?.Seek(TimeSpan.FromSeconds(seconds));
+        OnPlayerPositionChanged?.Invoke(this, new PlayerPositionArgs { Position = seconds });
     }
 
     /// <summary>
@@ -752,7 +753,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <returns></returns>
     public bool IsPlaying()
     {
-        return _player != null ? _player.State == PlaybackState.Playing : false;
+        return _player is { State: PlaybackState.Playing };
     }
 
     /// <summary>
@@ -761,7 +762,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <returns></returns>
     public bool IsPaused()
     {
-        return _player != null ? _player.State == PlaybackState.Paused : false;
+        return _player is { State: PlaybackState.Paused };
     }
     
     /// <summary>
@@ -779,7 +780,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
                 // Album id has value. Check against that too
                 if (albumId.HasValue)
                 {
-                    return Album != null ? Album.Id == albumId : false;
+                    return Album != null && Album.Id == albumId;
                 }
                 
                 return true;
