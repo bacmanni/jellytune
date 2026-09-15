@@ -17,12 +17,15 @@ public partial class AccountView
 {
     private AccountController  _controller;
 
+    [Connect] private Popover _errorPopover;
+    [Connect] private Label _errorPopoverLabel;
+    
     [Connect] private EntryRow _server;
     [Connect] private EntryRow _username;
     [Connect] private PasswordEntryRow _password;
     [Connect] private ComboRow _audioCollection;
     [Connect] private ComboRow _playlistCollection;
-    
+
     private SignalListItemFactory _audioCollectionFactory;
     private ListStore _audioCollectionItems;
     
@@ -30,7 +33,6 @@ public partial class AccountView
     private ListStore _playlistCollectionItems;
     
     private Spinner _serverLoading = Spinner.New();
-    private Spinner _usernameLoading = Spinner.New();
     private Spinner _passwordLoading = Spinner.New();
     private Spinner _audioCollectionLoading = Spinner.New();
     private Spinner _playlistCollectionLoading = Spinner.New();
@@ -58,11 +60,8 @@ public partial class AccountView
             await CheckServer();
         };
 
-        _usernameLoading.SetVisible(false);
-        _username.AddSuffix(_usernameLoading);
         _username.OnApply += async (_, _) =>
         {
-            _usernameLoading.SetVisible(true);
            await CheckLogin();
         };
 
@@ -70,7 +69,6 @@ public partial class AccountView
         _password.AddSuffix(_passwordLoading);
         _password.OnApply += async (_, _) =>
         {
-            _passwordLoading.SetVisible(true);
             await CheckLogin();
         };
         
@@ -95,6 +93,20 @@ public partial class AccountView
         _playlistCollection.AddSuffix(_playlistCollectionLoading);
     }
 
+    private void RemoveErrorPopup()
+    {
+        _errorPopover.Popdown();
+    }
+    
+    private void AddErrorPopup(Widget parent, string text)
+    {
+        _errorPopoverLabel.SetText(text);
+        _errorPopover.Unparent();
+        _errorPopover.SetParent(parent);
+        _errorPopover.Popup();
+        parent.AddCssClass("error");
+    }
+    
     private void PlaylistCollectionFactoryOnSetup(SignalListItemFactory sender, SignalListItemFactory.SetupSignalArgs args)
     {
         var listItem = args.Object as Gtk.ListItem;
@@ -132,7 +144,7 @@ public partial class AccountView
             
         _server.SetText(_controller.ServerUrl ?? string.Empty);
         _username.SetText(_controller.Username ?? string.Empty);
-        _password.SetText(_controller.Password != null ? _controller.Password : string.Empty);
+        _password.SetText(_controller.Password ?? string.Empty);
         
         if (!args.Validate)
             return;
@@ -180,94 +192,94 @@ public partial class AccountView
 
     private async Task CheckServer()
     {
-        _server.RemoveCssClass("error");
+        RemoveErrorPopup();
         _username.SetSensitive(false);
         _password.SetSensitive(false);
         _audioCollection.SetSensitive(false);
-            
-        if (!string.IsNullOrWhiteSpace(_server.GetText()))
-        {
-            _serverLoading.SetVisible(true);
-            var serverUrl = _server.GetText();
-            _isServerValid = await _controller.IsValidServerAsync(serverUrl);
-            _serverLoading.SetVisible(false);
+        _playlistCollection.SetSensitive(false);
+        
+        var serverUrl = _server.GetText();
 
-            if (_isServerValid)
-            {
-                _controller.ServerUrl = serverUrl;
-                _controller.UpdateValidity(true, false, false);
-                await CheckLogin();
-                _username.SetSensitive(true);
-                _password.SetSensitive(true);
-            }
-            else
-            {
-                _server.AddCssClass("error");
-            }
-        }
-        else
+        if (!_controller.IsValidServerUrl(serverUrl))
         {
-            _server.AddCssClass("error");
+            AddErrorPopup(_server, "Not a valid server url");
+            return;
         }
+        
+        _serverLoading.SetVisible(true);
+        var isValid = await _controller.IsValidServerAsync(serverUrl);
+        _serverLoading.SetVisible(false);
+        if (!isValid)
+        {
+            AddErrorPopup(_server, "Not a valid Jellyfin server or server too old");
+            return;
+        }
+        
+        _controller.ServerUrl = serverUrl;
+        _isServerValid = isValid;
+        
+        _username.SetSensitive(true);
+        _password.SetSensitive(true);
+        _controller.UpdateValidity(true, false, false);
     }
     
     private async Task CheckLogin()
     {
+        RemoveErrorPopup();
         var username = _username.GetText().Trim();
         var password = _password.GetText().Trim();
-        
-        if (!_isServerValid)
+        _passwordLoading.SetVisible(false);
+        _audioCollection.SetSensitive(false);
+        _playlistCollection.SetSensitive(false);
+        _username.RemoveCssClass("error");
+        _password.RemoveCssClass("error");
+
+        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
         {
-            _username.RemoveCssClass("error");
-            _password.RemoveCssClass("error");
-            _usernameLoading.SetVisible(false);
-            _passwordLoading.SetSensitive(false);
+            return;
         }
         
-        if (!string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password))
+        _passwordLoading.SetVisible(true);
+        var isValid = await _controller.IsValidAccountAsync(username, password);
+        _passwordLoading.SetVisible(false);
+        if (!isValid)
         {
-            _audioCollection.SetSensitive(false);
-            _isAccountValid = await _controller.IsValidAccountAsync(username, password);
-            _usernameLoading.SetVisible(false);
-            _passwordLoading.SetVisible(false);
-            
-            if (_isAccountValid)
-            {
-                _controller.Username = username;
-                _controller.Password = password;
-                _controller.UpdateValidity(true,  true, false);
-                _username.RemoveCssClass("error");
-                _password.RemoveCssClass("error");
-                _audioCollection.SetSensitive(true);
-                await UpdateAudioCollections();
-                _ = UpdatePlaylistCollections();
-            }
-            else
-            {
-                _username.AddCssClass("error");
-                _password.AddCssClass("error");
-            }
+            _username.AddCssClass("error");
+            AddErrorPopup(_password, "Invalid username or password");
+            return;
         }
-        else
-        {
-            _usernameLoading.SetVisible(false);
-            _passwordLoading.SetVisible(false);
-        }
+
+        _isAccountValid = isValid;
+        _controller.Username = username;
+        _controller.Password = password;
+        _controller.UpdateValidity(true,  true, false);
+        _audioCollection.SetSensitive(true);
+        await UpdateAudioCollections();
+        await UpdatePlaylistCollections();
     }
 
     private async Task UpdateAudioCollections()
     {
         _audioCollection.RemoveCssClass("error");
         _isCollectionValid = false;
+        _controller.UpdateValidity(true, true, false);
         
         if (_isServerValid && _isAccountValid)
         {
-            _audioCollectionLoading.SetVisible(true);
             _audioCollectionItems.RemoveAll();
-            
+
             var selectedIndex = -1;
             var collectionId = _controller.GetSelectedAudioCollectionId();
+            
+            _audioCollectionLoading.SetVisible(true);
             var collections = await _controller.GetCollectionsAsync(CollectionType.Audio);
+            _audioCollectionLoading.SetVisible(false);
+            
+            if (collections.Count == 0)
+            {
+                AddErrorPopup(_audioCollection, "No audio collections found");
+                return;
+            }
             
             for (var index = 0; index < collections.Count; index++)
             {
@@ -278,6 +290,7 @@ public partial class AccountView
                 _audioCollectionItems.Append(CollectionRow.New(collection));
             }
 
+            // Only one collection found. Select it automatically
             if (selectedIndex != -1)
             {
                 _audioCollection.SetSelected(Convert.ToUInt32(selectedIndex));
@@ -285,27 +298,15 @@ public partial class AccountView
                 _controller.UpdateValidity(true, true, true);
                 _isCollectionValid = true;
             }
-            else if (collections.Count > 0)
-            {
-                _audioCollection.SetSelected(0);
-                var collectionRow = _audioCollection.GetSelectedItem() != null
-                    ? _audioCollection.GetSelectedItem() as CollectionRow
-                    : null;
-                
-                _controller.CollectionId = collectionRow?.Id;
-                _controller.UpdateValidity(true, true, true);
-                _isCollectionValid = true;
-            }
-            else
-            {
-                _audioCollection.AddCssClass("error");
-                _controller.UpdateValidity(true, true, false);
-                _isCollectionValid = false;
-            }
             
-            _controller.UpdateValidity(_isServerValid,  _isAccountValid, _isCollectionValid);
-            _audioCollection.SetSensitive(true);
-            _audioCollectionLoading.SetVisible(false);
+            _audioCollection.SetSelected(0);
+            var collectionRow = _audioCollection.GetSelectedItem() != null
+                ? _audioCollection.GetSelectedItem() as CollectionRow
+                : null;
+                
+            _controller.CollectionId = collectionRow?.Id;
+            _controller.UpdateValidity(true, true, true);
+            _isCollectionValid = true;
         }
     }
 

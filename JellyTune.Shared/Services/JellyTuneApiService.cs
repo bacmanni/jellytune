@@ -72,13 +72,31 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// <returns>Return true if connection was success and server is valid jellyfin server</returns>
     public async Task<bool> CheckServerAsync(string serverUrl)
     {
+        using var http = new HttpClient();
+        http.Timeout = TimeSpan.FromSeconds(3);
+
+        try
+        {
+            using var response = await http.GetAsync(serverUrl);
+            var available = response.IsSuccessStatusCode;
+            if (!available) return false;
+        }
+        catch (HttpRequestException)
+        {
+            return false;
+        }
+        catch (TaskCanceledException)
+        {
+            return false;
+        }
+        
         try
         {
             _sdkClientSettings.SetServerUrl(serverUrl);
-            await _jellyfinApiClient.System.Info.Public.GetAsync()
+            var info = await _jellyfinApiClient.System.Info.Public.GetAsync()
                 .ConfigureAwait(true);
-
-            return true;
+            
+            return info != null;
         }
         catch (Exception)
         {

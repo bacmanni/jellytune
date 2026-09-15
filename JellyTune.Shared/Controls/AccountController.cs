@@ -27,18 +27,23 @@ public sealed class AccountController
     }
 
     /// <summary>
+    /// Check if server url is valid url
+    /// </summary>
+    /// <param name="serverUrl"></param>
+    /// <returns></returns>
+    public bool IsValidServerUrl(string serverUrl)
+    {
+        return Uri.IsWellFormedUriString(serverUrl, UriKind.Absolute);
+    }
+    
+    /// <summary>
     /// Check if server is valid jellyfin server
     /// </summary>
     /// <param name="serverUrl"></param>
     /// <returns></returns>
     public async Task<bool> IsValidServerAsync(string serverUrl)
     {
-        if (Uri.IsWellFormedUriString(serverUrl, UriKind.Absolute))
-        {
-            return await _jellyTuneApiService.CheckServerAsync(serverUrl);
-        }
-        
-        return false;
+        return await _jellyTuneApiService.CheckServerAsync(serverUrl);
     }
 
     /// <summary>
@@ -137,10 +142,10 @@ public sealed class AccountController
         if (configuration.Password != Password)
             return true;
         
-        if (configuration.CollectionId != (CollectionId != null ? CollectionId.Value.ToString() : null))
+        if (configuration.CollectionId != CollectionId?.ToString())
             return true;
 
-        if (configuration.PlaylistCollectionId != (PlaylistCollectionId != null ? PlaylistCollectionId.Value.ToString() : null))
+        if (configuration.PlaylistCollectionId != PlaylistCollectionId?.ToString())
             return true;
             
         return false;

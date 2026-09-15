@@ -35,5 +35,20 @@
                 <property name="sensitive">false</property>
             </object>
         </child>
+        <child>
+            <object class="GtkPopover" id="_errorPopover">
+                <property name="position">bottom</property>
+                <property name="has-arrow">true</property>
+                <child>
+                    <object class="GtkLabel" id="_errorPopoverLabel">
+                        <property name="wrap">true</property>
+                        <property name="margin-start">6</property>
+                        <property name="margin-end">6</property>
+                        <property name="margin-top">6</property>
+                        <property name="margin-bottom">6</property>
+                    </object>
+                </child>
+            </object>
+        </child>
     </template>
 </interface>

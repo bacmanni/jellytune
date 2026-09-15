@@ -17,9 +17,26 @@ public class AccountControllerTests
 
         _mockJellyTuneApiService.Setup(repo => repo.CheckServerAsync("http://test.com")).ReturnsAsync(true);
         _mockJellyTuneApiService.Setup(repo => repo.CheckServerAsync("https://test.com:8096")).ReturnsAsync(true);
+        _mockJellyTuneApiService.Setup(repo => repo.CheckServerAsync("https://google.com")).ReturnsAsync(false);
         _mockJellyTuneApiService.Setup(repo => repo.LoginAsync("valid", "test")).ReturnsAsync(true);
         
         _controller = new AccountController(_mockConfigurationService.Object, _mockJellyTuneApiService.Object);
+    }
+
+    [Fact]
+    public void IsValidServerUrl()
+    {
+        var notValid = _controller.IsValidServerUrl("notvalid");
+        Assert.False(notValid);
+
+        var valid = _controller.IsValidServerUrl("http://test.com");
+        Assert.True(valid);
+        
+        valid = _controller.IsValidServerUrl("https://test.com:8096");
+        Assert.True(valid);
+        
+        valid = _controller.IsValidServerUrl("https://test.com:8096/testing/");
+        Assert.True(valid);
     }
 
     [Fact]
@@ -28,11 +45,15 @@ public class AccountControllerTests
         var notValid = await _controller.IsValidServerAsync("notvalid");
         Assert.False(notValid);
         
+        notValid = await _controller.IsValidServerAsync("https://google.com");
+        Assert.False(notValid);
+        
         var valid = await _controller.IsValidServerAsync("http://test.com");
         Assert.True(valid);
         
         valid = await _controller.IsValidServerAsync("https://test.com:8096");
         Assert.True(valid);
+        
     }
     
     [Fact]
