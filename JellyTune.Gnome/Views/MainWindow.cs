@@ -6,6 +6,7 @@ using GLib;
 using GObject;
 using Gtk;
 using JellyTune.Gnome.DBus.MediaPlayer;
+using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
@@ -71,6 +72,8 @@ public partial class MainWindow
     private CancellationTokenSource? _menuUpdateCancellationCts;
     private CancellationTokenSource? _searchAlbumsCts;
 
+    [Connect] private Stack _applicationBackgroundStack;
+    [Connect] private Box _applicationBackgroundTint;
     [Connect] private Picture _applicationBackground1;
     [Connect] private Picture _applicationBackground2;
     
@@ -311,41 +314,61 @@ public partial class MainWindow
         {
             using var bytes = Bytes.New(_controller.Background);
             using var texture = Texture.NewFromBytes(bytes);
-            FadeTo(texture);
+            FadeBackgroundTo(texture);
         }
         else
         {
-            FadeTo(null);
+            FadeBackgroundTo(null);
         }
     }
 
-    private void FadeTo(Paintable? paintable)
+    private void FadeBackgroundTo(Paintable? paintable)
     {
         if (paintable == null)
         {
-            _applicationBackground2.SetPaintable(null);
-            
-            var target = Adw.PropertyAnimationTarget.New(_applicationBackground1, "opacity");
-            _backgroundAnimation = TimedAnimation.New(_applicationBackground1, 1, 0, 500, target);
-            _backgroundAnimation.Easing = Easing.EaseOutCubic;
-            _backgroundAnimation.Play();
+            // Tind off?
+            if (_applicationBackgroundTint.GetOpacity() > 0)
+            {
+                var target = Adw.PropertyAnimationTarget.New(_applicationBackgroundTint, "opacity");
+                _backgroundAnimation = TimedAnimation.New(_applicationBackgroundTint, 1, 0, 500, target);
+                _backgroundAnimation.Easing = Easing.EaseOutCubic;
+                _backgroundAnimation.Play();
+            }
+
+            // Handle when no album art
+            if (_applicationBackgroundStack.GetVisibleChild() == _applicationBackground1)
+            {
+                _applicationBackground2.SetPaintable(null);
+                _applicationBackgroundStack.SetVisibleChild(_applicationBackground2);
+            }
+            else
+            {
+                _applicationBackground1.SetPaintable(null);
+                _applicationBackgroundStack.SetVisibleChild(_applicationBackground1);
+            }
         }
         else
         {
-            _applicationBackground1.SetOpacity(0);
-            _applicationBackground1.SetPaintable(paintable);
-
-            var target = Adw.PropertyAnimationTarget.New(_applicationBackground1, "opacity");
-            _backgroundAnimation = TimedAnimation.New(_applicationBackground1, 0, 1, 500, target);
-            _backgroundAnimation.Easing = Easing.EaseOutCubic;
-        
-            _backgroundAnimation.OnDone += (_, _) =>
+            // Handle tint
+            if (_applicationBackgroundTint.GetOpacity() == 0)
             {
-                _applicationBackground2.SetPaintable(_applicationBackground1.GetPaintable());
-                _backgroundAnimation = null;
-            };
-
-            _backgroundAnimation.Play();
+                var target = Adw.PropertyAnimationTarget.New(_applicationBackgroundTint, "opacity");
+                _backgroundAnimation = TimedAnimation.New(_applicationBackgroundTint, 0, 1, 500, target);
+                _backgroundAnimation.Easing = Easing.EaseOutCubic;
+                _backgroundAnimation.Play();
+            }
+            
+            // Handle bakcground switch
+            if (_applicationBackgroundStack.GetVisibleChild() == _applicationBackground1)
+            {
+                _applicationBackground2.SetPaintable(paintable);
+                _applicationBackgroundStack.SetVisibleChild(_applicationBackground2);
+            }
+            else
+            {
+                _applicationBackground1.SetPaintable(paintable);
+                _applicationBackgroundStack.SetVisibleChild(_applicationBackground1);
+            }
         }
     }
     

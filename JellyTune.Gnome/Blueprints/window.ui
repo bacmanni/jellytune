@@ -9,23 +9,33 @@
           <child>
             <object class="GtkOverlay">
               <property name="vexpand">true</property>
-              <!-- Background image 1 -->
-              <child>
-                <object class="GtkPicture" id="_applicationBackground1">
-                  <property name="content-fit">cover</property>
-                  <property name="opacity">0</property>
+              <property name="child">
+                <object class="GtkStack" id="_applicationBackgroundStack">
+                <property name="transition-type">crossfade</property>
+                <property name="transition-duration">500</property>
+                  <!-- Background image 1 -->
+                  <child>
+                    <object class="GtkPicture" id="_applicationBackground1">
+                      <property name="can-shrink">true</property>
+                      <property name="content-fit">cover</property>
+                      <property name="can-target">false</property>
+                    </object>
+                  </child>
+                  <!-- Picture Slot B -->
+                  <child>
+                  <object class="GtkPicture" id="_applicationBackground2">
+                    <property name="can-shrink">true</property>
+                    <property name="content-fit">cover</property>
+                    <property name="can-target">false</property>
+                  </object>
+                </child>
                 </object>
-              </child>
-              <!-- Background image 2 -->
+              </property>
               <child type="overlay">
-                <object class="GtkPicture" id="_applicationBackground2">
-                  <property name="content-fit">cover</property>
-                  <property name="opacity">0</property>
-                </object>
-              </child>
-              <!-- Dark tint -->
-              <child type="overlay">
-                <object class="GtkBox" id="tint">
+                <object class="GtkBox" id="_applicationBackgroundTint">
+                  <property name="hexpand">true</property>
+                  <property name="vexpand">true</property>
+                  <property name="can-target">false</property>
                   <property name="opacity">0</property>
                   <style>
                     <class name="background-tint"/>
@@ -36,6 +46,9 @@
               <child type="overlay">
                 <object class="GtkBox">
                 <property name="orientation">1</property>
+                  <layout>
+                    <property name="measure">true</property>
+                  </layout>
                   <child>
                     <object class="AdwSpinner" id="_spinner">
                       <property name="margin-top">46</property>

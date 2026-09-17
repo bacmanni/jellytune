@@ -91,11 +91,10 @@ public sealed class MainWindowController : IDisposable
         
             try
             {
-                var albumId = PlayerService.GetSelectedAlbum()?.Id;
+                var albumId = _playerService.GetSelectedAlbum()?.Id;
                 if (albumId.HasValue)
                 {
-                    var albumArt = await JellyTuneApiService.GetPrimaryArtAsync(albumId.Value, 200, true);
-                    Background = albumArt;
+                    Background = _playerService.GetArtwork();
                     OnApplicationBackgroundChanged?.Invoke(this, EventArgs.Empty);
                 }
                 else
