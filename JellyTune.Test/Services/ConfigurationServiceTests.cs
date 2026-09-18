@@ -1,6 +1,7 @@
 using System.IO.Abstractions;
 using System.Text;
 using System.Text.Json;
+using JellyTune.Shared.Events;
 using JellyTune.Shared.Models;
 using JellyTune.Shared.Services;
 using Moq;
@@ -45,7 +46,7 @@ public class ConfigurationServiceTests
         configuration.ShowListSeparator = !configuration.ShowListSeparator;
         _configurationService.Set(configuration);
         
-        var evt = Assert.Raises<EventArgs>( handler => _configurationService.OnSaved += handler, handler => _configurationService.OnSaved -= handler, () => _configurationService.Save() );
+        var evt = Assert.Raises<ConfigurationArgs>( handler => _configurationService.OnSaved += handler, handler => _configurationService.OnSaved -= handler, () => _configurationService.Save() );
         Assert.Equal(_configurationService, evt.Sender);
 
         var configurationResult = new Configuration();

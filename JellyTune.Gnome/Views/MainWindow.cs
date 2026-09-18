@@ -312,8 +312,7 @@ public partial class MainWindow
     {
         if (_controller.Background != null)
         {
-            using var bytes = Bytes.New(_controller.Background);
-            using var texture = Texture.NewFromBytes(bytes);
+            var texture = GtkHelper.CreateBlurredTextureFromBytes(_controller.Background);
             FadeBackgroundTo(texture);
         }
         else
@@ -326,6 +325,10 @@ public partial class MainWindow
     {
         if (paintable == null)
         {
+            // Handle header tint
+            if (HasCssClass("headerbar-tint"))
+                RemoveCssClass("headerbar-tint");
+                
             // Tind off?
             if (_applicationBackgroundTint.GetOpacity() > 0)
             {
@@ -349,6 +352,10 @@ public partial class MainWindow
         }
         else
         {
+            // Handle header tint
+            if (!HasCssClass("headerbar-tint"))
+                AddCssClass("headerbar-tint");
+            
             // Handle tint
             if (_applicationBackgroundTint.GetOpacity() == 0)
             {
@@ -765,6 +772,7 @@ public partial class MainWindow
     {
         // Pause playing. Playing would break account related stuff
         _controller.PlayerService.StopTrack();
+        FadeBackgroundTo(null);
         
         var preferences = PreferencesView.NewWithValues(_controller.ConfigurationService, _controller.JellyTuneApiService);
         preferences.Present(this);

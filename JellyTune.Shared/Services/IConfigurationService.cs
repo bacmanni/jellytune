@@ -1,11 +1,12 @@
 using System.Runtime.InteropServices;
+using JellyTune.Shared.Events;
 using JellyTune.Shared.Models;
 
 namespace JellyTune.Shared.Services;
 
 public interface IConfigurationService
 {
-    public event EventHandler<EventArgs>? OnSaved;
+    public event EventHandler<ConfigurationArgs>? OnSaved;
     public void Save();
     public void Load();
     public string? GetConfigurationDirectory();

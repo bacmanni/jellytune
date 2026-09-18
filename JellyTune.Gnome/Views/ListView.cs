@@ -246,9 +246,9 @@ public partial class ListView
         base.Dispose();
     }
 
-    private void OnSaved(object? sender, EventArgs e)
+    private void OnSaved(object? sender, ConfigurationArgs e)
     {
-        var configuration = _controller.ConfigurationService.Get();
-        _list.SetShowSeparators(configuration.ShowListSeparator);
+        if (e.Changes.ContainsKey("ShowListSeparator"))
+            _list.SetShowSeparators(e.Configuration.ShowListSeparator);
     }
 }

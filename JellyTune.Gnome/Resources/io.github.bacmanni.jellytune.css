@@ -8,18 +8,23 @@
     min-width: 50px;
 }
 
-/* Application background*/
+/* Application background related */
 .background-tint {
     background-color: rgba(0, 0, 0, 0.6);
 }
+.top-bar, headerbar {
+    transition: background-color 500ms ease-in-out;
+}
+.headerbar-tint .top-bar, headerbar {
+    background-color: rgba(0, 0, 0, 0.1);
+}
 @media (prefers-color-scheme: light) {
     .background-tint {
-        background-color: rgba(255, 255, 255, 0.65);
+        background-color: rgba(255, 255, 255, 0.60);
     }
 }
 list {
     background-color: rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
 }
 list > row {
     background-color: transparent;
@@ -27,13 +32,15 @@ list > row {
 list > row:hover {
     background-color: rgba(255, 255, 255, 0.05);
 }
-list > row:selected {
-    background-color: rgba(255, 255, 255, 0.15);
-}
 listview, listview > row {
     background-color: transparent;
 }
 listview > row:hover {
     background-color: rgba(255, 255, 255, 0.08);
-    border-radius: 8px;
+}
+gridview, gridview > row {
+    background-color: transparent;
+}
+gridview > row:hover {
+    background-color: rgba(255, 255, 255, 0.08);
 }

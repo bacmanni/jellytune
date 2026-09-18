@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Unicode;
+using JellyTune.Shared.Events;
 using JellyTune.Shared.Models;
 
 namespace JellyTune.Shared.Services;
@@ -13,12 +14,13 @@ namespace JellyTune.Shared.Services;
 public class ConfigurationService(IFileSystem fileSystem, string? configurationDir, string? cacheDir) : IConfigurationService
 {
     private readonly string _keySalt = "37cee24e-26a3-4a71-8e92-3bb5cecfcbc3";
+    private Configuration? _previousValues;
     private readonly Configuration _configuration = new();
 
     /// <summary>
     /// Occurs when the configuration object is saved
     /// </summary>
-    public event EventHandler<EventArgs>? OnSaved;
+    public event EventHandler<ConfigurationArgs>? OnSaved;
 
     /// <summary>
     /// Saves the configuration file
@@ -33,7 +35,25 @@ public class ConfigurationService(IFileSystem fileSystem, string? configurationD
         var json = JsonSerializer.Serialize(configuration,  options: new JsonSerializerOptions { WriteIndented = true, Encoder = JavaScriptEncoder.Create(UnicodeRanges.All) });
         
         fileSystem.File.WriteAllText(filename, json);
-        OnSaved?.Invoke(this, EventArgs.Empty);
+        
+        // Check changed values
+        var args = new ConfigurationArgs(configuration);
+        
+        var properties = typeof(Configuration).GetProperties();
+        foreach (var property in properties)
+        {
+            if (property.Name == "Password") continue;
+            
+            var previousValue = _previousValues != null ? property.GetValue(_previousValues) : null;
+            var currentValue = property.GetValue(configuration);
+            
+            if (previousValue == null || !previousValue.Equals(currentValue))
+            {
+                args.Changes.TryAdd(property.Name, (previousValue, currentValue));
+            }
+        }
+        
+        OnSaved?.Invoke(this, args);
     }
 
     /// <summary>
@@ -71,6 +91,8 @@ public class ConfigurationService(IFileSystem fileSystem, string? configurationD
                     Console.WriteLine($"Decrypting password failed: {e}");
                     _configuration.Password = null;
                 }
+                
+                _previousValues = _configuration.ShallowCopy();
             }
         }
     }
@@ -208,11 +230,6 @@ public class ConfigurationService(IFileSystem fileSystem, string? configurationD
         var properties = typeof(Configuration).GetProperties();
         foreach (var property in properties)
         {
-            if (property.Name == "Password")
-            {
-                
-            }
-            
             property.SetValue(_configuration, property.GetValue(configuration));
         }
     }

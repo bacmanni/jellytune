@@ -1,5 +1,5 @@
+using Gdk;
 using GLib;
-using SkiaSharp;
 
 namespace JellyTune.Gnome.Helpers;
 
@@ -14,31 +14,18 @@ public abstract class GtkHelper
         });
     }
 
-    public static byte[] CreateBlurredBytes(byte[] imageBytes, float blurRadius = 20f)
+    public static Gdk.Texture? CreateBlurredTextureFromBytes(byte[]? imageBytes, float blurRadius = 20f)
     {
-        // 1. Decode byte array directly into an SKBitmap
-        using var originalBitmap = SKBitmap.Decode(imageBytes);
+        using var image = NetVips.Image.NewFromBuffer(imageBytes);
 
-        if (originalBitmap == null)
-            throw new System.Exception("Failed to decode image bytes.");
-
-        // 2. Create an off-screen surface matching the image dimensions
-        using var surface = SKSurface.Create(new SKImageInfo(originalBitmap.Width, originalBitmap.Height));
-        var canvas = surface.Canvas;
-
-        // 3. Configure the paint filter with a Gaussian blur
-        using var paint = new SKPaint
-        {
-            ImageFilter = SKImageFilter.CreateBlur(blurRadius, blurRadius)
-        };
-
-        // 4. Draw the bitmap onto the canvas through the blur filter
-        canvas.DrawBitmap(originalBitmap, 0, 0, paint);
-        canvas.Flush();
-
-        // 5. Snapshot the surface and encode it back to PNG bytes in memory
-        using var snapshot = surface.Snapshot();
-        using var data = snapshot.Encode(SKEncodedImageFormat.Png, 100);
-        return data.ToArray();
+        // 2. Apply Gaussian blur (sigma controls the blur intensity)
+        using var blurred = image.Gaussblur(blurRadius);
+    
+        // 3. Export back to memory as PNG bytes
+        var pngBytes = blurred.WriteToBuffer(".png");
+    
+        // 4. Send to GTK 4
+        using var glibBytes = GLib.Bytes.New(pngBytes);
+        return Gdk.Texture.NewFromBytes(glibBytes);
     }
 }
