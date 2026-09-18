@@ -467,8 +467,9 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// </summary>
     /// <param name="albumId"></param>
     /// <param name="size"></param>
+    /// <param name="blur"></param>
     /// <returns></returns>
-    public async Task<byte[]?> GetPrimaryArtAsync(Guid albumId, int? size = 200)
+    public async Task<byte[]?> GetPrimaryArtAsync(Guid albumId, int? size = 200, bool blur = false)
     {
         try
         {
@@ -476,6 +477,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
             {
                 configuration.QueryParameters.Height = size;
                 configuration.QueryParameters.Width = size;
+                configuration.QueryParameters.Blur = blur ? 20 : null;
             }).ConfigureAwait(false);
             
             if (stream == null)

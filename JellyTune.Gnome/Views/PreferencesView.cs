@@ -21,6 +21,7 @@ public partial class PreferencesView
     
     [Connect] private PreferencesPage _preferencesPage1;
 
+    [Connect] private SwitchRow _showPlayingAlbumBackground;
     [Connect] private SwitchRow _cacheList;
     [Connect] private SwitchRow _cacheArtwork;
     [Connect] private SwitchRow _showListSeparator;
@@ -28,7 +29,7 @@ public partial class PreferencesView
     [Connect] private SwitchRow _showVolume;
     [Connect] private SwitchRow _showPlayingAlbum;
     [Connect] private SwitchRow _showLyrics;
-
+    
     public bool Refresh { get; set; }
     public string? Password { get; set; } = null;
 
@@ -38,6 +39,7 @@ public partial class PreferencesView
         if (_accountController.IsValid)
         {
             var configuration = _configurationService.Get();
+            configuration.ShowAlbumAsBackground = _showPlayingAlbumBackground.GetActive();
             configuration.CacheListData = _cacheList.GetActive();
             configuration.CacheAlbumArt = _cacheArtwork.GetActive();
             configuration.ShowListSeparator = _showListSeparator.GetActive();
@@ -88,6 +90,7 @@ public partial class PreferencesView
         
         var configuration =  _configurationService.Get();
         _accountController.OpenConfiguration(configuration, true);
+        _showPlayingAlbumBackground.SetActive(configuration.ShowAlbumAsBackground);
         _cacheList.SetActive(configuration.CacheListData);
         _cacheArtwork.SetActive(configuration.CacheAlbumArt);
         _showListSeparator.SetActive(configuration.ShowListSeparator);

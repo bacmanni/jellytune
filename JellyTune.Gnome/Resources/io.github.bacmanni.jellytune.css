@@ -8,3 +8,32 @@
     min-width: 50px;
 }
 
+/* Application background*/
+.background-tint {
+    background-color: rgba(0, 0, 0, 0.6);
+}
+@media (prefers-color-scheme: light) {
+    .background-tint {
+        background-color: rgba(255, 255, 255, 0.65);
+    }
+}
+list {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+}
+list > row {
+    background-color: transparent;
+}
+list > row:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+list > row:selected {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+listview, listview > row {
+    background-color: transparent;
+}
+listview > row:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+}
