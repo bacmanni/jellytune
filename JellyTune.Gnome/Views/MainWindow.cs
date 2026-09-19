@@ -198,7 +198,7 @@ public partial class MainWindow
         
         //About Action
         var actAbout = SimpleAction.New("about", null);
-        actAbout.OnActivate += ActAboutOnOnActivate;
+        actAbout.OnActivate += ActAboutOnActivate;
         AddAction(actAbout);
 
         var actShortcuts = SimpleAction.New("shortcuts", null);
@@ -208,7 +208,7 @@ public partial class MainWindow
         
         //Search
         var actSearchBar = SimpleAction.New("search", null);
-        actSearchBar.OnActivate += ActShowSearchBarOnOnActivate;
+        actSearchBar.OnActivate += ActShowSearchBarOnActivate;
         AddAction(actSearchBar);
         _application.SetAccelsForAction("win.search", new[] { "<Ctrl>f" });
 
@@ -304,7 +304,7 @@ public partial class MainWindow
         _queueListToolbarView.SetContent(_queueListView);
         _mainStackPlaylists.Append(_playlistView);
         _playlistTracksToolbarView.SetContent(_playlistTracksView);
-        OnNotify += OnOnNotify;
+        OnNotify += OnWindowNotify;
         _initialized = true;
     }
 
@@ -312,8 +312,17 @@ public partial class MainWindow
     {
         if (_controller.Background != null)
         {
-            var texture = GtkHelper.CreateBlurredTextureFromBytes(_controller.Background);
-            FadeBackgroundTo(texture);
+            try
+            {
+                var texture = GtkHelper.CreateBlurredTextureFromBytes(_controller.Background);
+                FadeBackgroundTo(texture);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine($"{exception.Message}");
+                Console.WriteLine(exception.StackTrace);
+                FadeBackgroundTo(null);
+            }
         }
         else
         {
@@ -329,7 +338,7 @@ public partial class MainWindow
             if (HasCssClass("headerbar-tint"))
                 RemoveCssClass("headerbar-tint");
                 
-            // Tind off?
+            // Tint off?
             if (_applicationBackgroundTint.GetOpacity() > 0)
             {
                 var target = Adw.PropertyAnimationTarget.New(_applicationBackgroundTint, "opacity");
@@ -537,7 +546,7 @@ public partial class MainWindow
         _rootView.Push(_playlistTracks);
     }
 
-    private void OnOnNotify(Object sender, NotifySignalArgs args)
+    private void OnWindowNotify(Object sender, NotifySignalArgs args)
     {
         var name = args.Pspec.GetName();
         if (name != "default-width" && name != "maximized") return;
@@ -741,7 +750,7 @@ public partial class MainWindow
         _ = RefreshLists(true);
     }
 
-    private void ActAboutOnOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
+    private void ActAboutOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
     {
         var about = AboutDialog.New();
         about.ApplicationName = _controller.ApplicationInfo.Name;
@@ -786,7 +795,7 @@ public partial class MainWindow
         };
     }
     
-    private void ActShowSearchBarOnOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
+    private void ActShowSearchBarOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
     {
         ResetNavigationView();
         

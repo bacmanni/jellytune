@@ -38,7 +38,7 @@ public sealed class MainWindowController : IDisposable
 
     private void PlayerServiceOnOnPlayerStateChanged(object? sender, PlayerStateArgs e)
     {
-        if (e.State == PlayerState.LoadedArtwork)
+        if (e.State is PlayerState.LoadedArtwork or PlayerState.Playing)
         {
             _ = UpdateApplicationBackground(true);
         }
@@ -80,38 +80,47 @@ public sealed class MainWindowController : IDisposable
         return !string.IsNullOrWhiteSpace(configuration.PlaylistCollectionId);
     }
 
-    private async Task UpdateApplicationBackground(bool visible)
+    private Task UpdateApplicationBackground(bool visible)
     {
-        if (visible && ConfigurationService.Get().ShowAlbumAsBackground)
-        { 
-            _applicationBackgroundCts?.CancelAsync();
-            _applicationBackgroundCts?.Dispose();
-        
-            _applicationBackgroundCts = new CancellationTokenSource();
-        
-            try
-            {
-                var albumId = _playerService.GetSelectedAlbum()?.Id;
-                if (albumId.HasValue)
-                {
-                    Background = _playerService.GetArtwork();
-                    OnApplicationBackgroundChanged?.Invoke(this, EventArgs.Empty);
-                }
-                else
-                {
-                    Background = null;
-                    OnApplicationBackgroundChanged?.Invoke(this, EventArgs.Empty);
-                }
-            }
-            catch (OperationCanceledException)
-            {
-                // A newer OpenAlbum call cancelled this one.
-            }
-        }
-        else
+        try
         {
-            Background = null;
-            OnApplicationBackgroundChanged?.Invoke(this, EventArgs.Empty);
+            if (visible && ConfigurationService.Get().ShowAlbumAsBackground)
+            { 
+                _applicationBackgroundCts?.CancelAsync();
+                _applicationBackgroundCts?.Dispose();
+        
+                _applicationBackgroundCts = new CancellationTokenSource();
+        
+                try
+                {
+                    var albumId = _playerService.GetSelectedAlbum()?.Id;
+                    if (albumId.HasValue)
+                    {
+                        Background = _playerService.GetArtwork();
+                        OnApplicationBackgroundChanged?.Invoke(this, EventArgs.Empty);
+                    }
+                    else
+                    {
+                        Background = null;
+                        OnApplicationBackgroundChanged?.Invoke(this, EventArgs.Empty);
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    // A newer OpenAlbum call cancelled this one.
+                }
+            }
+            else
+            {
+                Background = null;
+                OnApplicationBackgroundChanged?.Invoke(this, EventArgs.Empty);
+            }
+
+            return Task.CompletedTask;
+        }
+        catch (Exception exception)
+        {
+            return Task.FromException(exception);
         }
     }
 }
