@@ -9,38 +9,60 @@
 }
 
 /* Application background related */
-.background-tint {
-    background-color: rgba(0, 0, 0, 0.6);
-}
 .top-bar, headerbar {
     transition: background-color 500ms ease-in-out;
 }
-.headerbar-tint .top-bar, headerbar {
+list {
+    transition: background-color 500ms ease-in-out;
+}
+list > row {
+    transition: background-color 500ms ease-in-out;
+}
+list > row:hover {
+    transition: background-color 500ms ease-in-out;
+}
+listview, listview > row {
+    transition: background-color 500ms ease-in-out;
+}
+listview > row:hover {
+    transition: background-color 500ms ease-in-out;
+}
+gridview, gridview > row {
+    transition: background-color 500ms ease-in-out;
+}
+gridview > row:hover {
+    transition: background-color 500ms ease-in-out;
+}
+.background-blur .top-bar, headerbar {
     background-color: rgba(0, 0, 0, 0.1);
 }
+.background-blur list {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+.background-blur list > row {
+    background-color: transparent;
+}
+.background-blur list > row:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+.background-blur listview, .background-blur listview > row {
+    background-color: transparent;
+}
+.background-blur listview > row:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+.background-blur gridview, .background-blur gridview > row {
+    background-color: transparent;
+}
+.background-blur gridview > row:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+.background-blur .background-tint {
+    background-color: rgba(0, 0, 0, 0.60);
+}
 @media (prefers-color-scheme: light) {
-    .background-tint {
+    .background-blur .background-tint {
         background-color: rgba(255, 255, 255, 0.60);
     }
 }
-list {
-    background-color: rgba(255, 255, 255, 0.1);
-}
-list > row {
-    background-color: transparent;
-}
-list > row:hover {
-    background-color: rgba(255, 255, 255, 0.05);
-}
-listview, listview > row {
-    background-color: transparent;
-}
-listview > row:hover {
-    background-color: rgba(255, 255, 255, 0.08);
-}
-gridview, gridview > row {
-    background-color: transparent;
-}
-gridview > row:hover {
-    background-color: rgba(255, 255, 255, 0.08);
-}
+

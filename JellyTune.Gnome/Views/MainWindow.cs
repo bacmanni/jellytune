@@ -335,8 +335,8 @@ public partial class MainWindow
         if (paintable == null)
         {
             // Handle header tint
-            if (HasCssClass("headerbar-tint"))
-                RemoveCssClass("headerbar-tint");
+            if (HasCssClass("background-blur"))
+                RemoveCssClass("background-blur");
                 
             // Tint off?
             if (_applicationBackgroundTint.GetOpacity() > 0)
@@ -362,8 +362,8 @@ public partial class MainWindow
         else
         {
             // Handle header tint
-            if (!HasCssClass("headerbar-tint"))
-                AddCssClass("headerbar-tint");
+            if (!HasCssClass("background-blur"))
+                AddCssClass("background-blur");
             
             // Handle tint
             if (_applicationBackgroundTint.GetOpacity() == 0)
@@ -374,7 +374,7 @@ public partial class MainWindow
                 _backgroundAnimation.Play();
             }
             
-            // Handle bakcground switch
+            // Handle background switch
             if (_applicationBackgroundStack.GetVisibleChild() == _applicationBackground1)
             {
                 _applicationBackground2.SetPaintable(paintable);

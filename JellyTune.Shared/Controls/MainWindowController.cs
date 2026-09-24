@@ -38,7 +38,7 @@ public sealed class MainWindowController : IDisposable
 
     private void PlayerServiceOnOnPlayerStateChanged(object? sender, PlayerStateArgs e)
     {
-        if (e.State is PlayerState.LoadedArtwork or PlayerState.Playing)
+        if (e.State is PlayerState.LoadedArtwork)
         {
             _ = UpdateApplicationBackground(true);
         }
