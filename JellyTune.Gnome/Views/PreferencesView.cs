@@ -2,6 +2,7 @@ using Adw;
 using GObject;
 using Gtk;
 using JellyTune.Shared.Controls;
+using JellyTune.Shared.Events;
 using JellyTune.Shared.Services;
 using AlertDialog = Adw.AlertDialog;
 using Dialog = Adw.Dialog;
@@ -85,8 +86,10 @@ public partial class PreferencesView
     private void InitializeController()
     {
         _accountController = new AccountController(_configurationService, _jellyTuneApiService);
-        _accountView =  AccountView.NewWithValues(_accountController);
+        _accountView =  AccountView.NewWithValues(_accountController, true);
         _preferencesPage1.Insert(_accountView, 0);
+        
+        _accountController.OnConfigurationLoaded += AccountControllerOnConfigurationLoaded;
         
         var configuration =  _configurationService.Get();
         _accountController.OpenConfiguration(configuration, true);
@@ -101,6 +104,11 @@ public partial class PreferencesView
         _showPlayingAlbum.SetActive(configuration.ShowCurrentAlbum);
         
         OnCloseAttempt += CloseAttempt;
+    }
+
+    private void AccountControllerOnConfigurationLoaded(object? sender, AccountArgs e)
+    {
+        _ = _accountView.UpdateCollections();
     }
 
     public override void Dispose()

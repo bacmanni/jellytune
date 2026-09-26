@@ -305,6 +305,7 @@ public partial class MainWindow
         _mainStackPlaylists.Append(_playlistView);
         _playlistTracksToolbarView.SetContent(_playlistTracksView);
         OnNotify += OnWindowNotify;
+        _ = UpdateMainMenu();
         _initialized = true;
     }
 

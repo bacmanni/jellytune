@@ -6,21 +6,16 @@
             <object class="AdwEntryRow" id="_server">
                 <property name="title" translatable="yes">Server</property>
                 <property name="input-purpose">5</property>
-                <property name="show-apply-button">true</property>
             </object>
         </child>
         <child>
             <object class="AdwEntryRow" id="_username">
                 <property name="title" translatable="yes">Username</property>
-                <property name="sensitive">false</property>
-                <property name="show-apply-button">true</property>
             </object>
         </child>
         <child>
             <object class="AdwPasswordEntryRow" id="_password">
                 <property name="title" translatable="yes">Password</property>
-                <property name="sensitive">false</property>
-                <property name="show-apply-button">true</property>
             </object>
         </child>
         <child>
@@ -46,6 +41,35 @@
                         <property name="margin-end">6</property>
                         <property name="margin-top">6</property>
                         <property name="margin-bottom">6</property>
+                    </object>
+                </child>
+            </object>
+        </child>
+        <child>
+            <object class="GtkRevealer" id="_updateRevealer">
+                <property name="margin-top">12</property>
+                <property name="transition-type">slide-up</property>
+                <property name="reveal-child">false</property>
+                <child>
+                    <object class="GtkButton" id="_updateButton">
+                        <style>
+                            <class name="suggested-action"/>
+                        </style>
+                        <child>
+                            <object class="GtkStack" id="_updateStack">
+                                <property name="transition-type">crossfade</property>
+                                <property name="transition-duration">250</property>
+                                <child>
+                                    <object class="GtkLabel" id="_updateLabel">
+                                        <property name="label">Update connection</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="AdwSpinner" id="_updateSpinner">
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
                     </object>
                 </child>
             </object>
