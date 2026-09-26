@@ -288,11 +288,12 @@ public sealed class PlayerService : IPlayerService, IDisposable
         }
 
         _playingTrack = null;
-
+        
         if (endPlayback)
         {
             _startingTrack = null;
             _selectedTrack = null;
+            Album = null;
         }
     }
 
