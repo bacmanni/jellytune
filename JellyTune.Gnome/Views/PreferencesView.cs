@@ -71,7 +71,10 @@ public partial class PreferencesView
     private void AlertOnResponse(AlertDialog sender, AlertDialog.ResponseSignalArgs args)
     {
         if (args.Response == "close")
+        {
+            _jellyTuneApiService.SetServer(_configurationService.Get().ServerUrl);
             ForceClose();
+        }
     }
 
     public static PreferencesView NewWithValues(IConfigurationService configurationService, IJellyTuneApiService jellyTuneApiService)

@@ -19,7 +19,7 @@ public class ConfigurationServiceTests
     {
         _applicationId = "test.application.id";
         _mockFileSystem  = new Mock<IFileSystem>();
-        _configurationService = new ConfigurationService(_mockFileSystem.Object, "config", "cache");
+        _configurationService = new ConfigurationService(_mockFileSystem.Object, new ApplicationInfo() { Developer = "Joni Bäckström"}, "config", "cache");
     }
 
     [Fact]
@@ -61,12 +61,5 @@ public class ConfigurationServiceTests
         var loadedAutoRefresh = _configurationService.Get().ShowListSeparator;
         
         Assert.Equal(savedAutoRefresh, loadedAutoRefresh);
-    }
-
-    [Fact]
-    public void GetLatestChanges()
-    {
-        var result = _configurationService.GetLatestChanges();
-        Assert.NotEmpty(result);
     }
 }

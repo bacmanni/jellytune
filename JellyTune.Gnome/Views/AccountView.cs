@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Adw;
 using GLib;
 using GObject;
@@ -249,6 +253,7 @@ public partial class AccountView
         
         var validCollection = await UpdateCollections();
         _controller.SetValid(validCollection);
+        SetFormSensitive(true);
         return validCollection;
     }
 
@@ -295,14 +300,14 @@ public partial class AccountView
 
         if (!_controller.IsValidServerUrl(serverUrl))
         {
-            AddErrorPopup([_server], "Invalid server url. \nShould be something like http://yourserver:8096");
+            AddErrorPopup([_server], "Invalid server url");
             return false;
         }
         
         var isValid = await _controller.IsValidServerAsync(serverUrl);
         if (!isValid)
         {
-            AddErrorPopup([_server], "Invalid Jellyfin server or server version too old");
+            AddErrorPopup([_server], $"Invalid Jellyfin server or server version too old (required >= {_controller.ConfigurationService.ApplicationInfo.JellyFinVersion})");
             return false;
         }
         

@@ -9,6 +9,7 @@ public sealed class AccountController
 {
     private readonly IJellyTuneApiService _jellyTuneApiService;
     private readonly IConfigurationService _configurationService;
+    public IConfigurationService ConfigurationService => _configurationService;
     public bool IsValid { get; private set; }
     public string? ServerUrl { get; set; }
     public string? Username { get; set; }

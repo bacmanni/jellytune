@@ -11,11 +11,14 @@ using JellyTune.Shared.Models;
 
 namespace JellyTune.Shared.Services;
 
-public class ConfigurationService(IFileSystem fileSystem, string? configurationDir, string? cacheDir) : IConfigurationService
+public class ConfigurationService(IFileSystem fileSystem, ApplicationInfo applicationInfo, string? configurationDir, string? cacheDir) : IConfigurationService
 {
+    private readonly ApplicationInfo _applicationInfo = applicationInfo;
     private readonly string _keySalt = "37cee24e-26a3-4a71-8e92-3bb5cecfcbc3";
     private Configuration? _previousValues;
     private readonly Configuration _configuration = new();
+
+    public ApplicationInfo ApplicationInfo => _applicationInfo;
 
     /// <summary>
     /// Occurs when the configuration object is saved
@@ -267,22 +270,6 @@ public class ConfigurationService(IFileSystem fileSystem, string? configurationD
         return default;
     }
     
-    /// <summary>
-    /// Get latest changes from CHANGES-file
-    /// </summary>
-    /// <returns></returns>
-    public string[] GetLatestChanges()
-    {
-        using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("JellyTune.Shared.Resources.CHANGES");
-        using var reader = new StreamReader(stream!); 
-        var lines = reader.ReadToEnd().Split('\n', StringSplitOptions.RemoveEmptyEntries);
-
-        var changes = ParseChanges(lines);
-
-        var latest = changes.FirstOrDefault() != null ? changes.FirstOrDefault()?.Changes.ToArray() : null;
-        return latest ?? [];
-    }
-
     private List<Change> ParseChanges(string[] changes)
     {
         var result =  new List<Change>();

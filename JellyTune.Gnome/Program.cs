@@ -1,5 +1,8 @@
-﻿using System.IO.Abstractions;
+﻿using System;
+using System.IO;
+using System.IO.Abstractions;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Reflection;
@@ -37,6 +40,7 @@ class Program
         Website = "https://github.com/bacmanni/jellytune",
         IssueUrl = "https://github.com/bacmanni/jellytune/issues/new",
         Icon = "jellytune-icon",
+        JellyFinVersion = "10.11",
         Artists = [ "Ruut Kiiskilä" ]
     };
     
@@ -162,7 +166,7 @@ class Program
         
         // Project related
         serviceCollection.AddSingleton<IConfigurationService, ConfigurationService>(
-            serviceProvider => new ConfigurationService(fileSystem: serviceProvider.GetRequiredService<IFileSystem>(), GLib.Functions.GetUserConfigDir(), GLib.Functions.GetUserCacheDir())
+            serviceProvider => new ConfigurationService(fileSystem: serviceProvider.GetRequiredService<IFileSystem>(), applicationInfo: applicationInfo, GLib.Functions.GetUserConfigDir(), GLib.Functions.GetUserCacheDir())
         );
         
         serviceCollection.AddSingleton<IFileSystem, FileSystem>();
