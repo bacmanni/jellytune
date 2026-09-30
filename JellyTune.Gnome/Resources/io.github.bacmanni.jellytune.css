@@ -61,6 +61,9 @@ gridview > row:hover {
     background-color: rgba(0, 0, 0, 0.60);
 }
 @media (prefers-color-scheme: light) {
+    .background-blur .top-bar, headerbar {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
     .background-blur .background-tint {
         background-color: rgba(255, 255, 255, 0.60);
     }
