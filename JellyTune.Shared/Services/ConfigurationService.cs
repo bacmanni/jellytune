@@ -55,7 +55,8 @@ public class ConfigurationService(IFileSystem fileSystem, ApplicationInfo applic
                 args.Changes.TryAdd(property.Name, (previousValue, currentValue));
             }
         }
-        
+
+        _previousValues = configuration;
         OnSaved?.Invoke(this, args);
     }
 
