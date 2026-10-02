@@ -74,32 +74,47 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     {
         using var http = new HttpClient();
         http.Timeout = TimeSpan.FromSeconds(3);
-
+        Console.WriteLine($"Connecting: {serverUrl}");
+        
         try
         {
             using var response = await http.GetAsync(serverUrl);
             var available = response.IsSuccessStatusCode;
-            if (!available) return false;
+            if (!available)
+            {
+                Console.WriteLine($"No connection: {serverUrl}");
+                return false;
+            };
         }
-        catch (HttpRequestException)
+        catch (HttpRequestException e)
         {
+            Console.WriteLine($"HttpRequestException: {e.Message}");
             return false;
         }
-        catch (TaskCanceledException)
+        catch (TaskCanceledException e)
         {
+            Console.WriteLine($"TaskCanceledException: {e.Message}");
             return false;
         }
         
+        Console.WriteLine("Connection success!");
+        
         try
         {
+            Console.WriteLine($"Checking Jellyfin server (at least version {_configurationService.ApplicationInfo.JellyFinVersion})");
             _sdkClientSettings.SetServerUrl(serverUrl);
             var info = await _jellyfinApiClient.System.Info.Public.GetAsync()
                 .ConfigureAwait(true);
-            
+
+            Console.WriteLine(info != null
+                ? "Connection to Jellyfin server success"
+                : "Could not fetch public system info");
+
             return info != null;
         }
         catch (Exception)
         {
+            Console.WriteLine("Not a valid jellyfin server");
             return false;
         }
     }
