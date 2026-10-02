@@ -307,7 +307,7 @@ public partial class AccountView
         var isValid = await _controller.IsValidServerAsync(serverUrl);
         if (!isValid)
         {
-            AddErrorPopup([_server], $"Invalid Jellyfin server or server version too old (required >= {_controller.ConfigurationService.ApplicationInfo.JellyFinVersion})");
+            AddErrorPopup([_server], $"Invalid Jellyfin server");
             return false;
         }
         
