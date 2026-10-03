@@ -68,6 +68,8 @@ public partial class PlayerView
             _controller.ShowPlaylist();
         };
 
+        _container.SetTooltipText("Show playlist");
+        
         _lyrics.SetVisible(_controller.ConfigurationService.Get().ShowLyrics);
         _album.SetVisible(_controller.ConfigurationService.Get().ShowCurrentAlbum);
 
@@ -148,13 +150,13 @@ public partial class PlayerView
                 case PlayerState.Stopped:
                 case PlayerState.Paused:
                     _play.IconName = "media-playback-start-symbolic";
-                    _play.TooltipText = "Play track";
+                    _play.SetTooltipText("Play track");
                     UpdateTrack();
                     break;
 
                 case PlayerState.Playing:
                     _play.IconName = "media-playback-pause-symbolic";
-                    _play.TooltipText = "Pause track";
+                    _play.SetTooltipText("Pause track");
                     UpdateTrack();
                     break;
                 

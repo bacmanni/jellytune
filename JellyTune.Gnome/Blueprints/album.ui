@@ -41,6 +41,7 @@
                                                 <child>
                                                     <object class="GtkImage" id="_albumArt">
                                                         <property name="overflow">hidden</property>
+                                                        <property name="tooltip-text" translatable="yes">Album artwork</property>
                                                         <style>
                                                             <class name="icon-dropshadow"/>
                                                             <class name="album-art-big"/>
