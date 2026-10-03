@@ -55,14 +55,14 @@ public partial class PlayerView
         _album.OnClicked += AlbumOnClicked;
         
         var click = GestureClick.New();
-        _albumArt.AddController(click);
+        _container.AddController(click);
         click.OnReleased += (_, _) =>
         {
             _controller.ShowPlaylist();
         };
 
         var key = EventControllerKey.New();
-        _albumArt.AddController(key);
+        _container.AddController(key);
         key.OnKeyReleased += (_, _) =>
         {
             _controller.ShowPlaylist();
