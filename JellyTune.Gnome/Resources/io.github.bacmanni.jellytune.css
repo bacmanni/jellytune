@@ -12,6 +12,9 @@
 .top-bar, headerbar {
     transition: background-color 500ms ease-in-out;
 }
+.bottom-bar, headerbar {
+    transition: background-color 500ms ease-in-out;
+}
 list {
     transition: background-color 500ms ease-in-out;
 }
@@ -34,6 +37,9 @@ gridview > row:hover {
     transition: background-color 500ms ease-in-out;
 }
 .background-blur .top-bar, headerbar {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+.background-blur .bottom-bar, headerbar {
     background-color: rgba(0, 0, 0, 0.1);
 }
 .background-blur list {
@@ -60,12 +66,18 @@ gridview > row:hover {
 .background-blur .background-tint {
     background-color: rgba(0, 0, 0, 0.60);
 }
+.background-blur .footer-bar {
+    background-color: rgba(0, 0, 0, 0.10);
+}
 @media (prefers-color-scheme: light) {
     .background-blur .top-bar, headerbar {
         background-color: rgba(255, 255, 255, 0.1);
     }
     .background-blur .background-tint {
         background-color: rgba(255, 255, 255, 0.60);
+    }
+    .background-blur .bottom-bar, headerbar {
+        background-color: rgba(255, 255, 255, 0.1);
     }
 }
 
