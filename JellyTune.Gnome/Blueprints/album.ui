@@ -39,14 +39,23 @@
                                         <child>
                                             <object class="GtkBox">
                                                 <child>
-                                                    <object class="GtkImage" id="_albumArt">
-                                                        <property name="overflow">hidden</property>
-                                                        <property name="tooltip-text" translatable="yes">Album artwork</property>
+                                                    <object class="GtkButton" id="_artwork">
+                                                        <property name="has-frame">false</property>
+                                                        <property name="tooltip-text" translatable="yes">Show artwork</property>
                                                         <style>
-                                                            <class name="icon-dropshadow"/>
-                                                            <class name="album-art-big"/>
+                                                            <class name="clear-button"/>
                                                         </style>
-                                                        <property name="pixel-size">160</property>
+                                                        <child>
+                                                            <object class="GtkImage" id="_albumArt">
+                                                                <property name="overflow">hidden</property>
+                                                                <property name="tooltip-text" translatable="yes">Album artwork</property>
+                                                                <style>
+                                                                    <class name="icon-dropshadow"/>
+                                                                    <class name="album-art-big"/>
+                                                                </style>
+                                                                <property name="pixel-size">160</property>
+                                                            </object>
+                                                        </child>
                                                     </object>
                                                 </child>
                                             </object>
@@ -105,7 +114,7 @@
                                 </child>
                                 <child>
                                     <object class="GtkListBox" id="_tracks">
-                                        <property name="selection-mode">none</property>
+                                        <property name="selection-mode">single</property>
                                         <property name="activate-on-single-click">true</property>
                                         <style>
                                             <class name="boxed-list"/>

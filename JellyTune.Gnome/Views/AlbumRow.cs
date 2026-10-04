@@ -30,10 +30,11 @@ public partial class AlbumRow
     private void InitializeController()
     {
         Activatable = true;
-        CanFocus = false;
+        Focusable = true;
+        Selectable = false;
         
-        SetTitle(Markup.EscapeText(_album.Name != null ? _album.Name : string.Empty));
-        SetSubtitle(_album.Year.ToString() ?? string.Empty);
+        SetTitle(Markup.EscapeText(_album.Name ?? string.Empty));
+        SetSubtitle(_album.Year?.ToString() ?? string.Empty);
         _ = UpdateArtwork();
     }
 
