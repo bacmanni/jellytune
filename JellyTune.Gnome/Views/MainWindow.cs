@@ -557,8 +557,7 @@ public partial class MainWindow
     private async Task RefreshLists(bool reload = false)
     {
         _refreshAction.SetEnabled(false);
-        await _albumlistController.Refresh(reload);
-        await _playlistController.RefreshAsync(reload);
+        await Task.WhenAll(_albumlistController.RefreshAsync(reload), _playlistController.RefreshAsync(reload));
         _refreshAction.SetEnabled(true);
     }
     

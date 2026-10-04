@@ -29,7 +29,7 @@ public class AlbumlistController : ListController, IDisposable
     /// Refresh albumlist data
     /// </summary>
     /// <param name="reload"></param>
-    public async Task Refresh(bool reload = false)
+    public async Task RefreshAsync(bool reload = false)
     {
         var collectionId = _jellyTuneApiService.GetCollectionId();
         if (collectionId.HasValue)
