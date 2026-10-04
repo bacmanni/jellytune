@@ -22,6 +22,7 @@ public partial class PlayerView
     
     [Connect] private Box _container;
     [Connect] private Box _actions;
+    [Connect] private Button _queue;
     [Connect] private Image _albumArt;
     [Connect] private Button _skipBackward;
     [Connect] private Button _play;
@@ -53,6 +54,15 @@ public partial class PlayerView
         _skipForward.OnClicked += SkipForwardOnClicked;
         _lyrics.OnClicked += LyricsOnOnClicked;
         _album.OnClicked += AlbumOnClicked;
+
+        _queue.OnActivate += (sender, args) =>
+        {
+            _controller.ShowPlaylist();
+        };
+        
+        
+        
+        
         
         var click = GestureClick.New();
         _container.AddController(click);

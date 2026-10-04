@@ -19,38 +19,47 @@
                                 <property name="hexpand">true</property>
                                 <property name="homogeneous">false</property>
                                 <child>
-                                    <object class="GtkBox" id="_container">
-                                        <property name="halign">1</property>
-                                        <property name="hexpand">true</property>
+                                    <object class="GtkButton" id="_queue">
+                                        <property name="has-frame">false</property>
+                                        <property name="tooltip-text" translatable="yes">Show playlist</property>
+                                        <style>
+                                            <class name="clear-button"/>
+                                        </style>
                                         <child>
-                                            <object class="GtkImage" id="_albumArt">
-                                                <property name="overflow">hidden</property>
-                                                <style>
-                                                    <class name="icon-dropshadow"/>
-                                                    <class name="album-art-small"/>
-                                                </style>
-                                                <property name="pixel-size">36</property>
-                                            </object>
-                                        </child>
-                                        <child>
-                                            <object class="GtkBox">
-                                                <property name="orientation">1</property>
+                                            <object class="GtkBox" id="_container">
                                                 <property name="halign">1</property>
-                                                <property name="margin-end">24</property>
-                                                <property name="margin-start">12</property>
+                                                <property name="hexpand">true</property>
                                                 <child>
-                                                    <object class="GtkLabel" id="_track">
-                                                        <property name="ellipsize">3</property>
-                                                        <property name="halign">1</property>
+                                                    <object class="GtkImage" id="_albumArt">
+                                                        <property name="overflow">hidden</property>
                                                         <style>
-                                                            <class name="title-4"/>
+                                                            <class name="icon-dropshadow"/>
+                                                            <class name="album-art-small"/>
                                                         </style>
+                                                        <property name="pixel-size">36</property>
                                                     </object>
                                                 </child>
                                                 <child>
-                                                    <object class="GtkLabel" id="_artist">
-                                                        <property name="ellipsize">3</property>
+                                                    <object class="GtkBox">
+                                                        <property name="orientation">1</property>
                                                         <property name="halign">1</property>
+                                                        <property name="margin-end">24</property>
+                                                        <property name="margin-start">12</property>
+                                                        <child>
+                                                            <object class="GtkLabel" id="_track">
+                                                                <property name="ellipsize">3</property>
+                                                                <property name="halign">1</property>
+                                                                <style>
+                                                                    <class name="title-4"/>
+                                                                </style>
+                                                            </object>
+                                                        </child>
+                                                        <child>
+                                                            <object class="GtkLabel" id="_artist">
+                                                                <property name="ellipsize">3</property>
+                                                                <property name="halign">1</property>
+                                                            </object>
+                                                        </child>
                                                     </object>
                                                 </child>
                                             </object>
@@ -64,7 +73,7 @@
                                             <object class="GtkButton" id="_skipBackward">
                                                 <property name="icon-name">media-skip-backward-symbolic</property>
                                                 <property name="has-frame">false</property>
-                                                <property name="tooltip-text">Previous track</property>
+                                                <property name="tooltip-text" translatable="yes">Previous track</property>
                                             </object>
                                         </child>
                                         <child>
@@ -77,7 +86,7 @@
                                             <object class="GtkButton" id="_skipForward">
                                                 <property name="icon-name">media-skip-forward-symbolic</property>
                                                 <property name="has-frame">false</property>
-                                                <property name="tooltip-text">Next track</property>
+                                                <property name="tooltip-text" translatable="yes">Next track</property>
                                             </object>
                                         </child>
                                     </object>
@@ -90,7 +99,7 @@
                                             <object class="GtkButton" id="_lyrics">
                                                 <property name="halign">2</property>
                                                 <property name="icon-name">format-justify-center-symbolic</property>
-                                                <property name="tooltip-text">Lyrics</property>
+                                                <property name="tooltip-text" translatable="yes">Lyrics</property>
                                                 <property name="has-frame">false</property>
                                                 <property name="sensitive">false</property>
                                             </object>
@@ -100,7 +109,7 @@
                                                 <property name="halign">2</property>
                                                 <property name="valign">start</property>
                                                 <property name="icon-name">multimedia-player-symbolic</property>
-                                                <property name="tooltip-text">Playing album</property>
+                                                <property name="tooltip-text" translatable="yes">Playing album</property>
                                                 <property name="has-frame">false</property>
                                             </object>
                                         </child>
