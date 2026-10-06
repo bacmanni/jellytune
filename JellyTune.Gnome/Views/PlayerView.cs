@@ -52,38 +52,19 @@ public partial class PlayerView
         _skipBackward.OnClicked += SkipBackwardOnClicked;
         _play.OnClicked += PlayerPlayOnClicked;
         _skipForward.OnClicked += SkipForwardOnClicked;
-        _lyrics.OnClicked += LyricsOnOnClicked;
+        _lyrics.OnClicked += LyricsOnClicked;
         _album.OnClicked += AlbumOnClicked;
+        _queue.OnClicked += QueueOnClicked;
 
-        _queue.OnActivate += (sender, args) =>
-        {
-            _controller.ShowPlaylist();
-        };
-        
-        
-        
-        
-        
-        var click = GestureClick.New();
-        _container.AddController(click);
-        click.OnReleased += (_, _) =>
-        {
-            _controller.ShowPlaylist();
-        };
-
-        var key = EventControllerKey.New();
-        _container.AddController(key);
-        key.OnKeyReleased += (_, _) =>
-        {
-            _controller.ShowPlaylist();
-        };
-
-        _container.SetTooltipText("Show playlist");
-        
         _lyrics.SetVisible(_controller.ConfigurationService.Get().ShowLyrics);
         _album.SetVisible(_controller.ConfigurationService.Get().ShowCurrentAlbum);
 
         _initialized = true;
+    }
+
+    private void QueueOnClicked(Button sender, EventArgs args)
+    {
+        _controller.ShowPlaylist();
     }
 
     private void UpdateTrack()
@@ -145,7 +126,7 @@ public partial class PlayerView
         _album.SetVisible(_controller.ConfigurationService.Get().ShowCurrentAlbum);
     }
 
-    private void LyricsOnOnClicked(Button sender, EventArgs args)
+    private void LyricsOnClicked(Button sender, EventArgs args)
     {
         _controller.ShowShowLyrics();
     }

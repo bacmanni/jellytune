@@ -44,15 +44,16 @@ public partial class AlbumView
         _controller.OnAlbumChanged += ControllerOnAlbumChanged;
         _tracks.OnRowSelected += TracksOnRowSelected;
         _tracks.OnRowActivated += TracksOnRowActivated;
+        _artwork.OnClicked += ArtworkOnClicked;
+    }
 
-        _artwork.OnActivate += (sender, args) =>
-        {
-            if (_controller.Artwork == null || _controller.Album?.Id == null) return;
+    private void ArtworkOnClicked(Button sender, EventArgs args)
+    {
+        if (_controller.Artwork == null || _controller.Album?.Id == null) return;
         
-            var albumArtDialog = AlbumArtView.NewWithValues(_albumArtController);
-            albumArtDialog.Present(this);
-            _ = _albumArtController.OpenAsync(_controller.Album);
-        };
+        var albumArtDialog = AlbumArtView.NewWithValues(_albumArtController);
+        albumArtDialog.Present(this);
+        _ = _albumArtController.OpenAsync(_controller.Album);
     }
 
     private void ControllerOnAlbumChanged(object? sender, AlbumStateArgs args)
