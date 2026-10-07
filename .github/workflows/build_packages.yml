@@ -1,99 +1,97 @@
-name: Build packages
+    name: Build packages
 
-on:
-  workflow_dispatch:
-      
-jobs:
-  Build_x86_64:
-    runs-on: ubuntu-latest
+    on:
+      workflow_dispatch:
 
-    steps:
-      - uses: actions/checkout@v3
+    env:
+      VERSION: 1.2.3
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v5.0.0
-        with:
-          dotnet-version: '9.x'
-      
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libglib2.0-dev libfuse2 libfuse3-3 flatpak flatpak-builder
-          wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
-          chmod +x appimagetool-x86_64.AppImage
-          sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          sudo flatpak install flathub org.gnome.Platform//49 -y
-          sudo flatpak install flathub org.gnome.Sdk//49 -y
+    jobs:
+      build:
+        strategy:
+          matrix:
+            include:
+              - arch: x86_64
+                runtime: linux-x64
+                runner: ubuntu-latest
+                linuxdeploy_arch: x86_64
+                artifact_suffix: x86_64
 
-      - name: Install PupNet
-        run: dotnet tool update -g KuiperZone.PupNet
+              - arch: aarch64
+                runtime: linux-arm64
+                runner: ubuntu-24.04-arm
+                linuxdeploy_arch: aarch64
+                artifact_suffix: aarch64
 
-      - name: Create x64 Appimage
-        run: |
-          VERSION=1.1
-          pupnet --runtime linux-x64 --kind appimage --app-version $VERSION
+        runs-on: ${{ matrix.runner }}
 
-      - name: Upload AppImage artifact
-        uses: actions/upload-artifact@v5
-        with:
-          name: JellyTune-dev.x86_64.appImage
-          path: Deploy/JellyTune*.AppImage
+        steps:
+          - uses: actions/checkout@v4
 
-      - name: Create Flatpak
-        run:  |
-          VERSION=1.1
-          pupnet --runtime linux-x64 --kind flatpak --app-version $VERSION
+          - name: Setup .NET
+            uses: actions/setup-dotnet@v5
+            with:
+              dotnet-version: '9.x'
 
-      - name: Upload flatpak artifact
-        uses: actions/upload-artifact@v5
-        with:
-          name: JellyTune-dev.x86_64.flatpak
-          path: Deploy/JellyTune-*.flatpak
+          - name: Install dependencies
+            run: |
+              sudo apt-get update
 
-  Build_arm64:
-    runs-on: ubuntu-24.04-arm
+              sudo apt-get install -y libglib2.0-dev libfuse2 libfuse3-3 flatpak flatpak-builder file find pkg-config libgtk-3-dev librsvg2-dev libgirepository1.0-dev
 
-    steps:
-      - uses: actions/checkout@v3
+              sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v5.0.0
-        with:
-          dotnet-version: '9.x'
-      
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libglib2.0-dev libfuse2 libfuse3-3 flatpak flatpak-builder
-          wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-aarch64.AppImage
-          chmod +x appimagetool-aarch64.AppImage
-          sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          sudo flatpak install flathub org.gnome.Platform//49 -y
-          sudo flatpak install flathub org.gnome.Sdk//49 -y
+              sudo flatpak install flathub org.gnome.Platform//50 -y
+              sudo flatpak install flathub org.gnome.Sdk//50 -y
 
-      - name: Install PupNet
-        run: dotnet tool update -g KuiperZone.PupNet
+          - name: Install PupNet
+            run: |
+              dotnet tool update -g KuiperZone.PupNet
 
-      - name: Create arm64 Appimage
-        run: |
-          VERSION=1.1
-          pupnet --runtime linux-arm64 --kind appimage --app-version $VERSION
+          - name: Download linuxdeploy
+            run: |
+              wget -q "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-${{ matrix.linuxdeploy_arch }}.AppImage" -O linuxdeploy.AppImage
+              chmod +x linuxdeploy.AppImage
 
-      - name: Upload AppImage artifact
-        uses: actions/upload-artifact@v5
-        with:
-          name: JellyTune-dev.aarch64.appImage
-          path: Deploy/JellyTune*.AppImage
+          - name: Download linuxdeploy GTK plugin
+            run: |
+              wget -q https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh -O linuxdeploy-plugin-gtk.sh
+              chmod +x linuxdeploy-plugin-gtk.sh
 
-      - name: Create Flatpak
-        run: |
-          VERSION=1.1
-          pupnet --runtime linux-arm64 --kind flatpak --app-version $VERSION
+          - name: Publish application
+            run: |
+              rm -rf AppDir
+              mkdir -p AppDir/usr/bin
+              dotnet publish -r ${{ matrix.runtime }} -c Release --self-contained true -p:Version=$VERSION -p:DebugType=None -p:DebugSymbols=false -o AppDir/usr/bin
 
-      - name: Upload flatpak artifact
-        uses: actions/upload-artifact@v5
-        with:
-          name: JellyTune-dev.aarch64.flatpak
-          path: Deploy/JellyTune-*.flatpak
-          
+          - name: Prepare desktop files
+            run: |
+              mkdir -p AppDir/usr/share/applications
+              cp app.desktop AppDir/usr/share/applications/JellyTune.desktop
 
+          - name: Build AppImage
+            env:
+              LINUXDEPLOY_OUTPUT_VERSION: ${{ env.VERSION }}
+              LINUXDEPLOY_OUTPUT_APP_NAME: JellyTune
+            run: |
+              ./linuxdeploy.AppImage --appdir AppDir --plugin gtk --desktop-file AppDir/usr/share/applications/JellyTune.desktop --executable AppDir/usr/bin/JellyTune --output appimage
+
+          - name: Rename AppImage
+            run: |
+              mv JellyTune*.AppImage JellyTune-${VERSION}-${{ matrix.artifact_suffix }}.AppImage
+
+          - name: Upload AppImage artifact
+            uses: actions/upload-artifact@v5
+            with:
+              name: JellyTune-dev.${{ matrix.artifact_suffix }}.appImage
+              path: JellyTune-${{ env.VERSION }}-${{ matrix.artifact_suffix }}.AppImage
+
+          - name: Create Flatpak
+            run: |
+              pupnet --runtime ${{ matrix.runtime }} --kind flatpak --app-version $VERSION
+
+          - name: Upload Flatpak artifact
+            uses: actions/upload-artifact@v5
+            with:
+              name: JellyTune-dev.${{ matrix.artifact_suffix }}.flatpak
+              path: Deploy/JellyTune-*.flatpak
