@@ -51,9 +51,9 @@ jobs:
 
       - name: Extract PupNet deployment
         run: |
-          cp "Deploy/JellyTune.desktop" AppDir
           rm -rf AppDir
           mkdir -p AppDir
+          cp "Deploy/JellyTune.desktop" AppDir
           unzip "Deploy/JellyTune-${VERSION}-1.${{ matrix.runtime }}.zip" -d AppDir
 
       - name: Download linuxdeploy
