@@ -54,6 +54,7 @@ jobs:
           rm -rf AppDir
           mkdir -p AppDir
           unzip "Deploy/JellyTune-${VERSION}-1.${{ matrix.runtime }}.zip" -d AppDir
+	  cp Deploy/JellyTune.desktop AppDir
 
       - name: Download linuxdeploy
         run: |
@@ -70,7 +71,7 @@ jobs:
           LINUXDEPLOY_OUTPUT_VERSION: ${{ env.VERSION }}
           LINUXDEPLOY_OUTPUT_APP_NAME: JellyTune
         run: |
-          ./linuxdeploy.AppImage --appdir AppDir --plugin gtk --desktop-file AppDir/usr/share/applications/JellyTune.desktop --executable AppDir/usr/bin/JellyTune --output appimage
+          ./linuxdeploy.AppImage --appdir AppDir --plugin gtk --desktop-file AppDir/JellyTune.desktop --executable AppDir/JellyTune --output appimage
 
       - name: Rename AppImage
         run: |
