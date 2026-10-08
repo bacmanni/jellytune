@@ -76,10 +76,6 @@ jobs:
         run: |
           ./linuxdeploy.AppImage --appdir AppDir --plugin gtk --desktop-file AppDir/JellyTune.desktop --executable AppDir/JellyTune --output appimage
 
-      - name: Rename AppImage
-        run: |
-          mv JellyTune*.AppImage JellyTune-${VERSION}-${{ matrix.artifact_suffix }}.AppImage
-
       - name: Upload AppImage artifact
         uses: actions/upload-artifact@v5
         with:
