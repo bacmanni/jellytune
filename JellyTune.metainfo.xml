@@ -47,6 +47,10 @@
             <image>https://raw.githubusercontent.com/bacmanni/jellyplayer/main/Screenshots/Details.png</image>
             <caption>Details</caption>
         </screenshot>
+        <screenshot>
+            <image>https://raw.githubusercontent.com/bacmanni/jellyplayer/main/Screenshots/Background.png</image>
+            <caption>Album art as application background</caption>
+        </screenshot>
     </screenshots>
 
     <releases>
