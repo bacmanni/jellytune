@@ -70,6 +70,7 @@ jobs:
         env:
           LINUXDEPLOY_OUTPUT_VERSION: ${{ env.VERSION }}
           LINUXDEPLOY_OUTPUT_APP_NAME: JellyTune
+          DEPLOY_GTK_VERSION: 3
         run: |
           ./linuxdeploy.AppImage --appdir AppDir --plugin gtk --desktop-file AppDir/JellyTune.desktop --executable AppDir/JellyTune --output appimage
 
