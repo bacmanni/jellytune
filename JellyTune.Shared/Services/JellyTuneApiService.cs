@@ -82,18 +82,20 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
             var available = response.IsSuccessStatusCode;
             if (!available)
             {
-                Console.WriteLine($"No connection: {serverUrl}");
+                Console.WriteLine($"No connection to: {serverUrl}");
                 return false;
             };
         }
         catch (HttpRequestException e)
         {
             Console.WriteLine($"HttpRequestException: {e.Message}");
+            Console.WriteLine(e.StackTrace);
             return false;
         }
         catch (TaskCanceledException e)
         {
             Console.WriteLine($"TaskCanceledException: {e.Message}");
+            Console.WriteLine(e.StackTrace);
             return false;
         }
         
@@ -112,9 +114,10 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
 
             return info != null;
         }
-        catch (Exception)
+        catch (Exception e)
         {
             Console.WriteLine("Not a valid jellyfin server");
+            Console.WriteLine(e.StackTrace);
             return false;
         }
     }
