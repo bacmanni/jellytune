@@ -54,7 +54,7 @@ jobs:
           rm -rf AppDir
           mkdir -p AppDir
           unzip "Deploy/JellyTune-${VERSION}-1.${{ matrix.runtime }}.zip" -d AppDir
-	  cp Deploy/JellyTune.desktop AppDir
+	  cp "Deploy/JellyTune.desktop" AppDir
 
       - name: Download linuxdeploy
         run: |
