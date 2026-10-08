@@ -54,6 +54,8 @@ jobs:
           rm -rf AppDir
           mkdir -p AppDir
           cp "Deploy/JellyTune.desktop" AppDir
+          mkdir -p AppDir/usr/share/icons/hicolor/scalable/apps
+          cp Icons/JellyTune.svg AppDir/usr/share/icons/hicolor/scalable/apps/io.github.bacmanni.jellytune.svg
           unzip "Deploy/JellyTune-${VERSION}-1.${{ matrix.runtime }}.zip" -d AppDir
 
       - name: Download linuxdeploy
