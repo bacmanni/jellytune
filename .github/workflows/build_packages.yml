@@ -74,7 +74,7 @@ jobs:
           LINUXDEPLOY_OUTPUT_APP_NAME: JellyTune
           DEPLOY_GTK_VERSION: 3
         run: |
-          ./linuxdeploy.AppImage --appdir AppDir --plugin gtk --desktop-file AppDir/JellyTune.desktop --executable AppDir/JellyTune --output appimage
+          ./linuxdeploy.AppImage --appdir AppDir --plugin gtk --desktop-file AppDir/JellyTune.desktop --library "${{ matrix.linuxdeploy_arch }}-linux-gnu/libgtk-4.so.1" --executable AppDir/JellyTune --output appimage
 
       - name: Upload AppImage artifact
         uses: actions/upload-artifact@v5
