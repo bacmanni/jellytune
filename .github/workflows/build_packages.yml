@@ -36,7 +36,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt-get install -y libglib2.0-dev libfuse2 libfuse3-3 flatpak flatpak-builder libgtk-4-dev libgtk-4-1 librsvg2-dev libgirepository1.0-dev unzip
+          sudo apt-get install -y libglib2.0-dev libfuse2 libfuse3-3 flatpak flatpak-builder libgtk-4-dev libgtk-4-1 librsvg2-dev libgirepository1.0-dev unzip libadwaita-1-dev libadwaita-1-0
           sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
           sudo flatpak install flathub org.gnome.Platform//51 -y
           sudo flatpak install flathub org.gnome.Sdk//51 -y
@@ -67,14 +67,18 @@ jobs:
         run: |
           wget -q "https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh" -O linuxdeploy-plugin-gtk.sh
           chmod +x linuxdeploy-plugin-gtk.sh
-
+      - name: Copy GSettings Schemas
+        run: |
+          mkdir -p AppDir/usr/share/glib-2.0/schemas/
+          cp -r /usr/share/glib-2.0/schemas/* AppDir/usr/share/glib-2.0/schemas/
+          glib-compile-schemas AppDir/usr/share/glib-2.0/schemas/
       - name: Build AppImage
         env:
           LINUXDEPLOY_OUTPUT_VERSION: ${{ env.VERSION }}
           LINUXDEPLOY_OUTPUT_APP_NAME: JellyTune
           DEPLOY_GTK_VERSION: 4
         run: |
-          ./linuxdeploy.AppImage --appdir AppDir --plugin gtk --desktop-file AppDir/JellyTune.desktop --library /usr/lib/"${{ matrix.linuxdeploy_arch }}-linux-gnu/libgtk-4.so.1" --executable AppDir/JellyTune --output appimage
+          ./linuxdeploy.AppImage --appdir AppDir --plugin gtk --desktop-file AppDir/JellyTune.desktop --library "/usr/lib/${{ matrix.linuxdeploy_arch }}-linux-gnu/libgtk-4.so.1" --library "/usr/lib/${{ matrix.linuxdeploy_arch }}-linux-gnu/libadwaita-1.so.0" --executable AppDir/JellyTune --output appimage
 
       - name: Upload AppImage artifact
         uses: actions/upload-artifact@v5
