@@ -68,7 +68,7 @@ jobs:
           wget -q "https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh" -O linuxdeploy-plugin-gtk.sh
           chmod +x linuxdeploy-plugin-gtk.sh
           
-      - name: Download linuxdeploy GTK plugin
+      - name: Download linuxdeploy Gstreamer plugin
         run: |
           wget -q "https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gstreamer/master/linuxdeploy-plugin-gstreamer.sh" -O linuxdeploy-plugin-gstreamer.sh
           chmod +x linuxdeploy-plugin-gstreamer.sh
@@ -83,7 +83,7 @@ jobs:
           LINUXDEPLOY_OUTPUT_APP_NAME: JellyTune
           DEPLOY_GTK_VERSION: 4
         run: |
-          ./linuxdeploy.AppImage --appdir AppDir --plugin gtk --plugin gstreamer --desktop-file AppDir/JellyTune.desktop --library "/usr/lib/${{ matrix.linuxdeploy_arch }}-linux-gnu/libgtk-4.so.1" --library /usr/lib/x86_64-linux-gnu/libadwaita-1.so.0 --executable AppDir/JellyTune --output appimage
+          ./linuxdeploy.AppImage --appdir AppDir --plugin gtk --plugin gstreamer --desktop-file AppDir/JellyTune.desktop --library "/usr/lib/${{ matrix.linuxdeploy_arch }}-linux-gnu/libgtk-4.so.1" --library "/usr/lib/${{ matrix.linuxdeploy_arch }}-linux-gnu/libadwaita-1.so.0" --executable AppDir/JellyTune --output appimage
 
       - name: Upload AppImage artifact
         uses: actions/upload-artifact@v5
