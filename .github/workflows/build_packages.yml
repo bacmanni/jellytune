@@ -82,7 +82,6 @@ jobs:
         env:
           LINUXDEPLOY_OUTPUT_VERSION: ${{ env.VERSION }}
           LINUXDEPLOY_OUTPUT_APP_NAME: JellyTune
-          EXCLUDE_LIBRARIES: "libglib-2.0.so.0:libgio-2.0.so.0:libgobject-2.0.so.0:libgmodule-2.0.so.0:libgstreamer-1.0.so.0:libgstaudio-1.0.so.0:libgstbase-1.0.so.0"
           DEPLOY_GTK_VERSION: 4
           GTK_PATH: "/usr/lib/${{ matrix.linuxdeploy_arch }}-linux-gnu/libadwaita-1.so.0"
           ADWAITA_PATH: "/usr/lib/${{ matrix.linuxdeploy_arch }}-linux-gnu/libgtk-4.so.1"
