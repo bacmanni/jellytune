@@ -35,6 +35,7 @@ jobs:
 
       - name: Install dependencies
         run: |
+          sudo add-apt-repository ppa:flatpak/stable -y
           sudo apt update
           sudo apt-get install -y libglib2.0-dev libfuse2 libfuse3-3 flatpak flatpak-builder libgtk-4-dev libgtk-4-1 librsvg2-dev libgirepository1.0-dev unzip libadwaita-1-dev libadwaita-1-0
           sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
