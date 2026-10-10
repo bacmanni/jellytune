@@ -84,8 +84,10 @@ jobs:
           DEPLOY_GTK_VERSION: 4
           GTK_PATH: "/usr/lib/${{ matrix.linuxdeploy_arch }}-linux-gnu/libadwaita-1.so.0"
           ADWAITA_PATH: "/usr/lib/${{ matrix.linuxdeploy_arch }}-linux-gnu/libgtk-4.so.1"
+          LIBSSL_PATH: "/usr/lib/${{ matrix.linuxdeploy_arch }}-linux-gnu/libssl.so.3"
+          LIBCRYPTO_PATH: "/usr/lib/${{ matrix.linuxdeploy_arch }}-linux-gnu/libcrypto.so.3"
         run: |
-          ./linuxdeploy.AppImage --appdir AppDir --plugin gtk --plugin gstreamer --desktop-file AppDir/JellyTune.desktop --library ${{ env.GTK_PATH }} --library ${{ env.ADWAITA_PATH }} --executable AppDir/JellyTune --output appimage
+          ./linuxdeploy.AppImage --appdir AppDir --plugin gtk --plugin gstreamer --desktop-file AppDir/JellyTune.desktop --library ${{ env.GTK_PATH }} --library ${{ env.ADWAITA_PATH }} --library ${{ env.LIBSSL_PATH }} --library ${{ env.LIBCRYPTO_PATH }} --executable AppDir/JellyTune --output appimage
 
       - name: Upload AppImage artifact
         uses: actions/upload-artifact@v5
