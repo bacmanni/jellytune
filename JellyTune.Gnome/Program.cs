@@ -29,7 +29,8 @@ class Program
     private readonly IServiceProvider _serviceProvider;
     private readonly MainWindowController  _mainWindowController;
     private MainWindow? _mainWindow;
-
+    private readonly NetworkMonitor _monitor;
+    
     private readonly ApplicationInfo _applicationInfo = new()
     {
         Id = "io.github.bacmanni.jellytune",
@@ -96,6 +97,15 @@ class Program
         if (apiService == null || playerService == null || fileService == null)
             throw new Exception("Failed to load required services");
         
+        _monitor = Gio.Functions.NetworkMonitorGetDefault();
+        _monitor.OnNetworkChanged += MonitorOnNetworkChanged;
+
+        void MonitorOnNetworkChanged(NetworkMonitor sender, NetworkMonitor.NetworkChangedSignalArgs args)
+        {
+            var available = _monitor.GetNetworkAvailable();
+            playerService.NetworkAvailabilityChanged(available);
+        }
+
         _mainWindowController = new MainWindowController(apiService, configurationService, playerService, fileService, _applicationInfo);
         
         _application = Application.New(_applicationInfo.Id, ApplicationFlags.NonUnique);

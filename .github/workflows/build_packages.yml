@@ -48,7 +48,7 @@ jobs:
           
       - name: Download appimage tool
         run: |
-          wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-${{ matrix.runtime }}.AppImage
+          wget -q https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-${{ matrix.runtime }}.AppImage
           chmod +x appimagetool-${{ matrix.runtime }}.AppImage
           
       - name: Build appimage with PupNet

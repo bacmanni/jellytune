@@ -97,6 +97,13 @@ public sealed class PlayerService : IPlayerService, IDisposable
         }
     }
 
+    public void NetworkAvailabilityChanged(bool isOnline)
+    {
+        if (!isOnline)
+            if (!_networkDisconnected)
+                _networkDisconnected = true;
+    }
+
     private async Task OpenAlbumWithoutTracksAsync(Guid albumId, CancellationToken cancellationToken = default)
     {
         PlayerStateChanged(new PlayerStateArgs(PlayerState.Loading));

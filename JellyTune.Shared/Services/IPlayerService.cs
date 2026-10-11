@@ -11,6 +11,7 @@ public interface IPlayerService
     public event EventHandler<PlayerVolumeArgs> OnPlayerVolumeChanged;
     public void SelectTrack(Guid trackId);
     public bool IsSelectedTrack(Guid? trackId = null);
+    public void NetworkAvailabilityChanged(bool isOnline);
     public Task StartTrackAsync(Guid? trackId = null);
     public void StopTrack();
     public void PauseTrack();
