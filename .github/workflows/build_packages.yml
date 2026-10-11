@@ -75,6 +75,14 @@ jobs:
           wget -q "https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gstreamer/master/linuxdeploy-plugin-gstreamer.sh" -O linuxdeploy-plugin-gstreamer.sh
           chmod +x linuxdeploy-plugin-gstreamer.sh
           
+      - name: Clean squashfs-root
+        run: |
+          rm -rf squashfs-root/usr/lib/gtk-4.0/4.0.0/printbackends/
+          rm -f squashfs-root/usr/lib/libglib-2.0.so*
+          rm -f squashfs-root/usr/lib/libgio-2.0.so*
+          rm -f squashfs-root/usr/lib/libgobject-2.0.so*
+          rm -f squashfs-root/usr/lib/libgmodule-2.0.so*
+          
       - name: Build AppImage
         env:
           LINUXDEPLOY_OUTPUT_VERSION: ${{ env.VERSION }}
