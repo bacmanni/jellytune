@@ -16,16 +16,22 @@
                   <!-- Background image 1 -->
                   <child>
                     <object class="GtkPicture" id="_applicationBackground1">
+                      <style>
+                        <class name="background-image"/>
+                      </style>
                       <property name="can-shrink">true</property>
-                      <property name="content-fit">cover</property>
+                      <property name="keep-aspect-ratio">false</property>
                       <property name="can-target">false</property>
                     </object>
                   </child>
                   <!-- Picture Slot B -->
                   <child>
                   <object class="GtkPicture" id="_applicationBackground2">
+                    <style>
+                      <class name="background-image"/>
+                    </style>
                     <property name="can-shrink">true</property>
-                    <property name="content-fit">cover</property>
+                    <property name="keep-aspect-ratio">false</property>
                     <property name="can-target">false</property>
                   </object>
                 </child>
