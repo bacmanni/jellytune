@@ -84,7 +84,6 @@ public sealed class PlayerService : IPlayerService, IDisposable
     public PlayerService(IJellyTuneApiService jellyTuneApiService)
     {
         _jellyTuneApiService = jellyTuneApiService;
-        NetworkChange.NetworkAvailabilityChanged += NetworkChangeOnNetworkAvailabilityChanged;
 
         try
         {
@@ -96,13 +95,6 @@ public sealed class PlayerService : IPlayerService, IDisposable
         {
             Console.WriteLine("Failed to start default audio device");
         }
-    }
-
-    private void NetworkChangeOnNetworkAvailabilityChanged(object? sender, NetworkAvailabilityEventArgs e)
-    {
-        if (!e.IsAvailable)
-            if (!_networkDisconnected)
-                _networkDisconnected = true;
     }
 
     private async Task OpenAlbumWithoutTracksAsync(Guid albumId, CancellationToken cancellationToken = default)
@@ -815,8 +807,6 @@ public sealed class PlayerService : IPlayerService, IDisposable
 
     public void Dispose()
     {
-        NetworkChange.NetworkAvailabilityChanged -= NetworkChangeOnNetworkAvailabilityChanged;
-        
         if (_player != null)
         {
             _player.PlaybackEnded -= playerOnPlaybackEnded;

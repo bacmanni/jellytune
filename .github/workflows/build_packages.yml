@@ -46,18 +46,14 @@ jobs:
         run: |
           dotnet tool update -g KuiperZone.PupNet --version 1.9.0
 
-      - name: Build raw deployment with PupNet
+      - name: Build appimage with PupNet
         run: |
-          pupnet --runtime ${{ matrix.runtime }} --kind zip --build Release --yes
+          pupnet --runtime ${{ matrix.runtime }} --kind appimage --build Release --yes
 
-      - name: Extract PupNet deployment
+      - name: Extract PupNet appimage
         run: |
-          rm -rf AppDir
-          mkdir -p AppDir/usr/bin
-          cp "Deploy/JellyTune.desktop" AppDir
-          mkdir -p AppDir/usr/share/icons/hicolor/scalable/apps
-          cp Icons/JellyTune.svg AppDir/usr/share/icons/hicolor/scalable/apps/io.github.bacmanni.jellytune.svg
-          unzip "Deploy/JellyTune-${VERSION}-1.${{ matrix.runtime }}.zip" -d AppDir
+          chmod +x ./JellyTune-${VERSION}-1.${{ matrix.runtime }}.AppImage
+          ./JellyTune-${VERSION}-1.${{ matrix.runtime }}.AppImage --appimage-extract
 
       - name: Download linuxdeploy
         run: |
@@ -73,23 +69,16 @@ jobs:
         run: |
           wget -q "https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gstreamer/master/linuxdeploy-plugin-gstreamer.sh" -O linuxdeploy-plugin-gstreamer.sh
           chmod +x linuxdeploy-plugin-gstreamer.sh
-      - name: Copy GSettings Schemas
-        run: |
-          mkdir -p AppDir/usr/share/glib-2.0/schemas/
-          cp -r /usr/share/glib-2.0/schemas/* AppDir/usr/share/glib-2.0/schemas/
-          glib-compile-schemas AppDir/usr/share/glib-2.0/schemas/
+
       - name: Build AppImage
         env:
           LINUXDEPLOY_OUTPUT_VERSION: ${{ env.VERSION }}
           LINUXDEPLOY_OUTPUT_APP_NAME: JellyTune
           DEPLOY_GTK_VERSION: 4
-          EXCLUDE_LIBRARIES: "libglib-2.0.so.0:libgobject-2.0.so.0:libgio-2.0.so.0:libgmodule-2.0.so.0"
-          GTK_PATH: "/usr/lib/${{ matrix.linuxdeploy_arch }}-linux-gnu/libadwaita-1.so.0"
-          ADWAITA_PATH: "/usr/lib/${{ matrix.linuxdeploy_arch }}-linux-gnu/libgtk-4.so.1"
-          LIBSSL_PATH: "/usr/lib/${{ matrix.linuxdeploy_arch }}-linux-gnu/libssl.so.3"
-          LIBCRYPTO_PATH: "/usr/lib/${{ matrix.linuxdeploy_arch }}-linux-gnu/libcrypto.so.3"
+          ADWAITA_PATH: "/usr/lib/${{ matrix.linuxdeploy_arch }}-linux-gnu/libadwaita-1.so.0"
+          GTK_PATH: "/usr/lib/${{ matrix.linuxdeploy_arch }}-linux-gnu/libgtk-4.so.1"
         run: |
-          ./linuxdeploy.AppImage --appdir AppDir --plugin gtk --plugin gstreamer --desktop-file AppDir/JellyTune.desktop --library ${{ env.GTK_PATH }} --library ${{ env.ADWAITA_PATH }} --library ${{ env.LIBSSL_PATH }} --library ${{ env.LIBCRYPTO_PATH }} --executable AppDir/JellyTune --output appimage
+          ./linuxdeploy.AppImage --appdir squashfs-root --plugin gtk --desktop-file squashfs-root/JellyTune.desktop --library ${{ env.GTK_PATH }} --library ${{ env.ADWAITA_PATH }} --executable squashfs-root/JellyTune --output appimage
 
       - name: Upload AppImage artifact
         uses: actions/upload-artifact@v5

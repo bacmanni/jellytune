@@ -175,7 +175,7 @@ public class ConfigurationService(IFileSystem fileSystem, ApplicationInfo applic
         var platform = GetOsPlatform();
         if (platform == OSPlatform.Linux)
         {
-            return configurationDir;
+            return $"{configurationDir}/jellytune";
         }
 
         if (platform == OSPlatform.OSX)

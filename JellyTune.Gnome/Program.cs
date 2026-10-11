@@ -90,7 +90,7 @@ class Program
             "JellyTune Gnome",
             $"jellytune-{deviceId}");
         
-        var resourceFile = Path.GetFullPath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? throw new Exception("Could not get executing assembly location")) + $"/{_applicationInfo.Id}.gresource";
+        var resourceFile = Path.GetFullPath(Path.GetDirectoryName(AppContext.BaseDirectory ) ?? throw new Exception("Could not get executing assembly location")) + $"/{_applicationInfo.Id}.gresource";
         Functions.ResourcesRegister(Functions.ResourceLoad(resourceFile));
         
         if (apiService == null || playerService == null || fileService == null)
