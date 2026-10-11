@@ -63,7 +63,7 @@ jobs:
       - name: Download linuxdeploy
         run: |
           wget -q "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-${{ matrix.linuxdeploy_arch }}.AppImage" -O linuxdeploy.AppImage
-          chmod +x linuxdeploy-${{ matrix.linuxdeploy_arch }}.AppImage
+          chmod +x linuxdeploy.AppImage
 
       - name: Download linuxdeploy GTK plugin
         run: |
