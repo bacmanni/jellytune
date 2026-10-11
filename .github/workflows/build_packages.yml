@@ -45,7 +45,12 @@ jobs:
       - name: Install PupNet
         run: |
           dotnet tool update -g KuiperZone.PupNet --version 1.9.0
-
+          
+      - name: Download appimage tool
+        run: |
+          wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-${{ matrix.linuxdeploy_arch }}.AppImage
+          chmod +x appimagetool-${{ matrix.linuxdeploy_arch }}.AppImage
+          
       - name: Build appimage with PupNet
         run: |
           pupnet --runtime ${{ matrix.runtime }} --kind appimage --build Release --yes
@@ -69,7 +74,7 @@ jobs:
         run: |
           wget -q "https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gstreamer/master/linuxdeploy-plugin-gstreamer.sh" -O linuxdeploy-plugin-gstreamer.sh
           chmod +x linuxdeploy-plugin-gstreamer.sh
-
+          
       - name: Build AppImage
         env:
           LINUXDEPLOY_OUTPUT_VERSION: ${{ env.VERSION }}
