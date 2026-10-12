@@ -89,6 +89,12 @@ jobs:
           cp check-glibc.sh squashfs-root/apprun-hooks
           chmod +x squashfs-root/apprun-hooks/check-glibc.sh
           
+      - name: Bundle schemas
+        run: |
+          mkdir -p squashfs-root/usr/share/glib-2.0/schemas/
+          cp /usr/share/glib-2.0/schemas/*adwaita* squashfs-root/usr/share/glib-2.0/schemas/ 2>/dev/null || true
+          glib-compile-schemas squashfs-root/usr/share/glib-2.0/schemas/
+          
       - name: Build AppImage
         env:
           LINUXDEPLOY_OUTPUT_VERSION: ${{ env.VERSION }}
