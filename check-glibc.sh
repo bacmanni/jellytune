@@ -18,6 +18,3 @@ if [ "$(printf '%s\n' "$REQUIRED_GLIBC" "$SYSTEM_GLIBC" | sort -V | head -n1)" !
     exit 1
 fi
 
-# If the check passes, launch the actual application
-# AppRun scripts are passed the path to the extracted AppImage via $APPDIR
-exec "$APPDIR/usr/bin/JellyTune" "$@"

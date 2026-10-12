@@ -83,6 +83,12 @@ jobs:
           rm -f squashfs-root/usr/lib/libgobject-2.0.so*
           rm -f squashfs-root/usr/lib/libgmodule-2.0.so*
           
+      - name: Add glibc check
+        run: |
+          mkdir -p squashfs-root/apprun-hooks
+          cp check-glibc.sh squashfs-root/apprun-hooks
+          chmod +x squashfs-root/apprun-hooks/check-glibc.sh
+          
       - name: Build AppImage
         env:
           LINUXDEPLOY_OUTPUT_VERSION: ${{ env.VERSION }}
@@ -91,7 +97,7 @@ jobs:
           ADWAITA_PATH: "/usr/lib/${{ matrix.linuxdeploy_arch }}-linux-gnu/libadwaita-1.so.0"
           GTK_PATH: "/usr/lib/${{ matrix.linuxdeploy_arch }}-linux-gnu/libgtk-4.so.1"
         run: |
-          ./linuxdeploy.AppImage --appdir squashfs-root --plugin gtk --desktop-file squashfs-root/io.github.bacmanni.jellytune.desktop --icon-file squashfs-root/io.github.bacmanni.jellytune.svg --library ${{ env.GTK_PATH }} --library ${{ env.ADWAITA_PATH }} --executable squashfs-root/usr/bin/JellyTune --custom-apprun ./AppRun.sh --output appimage
+          ./linuxdeploy.AppImage --appdir squashfs-root --plugin gtk --desktop-file squashfs-root/io.github.bacmanni.jellytune.desktop --icon-file squashfs-root/io.github.bacmanni.jellytune.svg --library ${{ env.GTK_PATH }} --library ${{ env.ADWAITA_PATH }} --executable squashfs-root/usr/bin/JellyTune --output appimage
 
       - name: Upload AppImage artifact
         uses: actions/upload-artifact@v5
