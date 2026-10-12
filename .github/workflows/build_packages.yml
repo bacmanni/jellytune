@@ -92,7 +92,7 @@ jobs:
       - name: Bundle schemas
         run: |
           mkdir -p squashfs-root/usr/share/glib-2.0/schemas/
-          cp /usr/share/glib-2.0/schemas/*adwaita* squashfs-root/usr/share/glib-2.0/schemas/ 2>/dev/null || true
+          cp /usr/share/glib-2.0/schemas/*.xml squashfs-root/usr/share/glib-2.0/schemas/
           glib-compile-schemas squashfs-root/usr/share/glib-2.0/schemas/
           
       - name: Build AppImage
