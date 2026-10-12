@@ -60,50 +60,52 @@ jobs:
           chmod +x ./Deploy/JellyTune-${{env.VERSION}}-1.${{ matrix.artifact_suffix }}.AppImage
           ./Deploy/JellyTune-${{env.VERSION}}-1.${{ matrix.artifact_suffix }}.AppImage --appimage-extract
 
-      - name: Download linuxdeploy
+      - name: Inject Glibc Check & Add Dependencies
         run: |
-          wget -q "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-${{ matrix.linuxdeploy_arch }}.AppImage" -O linuxdeploy.AppImage
-          chmod +x linuxdeploy.AppImage
+          # 1. Inject the glibc version check directly into the top of PupNet's AppRun script
+          sed -i '2i \
+          SYSTEM_GLIBC=$(ldd --version | head -n1 | awk "{print \$NF}")\n\
+          REQUIRED_GLIBC="2.43"\n\
+          if [ "$(printf "%s\\n" "$REQUIRED_GLIBC" "$SYSTEM_GLIBC" | sort -V | head -n1)" != "$REQUIRED_GLIBC" ]; then\n\
+              ERROR_MSG="This AppImage requires glibc $REQUIRED_GLIBC or newer (e.g., Ubuntu 26.04+).\\nYour system has glibc $SYSTEM_GLIBC."\n\
+              if command -v zenity &> /dev/null; then\n\
+                  zenity --error --text="$ERROR_MSG" --title="System Too Old"\n\
+              else\n\
+                  echo -e "\\nERROR: $ERROR_MSG\\n"\n\
+              fi\n\
+              exit 1\n\
+          fi\n' squashfs-root/AppRun
 
-      - name: Download linuxdeploy GTK plugin
-        run: |
-          wget -q "https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh" -O linuxdeploy-plugin-gtk.sh
-          chmod +x linuxdeploy-plugin-gtk.sh
-          
-      - name: Download linuxdeploy Gstreamer plugin
-        run: |
-          wget -q "https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gstreamer/master/linuxdeploy-plugin-gstreamer.sh" -O linuxdeploy-plugin-gstreamer.sh
-          chmod +x linuxdeploy-plugin-gstreamer.sh
-          
-      - name: Clean squashfs-root
-        run: |
-          rm -rf squashfs-root/usr/lib/gtk-4.0/4.0.0/printbackends/
-          rm -f squashfs-root/usr/lib/libglib-2.0.so*
-          rm -f squashfs-root/usr/lib/libgio-2.0.so*
-          rm -f squashfs-root/usr/lib/libgobject-2.0.so*
-          rm -f squashfs-root/usr/lib/libgmodule-2.0.so*
-          
-      - name: Add glibc check
-        run: |
-          mkdir -p squashfs-root/apprun-hooks
-          cp check-glibc.sh squashfs-root/apprun-hooks
-          chmod +x squashfs-root/apprun-hooks/check-glibc.sh
-          
-      - name: Bundle schemas
-        run: |
+          # 2. Force-bundle libadwaita so the AppImage doesn't rely on the host system
+          cp /usr/lib/*/libadwaita-1.so* squashfs-root/usr/lib/ 2>/dev/null || true
+
+          # 3. Force-bundle the Adwaita and hicolor icon themes
+          mkdir -p squashfs-root/usr/share/icons/
+          cp -r /usr/share/icons/Adwaita squashfs-root/usr/share/icons/ 2>/dev/null || true
+          cp -r /usr/share/icons/hicolor squashfs-root/usr/share/icons/ 2>/dev/null || true
+
+          # 4. Copy and compile the modern schemas
           mkdir -p squashfs-root/usr/share/glib-2.0/schemas/
-          cp /usr/share/glib-2.0/schemas/*.xml squashfs-root/usr/share/glib-2.0/schemas/
-          glib-compile-schemas squashfs-root/usr/share/glib-2.0/schemas/
+          cp /usr/share/glib-2.0/schemas/*.xml squashfs-root/usr/share/glib-2.0/schemas/ 2>/dev/null || true
+          glib-compile-schemas squashfs-root/usr/share/glib-2.0/schemas/ || true
           
-      - name: Build AppImage
-        env:
-          LINUXDEPLOY_OUTPUT_VERSION: ${{ env.VERSION }}
-          LINUXDEPLOY_OUTPUT_APP_NAME: JellyTune
-          DEPLOY_GTK_VERSION: 4
-          ADWAITA_PATH: "/usr/lib/${{ matrix.linuxdeploy_arch }}-linux-gnu/libadwaita-1.so.0"
-          GTK_PATH: "/usr/lib/${{ matrix.linuxdeploy_arch }}-linux-gnu/libgtk-4.so.1"
+      - name: Download and extract appimagetool
         run: |
-          ./linuxdeploy.AppImage --appdir squashfs-root --plugin gtk --desktop-file squashfs-root/io.github.bacmanni.jellytune.desktop --icon-file squashfs-root/io.github.bacmanni.jellytune.svg --library ${{ env.GTK_PATH }} --library ${{ env.ADWAITA_PATH }} --executable squashfs-root/usr/bin/JellyTune --output appimage
+          wget -q https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-${{ matrix.linuxdeploy_arch }}.AppImage
+          chmod +x appimagetool-${{ matrix.linuxdeploy_arch }}.AppImage
+          
+          # Extract it because running AppImages directly in CI often fails due to missing FUSE
+          ./appimagetool-${{ matrix.linuxdeploy_arch }}.AppImage --appimage-extract
+          
+          # Rename the extracted tool's folder so it doesn't conflict with your app's folder
+          mv squashfs-root appimagetool-root
+
+      - name: Repackage AppImage
+        env:
+          ARCH: ${{ matrix.linuxdeploy_arch }}
+        run: |
+          # Use the extracted appimagetool to repack your perfectly configured squashfs-root!
+          ./appimagetool-root/AppRun ./squashfs-root JellyTune-${{ env.VERSION }}-${{ matrix.artifact_suffix }}.AppImage
 
       - name: Upload AppImage artifact
         uses: actions/upload-artifact@v5
