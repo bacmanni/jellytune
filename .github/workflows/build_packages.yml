@@ -93,19 +93,13 @@ jobs:
         run: |
           wget -q https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-${{ matrix.linuxdeploy_arch }}.AppImage
           chmod +x appimagetool-${{ matrix.linuxdeploy_arch }}.AppImage
-          
-          # Extract it because running AppImages directly in CI often fails due to missing FUSE
-          ./appimagetool-${{ matrix.linuxdeploy_arch }}.AppImage --appimage-extract
-          
-          # Rename the extracted tool's folder so it doesn't conflict with your app's folder
-          mv squashfs-root appimagetool-root
 
       - name: Repackage AppImage
         env:
           ARCH: ${{ matrix.linuxdeploy_arch }}
         run: |
           # Use the extracted appimagetool to repack your perfectly configured squashfs-root!
-          ./appimagetool-root/AppRun ./squashfs-root JellyTune-${{ env.VERSION }}-${{ matrix.artifact_suffix }}.AppImage
+          appimagetool-${{ matrix.linuxdeploy_arch }}.AppImage squashfs-root JellyTune-${{ env.VERSION }}-${{ matrix.artifact_suffix }}.AppImage
 
       - name: Upload AppImage artifact
         uses: actions/upload-artifact@v5
