@@ -19,10 +19,6 @@
     background: transparent;
     box-shadow: none;
 }
-.background-image {
-    background-size: cover;
-    background-position: center;
-}
 /* Application background related */
 .top-bar, headerbar {
     transition: background-color 500ms ease-in-out;
