@@ -13,13 +13,13 @@ jobs:
         include:
           - arch: x86_64
             runtime: linux-x64
-            runner: ubuntu-24.04
+            runner: ubuntu-22.04
             linuxdeploy_arch: x86_64
             artifact_suffix: x86_64
 
           - arch: aarch64
             runtime: linux-arm64
-            runner: ubuntu-24.04-arm
+            runner: ubuntu-22.04-arm
             linuxdeploy_arch: aarch64
             artifact_suffix: aarch64
 
