@@ -99,7 +99,7 @@ jobs:
           ARCH: ${{ matrix.linuxdeploy_arch }}
         run: |
           # Use the extracted appimagetool to repack your perfectly configured squashfs-root!
-          appimagetool-${{ matrix.linuxdeploy_arch }}.AppImage squashfs-root JellyTune-${{ env.VERSION }}-${{ matrix.artifact_suffix }}.AppImage
+          ./appimagetool-${{ matrix.linuxdeploy_arch }}.AppImage squashfs-root JellyTune-${{ env.VERSION }}-${{ matrix.artifact_suffix }}.AppImage
 
       - name: Upload AppImage artifact
         uses: actions/upload-artifact@v5
