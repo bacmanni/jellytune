@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
 using System.Net;
@@ -9,6 +10,7 @@ using System.Reflection;
 using System.Text;
 using Gio;
 using Jellyfin.Sdk;
+using JellyTune.Gnome.Helpers;
 using JellyTune.Gnome.Views;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Handlers;
@@ -31,7 +33,7 @@ class Program
     private MainWindow? _mainWindow;
     private readonly NetworkMonitor _monitor;
     
-    private readonly ApplicationInfo _applicationInfo = new()
+    private static readonly ApplicationInfo ApplicationInfo = new()
     {
         Id = "io.github.bacmanni.jellytune",
         Developer = "Joni Bäckström",
@@ -45,19 +47,29 @@ class Program
         Artists = [ "Ruut Kiiskilä" ]
     };
     
-    public static int Main(string[] args) => new Program().Run();
-    private int Run()
+    public static int Main(string[] args)
     {
+        if (!SystemChecker.CheckRequirements(out string errorMessage))
+        {
+            ShowGraphicalError($"Error loading {ApplicationInfo.Name}", errorMessage);
+            return 1;
+        }
+        
         try
         {
-            return _application.RunWithSynchronizationContext([_applicationInfo.Id ?? throw new Exception("Missing application Id")]);
+            return new Program().Run();
         }
         catch (Exception e)
         {
             Console.WriteLine(e.Message);
-            Console.WriteLine($"\n\n{e.StackTrace}");
+            Console.WriteLine($"{e.StackTrace}");
             return -1;
         }
+    }
+
+    private int Run()
+    {
+        return _application.RunWithSynchronizationContext([ApplicationInfo.Id ?? throw new Exception("Missing application Id")]);
     }
 
     private Program()
@@ -67,7 +79,7 @@ class Program
         Gio.Module.Initialize();
 
         var serviceCollection = new ServiceCollection();
-        ConfigureServices(_applicationInfo, serviceCollection);
+        ConfigureServices(ApplicationInfo, serviceCollection);
         _serviceProvider = serviceCollection.BuildServiceProvider();
         
         var apiService = _serviceProvider.GetService<IJellyTuneApiService>();
@@ -86,12 +98,12 @@ class Program
         
         var sdkClientSettings = _serviceProvider.GetRequiredService<JellyfinSdkSettings>();
         sdkClientSettings.Initialize(
-            _applicationInfo.Name ?? throw new Exception("Missing application name"),
-            _applicationInfo.Version ?? string.Empty,
+            ApplicationInfo.Name ?? throw new Exception("Missing application name"),
+            ApplicationInfo.Version ?? string.Empty,
             "JellyTune Gnome",
             $"jellytune-{deviceId}");
         
-        var resourceFile = Path.GetFullPath(Path.GetDirectoryName(AppContext.BaseDirectory ) ?? throw new Exception("Could not get executing assembly location")) + $"/{_applicationInfo.Id}.gresource";
+        var resourceFile = Path.GetFullPath(Path.GetDirectoryName(AppContext.BaseDirectory ) ?? throw new Exception("Could not get executing assembly location")) + $"/{ApplicationInfo.Id}.gresource";
         Functions.ResourcesRegister(Functions.ResourceLoad(resourceFile));
         
         if (apiService == null || playerService == null || fileService == null)
@@ -106,9 +118,9 @@ class Program
             playerService.NetworkAvailabilityChanged(available);
         }
 
-        _mainWindowController = new MainWindowController(apiService, configurationService, playerService, fileService, _applicationInfo);
+        _mainWindowController = new MainWindowController(apiService, configurationService, playerService, fileService, ApplicationInfo);
         
-        _application = Application.New(_applicationInfo.Id, ApplicationFlags.NonUnique);
+        _application = Application.New(ApplicationInfo.Id, ApplicationFlags.NonUnique);
         _application.OnActivate += ApplicationOnOnActivate;
         _application.OnShutdown += ApplicationOnOnShutdown;
     }
@@ -184,5 +196,48 @@ class Program
         serviceCollection.AddSingleton<IPlayerService, PlayerService>();
         serviceCollection.AddSingleton<IFileService, FileService>();
         serviceCollection.AddSingleton<MainWindowController>();
+    }
+    
+    private static void ShowGraphicalError(string title, string message)
+    {
+        // 1. Try Zenity (GNOME, GTK, XFCE, and most AppImage host systems)
+        try
+        {
+            var psi = new ProcessStartInfo("zenity")
+            {
+                Arguments = $"--error --title=\"{EscapeQuotes(title)}\" --text=\"{EscapeQuotes(message)}\"",
+                UseShellExecute = false
+            };
+            Process.Start(psi);
+            return;
+        }
+        catch
+        {
+            // ignored
+        }
+
+        // 2. Try KDialog (KDE Plasma environments)
+        try
+        {
+            var psi = new ProcessStartInfo("kdialog")
+            {
+                Arguments = $"--title \"{EscapeQuotes(title)}\" --error \"{EscapeQuotes(message)}\"",
+                UseShellExecute = false
+            };
+            Process.Start(psi);
+            return;
+        }
+        catch
+        {
+            // ignored
+        }
+
+        // 3. Final Fallback: Standard Console Error (e.g. headless servers or minimal containers)
+        Console.Error.WriteLine($"[{title}]\n{message}");
+    }
+
+    private static string EscapeQuotes(string input)
+    {
+        return input.Replace("\"", "\\\"");
     }
 }

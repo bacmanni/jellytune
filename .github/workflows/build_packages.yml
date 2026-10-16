@@ -55,52 +55,6 @@ jobs:
         run: |
           pupnet --runtime ${{ matrix.runtime }} --kind appimage --build Release --yes
 
-      - name: Extract PupNet appimage
-        run: |
-          chmod +x ./Deploy/JellyTune-${{env.VERSION}}-1.${{ matrix.artifact_suffix }}.AppImage
-          ./Deploy/JellyTune-${{env.VERSION}}-1.${{ matrix.artifact_suffix }}.AppImage --appimage-extract
-
-      - name: Inject Glibc Check & Add Dependencies
-        run: |
-          # 1. Inject the glibc version check directly into the top of PupNet's AppRun script
-          sed -i '2i \
-          SYSTEM_GLIBC=$(ldd --version | head -n1 | awk "{print \$NF}")\n\
-          REQUIRED_GLIBC="2.43"\n\
-          if [ "$(printf "%s\\n" "$REQUIRED_GLIBC" "$SYSTEM_GLIBC" | sort -V | head -n1)" != "$REQUIRED_GLIBC" ]; then\n\
-              ERROR_MSG="This AppImage requires glibc $REQUIRED_GLIBC or newer (e.g., Ubuntu 26.04+).\\nYour system has glibc $SYSTEM_GLIBC."\n\
-              if command -v zenity &> /dev/null; then\n\
-                  zenity --error --text="$ERROR_MSG" --title="System Too Old"\n\
-              else\n\
-                  echo -e "\\nERROR: $ERROR_MSG\\n"\n\
-              fi\n\
-              exit 1\n\
-          fi\n' squashfs-root/AppRun
-
-          # 2. Force-bundle libadwaita so the AppImage doesn't rely on the host system
-          cp /usr/lib/*/libadwaita-1.so* squashfs-root/usr/lib/ 2>/dev/null || true
-
-          # 3. Force-bundle the Adwaita and hicolor icon themes
-          mkdir -p squashfs-root/usr/share/icons/
-          cp -r /usr/share/icons/Adwaita squashfs-root/usr/share/icons/ 2>/dev/null || true
-          cp -r /usr/share/icons/hicolor squashfs-root/usr/share/icons/ 2>/dev/null || true
-
-          # 4. Copy and compile the modern schemas
-          mkdir -p squashfs-root/usr/share/glib-2.0/schemas/
-          cp /usr/share/glib-2.0/schemas/*.xml squashfs-root/usr/share/glib-2.0/schemas/ 2>/dev/null || true
-          glib-compile-schemas squashfs-root/usr/share/glib-2.0/schemas/ || true
-          
-      - name: Download and extract appimagetool
-        run: |
-          wget -q https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-${{ matrix.linuxdeploy_arch }}.AppImage
-          chmod +x appimagetool-${{ matrix.linuxdeploy_arch }}.AppImage
-
-      - name: Repackage AppImage
-        env:
-          ARCH: ${{ matrix.linuxdeploy_arch }}
-        run: |
-          # Use the extracted appimagetool to repack your perfectly configured squashfs-root!
-          ./appimagetool-${{ matrix.linuxdeploy_arch }}.AppImage squashfs-root JellyTune-${{ env.VERSION }}-${{ matrix.artifact_suffix }}.AppImage
-
       - name: Upload AppImage artifact
         uses: actions/upload-artifact@v5
         with:

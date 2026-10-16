@@ -102,7 +102,11 @@
     <ItemGroup>
       <Compile Remove="Views\ServerEntryView.cs" />
     </ItemGroup>
-
+    
+    <ItemGroup>
+        <!-- Dynamically copies native libraries matching the target publish architecture -->
+        <None Include="runtimes\$(RuntimeIdentifier)\native\**\*.so*" CopyToOutputDirectory="PreserveNewest" Condition="'$(RuntimeIdentifier)' != ''" />
+    </ItemGroup>
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
         <Exec Command="echo Compiling gresources" />
         <Exec Command="glib-compile-resources --sourcedir ./Resources ./Resources/io.github.bacmanni.jellytune.gresource.xml --target=$(OutDir)/io.github.bacmanni.jellytune.gresource" />
