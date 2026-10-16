@@ -4,7 +4,7 @@
 
 My idea is to have native Gnome client for [Jellyfin](https://jellyfin.org/) that is also fully supported for mobile devices. So simple audio player. That means no massive edit functionality and no video playback. My wish is to use this on my mobile Linux device at some point.
 
-For now, it only supports one audio and playlist collection. That is the way I use Jellyfin. If you are using some other way, then leave a comment through support ticket and I see what we can do about it.
+For now, it only supports one audio and playlist collection. That is the way I use Jellyfin. If you are using some other way, then leave a comment through [discussion](https://github.com/bacmanni/jellytune/discussions) and I see what we can do about it.
 
 Oh, and the whole reason for this all is that I like to buy records and actually own them. I don't use streaming services for music :)
 
