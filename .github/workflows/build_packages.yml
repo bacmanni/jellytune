@@ -59,7 +59,7 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: JellyTune-dev.${{ matrix.artifact_suffix }}.appImage
-          path: Deploy/JellyTune-*.appImage
+          path: Deploy/JellyTune-*.AppImage
 
       - name: Create Flatpak
         run: |
