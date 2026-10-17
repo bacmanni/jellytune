@@ -87,7 +87,11 @@ jobs:
         run: |
           echo "Artifacts directory:"
           ls -R ./artifacts
-
+          mv ./artifacts/JellyTune-*.x86_64.AppImage ./artifacts/JellyTune-${{ github.ref_name }}.x86_64.AppImage
+          mv ./artifacts/JellyTune-*.x86_64.flatpak ./artifacts/JellyTune-${{ github.ref_name }}.x86_64.flatpak
+          mv ./artifacts/JellyTune-*.aarch64.AppImage ./artifacts/JellyTune-${{ github.ref_name }}.aarch64.AppImage
+          mv ./artifacts/JellyTune-*.aarch64.flatpak ./artifacts/JellyTune-${{ github.ref_name }}.aarch64.flatpak
+          
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
