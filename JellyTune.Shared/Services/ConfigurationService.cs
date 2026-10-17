@@ -6,19 +6,24 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Unicode;
+using JellyTune.Shared.Events;
 using JellyTune.Shared.Models;
 
 namespace JellyTune.Shared.Services;
 
-public class ConfigurationService(IFileSystem fileSystem, string? configurationDir, string? cacheDir) : IConfigurationService
+public class ConfigurationService(IFileSystem fileSystem, ApplicationInfo applicationInfo, string? configurationDir, string? cacheDir) : IConfigurationService
 {
+    private readonly ApplicationInfo _applicationInfo = applicationInfo;
     private readonly string _keySalt = "37cee24e-26a3-4a71-8e92-3bb5cecfcbc3";
+    private Configuration? _previousValues;
     private readonly Configuration _configuration = new();
+
+    public ApplicationInfo ApplicationInfo => _applicationInfo;
 
     /// <summary>
     /// Occurs when the configuration object is saved
     /// </summary>
-    public event EventHandler<EventArgs>? OnSaved;
+    public event EventHandler<ConfigurationArgs>? OnSaved;
 
     /// <summary>
     /// Saves the configuration file
@@ -33,7 +38,26 @@ public class ConfigurationService(IFileSystem fileSystem, string? configurationD
         var json = JsonSerializer.Serialize(configuration,  options: new JsonSerializerOptions { WriteIndented = true, Encoder = JavaScriptEncoder.Create(UnicodeRanges.All) });
         
         fileSystem.File.WriteAllText(filename, json);
-        OnSaved?.Invoke(this, EventArgs.Empty);
+        
+        // Check changed values
+        var args = new ConfigurationArgs(configuration);
+        
+        var properties = typeof(Configuration).GetProperties();
+        foreach (var property in properties)
+        {
+            if (property.Name == "Password") continue;
+            
+            var previousValue = _previousValues != null ? property.GetValue(_previousValues) : null;
+            var currentValue = property.GetValue(configuration);
+            
+            if (previousValue == null || !previousValue.Equals(currentValue))
+            {
+                args.Changes.TryAdd(property.Name, (previousValue, currentValue));
+            }
+        }
+
+        _previousValues = configuration;
+        OnSaved?.Invoke(this, args);
     }
 
     /// <summary>
@@ -71,6 +95,8 @@ public class ConfigurationService(IFileSystem fileSystem, string? configurationD
                     Console.WriteLine($"Decrypting password failed: {e}");
                     _configuration.Password = null;
                 }
+                
+                _previousValues = _configuration.ShallowCopy();
             }
         }
     }
@@ -149,7 +175,7 @@ public class ConfigurationService(IFileSystem fileSystem, string? configurationD
         var platform = GetOsPlatform();
         if (platform == OSPlatform.Linux)
         {
-            return configurationDir;
+            return $"{configurationDir}/jellytune";
         }
 
         if (platform == OSPlatform.OSX)
@@ -208,11 +234,6 @@ public class ConfigurationService(IFileSystem fileSystem, string? configurationD
         var properties = typeof(Configuration).GetProperties();
         foreach (var property in properties)
         {
-            if (property.Name == "Password")
-            {
-                
-            }
-            
             property.SetValue(_configuration, property.GetValue(configuration));
         }
     }
@@ -250,22 +271,6 @@ public class ConfigurationService(IFileSystem fileSystem, string? configurationD
         return default;
     }
     
-    /// <summary>
-    /// Get latest changes from CHANGES-file
-    /// </summary>
-    /// <returns></returns>
-    public string[] GetLatestChanges()
-    {
-        using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("JellyTune.Shared.Resources.CHANGES");
-        using var reader = new StreamReader(stream!); 
-        var lines = reader.ReadToEnd().Split('\n', StringSplitOptions.RemoveEmptyEntries);
-
-        var changes = ParseChanges(lines);
-
-        var latest = changes.FirstOrDefault() != null ? changes.FirstOrDefault()?.Changes.ToArray() : null;
-        return latest ?? [];
-    }
-
     private List<Change> ParseChanges(string[] changes)
     {
         var result =  new List<Change>();

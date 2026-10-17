@@ -33,7 +33,8 @@ public partial class TrackRow
         obj._track = track;
         obj._startupState = state;
         obj.Activatable = true;
-        obj.CanFocus = false;
+        obj.Focusable = true;
+        obj.Selectable = false;
         
         obj._runtime.SetText(obj._track.RunTime.ToString("m\\:ss"));
 

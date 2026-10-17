@@ -36,6 +36,8 @@ public partial class SearchRow
     private void InitializeController()
     {
         Activatable = true;
+        Focusable = true;
+        Selectable = false;
         
         switch (_row.Type)
         {

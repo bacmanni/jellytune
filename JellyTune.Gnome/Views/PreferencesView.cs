@@ -2,6 +2,7 @@ using Adw;
 using GObject;
 using Gtk;
 using JellyTune.Shared.Controls;
+using JellyTune.Shared.Events;
 using JellyTune.Shared.Services;
 using AlertDialog = Adw.AlertDialog;
 using Dialog = Adw.Dialog;
@@ -21,6 +22,7 @@ public partial class PreferencesView
     
     [Connect] private PreferencesPage _preferencesPage1;
 
+    [Connect] private SwitchRow _showPlayingAlbumBackground;
     [Connect] private SwitchRow _cacheList;
     [Connect] private SwitchRow _cacheArtwork;
     [Connect] private SwitchRow _showListSeparator;
@@ -28,7 +30,7 @@ public partial class PreferencesView
     [Connect] private SwitchRow _showVolume;
     [Connect] private SwitchRow _showPlayingAlbum;
     [Connect] private SwitchRow _showLyrics;
-
+    
     public bool Refresh { get; set; }
     public string? Password { get; set; } = null;
 
@@ -38,6 +40,7 @@ public partial class PreferencesView
         if (_accountController.IsValid)
         {
             var configuration = _configurationService.Get();
+            configuration.ShowAlbumAsBackground = _showPlayingAlbumBackground.GetActive();
             configuration.CacheListData = _cacheList.GetActive();
             configuration.CacheAlbumArt = _cacheArtwork.GetActive();
             configuration.ShowListSeparator = _showListSeparator.GetActive();
@@ -68,7 +71,10 @@ public partial class PreferencesView
     private void AlertOnResponse(AlertDialog sender, AlertDialog.ResponseSignalArgs args)
     {
         if (args.Response == "close")
+        {
+            _jellyTuneApiService.SetServer(_configurationService.Get().ServerUrl);
             ForceClose();
+        }
     }
 
     public static PreferencesView NewWithValues(IConfigurationService configurationService, IJellyTuneApiService jellyTuneApiService)
@@ -83,11 +89,14 @@ public partial class PreferencesView
     private void InitializeController()
     {
         _accountController = new AccountController(_configurationService, _jellyTuneApiService);
-        _accountView =  AccountView.NewWithValues(_accountController);
+        _accountView =  AccountView.NewWithValues(_accountController, true);
         _preferencesPage1.Insert(_accountView, 0);
+        
+        _accountController.OnConfigurationLoaded += AccountControllerOnConfigurationLoaded;
         
         var configuration =  _configurationService.Get();
         _accountController.OpenConfiguration(configuration, true);
+        _showPlayingAlbumBackground.SetActive(configuration.ShowAlbumAsBackground);
         _cacheList.SetActive(configuration.CacheListData);
         _cacheArtwork.SetActive(configuration.CacheAlbumArt);
         _showListSeparator.SetActive(configuration.ShowListSeparator);
@@ -98,6 +107,11 @@ public partial class PreferencesView
         _showPlayingAlbum.SetActive(configuration.ShowCurrentAlbum);
         
         OnCloseAttempt += CloseAttempt;
+    }
+
+    private void AccountControllerOnConfigurationLoaded(object? sender, AccountArgs e)
+    {
+        _ = _accountView.UpdateCollections();
     }
 
     public override void Dispose()

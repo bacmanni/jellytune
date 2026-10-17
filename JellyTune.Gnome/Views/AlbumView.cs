@@ -20,6 +20,7 @@ public partial class AlbumView
     private AlbumArtController _albumArtController;
     
     [Connect] private Image _albumArt;
+    [Connect] private Button _artwork;
     [Connect] private Label _artist;
     [Connect] private Label _album;
     [Connect] private Label _trackCount;
@@ -43,13 +44,10 @@ public partial class AlbumView
         _controller.OnAlbumChanged += ControllerOnAlbumChanged;
         _tracks.OnRowSelected += TracksOnRowSelected;
         _tracks.OnRowActivated += TracksOnRowActivated;
-        
-        var click = GestureClick.New();
-        click.OnPressed += ClickOnPressed;
-        _albumArt.AddController(click);
+        _artwork.OnClicked += ArtworkOnClicked;
     }
 
-    private void ClickOnPressed(GestureClick sender, GestureClick.PressedSignalArgs args)
+    private void ArtworkOnClicked(Button sender, EventArgs args)
     {
         if (_controller.Artwork == null || _controller.Album?.Id == null) return;
         
@@ -93,6 +91,8 @@ public partial class AlbumView
         { 
             _ = _controller.PlayOrPauseTrackAsync(row.TrackId);
         }
+        
+        _tracks.UnselectAll();
     }
 
     private void TracksOnRowSelected(ListBox sender, ListBox.RowSelectedSignalArgs args)

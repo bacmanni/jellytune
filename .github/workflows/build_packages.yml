@@ -2,98 +2,71 @@ name: Build packages
 
 on:
   workflow_dispatch:
-      
+
+env:
+  VERSION: 1.2.3
+
 jobs:
-  Build_x86_64:
-    runs-on: ubuntu-latest
+  build:
+    strategy:
+      matrix:
+        include:
+          - arch: x86_64
+            runtime: linux-x64
+            runner: ubuntu-26.04
+            linuxdeploy_arch: x86_64
+            artifact_suffix: x86_64
+
+          - arch: aarch64
+            runtime: linux-arm64
+            runner: ubuntu-26.04-arm
+            linuxdeploy_arch: aarch64
+            artifact_suffix: aarch64
+
+    runs-on: ${{ matrix.runner }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5.0.0
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: '9.x'
-      
+
       - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libglib2.0-dev libfuse2 libfuse3-3 flatpak flatpak-builder
-          wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
-          chmod +x appimagetool-x86_64.AppImage
+          sudo add-apt-repository ppa:flatpak/stable -y
+          sudo apt update
+          sudo apt-get install -y libglib2.0-dev libfuse2t64 fuse3 flatpak flatpak-builder libgtk-4-dev libgtk-4-1 librsvg2-dev libgirepository1.0-dev unzip libadwaita-1-dev libadwaita-1-0
           sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          sudo flatpak install flathub org.gnome.Platform//49 -y
-          sudo flatpak install flathub org.gnome.Sdk//49 -y
+          sudo flatpak install flathub org.gnome.Platform//51 -y
+          sudo flatpak install flathub org.gnome.Sdk//51 -y
 
       - name: Install PupNet
-        run: dotnet tool update -g KuiperZone.PupNet
-
-      - name: Create x64 Appimage
         run: |
-          VERSION=1.1
-          pupnet --runtime linux-x64 --kind appimage --app-version $VERSION
-
-      - name: Upload AppImage artifact
-        uses: actions/upload-artifact@v5
-        with:
-          name: JellyTune-dev.x86_64.appImage
-          path: Deploy/JellyTune*.AppImage
-
-      - name: Create Flatpak
-        run:  |
-          VERSION=1.1
-          pupnet --runtime linux-x64 --kind flatpak --app-version $VERSION
-
-      - name: Upload flatpak artifact
-        uses: actions/upload-artifact@v5
-        with:
-          name: JellyTune-dev.x86_64.flatpak
-          path: Deploy/JellyTune-*.flatpak
-
-  Build_arm64:
-    runs-on: ubuntu-24.04-arm
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v5.0.0
-        with:
-          dotnet-version: '9.x'
-      
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libglib2.0-dev libfuse2 libfuse3-3 flatpak flatpak-builder
-          wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-aarch64.AppImage
-          chmod +x appimagetool-aarch64.AppImage
-          sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          sudo flatpak install flathub org.gnome.Platform//49 -y
-          sudo flatpak install flathub org.gnome.Sdk//49 -y
-
-      - name: Install PupNet
-        run: dotnet tool update -g KuiperZone.PupNet
-
-      - name: Create arm64 Appimage
-        run: |
-          VERSION=1.1
-          pupnet --runtime linux-arm64 --kind appimage --app-version $VERSION
-
-      - name: Upload AppImage artifact
-        uses: actions/upload-artifact@v5
-        with:
-          name: JellyTune-dev.aarch64.appImage
-          path: Deploy/JellyTune*.AppImage
-
-      - name: Create Flatpak
-        run: |
-          VERSION=1.1
-          pupnet --runtime linux-arm64 --kind flatpak --app-version $VERSION
-
-      - name: Upload flatpak artifact
-        uses: actions/upload-artifact@v5
-        with:
-          name: JellyTune-dev.aarch64.flatpak
-          path: Deploy/JellyTune-*.flatpak
+          dotnet tool update -g KuiperZone.PupNet --version 1.9.0
           
+      - name: Download appimage tool
+        run: |
+          wget -q https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-${{ matrix.arch }}.AppImage
+          chmod +x appimagetool-${{ matrix.arch }}.AppImage
+          
+      - name: Build appimage with PupNet
+        run: |
+          pupnet --runtime ${{ matrix.runtime }} --kind appimage --build Release --yes
 
+      - name: Upload AppImage artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: JellyTune-dev.${{ matrix.artifact_suffix }}.appImage
+          path: Deploy/JellyTune-*.AppImage
+
+      - name: Create Flatpak
+        run: |
+          pupnet --runtime ${{ matrix.runtime }} --kind flatpak --build Release --yes
+
+      - name: Upload Flatpak artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: JellyTune-dev.${{ matrix.artifact_suffix }}.flatpak
+          path: Deploy/JellyTune-*.flatpak

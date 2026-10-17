@@ -36,15 +36,15 @@
 
     <screenshots>
         <screenshot type="default">
-            <image>https://raw.githubusercontent.com/bacmanni/jellyplayer/main/Screenshots/Wide.png</image>
+            <image>https://raw.githubusercontent.com/bacmanni/jellytune/main/Screenshots/Wide.png</image>
             <caption>Wide mode</caption>
         </screenshot>
         <screenshot>
-            <image>https://raw.githubusercontent.com/bacmanni/jellyplayer/main/Screenshots/Narrow.png</image>
+            <image>https://raw.githubusercontent.com/bacmanni/jellytune/main/Screenshots/Narrow.png</image>
             <caption>Narrow mode</caption>
         </screenshot>
         <screenshot>
-            <image>https://raw.githubusercontent.com/bacmanni/jellyplayer/main/Screenshots/Details.png</image>
+            <image>https://raw.githubusercontent.com/bacmanni/jellytune/main/Screenshots/Details.png</image>
             <caption>Details</caption>
         </screenshot>
     </screenshots>

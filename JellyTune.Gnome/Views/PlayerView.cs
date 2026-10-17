@@ -22,6 +22,7 @@ public partial class PlayerView
     
     [Connect] private Box _container;
     [Connect] private Box _actions;
+    [Connect] private Button _queue;
     [Connect] private Image _albumArt;
     [Connect] private Button _skipBackward;
     [Connect] private Button _play;
@@ -51,27 +52,19 @@ public partial class PlayerView
         _skipBackward.OnClicked += SkipBackwardOnClicked;
         _play.OnClicked += PlayerPlayOnClicked;
         _skipForward.OnClicked += SkipForwardOnClicked;
-        _lyrics.OnClicked += LyricsOnOnClicked;
+        _lyrics.OnClicked += LyricsOnClicked;
         _album.OnClicked += AlbumOnClicked;
-        
-        var click = GestureClick.New();
-        _albumArt.AddController(click);
-        click.OnReleased += (_, _) =>
-        {
-            _controller.ShowPlaylist();
-        };
-
-        var key = EventControllerKey.New();
-        _albumArt.AddController(key);
-        key.OnKeyReleased += (_, _) =>
-        {
-            _controller.ShowPlaylist();
-        };
+        _queue.OnClicked += QueueOnClicked;
 
         _lyrics.SetVisible(_controller.ConfigurationService.Get().ShowLyrics);
         _album.SetVisible(_controller.ConfigurationService.Get().ShowCurrentAlbum);
 
         _initialized = true;
+    }
+
+    private void QueueOnClicked(Button sender, EventArgs args)
+    {
+        _controller.ShowPlaylist();
     }
 
     private void UpdateTrack()
@@ -133,7 +126,7 @@ public partial class PlayerView
         _album.SetVisible(_controller.ConfigurationService.Get().ShowCurrentAlbum);
     }
 
-    private void LyricsOnOnClicked(Button sender, EventArgs args)
+    private void LyricsOnClicked(Button sender, EventArgs args)
     {
         _controller.ShowShowLyrics();
     }
@@ -148,13 +141,13 @@ public partial class PlayerView
                 case PlayerState.Stopped:
                 case PlayerState.Paused:
                     _play.IconName = "media-playback-start-symbolic";
-                    _play.TooltipText = "Play track";
+                    _play.SetTooltipText("Play track");
                     UpdateTrack();
                     break;
 
                 case PlayerState.Playing:
                     _play.IconName = "media-playback-pause-symbolic";
-                    _play.TooltipText = "Pause track";
+                    _play.SetTooltipText("Pause track");
                     UpdateTrack();
                     break;
                 

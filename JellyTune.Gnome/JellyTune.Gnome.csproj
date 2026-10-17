@@ -18,6 +18,9 @@
       <PackageReference Include="GirCore.Gtk-4.0" Version="0.8.1" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.4" />
       <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.4" />
+      <PackageReference Include="NetVips" Version="3.2.0" />
+      <PackageReference Include="NetVips.Native.linux-arm64" Version="8.18.6" />
+      <PackageReference Include="NetVips.Native.linux-x64" Version="8.18.6" />
       <PackageReference Include="Tmds.DBus" Version="0.94.2" />
     </ItemGroup>
 
@@ -96,6 +99,14 @@
       <ProjectReference Include="..\JellyTune.Shared\JellyTune.Shared.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="Views\ServerEntryView.cs" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <!-- Dynamically copies native libraries matching the target publish architecture -->
+        <None Include="runtimes\$(RuntimeIdentifier)\native\**\*.so*" CopyToOutputDirectory="PreserveNewest" Condition="'$(RuntimeIdentifier)' != ''" />
+    </ItemGroup>
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
         <Exec Command="echo Compiling gresources" />
         <Exec Command="glib-compile-resources --sourcedir ./Resources ./Resources/io.github.bacmanni.jellytune.gresource.xml --target=$(OutDir)/io.github.bacmanni.jellytune.gresource" />

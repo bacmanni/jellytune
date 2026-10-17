@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <interface>
     <template class="JellyTunePreferencesAlert">
-        <property name="heading" translatable="yes">Problem with server or account</property>
-        <property name="body" translatable="yes">Invalid server, account or collection. Click cancel to go back and fix the problem. Click close to continue without saving.</property>
+        <property name="heading" translatable="yes">Problem with server and account</property>
+        <property name="body" translatable="yes">Connection has not been updated. Click close to continue without saving.</property>
         <property name="default-response">cancel</property>
         <property name="close-response">close</property>
         <responses>

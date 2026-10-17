@@ -41,7 +41,7 @@ public partial class PlayerExtendedButtonView
         _initialized = true;
     }
 
-    private void ConfigurationServiceOnSaved(object? sender, EventArgs e)
+    private void ConfigurationServiceOnSaved(object? sender, ConfigurationArgs e)
     {
         _controller.CloseExtension();
         

@@ -79,10 +79,24 @@
                                 <child>
                                     <object class="GtkButton" id="_continue1">
                                         <property name="sensitive">false</property>
-                                        <property name="label">Continue</property>
                                         <style>
                                             <class name="suggested-action"/>
                                         </style>
+                                        <child>
+                                            <object class="GtkStack" id="_continue1Stack">
+                                                <property name="transition-type">crossfade</property>
+                                                <property name="transition-duration">250</property>
+                                                <child>
+                                                    <object class="GtkLabel" id="_continue1Label">
+                                                        <property name="label">Continue</property>
+                                                    </object>
+                                                </child>
+                                                <child>
+                                                    <object class="AdwSpinner" id="_continue1Spinner">
+                                                    </object>
+                                                </child>
+                                            </object>
+                                        </child>
                                     </object>
                                 </child>
                             </object>

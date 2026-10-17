@@ -84,7 +84,6 @@ public sealed class PlayerService : IPlayerService, IDisposable
     public PlayerService(IJellyTuneApiService jellyTuneApiService)
     {
         _jellyTuneApiService = jellyTuneApiService;
-        NetworkChange.NetworkAvailabilityChanged += NetworkChangeOnNetworkAvailabilityChanged;
 
         try
         {
@@ -98,9 +97,9 @@ public sealed class PlayerService : IPlayerService, IDisposable
         }
     }
 
-    private void NetworkChangeOnNetworkAvailabilityChanged(object? sender, NetworkAvailabilityEventArgs e)
+    public void NetworkAvailabilityChanged(bool isOnline)
     {
-        if (!e.IsAvailable)
+        if (!isOnline)
             if (!_networkDisconnected)
                 _networkDisconnected = true;
     }
@@ -288,11 +287,12 @@ public sealed class PlayerService : IPlayerService, IDisposable
         }
 
         _playingTrack = null;
-
+        
         if (endPlayback)
         {
             _startingTrack = null;
             _selectedTrack = null;
+            Album = null;
         }
     }
 
@@ -535,6 +535,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     public void SeekTrack(double seconds)
     {
         _player?.Seek(TimeSpan.FromSeconds(seconds));
+        OnPlayerPositionChanged?.Invoke(this, new PlayerPositionArgs { Position = seconds });
     }
 
     /// <summary>
@@ -752,7 +753,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <returns></returns>
     public bool IsPlaying()
     {
-        return _player != null ? _player.State == PlaybackState.Playing : false;
+        return _player is { State: PlaybackState.Playing };
     }
 
     /// <summary>
@@ -761,7 +762,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <returns></returns>
     public bool IsPaused()
     {
-        return _player != null ? _player.State == PlaybackState.Paused : false;
+        return _player is { State: PlaybackState.Paused };
     }
     
     /// <summary>
@@ -779,7 +780,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
                 // Album id has value. Check against that too
                 if (albumId.HasValue)
                 {
-                    return Album != null ? Album.Id == albumId : false;
+                    return Album != null && Album.Id == albumId;
                 }
                 
                 return true;
@@ -813,8 +814,6 @@ public sealed class PlayerService : IPlayerService, IDisposable
 
     public void Dispose()
     {
-        NetworkChange.NetworkAvailabilityChanged -= NetworkChangeOnNetworkAvailabilityChanged;
-        
         if (_player != null)
         {
             _player.PlaybackEnded -= playerOnPlaybackEnded;

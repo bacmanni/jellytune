@@ -72,16 +72,52 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// <returns>Return true if connection was success and server is valid jellyfin server</returns>
     public async Task<bool> CheckServerAsync(string serverUrl)
     {
+        using var http = new HttpClient();
+        http.Timeout = TimeSpan.FromSeconds(3);
+        Console.WriteLine($"Connecting: {serverUrl}");
+        
         try
         {
+            using var response = await http.GetAsync(serverUrl);
+            var available = response.IsSuccessStatusCode;
+            if (!available)
+            {
+                Console.WriteLine($"No connection to: {serverUrl}");
+                return false;
+            };
+        }
+        catch (HttpRequestException e)
+        {
+            Console.WriteLine($"HttpRequestException: {e.Message}");
+            Console.WriteLine(e.StackTrace);
+            return false;
+        }
+        catch (TaskCanceledException e)
+        {
+            Console.WriteLine($"TaskCanceledException: {e.Message}");
+            Console.WriteLine(e.StackTrace);
+            return false;
+        }
+        
+        Console.WriteLine("Connection success!");
+        
+        try
+        {
+            Console.WriteLine($"Checking Jellyfin server (at least version {_configurationService.ApplicationInfo.JellyFinVersion})");
             _sdkClientSettings.SetServerUrl(serverUrl);
-            await _jellyfinApiClient.System.Info.Public.GetAsync()
+            var info = await _jellyfinApiClient.System.Info.Public.GetAsync()
                 .ConfigureAwait(true);
 
-            return true;
+            Console.WriteLine(info != null
+                ? "Connection to Jellyfin server success"
+                : "Could not fetch public system info");
+
+            return info != null;
         }
-        catch (Exception)
+        catch (Exception e)
         {
+            Console.WriteLine("Not a valid jellyfin server");
+            Console.WriteLine(e.StackTrace);
             return false;
         }
     }
@@ -449,8 +485,9 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// </summary>
     /// <param name="albumId"></param>
     /// <param name="size"></param>
+    /// <param name="blur"></param>
     /// <returns></returns>
-    public async Task<byte[]?> GetPrimaryArtAsync(Guid albumId, int? size = 200)
+    public async Task<byte[]?> GetPrimaryArtAsync(Guid albumId, int? size = 200, bool blur = false)
     {
         try
         {
@@ -458,6 +495,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
             {
                 configuration.QueryParameters.Height = size;
                 configuration.QueryParameters.Width = size;
+                configuration.QueryParameters.Blur = blur ? 20 : null;
             }).ConfigureAwait(false);
             
             if (stream == null)

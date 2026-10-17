@@ -3,6 +3,7 @@ using GObject;
 using Gtk;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
+using JellyTune.Shared.Events;
 using Application = Adw.Application;
 using Dialog = Adw.Dialog;
 
@@ -29,7 +30,10 @@ public partial class StartupView
     [Connect] private Button _back;
     [Connect] private Box _accountBox;
     [Connect] private Button _continue1;
-
+    [Connect] private Stack _continue1Stack;
+    [Connect] private Label _continue1Label;
+    [Connect] private Adw.Spinner _continue1Spinner;
+    
     public static StartupView NewWithValues(Application application, StartupState startupState, StartupController controller,
         TaskCompletionSource taskCompletionSource)
     {
@@ -45,13 +49,10 @@ public partial class StartupView
     private void InitializeController()
     {
         _accountController = new AccountController(_controller.ConfigurationService, _controller.JellyTuneApiService);
-        _accountView = AccountView.NewWithValues(_accountController);
+        _accountController.OnConfigurationValueChanged += AccountControllerOnConfigurationValueChanged;
+        _accountView = AccountView.NewWithValues(_accountController, false);
         _accountController.OpenConfiguration(_controller.ConfigurationService.Get(), _startupState != StartupState.InitialRun);
         _accountBox.Prepend(_accountView);
-        _accountController.OnUpdate += (_, b) =>
-        {
-            _continue1.SetSensitive(b);
-        };
 
         _close.OnClicked += (_, _) =>
         {
@@ -72,6 +73,15 @@ public partial class StartupView
         _continue1.OnClicked += async (_, _) =>
         {
             _continue1.SetSensitive(false);
+            
+            _continue1Stack.SetVisibleChild(_continue1Spinner);
+            var checkValid = await _accountView.Check();
+            if (!checkValid)
+            {
+                _continue1Stack.SetVisibleChild(_continue1Label);
+                return;
+            }
+            
             var configuration = _controller.ConfigurationService.Get();
             configuration.ServerUrl = _accountController.ServerUrl ?? string.Empty;
             configuration.Username = _accountController.Username ?? string.Empty;
@@ -95,5 +105,10 @@ public partial class StartupView
                 _continue1.SetSensitive(false);
             }
         };
+    }
+
+    private void AccountControllerOnConfigurationValueChanged(object? sender, EventArgs e)
+    {
+        _continue1.SetSensitive(_accountController.HasRequiedValues());
     }
 }

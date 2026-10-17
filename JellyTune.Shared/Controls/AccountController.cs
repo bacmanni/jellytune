@@ -9,17 +9,17 @@ public sealed class AccountController
 {
     private readonly IJellyTuneApiService _jellyTuneApiService;
     private readonly IConfigurationService _configurationService;
-    public bool IsValid { get; set; }
+    public IConfigurationService ConfigurationService => _configurationService;
+    public bool IsValid { get; private set; }
     public string? ServerUrl { get; set; }
     public string? Username { get; set; }
     public string? Password { get; set; }
     public Guid? CollectionId { get; set; }
     public Guid? PlaylistCollectionId { get; set; }
 
+    public event EventHandler<EventArgs>? OnConfigurationValueChanged;
     public event EventHandler<AccountArgs>? OnConfigurationLoaded;
 
-    public event EventHandler<bool>? OnUpdate;
-    
     public AccountController(IConfigurationService configurationService, IJellyTuneApiService jellyTuneApiService)
     {
         _jellyTuneApiService = jellyTuneApiService;
@@ -27,18 +27,23 @@ public sealed class AccountController
     }
 
     /// <summary>
+    /// Check if server url is valid url
+    /// </summary>
+    /// <param name="serverUrl"></param>
+    /// <returns></returns>
+    public bool IsValidServerUrl(string serverUrl)
+    {
+        return Uri.IsWellFormedUriString(serverUrl, UriKind.Absolute);
+    }
+    
+    /// <summary>
     /// Check if server is valid jellyfin server
     /// </summary>
     /// <param name="serverUrl"></param>
     /// <returns></returns>
     public async Task<bool> IsValidServerAsync(string serverUrl)
     {
-        if (Uri.IsWellFormedUriString(serverUrl, UriKind.Absolute))
-        {
-            return await _jellyTuneApiService.CheckServerAsync(serverUrl);
-        }
-        
-        return false;
+        return await _jellyTuneApiService.CheckServerAsync(serverUrl);
     }
 
     /// <summary>
@@ -87,6 +92,7 @@ public sealed class AccountController
     public void OpenConfiguration(Configuration configuration, bool validate)
     {
         IsValid = true;
+
         ServerUrl = configuration.ServerUrl;
         Username = configuration.Username;
         Password = configuration.Password;
@@ -97,27 +103,7 @@ public sealed class AccountController
         if (!string.IsNullOrWhiteSpace(configuration.PlaylistCollectionId))
             PlaylistCollectionId = Guid.Parse(configuration.PlaylistCollectionId);
         
-        OnConfigurationLoaded?.Invoke(this, new AccountArgs {Validate = validate });
-    }
-
-    /// <summary>
-    /// Update controller validity
-    /// </summary>
-    /// <param name="server"></param>
-    /// <param name="account"></param>
-    /// <param name="collection"></param>
-    public void UpdateValidity(bool server, bool account, bool collection)
-    {
-        if (server && account && collection)
-        {
-            IsValid = true;
-        }
-        else
-        {
-            IsValid = false;
-        }
-        
-        OnUpdate?.Invoke(this, IsValid);
+        OnConfigurationLoaded?.Invoke(this, new AccountArgs { Validate = validate });
     }
 
     /// <summary>
@@ -137,10 +123,10 @@ public sealed class AccountController
         if (configuration.Password != Password)
             return true;
         
-        if (configuration.CollectionId != (CollectionId != null ? CollectionId.Value.ToString() : null))
+        if (configuration.CollectionId != CollectionId?.ToString())
             return true;
 
-        if (configuration.PlaylistCollectionId != (PlaylistCollectionId != null ? PlaylistCollectionId.Value.ToString() : null))
+        if (configuration.PlaylistCollectionId != PlaylistCollectionId?.ToString())
             return true;
             
         return false;
@@ -157,5 +143,31 @@ public sealed class AccountController
             return null;
         
         return collectionId;
+    }
+
+    /// <summary>
+    /// Set account valid status
+    /// </summary>
+    /// <param name="valid"></param>
+    public void SetValid(bool valid)
+    {
+        IsValid = valid;
+    }
+
+    /// <summary>
+    /// Called when some value changes
+    /// </summary>
+    public void ConfigurationValueChanged()
+    {
+        OnConfigurationValueChanged?.Invoke(this, new AccountArgs());
+    }
+
+    /// <summary>
+    /// Check that required account 
+    /// </summary>
+    /// <returns></returns>
+    public bool HasRequiedValues()
+    {
+        return !string.IsNullOrWhiteSpace(ServerUrl) && !string.IsNullOrWhiteSpace(Username) && !string.IsNullOrWhiteSpace(Password);
     }
 }

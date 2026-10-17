@@ -1,11 +1,13 @@
 using System.Runtime.InteropServices;
+using JellyTune.Shared.Events;
 using JellyTune.Shared.Models;
 
 namespace JellyTune.Shared.Services;
 
 public interface IConfigurationService
 {
-    public event EventHandler<EventArgs>? OnSaved;
+    public ApplicationInfo ApplicationInfo { get; }
+    public event EventHandler<ConfigurationArgs>? OnSaved;
     public void Save();
     public void Load();
     public string? GetConfigurationDirectory();
@@ -15,5 +17,4 @@ public interface IConfigurationService
     public T? Get<T>(string key);
     public bool IsPlatform(OSPlatform platform);
     public void Set(Configuration configuration);
-    public string[] GetLatestChanges();
 }
