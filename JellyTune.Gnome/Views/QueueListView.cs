@@ -57,7 +57,7 @@ public partial class QueueListView
             foreach (var track in _controller.Tracks)
             {
                 var state = _controller.PlayerService.GetTrackState(track.Id);
-                _queueList.Append(TrackRow.NewWithValues(_controller.FileService, track, state, true));
+                _queueList.Append(TrackRow.NewWithValues(_controller.PlayerService, _controller.FileService, track, state, true));
             } 
         });
     }

@@ -41,6 +41,11 @@ public sealed class PlayerService : IPlayerService, IDisposable
     private ConcurrentBag<Track> Tracks { get; } = [];
     
     /// <summary>
+    /// If playlist is customized
+    /// </summary>
+    private bool IsCustomPlaylist { get; set; }
+    
+    /// <summary>
     /// Album artwork if found
     /// </summary>
     private byte[]? Artwork { get; set; }
@@ -681,6 +686,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <param name="track"></param>
     public void AddTrack(Track track)
     {
+        IsCustomPlaylist = true;
         Tracks.Add(track);
 
         if (!IsPlaying())
@@ -696,6 +702,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <param name="tracks"></param>
     public void AddTracks(List<Track> tracks)
     {
+        IsCustomPlaylist = false;
         foreach (var track in tracks)
             Tracks.Add(track);
     }
@@ -797,6 +804,8 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <returns></returns>
     public int? GetQueuePosition(Guid trackId)
     {
+        if (!IsCustomPlaylist) return null;
+        
         if (Tracks.Any(t => t.Id == trackId))
             return Tracks.ToList().FindIndex(t => t.Id == trackId);
         
