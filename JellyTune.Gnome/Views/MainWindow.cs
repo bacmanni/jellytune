@@ -67,6 +67,7 @@ public partial class MainWindow
     
     private SimpleAction _refreshAction;
     private SimpleAction _viewAction;
+    private SimpleAction _searchTypeAction;
     
     private Adw.TimedAnimation? _backgroundAnimation;
     private CancellationTokenSource? _menuUpdateCancellationCts;
@@ -79,7 +80,7 @@ public partial class MainWindow
     
     [Connect] private Button _searchButton;
     [Connect] private SearchEntry _searchField;
-    
+    [Connect] private MenuButton _searchType;
     [Connect] private Box _playerPosition;
     
     [Connect] private Box _player;
@@ -212,6 +213,27 @@ public partial class MainWindow
         AddAction(actSearchBar);
         _application.SetAccelsForAction("win.search", new[] { "<Ctrl>f" });
 
+        // Search type
+        _searchTypeAction = SimpleAction.NewStateful(
+            "search_type",
+            VariantType.String,
+            Variant.NewString("All")
+        );
+        
+        _searchTypeAction.OnChangeState += (_, args) =>
+        {
+            if (args.Value == null)
+                return;
+                
+            _searchTypeAction.SetState(args.Value);
+            
+            if (!string.IsNullOrEmpty(_searchField.GetText()))
+            {
+                SearchFieldOnSearchChanged(_searchField, EventArgs.Empty);
+            }
+        };
+        AddAction(_searchTypeAction);
+        
         // Basic controls
         var actNextTrack = SimpleAction.New("track_next", null);
         actNextTrack.OnActivate += ActNextTrackOnActivate;
@@ -679,7 +701,10 @@ public partial class MainWindow
         }
         else
         {
-            _ = _searchController.SearchAlbumsAsync(value, cancellationToken);
+
+            var selectedType = _searchTypeAction.GetState()?.GetString(out var length);
+            var type = selectedType is "All" or null ? (SearchType?)null : Enum.Parse<SearchType>(selectedType);
+            _ = _searchController.SearchAlbumsAsync(value, type, cancellationToken);
         }
     }
     

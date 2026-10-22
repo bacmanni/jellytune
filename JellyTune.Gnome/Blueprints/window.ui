@@ -148,12 +148,28 @@
                               <child type="top">
                                 <object class="AdwHeaderBar">
                                   <property name="title-widget">
-                                    <object class="GtkSearchEntry" id="_searchField">
+                                    <object class="GtkBox">
+                                      <property name="spacing">0</property>
                                       <style>
-                                        <class name="inline"/>
+                                        <class name="linked"/>
+                                        <class name="search-controls"/>
                                       </style>
-                                      <property name="hexpand">true</property>
-                                      <property name="search-delay">800</property>
+                                      <child>
+                                        <object class="GtkSearchEntry" id="_searchField">
+                                          <style>
+                                            <class name="inline"/>
+                                          </style>
+                                          <property name="hexpand">true</property>
+                                          <property name="search-delay">800</property>
+                                        </object>
+                                      </child>
+                                      <child>
+                                        <object class="GtkMenuButton" id="_searchType">
+                                          <property name="tooltip-text" translatable="yes">Search type</property>
+                                          <property name="icon-name">view-more-symbolic</property>
+                                          <property name="menu-model">search_type</property>
+                                        </object>
+                                      </child>
                                     </object>
                                   </property>
                                 </object>
@@ -325,6 +341,30 @@
       <item>
         <attribute name="label" translatable="true">About JellyTune</attribute>
         <attribute name="action">win.about</attribute>
+      </item>
+    </section>
+  </menu>
+  <menu id="search_type">
+    <section>
+      <item>
+        <attribute name="label" translatable="true">All</attribute>
+        <attribute name="action">win.search_type</attribute>
+        <attribute name="target">All</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">Artists</attribute>
+        <attribute name="action">win.search_type</attribute>
+        <attribute name="target">Artist</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">Albums</attribute>
+        <attribute name="action">win.search_type</attribute>
+        <attribute name="target">Album</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="true">Tracks</attribute>
+        <attribute name="action">win.search_type</attribute>
+        <attribute name="target">Track</attribute>
       </item>
     </section>
   </menu>
