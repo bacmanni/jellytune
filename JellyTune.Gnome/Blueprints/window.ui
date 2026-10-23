@@ -149,25 +149,20 @@
                                 <object class="AdwHeaderBar">
                                   <property name="title-widget">
                                     <object class="GtkBox">
-                                      <property name="spacing">0</property>
                                       <style>
                                         <class name="linked"/>
-                                        <class name="search-controls"/>
                                       </style>
+                                      <property name="spacing">0</property>
                                       <child>
                                         <object class="GtkSearchEntry" id="_searchField">
-                                          <style>
-                                            <class name="inline"/>
-                                          </style>
                                           <property name="hexpand">true</property>
-                                          <property name="search-delay">800</property>
                                         </object>
                                       </child>
                                       <child>
                                         <object class="GtkMenuButton" id="_searchType">
-                                          <property name="tooltip-text" translatable="yes">Search type</property>
                                           <property name="icon-name">view-more-symbolic</property>
                                           <property name="menu-model">search_type</property>
+                                          <property name="tooltip-text" translatable="yes">Search type</property>
                                         </object>
                                       </child>
                                     </object>
