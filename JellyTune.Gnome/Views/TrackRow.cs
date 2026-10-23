@@ -15,10 +15,12 @@ namespace JellyTune.Gnome.Views;
 public partial class TrackRow
 {
     private IFileService  _fileService;
+    private IPlayerService _playerService;
     private Track _track;
     private PlayerState _startupState;
     
     [Connect] private Image _status;
+    [Connect] private Label _queue;
     [Connect] private Spinner _spinner;
     [Connect] private Image _albumArt;
     [Connect] private Label _runtime;
@@ -26,10 +28,11 @@ public partial class TrackRow
 
     public Guid TrackId => _track.Id;
 
-    public static TrackRow NewWithValues(IFileService fileService, Track track, PlayerState state, bool extended = false)
+    public static TrackRow NewWithValues(IPlayerService playerService, IFileService fileService, Track track, PlayerState state, bool extended = false)
     {
         var obj = NewWithProperties([]);
-        obj._fileService  = fileService;
+        obj._playerService = playerService;
+        obj._fileService = fileService;
         obj._track = track;
         obj._startupState = state;
         obj.Activatable = true;
@@ -43,7 +46,7 @@ public partial class TrackRow
             obj._number.SetVisible(false);
             obj._albumArt.SetVisible(true);
             
-            obj.SetSubtitle(Markup.EscapeText(obj._track.Artist != null ? obj._track.Artist : string.Empty));
+            obj.SetSubtitle(Markup.EscapeText(obj._track.Artist ?? string.Empty));
         }
         else
         {
@@ -97,6 +100,7 @@ public partial class TrackRow
     private void LoadingTrack()
     {
         _status.SetVisible(false);
+        _queue.SetVisible(false);
         _spinner.SetVisible(true);
         SetTitle($"<b>{Markup.EscapeText(_track.Name != null ? _track.Name : string.Empty)}</b>");
     }
@@ -104,17 +108,32 @@ public partial class TrackRow
     private void StartTrack()
     {
         _spinner.SetVisible(false);
+        _queue.SetVisible(false);
         _status.SetVisible(true);
         _status.SetFromIconName("media-playback-start-symbolic");
-        SetTitle($"<b>{Markup.EscapeText(_track.Name != null ? _track.Name : string.Empty)}</b>");
+        SetTitle($"<b>{Markup.EscapeText(_track.Name ?? string.Empty)}</b>");
     }
 
     private void ClearTrack()
     {
+        var trackPosition = _playerService.GetQueuePosition(_track.Id);
+        
+        if (trackPosition != null)
+        {
+            _queue.SetText($"{trackPosition}");
+            
+            _queue.SetVisible(true);
+            _status.SetVisible(false);
+        }
+        else
+        {
+            _queue.SetVisible(false);
+            _status.SetVisible(true);
+        }
+        
         _spinner.SetVisible(false);
-        _status.SetVisible(true);
         _status.SetFromIconName(null);
-        SetTitle(Markup.EscapeText(_track.Name != null ? _track.Name : string.Empty));
+        SetTitle(Markup.EscapeText(_track.Name ?? string.Empty));
     }
 
     private void StopTrack()
@@ -122,7 +141,7 @@ public partial class TrackRow
         _spinner.SetVisible(false);
         _status.SetVisible(true);
         _status.SetFromIconName("media-playback-pause-symbolic");
-        SetTitle($"<b>{Markup.EscapeText(_track.Name != null ? _track.Name : string.Empty)}</b>");
+        SetTitle($"<b>{Markup.EscapeText(_track.Name ?? string.Empty)}</b>");
     }
 
     public override void Dispose()

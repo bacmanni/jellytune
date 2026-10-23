@@ -69,7 +69,7 @@ public partial class PlaylistTracksView
             foreach (var track in _controller.Tracks)
             {
                 var state = _controller.PlayerService.GetTrackState(track.Id);
-                _playlistTracksList.Append(TrackRow.NewWithValues(_controller.FileService, track, state, true));
+                _playlistTracksList.Append(TrackRow.NewWithValues(_controller.PlayerService, _controller.FileService, track, state, true));
             }
         });
         
