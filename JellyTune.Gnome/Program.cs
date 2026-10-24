@@ -39,7 +39,7 @@ class Program
         Developer = "Joni Bäckström",
         Email = "joni.j.backstrom@gmail.com",
         Name = "JellyTune",
-        Version = "1.2.3",
+        Version = "1.2.4",
         Website = "https://github.com/bacmanni/jellytune",
         IssueUrl = "https://github.com/bacmanni/jellytune/issues/new",
         Icon = "jellytune-icon",
