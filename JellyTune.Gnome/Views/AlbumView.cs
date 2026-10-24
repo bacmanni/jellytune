@@ -45,6 +45,28 @@ public partial class AlbumView
         _tracks.OnRowSelected += TracksOnRowSelected;
         _tracks.OnRowActivated += TracksOnRowActivated;
         _artwork.OnClicked += ArtworkOnClicked;
+        
+        var clickGesture = GestureClick.New();
+        clickGesture.SetPropagationPhase(Gtk.PropagationPhase.Capture);
+        clickGesture.OnPressed += (sender, args) =>
+        {
+            var state = clickGesture.GetCurrentEventState();
+            var isCtrlPressed = state.HasFlag(Gdk.ModifierType.ControlMask);
+
+            if (!isCtrlPressed)
+            {
+                clickGesture.SetState(EventSequenceState.Denied);
+                return;
+            }
+
+            clickGesture.SetState(EventSequenceState.Claimed);
+            if (_tracks.GetRowAtY((int)args.Y) is TrackRow row)
+            {
+                _controller.AddTrackToPlaylist(row.TrackId);
+            }
+        };
+        
+        _tracks.AddController(clickGesture);
     }
 
     private void ArtworkOnClicked(Button sender, EventArgs args)
@@ -88,7 +110,7 @@ public partial class AlbumView
     private void TracksOnRowActivated(ListBox sender, ListBox.RowActivatedSignalArgs args)
     {
         if (args.Row is TrackRow row)
-        { 
+        {
             _ = _controller.PlayOrPauseTrackAsync(row.TrackId);
         }
         
@@ -124,14 +146,14 @@ public partial class AlbumView
 
         SetSpinner(false);
         
-        _artist.SetText(_controller.Album != null ? _controller.Album.Artist != null ? _controller.Album.Artist : "No artist" : "No artist");
-        _album.SetText(_controller.Album != null ? _controller.Album.Name != null ? _controller.Album.Name : "No album" : "No album");
+        _artist.SetText(_controller.Album != null ? _controller.Album.Artist ?? "No artist" : "No artist");
+        _album.SetText(_controller.Album != null ? _controller.Album.Name ?? "No album" : "No album");
         _trackCount.SetText($"{_controller.Tracks.Count.ToString()} tracks");
         
-        if (_controller.Album != null && _controller.Album.Runtime != null)
+        if (_controller.Album is { Runtime: not null })
             _albumDuration.SetText($"{_controller.Album.Runtime.Value.TotalMinutes:F0}m");
         
-        if (_controller.Album != null && _controller.Album.Year != null)
+        if (_controller.Album is { Year: not null })
             _albumYear.SetText(_controller.Album.Year.Value.ToString());
     }
 

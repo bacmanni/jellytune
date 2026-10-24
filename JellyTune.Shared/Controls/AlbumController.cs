@@ -116,4 +116,12 @@ public sealed class AlbumController : IDisposable
             await _playerService.StartTrackAsync(trackId);
         }
     }
+
+    public void AddTrackToPlaylist(Guid trackId)
+    {
+        var track = Tracks.FirstOrDefault(t => t.Id == trackId);
+        if (track == null) return;
+        
+        _playerService.AddTrack(track);
+    }
 }

@@ -805,9 +805,14 @@ public sealed class PlayerService : IPlayerService, IDisposable
     public int? GetQueuePosition(Guid trackId)
     {
         if (!IsCustomPlaylist) return null;
-        
+
         if (Tracks.Any(t => t.Id == trackId))
-            return Tracks.ToList().FindIndex(t => t.Id == trackId);
+        {
+            var tracks = Tracks.ToList();
+            tracks.Reverse();
+            
+            return tracks.FindIndex(t => t.Id == trackId);
+        }
         
         return null;
     }

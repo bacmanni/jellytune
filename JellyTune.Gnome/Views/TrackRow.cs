@@ -18,6 +18,7 @@ public partial class TrackRow
     private IPlayerService _playerService;
     private Track _track;
     private PlayerState _startupState;
+    private bool showQueuePosition = false;
     
     [Connect] private Image _status;
     [Connect] private Label _queue;
@@ -28,7 +29,7 @@ public partial class TrackRow
 
     public Guid TrackId => _track.Id;
 
-    public static TrackRow NewWithValues(IPlayerService playerService, IFileService fileService, Track track, PlayerState state, bool extended = false)
+    public static TrackRow NewWithValues(IPlayerService playerService, IFileService fileService, Track track, PlayerState state, bool extended = false, bool queue = false)
     {
         var obj = NewWithProperties([]);
         obj._playerService = playerService;
@@ -38,6 +39,7 @@ public partial class TrackRow
         obj.Activatable = true;
         obj.Focusable = true;
         obj.Selectable = false;
+        obj.showQueuePosition = queue;
         
         obj._runtime.SetText(obj._track.RunTime.ToString("m\\:ss"));
 
@@ -102,7 +104,7 @@ public partial class TrackRow
         _status.SetVisible(false);
         _queue.SetVisible(false);
         _spinner.SetVisible(true);
-        SetTitle($"<b>{Markup.EscapeText(_track.Name != null ? _track.Name : string.Empty)}</b>");
+        SetTitle($"<b>{Markup.EscapeText(_track.Name ?? string.Empty)}</b>");
     }
     
     private void StartTrack()
@@ -116,12 +118,10 @@ public partial class TrackRow
 
     private void ClearTrack()
     {
-        var trackPosition = _playerService.GetQueuePosition(_track.Id);
-        
-        if (trackPosition != null)
+        if (showQueuePosition)
         {
+            var trackPosition = _playerService.GetQueuePosition(_track.Id);
             _queue.SetText($"{trackPosition}");
-            
             _queue.SetVisible(true);
             _status.SetVisible(false);
         }
@@ -130,7 +130,7 @@ public partial class TrackRow
             _queue.SetVisible(false);
             _status.SetVisible(true);
         }
-        
+
         _spinner.SetVisible(false);
         _status.SetFromIconName(null);
         SetTitle(Markup.EscapeText(_track.Name ?? string.Empty));
