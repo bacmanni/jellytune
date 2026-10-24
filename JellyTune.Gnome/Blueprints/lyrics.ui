@@ -3,7 +3,9 @@
     <template class="JellyTuneLyricsView">
         <property name="follows-content-size">true</property>
         <child>
-            <object class="AdwClamp">
+            <object class="AdwToastOverlay" id="_toastOverlay">
+                <child>
+                <object class="AdwClamp">
                 <property name="maximum-size">500</property>
                 <property name="tightening-threshold">700</property>
                 <child>
@@ -104,6 +106,8 @@
                         </child>
                     </object>
                 </child>
+            </object>
+            </child>
             </object>
         </child>
     </template>

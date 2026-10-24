@@ -1,3 +1,4 @@
+using Adw;
 using Gdk;
 using GLib;
 using GObject;
@@ -15,6 +16,7 @@ public partial class LyricsView
 {
     private LyricsController  _controller;
 
+    [Connect] private ToastOverlay _toastOverlay;
     [Connect] private Spinner _spinner;
     [Connect] private Revealer _results;
     
@@ -36,6 +38,23 @@ public partial class LyricsView
         _controller.OnLyricsUpdated += ControllerOnOnLyricsUpdated;
         _results.SetVisible(false);
         _spinner.SetVisible(true);
+        
+        var clickGesture = GestureClick.New();
+
+        clickGesture.OnPressed += (sender, args) =>
+        {
+            if (string.IsNullOrWhiteSpace(_controller.Lyrics)) return;
+            
+            var display = _lyrics.GetDisplay();
+            var clipboard = display.GetClipboard();
+            clipboard.SetText(_controller.Lyrics);
+            
+            var toast = Toast.New("Copied to clipboard");
+            toast.SetTimeout(2);
+            _toastOverlay.AddToast(toast);
+        };
+
+        _lyrics.AddController(clickGesture);
     }
 
     private void ControllerOnOnLyricsUpdated(object? sender, EventArgs e)
