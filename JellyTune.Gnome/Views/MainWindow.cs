@@ -753,6 +753,8 @@ public partial class MainWindow
 
     private void PlayerControllerOnShowPlaylistClicked(object? sender, AlbumArgs e)
     {
+        if (_rootView.GetVisiblePage() == _queueList) return;
+        
         ResetNavigationView();
         _queueListController.Open();
         _rootView.Push(_queueList);
