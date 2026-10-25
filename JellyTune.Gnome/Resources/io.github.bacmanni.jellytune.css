@@ -19,6 +19,20 @@
     background: transparent;
     box-shadow: none;
 }
+.queue-badge {
+    color: @accent_fg_color;
+    background-color: @accent_bg_color;
+    border-radius: 999px;
+    min-width: 12px;
+    min-height: 12px;
+    padding: 2px;
+    font-size: 8px;
+    font-weight: bold;
+    margin-right: -12px;
+}
+.background-blur .queue-badge  {
+    background-color: rgba(255, 255, 255, 0.1);
+}
 /* Application background related */
 .top-bar, headerbar {
     transition: background-color 500ms ease-in-out;

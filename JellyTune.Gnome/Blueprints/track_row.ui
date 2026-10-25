@@ -37,15 +37,42 @@
                         <property name="visible">false</property>
                     </object>
                 </child>
-                <child>
-                    <object class="GtkLabel" id="_queue">
-                        <property name="visible">false</property>
-                    </object>
-                </child>
             </object>
         </child>
         <child type="suffix">
-            <object class="GtkLabel" id="_runtime">
+            <object class="GtkOverlay">
+                <property name="hexpand">true</property>
+                <property name="halign">fill</property>
+                <property name="vexpand">true</property>
+                <property name="valign">fill</property>
+                <child>
+                    <object class="GtkLabel" id="_runtime">
+                        <property name="halign">end</property>
+                        <property name="valign">center</property>
+                    </object>
+                </child>
+                <child type="overlay">
+                    <object class="GtkBox" id="_queue">
+                        <property name="orientation">1</property>
+                        <property name="halign">end</property>
+                        <property name="valign">start</property>
+                        <property name="visible">false</property>
+                        <style>
+                            <class name="queue-badge"/>
+                        </style>
+                        <child>
+                            <object class="GtkImage" id="_queueImage">
+                                <property name="margin-top">2</property>
+                                <property name="icon-name">media-playback-start-symbolic</property>
+                                <property name="pixel-size">8</property>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkLabel" id="_queueLabel">
+                            </object>
+                        </child>
+                    </object>
+                </child>
             </object>
         </child>
     </template>

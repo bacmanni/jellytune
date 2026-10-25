@@ -18,10 +18,12 @@ public partial class TrackRow
     private IPlayerService _playerService;
     private Track _track;
     private PlayerState _startupState;
-    private bool showQueuePosition = false;
+    private bool _showQueuePosition = false;
     
     [Connect] private Image _status;
-    [Connect] private Label _queue;
+    [Connect] private Box _queue;
+    [Connect] private Label _queueLabel;
+    [Connect] private Image _queueImage;
     [Connect] private Spinner _spinner;
     [Connect] private Image _albumArt;
     [Connect] private Label _runtime;
@@ -39,7 +41,7 @@ public partial class TrackRow
         obj.Activatable = true;
         obj.Focusable = true;
         obj.Selectable = false;
-        obj.showQueuePosition = queue;
+        obj._showQueuePosition = queue;
         
         obj._runtime.SetText(obj._track.RunTime.ToString("m\\:ss"));
 
@@ -101,16 +103,18 @@ public partial class TrackRow
 
     private void LoadingTrack()
     {
+        UpdateQueue();
+        
         _status.SetVisible(false);
-        _queue.SetVisible(false);
         _spinner.SetVisible(true);
         SetTitle($"<b>{Markup.EscapeText(_track.Name ?? string.Empty)}</b>");
     }
     
     private void StartTrack()
     {
+        UpdateQueue();
+        
         _spinner.SetVisible(false);
-        _queue.SetVisible(false);
         _status.SetVisible(true);
         _status.SetFromIconName("media-playback-start-symbolic");
         SetTitle($"<b>{Markup.EscapeText(_track.Name ?? string.Empty)}</b>");
@@ -118,32 +122,45 @@ public partial class TrackRow
 
     private void ClearTrack()
     {
-        if (showQueuePosition)
-        {
-            var trackPosition = _playerService.GetQueuePosition(_track.Id);
-            _queue.SetText($"{trackPosition}");
-            _queue.SetVisible(true);
-            _status.SetVisible(false);
-        }
-        else
-        {
-            _queue.SetVisible(false);
-            _status.SetVisible(true);
-        }
-
+        UpdateQueue();
+        
         _spinner.SetVisible(false);
+        _status.SetVisible(true);
         _status.SetFromIconName(null);
         SetTitle(Markup.EscapeText(_track.Name ?? string.Empty));
     }
 
     private void StopTrack()
     {
+        UpdateQueue();
+        
         _spinner.SetVisible(false);
         _status.SetVisible(true);
         _status.SetFromIconName("media-playback-pause-symbolic");
         SetTitle($"<b>{Markup.EscapeText(_track.Name ?? string.Empty)}</b>");
     }
 
+    private void UpdateQueue()
+    {
+        if (_showQueuePosition)
+        {
+            var position = _playerService.GetQueuePosition(_track.Id);
+            _queue.SetVisible(position.HasValue);
+
+            if (position is 0)
+            {
+                _queueLabel.SetVisible(false);
+                _queueImage.SetVisible(true);
+            }
+            else
+            {
+                _queueImage.SetVisible(false);
+                _queueLabel.SetVisible(true);
+                _queueLabel.SetLabel(position.ToString() ?? string.Empty);
+            }
+        }
+    }
+    
     public override void Dispose()
     {
         _albumArt.Clear();

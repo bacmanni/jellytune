@@ -33,6 +33,29 @@ public partial class PlaylistTracksView
         _playlistTracksList.OnRowActivated += PlaylistTracksListOnRowActivated;
         _results.SetVisible(false);
         _spinner.SetVisible(true);
+        
+        var clickGesture = GestureClick.New();
+        clickGesture.SetPropagationPhase(Gtk.PropagationPhase.Capture);
+        clickGesture.OnPressed += (sender, args) =>
+        {
+            var state = clickGesture.GetCurrentEventState();
+            var isCtrlPressed = state.HasFlag(Gdk.ModifierType.ControlMask);
+
+            if (!isCtrlPressed)
+            {
+                clickGesture.SetState(EventSequenceState.Denied);
+                return;
+            }
+
+            clickGesture.SetState(EventSequenceState.Claimed);
+            if (_playlistTracksList.GetRowAtY((int)args.Y) is TrackRow row)
+            {
+                _controller.AddTrackToPlaylist(row.TrackId);
+                UpdateTrackState();
+            }
+        };
+        
+        _playlistTracksList.AddController(clickGesture);
     }
 
     private void PlaylistTracksListOnRowActivated(ListBox sender, ListBox.RowActivatedSignalArgs args)
@@ -69,7 +92,7 @@ public partial class PlaylistTracksView
             foreach (var track in _controller.Tracks)
             {
                 var state = _controller.PlayerService.GetTrackState(track.Id);
-                _playlistTracksList.Append(TrackRow.NewWithValues(_controller.PlayerService, _controller.FileService, track, state, true));
+                _playlistTracksList.Append(TrackRow.NewWithValues(_controller.PlayerService, _controller.FileService, track, state, true, true));
             }
         });
         

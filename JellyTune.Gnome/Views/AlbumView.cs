@@ -63,6 +63,7 @@ public partial class AlbumView
             if (_tracks.GetRowAtY((int)args.Y) is TrackRow row)
             {
                 _controller.AddTrackToPlaylist(row.TrackId);
+                UpdateTrackState();
             }
         };
         
@@ -174,7 +175,7 @@ public partial class AlbumView
         foreach (var track in _controller.Tracks)
         {
             var state = _controller.PlayerService.GetTrackState(track.Id);
-            var row = TrackRow.NewWithValues(_controller.PlayerService, _controller.FileService, track, state);
+            var row = TrackRow.NewWithValues(_controller.PlayerService, _controller.FileService, track, state, false, true);
             _tracks.Append(row);
         }
     }

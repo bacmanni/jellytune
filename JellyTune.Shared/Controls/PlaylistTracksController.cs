@@ -92,4 +92,12 @@ public sealed class PlaylistTracksController : IDisposable
     {
         _playerService.OnPlayerStateChanged -= PlayerServiceOnPlayerStateChanged;
     }
+
+    public void AddTrackToPlaylist(Guid trackId)
+    {
+        var track = Tracks.FirstOrDefault(t => t.Id == trackId);
+        if (track == null) return;
+        
+        _playerService.AddTrack(track);
+    }
 }
