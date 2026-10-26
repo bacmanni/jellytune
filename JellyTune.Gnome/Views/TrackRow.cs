@@ -21,9 +21,7 @@ public partial class TrackRow
     private bool _showQueuePosition = false;
     
     [Connect] private Image _status;
-    [Connect] private Box _queue;
     [Connect] private Label _queueLabel;
-    [Connect] private Image _queueImage;
     [Connect] private Spinner _spinner;
     [Connect] private Image _albumArt;
     [Connect] private Label _runtime;
@@ -145,17 +143,10 @@ public partial class TrackRow
         if (_showQueuePosition)
         {
             var position = _playerService.GetQueuePosition(_track.Id);
-            _queue.SetVisible(position.HasValue);
+            _queueLabel.SetVisible(position > 0);
 
-            if (position is 0)
+            if (position > 0)
             {
-                _queueLabel.SetVisible(false);
-                _queueImage.SetVisible(true);
-            }
-            else
-            {
-                _queueImage.SetVisible(false);
-                _queueLabel.SetVisible(true);
                 _queueLabel.SetLabel(position.ToString() ?? string.Empty);
             }
         }

@@ -52,25 +52,13 @@
                     </object>
                 </child>
                 <child type="overlay">
-                    <object class="GtkBox" id="_queue">
-                        <property name="orientation">1</property>
-                        <property name="halign">end</property>
-                        <property name="valign">start</property>
-                        <property name="visible">false</property>
+                    <object class="GtkLabel" id="_queueLabel">
                         <style>
                             <class name="queue-badge"/>
                         </style>
-                        <child>
-                            <object class="GtkImage" id="_queueImage">
-                                <property name="margin-top">2</property>
-                                <property name="icon-name">media-playback-start-symbolic</property>
-                                <property name="pixel-size">8</property>
-                            </object>
-                        </child>
-                        <child>
-                            <object class="GtkLabel" id="_queueLabel">
-                            </object>
-                        </child>
+                        <property name="halign">end</property>
+                        <property name="valign">start</property>
+                        <property name="visible">false</property>
                     </object>
                 </child>
             </object>

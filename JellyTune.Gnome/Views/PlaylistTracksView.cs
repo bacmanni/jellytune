@@ -51,7 +51,10 @@ public partial class PlaylistTracksView
             if (_playlistTracksList.GetRowAtY((int)args.Y) is TrackRow row)
             {
                 if (!_controller.PlayerService.HasCustomPlaylist())
+                {
+                    _controller.PlayerService.StopTrack();
                     _controller.PlayerService.ClearTracks();
+                }
                     
                 _controller.AddTrackToPlaylist(row.TrackId);
                 UpdateTrackState();
