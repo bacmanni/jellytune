@@ -107,6 +107,9 @@ public sealed class AlbumController : IDisposable
     /// <param name="trackId"></param>
     public async Task PlayOrPauseTrackAsync(Guid trackId)
     {
+        if (_playerService.HasCustomPlaylist())
+            _playerService.ClearTracks();
+
         if (_playerService.IsPlaying() && _playerService.IsPlayingTrack(trackId))
         {
             _playerService.PauseTrack();
@@ -117,8 +120,15 @@ public sealed class AlbumController : IDisposable
         }
     }
 
+    /// <summary>
+    /// Add track to playlist
+    /// </summary>
+    /// <param name="trackId"></param>
     public void AddTrackToPlaylist(Guid trackId)
     {
+        if (!_playerService.HasCustomPlaylist())
+            _playerService.ClearTracks();
+        
         var track = Tracks.FirstOrDefault(t => t.Id == trackId);
         if (track == null) return;
         

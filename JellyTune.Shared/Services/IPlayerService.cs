@@ -22,6 +22,7 @@ public interface IPlayerService
     public bool HasTracks(bool countSelected = true);
     public Task NextTrackAsync();
     public Task PreviousTrackAsync();
+    public bool HasCustomPlaylist();
     public Guid? GetSelectedTrackId();
     public bool IsPlayingTrack(Guid? trackId, Guid? albumId = null);
     byte[]? GetArtwork();

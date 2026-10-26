@@ -114,7 +114,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
         PlayerStateChanged(new PlayerStateArgs(PlayerState.Loading));
 
         var album = await _jellyTuneApiService.GetAlbumAsync(albumId, cancellationToken);
-        Album = album != null ? album : throw new Exception($"Album with id {albumId} not found");
+        Album = album ?? throw new Exception($"Album with id {albumId} not found");
         _selectedTrack = null;
         
         if (_cancellationTokenSource is { IsCancellationRequested: true })
@@ -582,7 +582,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
             return _selectedTrack != null ? Tracks.First().Id != _selectedTrack.Id : true;
         return true;
     }
-    
+
     /// <summary>
     /// Select next track from album tracks
     /// </summary>
@@ -629,6 +629,15 @@ public sealed class PlayerService : IPlayerService, IDisposable
                 await StartTrackAsync(previousTrack.Id);
             }
         }
+    }
+
+    /// <summary>
+    /// Is custom playlist being used
+    /// </summary>
+    /// <returns></returns>
+    public bool HasCustomPlaylist()
+    {
+        return IsCustomPlaylist;
     }
 
     /// <summary>
@@ -713,6 +722,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     public void ClearTracks()
     {
         Tracks.Clear();
+        IsCustomPlaylist = false;
     }
 
     /// <summary>
@@ -811,7 +821,15 @@ public sealed class PlayerService : IPlayerService, IDisposable
             var tracks = Tracks.ToList();
             tracks.Reverse();
             
-            return tracks.FindIndex(t => t.Id == trackId);
+            var currentIndex = tracks.FindIndex(t => t.Id == _selectedTrack?.Id);
+            var thisIndex = tracks.FindIndex(t => t.Id == trackId);
+
+            if (currentIndex < 0)
+                return thisIndex;
+
+            var updatedIndex = thisIndex - currentIndex;
+            
+            return updatedIndex < 0 ? null : updatedIndex;
         }
         
         return null;

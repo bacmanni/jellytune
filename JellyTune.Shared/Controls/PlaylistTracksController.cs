@@ -95,6 +95,8 @@ public sealed class PlaylistTracksController : IDisposable
 
     public void AddTrackToPlaylist(Guid trackId)
     {
+        if (!_playerService.HasCustomPlaylist()) _playerService.ClearTracks();
+        
         var track = Tracks.FirstOrDefault(t => t.Id == trackId);
         if (track == null) return;
         
