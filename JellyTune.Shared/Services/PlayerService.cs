@@ -204,6 +204,8 @@ public sealed class PlayerService : IPlayerService, IDisposable
                 }
             }
 
+            cancellationToken.ThrowIfCancellationRequested();
+            
             // Check player status
             if (_player != null)
             {
@@ -230,6 +232,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
                 StopPlaying(false);
             }
 
+            cancellationToken.ThrowIfCancellationRequested();
             _playingTrack = Tracks.FirstOrDefault(t => t.Id == trackId);
 
             // Get stream url and start playing
@@ -263,6 +266,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
         catch (OperationCanceledException)
         {
             // Playback cancelled. Do cleanup
+            _player?.Stop();
             _player?.Dispose();
             _networkDataProvider?.Dispose();
         }
@@ -392,6 +396,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
                 await OpenAlbumWithoutTracksAsync(track.AlbumId, cancellationToken);
             }
         
+            cancellationToken.ThrowIfCancellationRequested();
             if (_selectedTrack == null || _selectedTrack.Id != trackId.Value)
             {
                 SelectTrack(trackId.Value);
@@ -402,7 +407,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
         }
         catch (OperationCanceledException)
         {
-            PlayerStateChanged(new PlayerStateArgs(PlayerState.None, Album, Tracks.ToList(), _selectedTrack));
+            PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedInfo, Album, Tracks.ToList(), _selectedTrack));
         }
     }
 
