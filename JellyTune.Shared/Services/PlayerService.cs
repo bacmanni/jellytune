@@ -386,6 +386,33 @@ public sealed class PlayerService : IPlayerService, IDisposable
     }
 
     /// <summary>
+    /// Get tracks state
+    /// </summary>
+    /// <param name="track"></param>
+    /// <returns></returns>
+    public PlayerState GetTrackState(Track track)
+    {
+        if (_playingTrack != null && _playingTrack == track)
+        {
+            if (IsPlaying())
+                return PlayerState.Playing;
+            return PlayerState.Paused;
+        }
+
+        if (_selectedTrack != null && _selectedTrack == track)
+        {
+            return PlayerState.Selected;
+        }
+
+        if (_startingTrack == track.Id)
+        {
+            return PlayerState.Starting;
+        }
+        
+        return PlayerState.None;
+    }
+
+    /// <summary>
     /// Check if we have next track to play
     /// </summary>
     /// <returns>True, if has</returns>
@@ -744,14 +771,14 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <returns></returns>
     public PlayerState GetTrackState(Guid trackId)
     {
-        if (_playingTrack != null ? _playingTrack.Id == trackId : false)
+        if (_playingTrack != null && _playingTrack.Id == trackId)
         {
             if (IsPlaying())
                 return PlayerState.Playing;
             return PlayerState.Paused;
         }
 
-        if (_selectedTrack != null ? _selectedTrack.Id == trackId : false)
+        if (_selectedTrack != null && _selectedTrack.Id == trackId)
         {
             return PlayerState.Selected;
         }

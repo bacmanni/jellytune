@@ -3,6 +3,7 @@ using Gdk;
 using GLib;
 using GObject;
 using Gtk;
+using JellyTune.Gnome.Models;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Models;
 using JellyTune.Shared.Services;
@@ -18,7 +19,7 @@ public partial class TrackRow
     private IPlayerService _playerService;
     private Track _track;
     private PlayerState _startupState;
-    private bool _showQueuePosition = false;
+    private bool _showQueue = false;
     
     [Connect] private Image _status;
     [Connect] private Label _queueLabel;
@@ -29,7 +30,7 @@ public partial class TrackRow
 
     public Guid TrackId => _track.Id;
 
-    public static TrackRow NewWithValues(IPlayerService playerService, IFileService fileService, Track track, PlayerState state, bool extended = false, bool queue = false)
+    public static TrackRow NewWithValues(IPlayerService playerService, IFileService fileService, Track track, PlayerState state, List<RowProperty> properties)
     {
         var obj = NewWithProperties([]);
         obj._playerService = playerService;
@@ -39,11 +40,11 @@ public partial class TrackRow
         obj.Activatable = true;
         obj.Focusable = true;
         obj.Selectable = false;
-        obj._showQueuePosition = queue;
+        obj._showQueue = properties.Contains(RowProperty.Queue);
         
         obj._runtime.SetText(obj._track.RunTime.ToString("m\\:ss"));
 
-        if (extended)
+        if (properties.Contains(RowProperty.Extended))
         {
             obj._number.SetVisible(false);
             obj._albumArt.SetVisible(true);
@@ -140,7 +141,7 @@ public partial class TrackRow
 
     private void UpdateQueue()
     {
-        if (_showQueuePosition)
+        if (_showQueue)
         {
             var position = _playerService.GetQueuePosition(_track.Id);
             _queueLabel.SetVisible(position > 0);

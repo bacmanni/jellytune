@@ -20,7 +20,8 @@
     box-shadow: none;
 }
 .queue-badge {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--accent-bg-color);
+    color: var(--accent-fg-color);
     border-radius: 999px;
     min-width: 12px;
     min-height: 12px;
@@ -28,6 +29,10 @@
     font-size: 8px;
     font-weight: bold;
     margin-right: -12px;
+}
+.background-blur .queue-badge {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: var(--window-fg-color);
 }
 /* Application background related */
 .top-bar, headerbar {
@@ -99,6 +104,9 @@ gridview > row:hover {
     }
     .background-blur .bottom-bar, headerbar {
         background-color: rgba(255, 255, 255, 0.1);
+    }
+    .background-blur .queue-badge {
+        background-color: rgba(0, 0, 0, 0.2);
     }
 }
 

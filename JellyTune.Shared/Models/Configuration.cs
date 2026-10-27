@@ -56,6 +56,11 @@ public class Configuration
     public bool ShowAlbumAsBackground {  get; set; } = false;
     
     /// <summary>
+    /// Show custom playlist marker on tracks
+    /// </summary>
+    public bool ShowCustomPlaylistMarker {  get; set; } = false;
+    
+    /// <summary>
     /// How many retries request tries if failed
     /// </summary>
     public int RetryCount {  get; set; } = 3;

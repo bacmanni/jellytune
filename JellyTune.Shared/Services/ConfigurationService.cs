@@ -28,7 +28,7 @@ public class ConfigurationService(IFileSystem fileSystem, ApplicationInfo applic
     /// <summary>
     /// Saves the configuration file
     /// </summary>
-    public void Save()
+    public Dictionary<string, (object? Previous, object? Current)> Save()
     {
         var filename = GetFilename();
         
@@ -58,6 +58,7 @@ public class ConfigurationService(IFileSystem fileSystem, ApplicationInfo applic
 
         _previousValues = configuration;
         OnSaved?.Invoke(this, args);
+        return args.Changes;
     }
 
     /// <summary>

@@ -4,6 +4,7 @@ using GLib;
 using GObject;
 using Gtk;
 using JellyTune.Gnome.Helpers;
+using JellyTune.Gnome.Models;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Events;
 using GestureClick = Gtk.GestureClick;
@@ -175,7 +176,7 @@ public partial class AlbumView
         foreach (var track in _controller.Tracks)
         {
             var state = _controller.PlayerService.GetTrackState(track.Id);
-            var row = TrackRow.NewWithValues(_controller.PlayerService, _controller.FileService, track, state, false, true);
+            var row = TrackRow.NewWithValues(_controller.PlayerService, _controller.FileService, track, state, [RowProperty.Queue]);
             _tracks.Append(row);
         }
     }

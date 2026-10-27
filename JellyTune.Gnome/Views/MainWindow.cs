@@ -137,6 +137,7 @@ public partial class MainWindow
     {
         _controller.OnApplicationBackgroundChanged += ControllerOnApplicationBackgroundChanged;
         _controller.PlayerService.OnPlayerStateChanged += OnPlayerStateChanged;
+        _controller.ConfigurationService.OnSaved += ConfigurationServiceOnSaved;
         
         // Album list
         _albumlistController = new AlbumlistController(_controller.JellyTuneApiService,
@@ -329,6 +330,14 @@ public partial class MainWindow
         OnNotify += OnWindowNotify;
         _ = UpdateMainMenu();
         _initialized = true;
+    }
+
+    private void ConfigurationServiceOnSaved(object? sender, ConfigurationArgs e)
+    {
+        if (e.Changes.ContainsKey("ServerUrl") || e.Changes.ContainsKey("Username") || e.Changes.ContainsKey("Password") || e.Changes.ContainsKey("CollectionId") ||  e.Changes.ContainsKey("PlaylistCollectionId"))
+        {
+            _ = RefreshLists();
+        }
     }
 
     private void ControllerOnApplicationBackgroundChanged(object? sender, EventArgs e)
@@ -810,12 +819,11 @@ public partial class MainWindow
         
         var preferences = PreferencesView.NewWithValues(_controller.ConfigurationService, _controller.JellyTuneApiService);
         preferences.Present(this);
-        preferences.OnClosed += async (_, _) =>
+        preferences.OnClosed += (dialog, e) =>
         {
             if (preferences.Refresh)
             {
-                await _startupController.StartAsync(preferences.Password);
-                await RefreshLists();
+                _ = RefreshLists();
             }
         };
     }
@@ -858,6 +866,7 @@ public partial class MainWindow
     public override void Dispose()
     {
         _controller.OnApplicationBackgroundChanged -= ControllerOnApplicationBackgroundChanged;
+        _controller.ConfigurationService.OnSaved -= ConfigurationServiceOnSaved;
         _controller.PlayerService.OnPlayerStateChanged -= OnPlayerStateChanged;
         _searchField.OnSearchChanged -= SearchFieldOnSearchChanged;
         

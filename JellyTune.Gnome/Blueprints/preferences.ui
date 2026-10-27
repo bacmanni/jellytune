@@ -21,6 +21,11 @@
                             </object>
                         </child>
                         <child>
+                            <object class="AdwSwitchRow" id="_showCustomPlaylistMarker">
+                                <property name="title" translatable="yes">Show custom playlist track position</property>
+                            </object>
+                        </child>
+                        <child>
                             <object class="AdwSwitchRow" id="_cacheList">
                                 <property name="title" translatable="yes">Store list data to device memory</property>
                             </object>

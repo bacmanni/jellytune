@@ -2,6 +2,7 @@ using Adw;
 using GObject;
 using Gtk;
 using JellyTune.Gnome.Helpers;
+using JellyTune.Gnome.Models;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Events;
 using ListBox = Gtk.ListBox;
@@ -98,7 +99,7 @@ public partial class PlaylistTracksView
             foreach (var track in _controller.Tracks)
             {
                 var state = _controller.PlayerService.GetTrackState(track.Id);
-                _playlistTracksList.Append(TrackRow.NewWithValues(_controller.PlayerService, _controller.FileService, track, state, true, true));
+                _playlistTracksList.Append(TrackRow.NewWithValues(_controller.PlayerService, _controller.FileService, track, state, [RowProperty.Extended, RowProperty.Queue]));
             }
         });
         
