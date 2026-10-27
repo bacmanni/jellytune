@@ -51,7 +51,6 @@ public partial class AlbumView
         clickGesture.SetPropagationPhase(Gtk.PropagationPhase.Capture);
         clickGesture.OnPressed += (sender, args) =>
         {
-            return;
             var state = clickGesture.GetCurrentEventState();
             var isCtrlPressed = state.HasFlag(Gdk.ModifierType.ControlMask);
 
@@ -68,8 +67,6 @@ public partial class AlbumView
                 UpdateTrackState();
             }
         };
-        
-        _tracks.AddController(clickGesture);
     }
 
     private void ArtworkOnClicked(Button sender, EventArgs args)

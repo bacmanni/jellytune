@@ -61,8 +61,6 @@ public partial class PlaylistTracksView
                 UpdateTrackState();
             }
         };
-        
-        _playlistTracksList.AddController(clickGesture);
     }
 
     private void PlaylistTracksListOnRowActivated(ListBox sender, ListBox.RowActivatedSignalArgs args)
@@ -87,7 +85,6 @@ public partial class PlaylistTracksView
         
         GtkHelper.GtkDispatch(() =>
         {
-            return;
             if (updateTrackState)
             {
                 if (trackId.HasValue)
