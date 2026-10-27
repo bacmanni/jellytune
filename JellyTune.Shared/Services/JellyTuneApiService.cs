@@ -389,7 +389,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// <exception cref="ArgumentException"></exception>
     public async Task<Album> GetAlbumAsync(Guid albumId, CancellationToken token)
     {
-        var baseItem = await _jellyfinApiClient.Items[albumId].GetAsync().ConfigureAwait(false);
+        var baseItem = await _jellyfinApiClient.Items[albumId].GetAsync(cancellationToken: token).ConfigureAwait(false);
 
         if (baseItem == null)
             throw new ArgumentException($"No album found with id {albumId}");
@@ -421,7 +421,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
         {
             configuration.QueryParameters.Fields = [ItemFields.SortName];
             configuration.QueryParameters.ParentId = albumId;
-        }).ConfigureAwait(false);
+        }, token).ConfigureAwait(false);
 
         if (queryResult != null ? queryResult.Items == null : true)
             return trackResult;

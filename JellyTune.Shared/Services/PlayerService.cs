@@ -141,36 +141,42 @@ public sealed class PlayerService : IPlayerService, IDisposable
     private async Task OpenAlbumAsync(Guid albumId, CancellationToken cancellationToken = default)
     {
         PlayerStateChanged(new PlayerStateArgs(PlayerState.Loading));
-
-        Tracks.Clear();
-        var album = await _jellyTuneApiService.GetAlbumAsync(albumId, cancellationToken);
-        Album = album != null ? album : throw new Exception($"Album with id {albumId} not found");
         
-        var tracks = await _jellyTuneApiService.GetTracksAsync(Album.Id, cancellationToken);
-
-        foreach (var track in tracks)
-            Tracks.Add(track);
-        
-        _selectedTrack = null;
-
-        if (_cancellationTokenSource is { IsCancellationRequested: true })
-            return;
-        
-        PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedInfo, album, tracks));
-
-        if (album.HasArtwork)
+        try
         {
-            Artwork = await _jellyTuneApiService.GetPrimaryArtAsync(albumId);
+            var album = await _jellyTuneApiService.GetAlbumAsync(albumId, cancellationToken);
+            if (album == null)
+                throw new Exception($"Album with id {albumId} not found");
+        
+            var tracks = await _jellyTuneApiService.GetTracksAsync(album.Id, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+
+            Album = album;
             
-            if (_cancellationTokenSource is { IsCancellationRequested: true })
-                return;
-            
-            PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedArtwork, album, tracks));
+            Tracks.Clear();
+            foreach (var track in tracks)
+                Tracks.Add(track);
+        
+            _selectedTrack = null;
+
+            PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedInfo, album, tracks));
+
+            if (album.HasArtwork)
+            {
+                var artwork = await _jellyTuneApiService.GetPrimaryArtAsync(albumId);
+                cancellationToken.ThrowIfCancellationRequested();
+                Artwork = artwork;
+                
+                PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedArtwork, album, tracks));
+            }
+            else
+            {
+                Artwork = null;
+                PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedArtwork, album, tracks));
+            }
         }
-        else
+        catch (OperationCanceledException)
         {
-            Artwork = null;
-            PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedArtwork, album, tracks));
         }
     }
     
