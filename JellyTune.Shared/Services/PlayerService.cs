@@ -113,24 +113,28 @@ public sealed class PlayerService : IPlayerService, IDisposable
     {
         PlayerStateChanged(new PlayerStateArgs(PlayerState.Loading));
 
-        var album = await _jellyTuneApiService.GetAlbumAsync(albumId, cancellationToken);
-        Album = album ?? throw new Exception($"Album with id {albumId} not found");
-        _selectedTrack = null;
-        
-        if (_cancellationTokenSource is { IsCancellationRequested: true })
-            return;
-        
-        PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedInfo, album, Tracks.ToList()));
+        try
+        {
+            var album = await _jellyTuneApiService.GetAlbumAsync(albumId, cancellationToken);
+            Album = album ?? throw new Exception($"Album with id {albumId} not found");
+            _selectedTrack = null;
 
-        if (album.HasArtwork)
-        {
-            Artwork = await _jellyTuneApiService.GetPrimaryArtAsync(albumId);
-            PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedArtwork, album, Tracks.ToList()));
+            PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedInfo, album, Tracks.ToList()));
+
+            if (album.HasArtwork)
+            {
+                Artwork = await _jellyTuneApiService.GetPrimaryArtAsync(albumId);
+                PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedArtwork, album, Tracks.ToList()));
+            }
+            else
+            {
+                Artwork = null;
+                PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedArtwork, album, Tracks.ToList()));
+            }
         }
-        else
+        catch (OperationCanceledException)
         {
-            Artwork = null;
-            PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedArtwork, album, Tracks.ToList()));
+            // A newer OpenAlbum call cancelled this one.
         }
     }
 
@@ -175,80 +179,92 @@ public sealed class PlayerService : IPlayerService, IDisposable
         OnPlayerStateChanged?.Invoke(this, e);
     }
     
-    private async Task PlayTrackAsync()
+    private async Task PlayTrackAsync(CancellationToken cancellationToken)
     {
         if (_selectedTrack == null)
             return;
 
-        var trackId = _selectedTrack.Id;
-        int? position = null;
-        
-        // Create session
-        if (string.IsNullOrWhiteSpace(_playSessionId))
+        try
         {
-            var existingSession = await _jellyTuneApiService.GetPlaybackAsync();
-            
-            if (!string.IsNullOrWhiteSpace(existingSession))
+            var trackId = _selectedTrack.Id;
+            int? position = null;
+
+            // Create session
+            if (string.IsNullOrWhiteSpace(_playSessionId))
             {
-                _playSessionId = existingSession;
-            }
-            else
-            {
-                _playSessionId = await _jellyTuneApiService.StartPlaybackAsync(trackId);
-            }
-        }
-        
-        // Check player status
-        if (_player != null)
-        {
-            // Still same as selected, so we keep playing
-            if (_playingTrack != null ? trackId == _playingTrack.Id : false)
-            {
-                if (_networkDataProvider != null)
+                var existingSession = await _jellyTuneApiService.GetPlaybackAsync();
+
+                if (!string.IsNullOrWhiteSpace(existingSession))
                 {
-                    position = _networkDataProvider.Position;
+                    _playSessionId = existingSession;
+                }
+                else
+                {
+                    _playSessionId = await _jellyTuneApiService.StartPlaybackAsync(trackId);
+                }
+            }
+
+            // Check player status
+            if (_player != null)
+            {
+                // Still same as selected, so we keep playing
+                if (_playingTrack != null && trackId == _playingTrack.Id)
+                {
+                    if (_networkDataProvider != null)
+                    {
+                        position = _networkDataProvider.Position;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(_playSessionId))
+                        await _jellyTuneApiService.ResumePlaybackAsync(_playSessionId, trackId, position);
+
+                    if (!_networkDisconnected)
+                    {
+                        _player.Play();
+                        return;
+                    }
+
+                    _networkDisconnected = false;
                 }
 
-                if (!string.IsNullOrWhiteSpace(_playSessionId))
-                    await _jellyTuneApiService.ResumePlaybackAsync(_playSessionId, trackId, position);
-                
-                if (!_networkDisconnected)
-                {
-                    _player.Play();
-                    return;
-                }
-                
-                _networkDisconnected = false;
+                StopPlaying(false);
             }
 
-            StopPlaying(false);    
+            _playingTrack = Tracks.FirstOrDefault(t => t.Id == trackId);
+
+            // Get stream url and start playing
+            _streamingUrl =
+                _jellyTuneApiService.GetAudioStreamUrl(_playSessionId ?? string.Empty, trackId, position) != null
+                    ? _jellyTuneApiService.GetAudioStreamUrl(_playSessionId ?? string.Empty, trackId, position)
+                    : throw new Exception($"Streaming url for track with id {trackId} not found");
+
+            if (_device != null)
+            {
+                _networkDataProvider = new NetworkDataProvider(_engine, _format, _streamingUrl);
+                _player = new SoundPlayer(_engine, _device.Format, _networkDataProvider);
+                _device.MasterMixer.AddComponent(_player);
+                _player.IsLooping = false;
+                _player.Play();
+
+                var muted = IsMuted();
+                var volume = GetVolumePercent();
+
+                OnPlayerVolumeChanged?.Invoke(this, new PlayerVolumeArgs { IsMuted = muted, Volume = volume });
+
+                _player.PlaybackEnded += async (_, _) => await OnPlaybackEnded();
+                _playTimer?.Close();
+                _playTimer?.Dispose();
+
+                _playTimer = new Timer(250);
+                _playTimer.Elapsed += TimerOnElapsed;
+                _playTimer.Start();
+            }
         }
-        
-        _playingTrack = Tracks.FirstOrDefault(t => t.Id == trackId);
-
-        // Get stream url and start playing
-        _streamingUrl = _jellyTuneApiService.GetAudioStreamUrl(_playSessionId ?? string.Empty, trackId, position) != null ? _jellyTuneApiService.GetAudioStreamUrl(_playSessionId ?? string.Empty, trackId, position) : throw new Exception($"Streaming url for track with id {trackId} not found");
-
-        if (_device != null)
+        catch (OperationCanceledException)
         {
-            _networkDataProvider = new NetworkDataProvider(_engine, _format, _streamingUrl);
-            _player = new SoundPlayer(_engine, _device.Format, _networkDataProvider);
-            _device.MasterMixer.AddComponent(_player);
-            _player.IsLooping = false;
-            _player.Play();
-
-            var muted = IsMuted();
-            var volume = GetVolumePercent();
-            
-            OnPlayerVolumeChanged?.Invoke(this, new PlayerVolumeArgs { IsMuted = muted, Volume = volume});
-            
-            _player.PlaybackEnded += async (_, _) => await OnPlaybackEnded();
-            _playTimer?.Close();
-            _playTimer?.Dispose();
-            
-            _playTimer = new Timer(250);
-            _playTimer.Elapsed += TimerOnElapsed;
-            _playTimer.Start();
+            // Playback cancelled. Do cleanup
+            _player?.Dispose();
+            _networkDataProvider?.Dispose();
         }
     }
 
@@ -338,13 +354,11 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <param name="trackId">Id of the track. If not set uses first from the album tracks</param>
     public async Task StartTrackAsync(Guid? trackId = null)
     {
-        if (_cancellationTokenSource != null)
-        {
-            await _cancellationTokenSource.CancelAsync();
-            _cancellationTokenSource.Dispose();
-        }
+        _cancellationTokenSource?.Cancel();
+        _cancellationTokenSource?.Dispose();
         
         _cancellationTokenSource = new CancellationTokenSource();
+        var cancellationToken = _cancellationTokenSource.Token;
         
         if (!trackId.HasValue)
         {
@@ -362,54 +376,34 @@ public sealed class PlayerService : IPlayerService, IDisposable
         _startingTrack = trackId.Value;
         PlayerStateChanged(new PlayerStateArgs(PlayerState.Starting) { SelectedTrackId = trackId });
         var track = Tracks.FirstOrDefault(t => t.Id == trackId.Value);
-        
-        // Null when trying to start from album details
-        if (track == null)
-        {
-            PlayerStateChanged(new PlayerStateArgs(PlayerState.Loading));
-            track = await _jellyTuneApiService.GetTrackAsync(trackId.Value);
-            await OpenAlbumAsync(track.AlbumId);
-        }
-        // Invalid id when trying to start from queue
-        else if (Album != null ? track.AlbumId != Album.Id : true)
-        {
-            await OpenAlbumWithoutTracksAsync(track.AlbumId);
-        }
-        
-        if (_selectedTrack == null || _selectedTrack.Id != trackId.Value)
-        {
-            SelectTrack(trackId.Value);
-        }
-        
-        await PlayTrackAsync();
-        PlayerStateChanged(new PlayerStateArgs(PlayerState.Playing, Album, Tracks.ToList(), _selectedTrack));
-    }
 
-    /// <summary>
-    /// Get tracks state
-    /// </summary>
-    /// <param name="track"></param>
-    /// <returns></returns>
-    public PlayerState GetTrackState(Track track)
-    {
-        if (_playingTrack != null && _playingTrack == track)
+        try
         {
-            if (IsPlaying())
-                return PlayerState.Playing;
-            return PlayerState.Paused;
-        }
-
-        if (_selectedTrack != null && _selectedTrack == track)
-        {
-            return PlayerState.Selected;
-        }
-
-        if (_startingTrack == track.Id)
-        {
-            return PlayerState.Starting;
-        }
+            // Null when trying to start from album details
+            if (track == null)
+            {
+                PlayerStateChanged(new PlayerStateArgs(PlayerState.Loading));
+                track = await _jellyTuneApiService.GetTrackAsync(trackId.Value);
+                await OpenAlbumAsync(track.AlbumId, cancellationToken);
+            }
+            // Invalid id when trying to start from queue
+            else if (Album == null || track.AlbumId != Album.Id)
+            {
+                await OpenAlbumWithoutTracksAsync(track.AlbumId, cancellationToken);
+            }
         
-        return PlayerState.None;
+            if (_selectedTrack == null || _selectedTrack.Id != trackId.Value)
+            {
+                SelectTrack(trackId.Value);
+            }
+        
+            await PlayTrackAsync(cancellationToken);
+            PlayerStateChanged(new PlayerStateArgs(PlayerState.Playing, Album, Tracks.ToList(), _selectedTrack));
+        }
+        catch (OperationCanceledException)
+        {
+            PlayerStateChanged(new PlayerStateArgs(PlayerState.None, Album, Tracks.ToList(), _selectedTrack));
+        }
     }
 
     /// <summary>
@@ -724,12 +718,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     {
         IsCustomPlaylist = true;
         Tracks.Add(track);
-
-        if (!IsPlaying())
-        {
-            SelectTrack(track.Id);
-            _ = StartTrackAsync(track.Id);
-        }
+        OnPlayerStateChanged?.Invoke(this, new PlayerStateArgs(PlayerState.LoadedInfo, Album, Tracks.ToList(), _selectedTrack));
     }
 
     /// <summary>

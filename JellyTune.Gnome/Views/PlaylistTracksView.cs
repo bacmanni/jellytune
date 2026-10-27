@@ -87,6 +87,7 @@ public partial class PlaylistTracksView
         
         GtkHelper.GtkDispatch(() =>
         {
+            return;
             if (updateTrackState)
             {
                 if (trackId.HasValue)

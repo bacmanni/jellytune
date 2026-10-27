@@ -22,6 +22,7 @@
                         </child>
                         <child>
                             <object class="AdwSwitchRow" id="_showCustomPlaylistMarker">
+                                <property name="visible">false</property>
                                 <property name="title" translatable="yes">Show custom playlist track position</property>
                             </object>
                         </child>

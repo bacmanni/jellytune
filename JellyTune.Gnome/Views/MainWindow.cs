@@ -815,6 +815,7 @@ public partial class MainWindow
     {
         // Pause playing. Playing would break account related stuff
         _controller.PlayerService.StopTrack();
+        _controller.PlayerService.ClearTracks();
         FadeBackgroundTo(null);
         
         var preferences = PreferencesView.NewWithValues(_controller.ConfigurationService, _controller.JellyTuneApiService);

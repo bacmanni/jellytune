@@ -93,6 +93,10 @@ public sealed class PlaylistTracksController : IDisposable
         _playerService.OnPlayerStateChanged -= PlayerServiceOnPlayerStateChanged;
     }
 
+    /// <summary>
+    /// Add single track to playlist
+    /// </summary>
+    /// <param name="trackId"></param>
     public void AddTrackToPlaylist(Guid trackId)
     {
         if (!_playerService.HasCustomPlaylist()) _playerService.ClearTracks();
