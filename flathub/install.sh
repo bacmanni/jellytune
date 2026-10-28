@@ -3,7 +3,7 @@ set -e
 
 echo "Building JellyTune for runtime: ${RUNTIME}"
 
-dotnet publish JellyTune.Gnome/JellyTune.Gnome.csproj -c Release -o ./publish --source nuget-sources --source /usr/lib/sdk/dotnet10/nuget/packages  --self-contained true --runtime ${RUNTIME}  -p:RuntimeFrameworkVersion=10.0.14
+dotnet publish JellyTune.Gnome/JellyTune.Gnome.csproj -c Release -o ./publish --source nuget-sources --source /usr/lib/sdk/dotnet10/nuget/packages  --self-contained true --runtime ${RUNTIME}
 mkdir -p ${FLATPAK_DEST}/bin
 cp -r --remove-destination ./publish/* ${FLATPAK_DEST}/bin
 install -Dm644 Icons/JellyTune.svg ${FLATPAK_DEST}/share/icons/hicolor/scalable/apps/io.github.bacmanni.jellytune.svg
