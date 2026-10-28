@@ -44,9 +44,24 @@
             <image>https://raw.githubusercontent.com/bacmanni/jellytune/main/Screenshots/Details.png</image>
             <caption>Details</caption>
         </screenshot>
+        <screenshot>
+            <image>https://raw.githubusercontent.com/bacmanni/jellytune/main/Screenshots/Background.png</image>
+            <caption>Album art as background</caption>
+        </screenshot>
     </screenshots>
 
     <releases>
+    <release version="1.2.4" date="2026-10-28"><description><ul>
+<li>Filter search by type</li>
+<li>Copy lyrics by clicking</li>
+<li>Generic updates</li>
+</ul></description></release>
+    <release version="1.2.3" date="2026-10-18"><description><ul>
+<li>Update on account creation</li>
+<li>Added option to use album art as application background</li>
+<li>Updated keyboard navigation</li>
+<li>Bug fixes</li>
+</ul></description></release>
     <release version="1.2.2" date="2026-09-02"><description><ul>
 <li>Fixes on async data loading</li>
 <li>Fixed icon size</li>

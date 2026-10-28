@@ -6,5 +6,6 @@ Nugets changed:
 
 Version update:
 [] Update CHANGES-file
+[] Update /flathub/io.github.bacmanni.jellytune.metainfo.xml with changes/version
 [] Check version in Program.cs at ApplicationInfo (at least version)
 [] Check that JellyTune.pupnet.conf and update AppVersionRelease to match release. Also check FlatpakPlatformVersion
