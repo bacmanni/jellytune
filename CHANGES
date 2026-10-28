@@ -1,6 +1,6 @@
 + 1.2.4;2026-28-10
 - Filter search by type
-- Copy lyrics by clicking them
+- Copy lyrics by clicking
 - Generic updates
 
 + 1.2.3;2026-18-10
@@ -14,25 +14,3 @@
 - Fixed icon size
 - Removed automatic fetch as it caused problems
 
-+ 1.2.1;2026-05-23
-- Flathub related fixes
-
-+ 1.2;2026-05-12
-- Security fixes
-- Visual fixes
-- Added keyboard shortcuts
-- Separated extended controls
-- Added ability to show artist albums and playing album
-
-+ 1.1.5;2026-02-17
-- Bug fixes for window update
-
-+ 1.1;2026-02-03
-- Bug fixes
-- Added extended controls
-
-+ 1.0;2026-01-24
-- Startup wizard for basic configuration
-- Basic functionality for playing audio
-- Support for single playlist
-- Gnome integration
