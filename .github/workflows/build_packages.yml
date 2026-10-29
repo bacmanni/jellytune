@@ -44,7 +44,7 @@ jobs:
 
       - name: Install PupNet
         run: |
-          dotnet tool update -g KuiperZone.PupNet --version 1.9.0
+          dotnet tool update -g KuiperZone.PupNet
           
       - name: Download appimage tool
         run: |
