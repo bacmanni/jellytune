@@ -1,4 +1,3 @@
-using System.Reflection;
 using Adw;
 using Gdk;
 using Gio;
@@ -14,7 +13,6 @@ using AboutDialog = Adw.AboutDialog;
 using Application = Adw.Application;
 using ApplicationWindow = Adw.ApplicationWindow;
 using Dialog = Adw.Dialog;
-using FileType = JellyTune.Shared.Enums.FileType;
 using HeaderBar = Adw.HeaderBar;
 using Object = GObject.Object;
 using ShortcutsSection = Adw.ShortcutsSection;

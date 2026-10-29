@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Adw;
 using GLib;
 using GObject;
@@ -12,7 +8,6 @@ using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
 using ListStore = Gio.ListStore;
 using Object = GObject.Object;
-using Spinner = Adw.Spinner;
 
 namespace JellyTune.Gnome.Views;
 
@@ -167,10 +162,15 @@ public partial class AccountView
         {
             parent.AddCssClass("error");
         }
-        
+
+        var anchor = parents[0];
+
+        var currentParent = _errorPopover.GetParent();
+        if (currentParent != null)
+            _errorPopover.Unparent();
+
+        _errorPopover.SetParent(anchor);
         _errorPopoverLabel.SetText(text);
-        _errorPopover.Unparent();
-        _errorPopover.SetParent(parents[0]);
         _errorPopover.Popup();
     }
     
@@ -431,6 +431,7 @@ public partial class AccountView
     public override void Dispose()
     {
         _controller.OnConfigurationLoaded -= ControllerOnConfigurationLoaded;
+        _controller.OnConfigurationValueChanged -= ControllerOnConfigurationValueChanged;
         base.Dispose();
     }
 }

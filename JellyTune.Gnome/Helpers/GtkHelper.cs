@@ -1,4 +1,3 @@
-using Gdk;
 using GLib;
 
 namespace JellyTune.Gnome.Helpers;

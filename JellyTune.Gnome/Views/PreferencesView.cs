@@ -2,6 +2,7 @@ using Adw;
 using GObject;
 using Gtk;
 using JellyTune.Shared.Controls;
+using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
 using JellyTune.Shared.Services;
 using AlertDialog = Adw.AlertDialog;
@@ -95,7 +96,7 @@ public partial class PreferencesView
         _accountController.OnConfigurationLoaded += AccountControllerOnConfigurationLoaded;
         
         var configuration =  _configurationService.Get();
-        _accountController.OpenConfiguration(configuration, true);
+        _accountController.OpenConfiguration(configuration, StartupState.Finished);
         _showPlayingAlbumBackground.SetActive(configuration.ShowAlbumAsBackground);
         _cacheList.SetActive(configuration.CacheListData);
         _cacheArtwork.SetActive(configuration.CacheAlbumArt);

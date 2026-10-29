@@ -3,7 +3,6 @@ using GObject;
 using Gtk;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
-using JellyTune.Shared.Events;
 using Application = Adw.Application;
 using Dialog = Adw.Dialog;
 
@@ -51,7 +50,6 @@ public partial class StartupView
         _accountController = new AccountController(_controller.ConfigurationService, _controller.JellyTuneApiService);
         _accountController.OnConfigurationValueChanged += AccountControllerOnConfigurationValueChanged;
         _accountView = AccountView.NewWithValues(_accountController, false);
-        _accountController.OpenConfiguration(_controller.ConfigurationService.Get(), _startupState != StartupState.InitialRun);
         _accountBox.Prepend(_accountView);
 
         _close.OnClicked += (_, _) =>
@@ -93,7 +91,9 @@ public partial class StartupView
             if (_accountController.PlaylistCollectionId != null)
                 configuration.PlaylistCollectionId = _accountController.PlaylistCollectionId.ToString();
             
-            _controller.SaveConfiguration(configuration);
+            _controller.ConfigurationService.Set(configuration);
+            _controller.ConfigurationService.Save();
+            
             var state = await _controller.StartAsync();
             if (state == StartupState.Finished)
             {
@@ -105,10 +105,19 @@ public partial class StartupView
                 _continue1.SetSensitive(false);
             }
         };
-    }
 
+        // Error state on startup
+        if (_startupState is StartupState.InvalidServer or StartupState.AccountProblem or StartupState.MissingCollection or StartupState.SelectCollection)
+        {
+            _back.SetVisible(false);
+            _carousel.ScrollTo(_carousel.GetNthPage(1), false);
+            _continue1.SetSensitive(true);
+        }
+        
+        _accountController.OpenConfiguration(_controller.ConfigurationService.Get(), _startupState);
+    }
     private void AccountControllerOnConfigurationValueChanged(object? sender, EventArgs e)
     {
-        _continue1.SetSensitive(_accountController.HasRequiedValues());
+        _continue1.SetSensitive(_accountController.HasRequiredValues());
     }
 }

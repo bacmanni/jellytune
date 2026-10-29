@@ -1,12 +1,8 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
+﻿using System.Diagnostics;
 using System.IO.Abstractions;
 using System.Net;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Mime;
-using System.Reflection;
 using System.Text;
 using Gio;
 using Jellyfin.Sdk;
