@@ -21,6 +21,12 @@
                             </object>
                         </child>
                         <child>
+                            <object class="AdwSwitchRow" id="_showLyricPosition">
+                                <property name="title" translatable="yes">Highlight lyric position</property>
+                                <property name="subtitle" translatable="yes">This depends on available data</property>
+                            </object>
+                        </child>
+                        <child>
                             <object class="AdwSwitchRow" id="_showCustomPlaylistMarker">
                                 <property name="visible">false</property>
                                 <property name="title" translatable="yes">Show custom playlist track position</property>

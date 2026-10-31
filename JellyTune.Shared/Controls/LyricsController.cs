@@ -1,4 +1,9 @@
+using System.Collections.Concurrent;
+using System.Timers;
+using JellyTune.Shared.Events;
+using JellyTune.Shared.Models;
 using JellyTune.Shared.Services;
+using Timer = System.Timers.Timer;
 
 namespace JellyTune.Shared.Controls;
 
@@ -6,7 +11,12 @@ public sealed class LyricsController
 {
     private readonly IJellyTuneApiService _jellyTuneApiService;
     private readonly IPlayerService _playerService;
-
+    private readonly IConfigurationService _configurationService;
+    
+    public IPlayerService PlayerService => _playerService;
+    
+    public IConfigurationService ConfigurationService => _configurationService;
+    
     /// <summary>
     /// Artist name for the track
     /// </summary>
@@ -16,11 +26,11 @@ public sealed class LyricsController
     /// Currently selected track name
     /// </summary>
     public string? TrackName { get; private set; }
-    
+
     /// <summary>
     /// Currently loaded lyrics
     /// </summary>
-    public string? Lyrics { get; private set; }
+    public ConcurrentBag<LyricItem> Lyrics { get; private set; } = [];
     
     /// <summary>
     /// Loaded track album art
@@ -31,12 +41,12 @@ public sealed class LyricsController
     /// Called when lyrics data is updated
     /// </summary>
     public event EventHandler<EventArgs>? OnLyricsUpdated;
-    
-    
-    public LyricsController(IJellyTuneApiService jellyTuneApiService, IPlayerService playerService)
+
+    public LyricsController(IJellyTuneApiService jellyTuneApiService, IPlayerService playerService, IConfigurationService configurationService)
     {
         _jellyTuneApiService = jellyTuneApiService;
         _playerService = playerService;
+        _configurationService = configurationService;
     }
 
     public async Task UpdateAsync()
@@ -52,8 +62,15 @@ public sealed class LyricsController
         ArtistName = album.Artist ?? string.Empty;
         TrackName  = track.Name ?? string.Empty;
         AlbumArt = _playerService.GetArtwork();
+
+        var lyrics = await _jellyTuneApiService.GetTrackLyricsAsync(track.Id);
+        lyrics.Reverse();
+        Lyrics.Clear();
+        foreach (var lyric in lyrics)
+        {
+            Lyrics.Add(lyric);
+        }
         
-        Lyrics = await _jellyTuneApiService.GetTrackLyricsAsync(track.Id); 
         OnLyricsUpdated?.Invoke(this, EventArgs.Empty);
     }
 }

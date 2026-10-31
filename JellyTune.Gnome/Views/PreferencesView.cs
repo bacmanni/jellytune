@@ -32,6 +32,7 @@ public partial class PreferencesView
     [Connect] private SwitchRow _showPlayingAlbum;
     [Connect] private SwitchRow _showLyrics;
     [Connect] private SwitchRow _showCustomPlaylistMarker;
+    [Connect] private SwitchRow _showLyricPosition;
     
     public bool Refresh { get; set; }
 
@@ -50,7 +51,8 @@ public partial class PreferencesView
             configuration.ShowVolume = _showVolume.GetActive();
             configuration.ShowCurrentAlbum = _showPlayingAlbum.GetActive();
             configuration.ShowCustomPlaylistMarker = _showCustomPlaylistMarker.GetActive();
-
+            configuration.ShowLyricHighlight = _showLyricPosition.GetActive();
+            
             configuration.ServerUrl = _accountController.ServerUrl ?? string.Empty;
             configuration.Username = _accountController.Username ?? string.Empty;
             configuration.Password = _accountController.Password;
@@ -102,6 +104,7 @@ public partial class PreferencesView
         _cacheArtwork.SetActive(configuration.CacheAlbumArt);
         _showListSeparator.SetActive(configuration.ShowListSeparator);
         _showCustomPlaylistMarker.SetActive(configuration.ShowCustomPlaylistMarker);
+        _showLyricPosition.SetActive(configuration.ShowLyricHighlight);
         
         _showLyrics.SetActive(configuration.ShowLyrics);
         _showSeek.SetActive(configuration.ShowSeek);

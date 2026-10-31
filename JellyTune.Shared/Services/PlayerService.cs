@@ -29,6 +29,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     private bool _networkDisconnected;
     private CancellationTokenSource? _cancellationTokenSource;
     private Timer? _playTimer;
+    private double? _playPosition;
     
     /// <summary>
     /// Currently selected album

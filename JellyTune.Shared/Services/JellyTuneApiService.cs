@@ -516,18 +516,24 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// </summary>
     /// <param name="trackId"></param>
     /// <returns></returns>
-    public async Task<string?> GetTrackLyricsAsync(Guid trackId)
+    public async Task<List<LyricItem>> GetTrackLyricsAsync(Guid trackId)
     {
+        var result = new List<LyricItem>();
         var lyrics = await _jellyfinApiClient.Audio[trackId].Lyrics.GetAsync().ConfigureAwait(true);
         
-        if (lyrics == null || lyrics.Lyrics == null)
-            return null;
-
-        var result = "";
+        if (lyrics?.Lyrics == null)
+            return result;
+        
         foreach (var lyricRow in lyrics.Lyrics)
         {
             if (lyricRow.Text != null)
-                result += $"{lyricRow.Text}{Environment.NewLine}";
+            {
+                result.Add(new LyricItem
+                {
+                    StartTime = lyricRow.Start.HasValue ? TimeSpan.FromTicks(lyricRow.Start.Value) : null,
+                    Text = lyricRow.Text,
+                });
+            }
         }
         
         return result;

@@ -745,7 +745,7 @@ public partial class MainWindow
     
     private void PlayerControllerOnShowShowLyricsClicked(object? sender, AlbumArgs e)
     {
-        var controller = new LyricsController(_controller.JellyTuneApiService, _controller.PlayerService);
+        var controller = new LyricsController(_controller.JellyTuneApiService, _controller.PlayerService, _controller.ConfigurationService);
         var lyrics = LyricsView.NewWithValues(controller);
         lyrics.Present(this);
         _ = controller.UpdateAsync();

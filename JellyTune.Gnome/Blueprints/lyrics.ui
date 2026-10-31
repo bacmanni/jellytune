@@ -87,16 +87,10 @@
                                             <object class="GtkRevealer" id="_results">
                                                 <property name="transition-type">crossfade</property>
                                                 <child>
-                                                    <object class="GtkBox">
+                                                    <object class="GtkBox" id="_lyricsBox">
+                                                        <property name="margin-top">12</property>
                                                         <property name="orientation">1</property>
-                                                        <child>
-                                                            <object class="GtkLabel" id="_lyrics">
-                                                                <property name="tooltip-text" translatable="yes">Copy to clipboard</property>
-                                                                <property name="wrap">true</property>
-                                                                <property name="margin-top">12</property>
-                                                                <property name="halign">1</property>
-                                                            </object>
-                                                        </child>
+                                                        <property name="tooltip-text" translatable="yes">Copy to clipboard</property>
                                                     </object>
                                                 </child>
                                             </object>
