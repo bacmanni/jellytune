@@ -22,8 +22,7 @@
                         </child>
                         <child>
                             <object class="AdwSwitchRow" id="_showLyricPosition">
-                                <property name="title" translatable="yes">Highlight lyric position</property>
-                                <property name="subtitle" translatable="yes">This depends on available data</property>
+                                <property name="title" translatable="yes">Highlight current lyric position</property>
                             </object>
                         </child>
                         <child>

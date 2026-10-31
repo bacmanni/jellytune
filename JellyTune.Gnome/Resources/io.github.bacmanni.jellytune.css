@@ -36,7 +36,9 @@
 }
 .lyrics-current {
     font-weight: bold;
-    text-shadow: 0 0 2px white, 0 0 4px white;
+    text-shadow:
+            0 0 2px currentColor,
+            0 0 5px currentColor;
 }
 /* Application background related */
 .top-bar, headerbar {
@@ -111,9 +113,6 @@ gridview > row:hover {
     }
     .background-blur .queue-badge {
         background-color: rgba(0, 0, 0, 0.2);
-    }
-    .lyrics-current {
-        text-shadow: 0 0 2px black, 0 0 4px black;
     }
 }
 

@@ -53,7 +53,7 @@
     <releases>
     <release version="1.2.4" date="2026-10-28"><description><ul>
 <li>Filter search by type</li>
-<li>Copy lyrics by clicking</li>
+<li>Copy lyrics and show position while playing</li>
 <li>Generic updates</li>
 </ul></description></release>
     <release version="1.2.3" date="2026-10-18"><description><ul>

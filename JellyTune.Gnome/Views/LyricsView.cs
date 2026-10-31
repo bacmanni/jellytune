@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Adw;
 using Gdk;
 using GLib;
@@ -19,11 +20,15 @@ public partial class LyricsView
 {
     private LyricsController  _controller;
     private LyricItem? _previousItem;
+    private readonly ConcurrentDictionary<Label, TimeSpan?> _lyricStartTimes = [];
     
     [Connect] private ToastOverlay _toastOverlay;
     [Connect] private Spinner _spinner;
     [Connect] private Revealer _results;
 
+    [Connect] private Revealer _hasLyricPositionRevealer;
+    [Connect] private Gtk.Image _hasLyricPosition;
+    
     [Connect] private Box _lyricsBox;
     [Connect] private Image _albumArt;
     [Connect] private Label _track;
@@ -43,16 +48,18 @@ public partial class LyricsView
         _controller.OnLyricsUpdated += ControllerOnOnLyricsUpdated;
         _results.SetVisible(false);
         _spinner.SetVisible(true);
+        _hasLyricPositionRevealer.SetRevealChild(false);
         
         var clickGesture = GestureClick.New();
 
         clickGesture.OnPressed += (sender, args) =>
         {
-            //if (string.IsNullOrWhiteSpace(_controller.Lyrics)) return;
+            if (_controller.Lyrics.Count < 1) return;
             
+            var lyrics = _controller.Lyrics.ToList().Select(li => li.Text).ToArray();
             var display = _lyricsBox.GetDisplay();
             var clipboard = display.GetClipboard();
-            //clipboard.SetText(_controller.Lyrics);
+            clipboard.SetText(string.Join(Environment.NewLine, lyrics));
             
             var toast = Toast.New("Copied to clipboard");
             toast.SetTimeout(2);
@@ -66,29 +73,30 @@ public partial class LyricsView
     {
         if(!_controller.ConfigurationService.Get().ShowLyricHighlight) return;
         
-        if (_controller.Lyrics.Any())
+        if (_controller.Lyrics.Any() && _controller.Lyrics.First().StartTime.HasValue)
         {
             var position = TimeSpan.FromSeconds(e.Position);
-            var currentLyricItem = _controller.Lyrics.Where(t => t.StartTime <= position).MaxBy(t => t.StartTime);
+            var currentLyricItem = _controller.Lyrics.Where(t => t.StartTime < position).MaxBy(t => t.StartTime);
             if (currentLyricItem is not { StartTime: not null }) return;
 
             if (_previousItem == null || !_previousItem.Equals(currentLyricItem))
             {
                 _previousItem = currentLyricItem;
-                
-                GtkHelper.GtkDispatch(() =>
+                var child = _lyricsBox.GetFirstChild();
+                while (child != null)
                 {
-                    var child = _lyricsBox.GetFirstChild();
-                    while (child != null)
+                    if (child is Label label && !string.IsNullOrWhiteSpace(currentLyricItem.Text) &&
+                        _lyricStartTimes.ContainsKey(label) && _lyricStartTimes[label] == currentLyricItem.StartTime)
                     {
-                        if (child is Label label && !string.IsNullOrWhiteSpace(currentLyricItem.Text) && label.GetText() == currentLyricItem.Text)
-                            child.AddCssClass("lyrics-current");
-                        else
-                            child.RemoveCssClass("lyrics-current");
-                    
-                        child = child.GetNextSibling();
+                        child.AddCssClass("lyrics-current");
                     }
-                });
+                    else
+                    {
+                        child.RemoveCssClass("lyrics-current");
+                    }
+                
+                    child = child.GetNextSibling();
+                }
             }
         }
     }
@@ -102,6 +110,11 @@ public partial class LyricsView
 
             if (_controller.Lyrics.Count > 0)
             {
+                // Show info icon if there is no time data
+                if(_controller.ConfigurationService.Get().ShowLyricHighlight && !_controller.Lyrics.First().StartTime.HasValue)
+                    _hasLyricPositionRevealer.SetRevealChild(true);
+                
+                _lyricStartTimes.Clear();
                 while (_lyricsBox.GetFirstChild() is { } child)
                 {
                     _lyricsBox.Remove(child);
@@ -112,6 +125,7 @@ public partial class LyricsView
                     var row = Label.New(lyric.Text);
                     row.SetHalign(Align.Start);
                     row.SetWrap(true);
+                    _lyricStartTimes.TryAdd(row, lyric.StartTime);
                     _lyricsBox.Append(row);
                 }
             }
