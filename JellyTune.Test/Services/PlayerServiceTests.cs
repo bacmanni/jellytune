@@ -51,6 +51,7 @@ public class PlayerServiceTests
             Id =  _trackId1,
             Artist = "Test artist 1",
             Name = "Test track 1",
+            Index = 0,
             AlbumId =  _almumId1,
             RunTime =  TimeSpan.FromMinutes(5),
             HasArtwork = false
@@ -62,6 +63,7 @@ public class PlayerServiceTests
             Id =  _trackId2,
             Artist = "Test artist 1",
             Name = "Test track 2",
+            Index = 1,
             AlbumId =  _almumId1,
             RunTime =  TimeSpan.FromMinutes(5),
             HasArtwork = false
@@ -73,6 +75,7 @@ public class PlayerServiceTests
             Id =  _trackId3,
             Artist = "Test artist 2",
             Name = "Test track 3",
+            Index = 2,
             AlbumId =  _almumId2,
             RunTime =  TimeSpan.FromMinutes(5),
             HasArtwork = false
@@ -95,32 +98,32 @@ public class PlayerServiceTests
     public async Task StartTrackAsync_NoTracks()
     {
         // Nothing to select, so selected track is null
-        _playerService.SelectTrack(_trackId1);
+        _playerService.SelectTrack(_trackId1, 0);
         Assert.Null(_playerService.GetSelectedTrack());
         
         // Starting loads tracks
-        await _playerService.StartTrackAsync(_trackId1);
+        await _playerService.StartTrackAsync(_trackId1, 0);
         
         // Test some basic functionality
         var selectedTrack = _playerService.GetSelectedTrack();
         Assert.NotNull(selectedTrack);
         Assert.Equal(_trackId1, selectedTrack.Id);
-        Assert.True(_playerService.IsPlayingTrack(_trackId1));
+        Assert.True(_playerService.IsPlayingTrack(_trackId1, TODO));
 
         Assert.False(_playerService.HasPreviousTrack());
         Assert.True(_playerService.HasNextTrack());
         
         await _playerService.NextTrackAsync();
-        Assert.True(_playerService.IsPlayingTrack(_trackId2));
+        Assert.True(_playerService.IsPlayingTrack(_trackId2, TODO));
         
         Assert.False(_playerService.HasNextTrack());
         Assert.True(_playerService.HasPreviousTrack());
         
         await _playerService.PreviousTrackAsync();
-        Assert.True(_playerService.IsPlayingTrack(_trackId1));
+        Assert.True(_playerService.IsPlayingTrack(_trackId1, TODO));
         
         _playerService.StopTrack();
-        Assert.False(_playerService.IsPlayingTrack(_trackId1));
+        Assert.False(_playerService.IsPlayingTrack(_trackId1, TODO));
     }
 
     [Fact]
@@ -136,6 +139,7 @@ public class PlayerServiceTests
                 Id =  trackId1,
                 Artist = "Test artist 1",
                 Name = "Test track 1",
+                Index = 0,
                 AlbumId =  _almumId1,
                 RunTime =  TimeSpan.FromMinutes(5),
                 HasArtwork = false
@@ -145,6 +149,7 @@ public class PlayerServiceTests
                 Id =  trackId2,
                 Artist = "Test artist 1",
                 Name = "Test track 2",
+                Index = 1,
                 AlbumId =  _almumId2,
                 RunTime =  TimeSpan.FromMinutes(5),
                 HasArtwork = false
@@ -154,13 +159,13 @@ public class PlayerServiceTests
         _playerService.AddTracks(tracks);
         Assert.Equal(tracks.Count, _playerService.GetTracks().Count);
 
-        _playerService.StartTrackAsync(trackId1);
+        _playerService.StartTrackAsync(trackId1, 0);
         
         // Test some basic functionality
         var selectedTrack = _playerService.GetSelectedTrack();
         Assert.NotNull(selectedTrack);
         Assert.Equal(trackId1, selectedTrack.Id);
-        Assert.True(_playerService.IsPlayingTrack(trackId1));
+        Assert.True(_playerService.IsPlayingTrack(trackId1, TODO));
         
         _playerService.ClearTracks();
         Assert.Equal(0, _playerService.GetTracks() != null ? _playerService.GetTracks().Count : (int?)null);
@@ -174,7 +179,7 @@ public class PlayerServiceTests
     public void StartTrackAsync_Events()
     {
         //Start
-        var evt = Assert.Raises<PlayerStateArgs>( handler => _playerService.OnPlayerStateChanged += handler, handler => _playerService.OnPlayerStateChanged -= handler, () => _playerService.StartTrackAsync(_trackId1).GetAwaiter().GetResult() );
+        var evt = Assert.Raises<PlayerStateArgs>( handler => _playerService.OnPlayerStateChanged += handler, handler => _playerService.OnPlayerStateChanged -= handler, () => _playerService.StartTrackAsync(_trackId1, 0).GetAwaiter().GetResult() );
         Assert.Equal(_playerService, evt.Sender);
         Assert.Equal(PlayerState.Playing, evt.Arguments.State);
         Assert.Equal(2, evt.Arguments.Tracks.Count);
@@ -221,7 +226,7 @@ public class PlayerServiceTests
         Assert.Equal(_almumId1, evt.Arguments.Album != null ? evt.Arguments.Album.Id : (Guid?)null);
         
         // Select
-        evt = Assert.Raises<PlayerStateArgs>( handler => _playerService.OnPlayerStateChanged += handler, handler => _playerService.OnPlayerStateChanged -= handler, () => _playerService.SelectTrack(_trackId1) );
+        evt = Assert.Raises<PlayerStateArgs>( handler => _playerService.OnPlayerStateChanged += handler, handler => _playerService.OnPlayerStateChanged -= handler, () => _playerService.SelectTrack(_trackId1, 0) );
         Assert.Equal(_playerService, evt.Sender);
         Assert.Equal(PlayerState.Selected, evt.Arguments.State);
         Assert.Equal(2, evt.Arguments.Tracks.Count);

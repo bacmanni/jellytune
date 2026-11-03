@@ -423,18 +423,19 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
             configuration.QueryParameters.ParentId = albumId;
         }, token).ConfigureAwait(false);
 
-        if (queryResult != null ? queryResult.Items == null : true)
+        if (queryResult?.Items == null)
             return trackResult;
         
         foreach (var baseItem in queryResult.Items)
         {
-            if (baseItem.Id == null || baseItem.Name == null && !baseItem.IndexNumber.HasValue || !baseItem.AlbumId.HasValue)
+            if (baseItem.Id == null || baseItem.Name == null || !baseItem.IndexNumber.HasValue || !baseItem.AlbumId.HasValue)
                 continue;
 
             trackResult.Add(new Track
             {
                 Id = baseItem.Id.GetValueOrDefault(),
                 Number = baseItem.IndexNumber ?? 0,
+                Index = baseItem.IndexNumber.Value, // null is checked
                 Name = baseItem.Name,
                 Artist = baseItem.AlbumArtist ?? string.Empty,
                 Album = baseItem.Album ?? string.Empty,
@@ -468,6 +469,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
         {
             Id = baseItem.Id.GetValueOrDefault(),
             Number = baseItem.IndexNumber ?? 0,
+            Index = baseItem.IndexNumber.Value,
             Name = baseItem.Name,
             Artist = baseItem.AlbumArtist ?? string.Empty,
             Album = baseItem.Album ?? string.Empty,
@@ -590,20 +592,25 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
 
         if (queryResult != null ? queryResult.Items == null : true)
             return trackResult;
-        
-        foreach (var baseItem in queryResult.Items)
+
+        for (var index = 0; index < queryResult.Items.Count; index++)
         {
-            if (baseItem.Id == null || baseItem.Name == null && !baseItem.IndexNumber.HasValue || !baseItem.AlbumId.HasValue)
+            var baseItem = queryResult.Items[index];
+            if (baseItem.Id == null || baseItem.Name == null && !baseItem.IndexNumber.HasValue ||
+                !baseItem.AlbumId.HasValue)
                 continue;
 
             trackResult.Add(new Track
             {
                 Id = baseItem.Id.GetValueOrDefault(),
                 Number = baseItem.IndexNumber ?? 0,
+                Index = index,
                 Name = baseItem.Name,
                 Artist = baseItem.AlbumArtist ?? string.Empty,
                 Album = baseItem.Album ?? string.Empty,
-                RunTime = baseItem.RunTimeTicks.HasValue ? TimeSpan.FromTicks(baseItem.RunTimeTicks.Value) : TimeSpan.Zero,
+                RunTime = baseItem.RunTimeTicks.HasValue
+                    ? TimeSpan.FromTicks(baseItem.RunTimeTicks.Value)
+                    : TimeSpan.Zero,
                 AlbumId = baseItem.AlbumId.Value,
                 HasArtwork = !string.IsNullOrWhiteSpace(baseItem.AlbumPrimaryImageTag),
                 HasLyrics = baseItem.HasLyrics != null && baseItem.HasLyrics.Value,

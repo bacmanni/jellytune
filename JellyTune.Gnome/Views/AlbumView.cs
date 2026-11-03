@@ -111,7 +111,7 @@ public partial class AlbumView
     {
         if (args.Row is TrackRow row)
         {
-            _ = _controller.PlayOrPauseTrackAsync(row.TrackId);
+            _ = _controller.PlayOrPauseTrackAsync(row.TrackId, row.TrackIndex);
         }
         
         _tracks.UnselectAll();
@@ -173,7 +173,7 @@ public partial class AlbumView
         _tracks.RemoveAll();
         foreach (var track in _controller.Tracks)
         {
-            var state = _controller.PlayerService.GetTrackState(track.Id);
+            var state = _controller.PlayerService.GetTrackState(track.Id, track.Index);
             var row = TrackRow.NewWithValues(_controller.PlayerService, _controller.FileService, track, state, [RowProperty.Queue]);
             _tracks.Append(row);
         }
@@ -186,7 +186,7 @@ public partial class AlbumView
             var row = _tracks.GetRowAtIndex(i) as TrackRow;
             if (row == null)  continue;
             
-            var state = _controller.PlayerService.GetTrackState(row.TrackId);
+            var state = _controller.PlayerService.GetTrackState(row.TrackId, row.TrackIndex);
             row.UpdateState(state);
         }
     }

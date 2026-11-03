@@ -67,7 +67,7 @@ public partial class PlaylistTracksView
     {
         if (args.Row is TrackRow row)
         {
-            _ = _controller.PlayOrPauseTrackAsync(row.TrackId);
+            _ = _controller.PlayOrPauseTrackAsync(row.TrackId, row.TrackIndex);
         }
     }
 
@@ -96,7 +96,7 @@ public partial class PlaylistTracksView
             _playlistTracksList.RemoveAll();
             foreach (var track in _controller.Tracks)
             {
-                var state = _controller.PlayerService.GetTrackState(track.Id);
+                var state = _controller.PlayerService.GetTrackState(track.Id, track.Index);
                 _playlistTracksList.Append(TrackRow.NewWithValues(_controller.PlayerService, _controller.FileService, track, state, [RowProperty.Extended, RowProperty.Queue]));
             }
         });
@@ -112,7 +112,7 @@ public partial class PlaylistTracksView
             var row = _playlistTracksList.GetRowAtIndex(i) as TrackRow;
             if (row == null)  continue;
             
-            var state = _controller.PlayerService.GetTrackState(row.TrackId);
+            var state = _controller.PlayerService.GetTrackState(row.TrackId, row.TrackIndex);
             row.UpdateState(state);
         }
     }

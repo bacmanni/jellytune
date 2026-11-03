@@ -57,6 +57,11 @@ public sealed class PlayerService : IPlayerService, IDisposable
     private Guid? _startingTrack;
     
     /// <summary>
+    /// Index for currently starting track
+    /// </summary>
+    private int? _startingTrackIndex;
+    
+    /// <summary>
     /// Currently selected track
     /// </summary>
     private Track? _selectedTrack;
@@ -194,6 +199,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
         try
         {
             var trackId = _selectedTrack.Id;
+            var index = _selectedTrack.Index;
             int? position = null;
 
             // Create session
@@ -240,7 +246,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
             }
 
             cancellationToken.ThrowIfCancellationRequested();
-            _playingTrack = Tracks.FirstOrDefault(t => t.Id == trackId);
+            _playingTrack = Tracks.FirstOrDefault(t => t.Id == trackId && t.Index == index);
 
             // Get stream url and start playing
             _streamingUrl =
@@ -323,6 +329,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
         if (endPlayback)
         {
             _startingTrack = null;
+            _startingTrackIndex = null;
             _selectedTrack = null;
             Album = null;
         }
@@ -345,14 +352,15 @@ public sealed class PlayerService : IPlayerService, IDisposable
             _player.Pause();
         }
     }
-    
+
     /// <summary>
     /// Select track from album
     /// </summary>
     /// <param name="trackId">Id of the track</param>
-    public void SelectTrack(Guid trackId)
+    /// <param name="index"></param>
+    public void SelectTrack(Guid trackId, int index)
     {
-        var track = Tracks.FirstOrDefault(t => t.Id == trackId);
+        var track = Tracks.FirstOrDefault(t => t.Id == trackId && t.Index == index);
         if (track == null) return;
         
         _selectedTrack = track;
@@ -363,30 +371,19 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// Start playing track
     /// </summary>
     /// <param name="trackId">Id of the track. If not set uses first from the album tracks</param>
-    public async Task StartTrackAsync(Guid? trackId = null)
+    /// <param name="index"></param>
+    public async Task StartTrackAsync(Guid trackId, int index)
     {
         _cancellationTokenSource?.Cancel();
         _cancellationTokenSource?.Dispose();
         
         _cancellationTokenSource = new CancellationTokenSource();
         var cancellationToken = _cancellationTokenSource.Token;
-        
-        if (!trackId.HasValue)
-        {
-            if (Tracks.Count > 0)
-                trackId = Tracks.First().Id;
-        }
-        
-        // Can't start anything :(
-        if (!trackId.HasValue)
-        {
-            Console.WriteLine("Could not find track to play");
-            return;
-        }
-        
-        _startingTrack = trackId.Value;
+
+        _startingTrack = trackId;
+        _startingTrackIndex = index;
         PlayerStateChanged(new PlayerStateArgs(PlayerState.Starting) { SelectedTrackId = trackId });
-        var track = Tracks.FirstOrDefault(t => t.Id == trackId.Value);
+        var track = Tracks.FirstOrDefault(t => t.Id == trackId && t.Index == index);
 
         try
         {
@@ -394,7 +391,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
             if (track == null)
             {
                 PlayerStateChanged(new PlayerStateArgs(PlayerState.Loading));
-                track = await _jellyTuneApiService.GetTrackAsync(trackId.Value);
+                track = await _jellyTuneApiService.GetTrackAsync(trackId);
                 await OpenAlbumAsync(track.AlbumId, cancellationToken);
             }
             // Invalid id when trying to start from queue
@@ -404,9 +401,9 @@ public sealed class PlayerService : IPlayerService, IDisposable
             }
         
             cancellationToken.ThrowIfCancellationRequested();
-            if (_selectedTrack == null || _selectedTrack.Id != trackId.Value)
+            if (_selectedTrack == null || (_selectedTrack.Id != trackId || _selectedTrack.Index != index))
             {
-                SelectTrack(trackId.Value);
+                SelectTrack(trackId, index);
             }
         
             await PlayTrackAsync(cancellationToken);
@@ -416,6 +413,15 @@ public sealed class PlayerService : IPlayerService, IDisposable
         {
             PlayerStateChanged(new PlayerStateArgs(PlayerState.LoadedInfo, Album, Tracks.ToList(), _selectedTrack));
         }
+    }
+
+    /// <summary>
+    /// Start active track
+    /// </summary>
+    /// <returns></returns>
+    public Task StartTrackAsync()
+    {
+        return StartTrackAsync(_selectedTrack.Id, _selectedTrack.Index);
     }
 
     /// <summary>
@@ -450,7 +456,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
             return Task.CompletedTask;
         }
 
-        return StartTrackAsync(_selectedTrack != null ? _selectedTrack.Id : null);
+        return StartTrackAsync(_selectedTrack.Id, _selectedTrack.Index);
     }
 
     /// <summary>
@@ -472,7 +478,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <returns></returns>
     public double GetVolume()
     {
-        return _player != null ? _player.Volume : 0;
+        return _player?.Volume ?? 0;
     }
 
     /// <summary>
@@ -512,7 +518,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <returns></returns>
     public bool IsMuted()
     {
-        return _player != null ? _player.Mute : false;
+        return _player?.Mute ?? false;
     }
 
     /// <summary>
@@ -526,32 +532,6 @@ public sealed class PlayerService : IPlayerService, IDisposable
         _player.Mute = muted;
         
         OnPlayerVolumeChanged?.Invoke(this, new PlayerVolumeArgs { Volume = _player.Volume, IsMuted = _player.Mute });
-    }
-
-    /// <summary>
-    /// Skip playing track backwards
-    /// </summary>
-    /// <param name="seconds"></param>
-    public void Back(int seconds)
-    {
-        if (_player == null) return;
-        
-        double current = _player.Time;
-        
-        SeekTrack(current - seconds);
-    }
-
-    /// <summary>
-    /// Skip playing track forwards
-    /// </summary>
-    /// <param name="seconds"></param>
-    public void Skip(int seconds)
-    {
-        if (_player == null) return;
-        
-        double current = _player.Time;
-        
-        SeekTrack(current + seconds);
     }
 
     /// <summary>
@@ -596,7 +576,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
         var tracks = Tracks.ToArray();
         Random.Shared.Shuffle(tracks);
         Tracks.Clear();
-        AddTracks(tracks.ToList());
+        AddTracks(tracks.Select((t, i) => { t.Index = i + 1; return t; }).ToList());
     }
 
     /// <summary>
@@ -612,7 +592,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
         }
 
         if (Tracks.Count == 1)
-            return _selectedTrack != null ? Tracks.First().Id != _selectedTrack.Id : true;
+            return _selectedTrack == null || Tracks.First().Id != _selectedTrack.Id;
         return true;
     }
 
@@ -623,7 +603,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     {
         if (_selectedTrack != null)
         {
-            var isPlaying = IsPlayingTrack(_selectedTrack.Id);
+            var isPlaying = IsPlayingTrack(_selectedTrack.Id, _selectedTrack.Index);
             var nextTrack = Tracks.Reverse().SkipWhile(t => t != _selectedTrack).Skip(1).FirstOrDefault();
 
             if (nextTrack == null)
@@ -632,12 +612,12 @@ public sealed class PlayerService : IPlayerService, IDisposable
                 return;
             }
             
-            SelectTrack(nextTrack.Id);
+            SelectTrack(nextTrack.Id, nextTrack.Index);
             PlayerStateChanged(new PlayerStateArgs(PlayerState.SkipNext, Album, Tracks.ToList(), _selectedTrack));
 
             if (isPlaying)
             {
-                await StartTrackAsync(nextTrack.Id);
+                await StartTrackAsync(nextTrack.Id, nextTrack.Index);
             }
         }
     }
@@ -649,17 +629,17 @@ public sealed class PlayerService : IPlayerService, IDisposable
     {
         if (_selectedTrack != null)
         {
-            var isPlaying = IsPlayingTrack(_selectedTrack.Id);
+            var isPlaying = IsPlayingTrack(_selectedTrack.Id, _selectedTrack.Index);
             var previousTrack = Tracks.SkipWhile(t => t != _selectedTrack).Skip(1).FirstOrDefault();
             
             if (previousTrack == null) return;
             
-            SelectTrack(previousTrack.Id);
+            SelectTrack(previousTrack.Id, previousTrack.Index);
             PlayerStateChanged(new PlayerStateArgs(PlayerState.SkipPrevious, Album, Tracks.ToList(), _selectedTrack));
             
             if (isPlaying)
             {
-                await StartTrackAsync(previousTrack.Id);
+                await StartTrackAsync(previousTrack.Id, previousTrack.Index);
             }
         }
     }
@@ -729,6 +709,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     public void AddTrack(Track track)
     {
         IsCustomPlaylist = true;
+        track.Index = Tracks.Count;
         Tracks.Add(track);
         OnPlayerStateChanged?.Invoke(this, new PlayerStateArgs(PlayerState.LoadedInfo, Album, Tracks.ToList(), _selectedTrack));
     }
@@ -754,37 +735,26 @@ public sealed class PlayerService : IPlayerService, IDisposable
     }
 
     /// <summary>
-    /// Play input track
-    /// </summary>
-    /// <param name="track"></param>
-    public void PlayTrack(Track track)
-    {
-        if (Tracks.Contains(track))
-        {
-            _ = StartTrackAsync(track.Id);
-        }
-    }
-
-    /// <summary>
     /// Get input track state
     /// </summary>
     /// <param name="trackId"></param>
+    /// <param name="index"></param>
     /// <returns></returns>
-    public PlayerState GetTrackState(Guid trackId)
+    public PlayerState GetTrackState(Guid trackId, int index)
     {
-        if (_playingTrack != null && _playingTrack.Id == trackId)
+        if (_playingTrack != null && _playingTrack.Id == trackId && _playingTrack.Index == index)
         {
             if (IsPlaying())
                 return PlayerState.Playing;
             return PlayerState.Paused;
         }
 
-        if (_selectedTrack != null && _selectedTrack.Id == trackId)
+        if (_selectedTrack != null && _selectedTrack.Id == trackId && _selectedTrack.Index == index)
         {
             return PlayerState.Selected;
         }
 
-        if (_startingTrack == trackId)
+        if (_startingTrack == trackId && _startingTrackIndex == index)
         {
             return PlayerState.Starting;
         }
@@ -809,18 +779,19 @@ public sealed class PlayerService : IPlayerService, IDisposable
     {
         return _player is { State: PlaybackState.Paused };
     }
-    
+
     /// <summary>
     /// Check if trackId is playing
     /// </summary>
     /// <param name="trackId">Id of the track. If null, then checks if any track is playing</param>
+    /// <param name="index"></param>
     /// <param name="albumId">Id of the album if we want to check against that too</param>
     /// <returns>True if is playing</returns>
-    public bool IsPlayingTrack(Guid? trackId, Guid? albumId = null)
+    public bool IsPlayingTrack(Guid trackId, int index, Guid? albumId = null)
     {
         if (_playingTrack != null)
         {
-            if (trackId.HasValue && _playingTrack.Id == trackId.Value)
+            if (_playingTrack.Id == trackId && _playingTrack.Index == index)
             {
                 // Album id has value. Check against that too
                 if (albumId.HasValue)

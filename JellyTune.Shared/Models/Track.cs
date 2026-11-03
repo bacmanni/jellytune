@@ -7,6 +7,7 @@ public class Track
     public string? Artist { get; set; }
     public string? Album { get; set; }
     public int Number { get; set; }
+    public int Index { get; set; }
     public string? Name { get; set; }
     public TimeSpan RunTime { get; set; }
     public bool HasLyrics { get; set; }

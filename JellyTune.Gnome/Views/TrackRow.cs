@@ -29,6 +29,7 @@ public partial class TrackRow
     [Connect] private Label _number;
 
     public Guid TrackId => _track.Id;
+    public int TrackIndex => _track.Index;
 
     public static TrackRow NewWithValues(IPlayerService playerService, IFileService fileService, Track track, PlayerState state, List<RowProperty> properties)
     {

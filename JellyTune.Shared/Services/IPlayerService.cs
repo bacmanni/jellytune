@@ -9,10 +9,11 @@ public interface IPlayerService
     public event EventHandler<PlayerStateArgs> OnPlayerStateChanged;
     public event EventHandler<PlayerPositionArgs> OnPlayerPositionChanged;
     public event EventHandler<PlayerVolumeArgs> OnPlayerVolumeChanged;
-    public void SelectTrack(Guid trackId);
+    public void SelectTrack(Guid trackId, int index);
     public bool IsSelectedTrack(Guid? trackId = null);
     public void NetworkAvailabilityChanged(bool isOnline);
-    public Task StartTrackAsync(Guid? trackId = null);
+    public Task StartTrackAsync(Guid trackId, int index);
+    public Task StartTrackAsync();
     public void StopTrack();
     public void PauseTrack();
     public void SeekTrack(double seconds);
@@ -24,7 +25,7 @@ public interface IPlayerService
     public Task PreviousTrackAsync();
     public bool HasCustomPlaylist();
     public Guid? GetSelectedTrackId();
-    public bool IsPlayingTrack(Guid? trackId, Guid? albumId = null);
+    public bool IsPlayingTrack(Guid trackId, int index, Guid? albumId = null);
     byte[]? GetArtwork();
     public Track? GetSelectedTrack();
     public Album? GetSelectedAlbum();
@@ -33,8 +34,7 @@ public interface IPlayerService
     public int? GetQueuePosition(Guid trackId);
     public void AddTracks(List<Track> tracks);
     public void ClearTracks();
-    void PlayTrack(Track track);
-    public PlayerState GetTrackState(Guid trackId);
+    public PlayerState GetTrackState(Guid trackId, int index);
     public bool HasNextTrack();
     public bool HasPreviousTrack();
     public Task StartOrPauseTrackAsync();
@@ -45,6 +45,4 @@ public interface IPlayerService
     public void SetVolumePercent(double volume);
     public bool IsMuted();
     public void SetMuted(bool muted);
-    void Back(int seconds);
-    void Skip(int seconds);
 }
