@@ -23,7 +23,6 @@ public partial class TrackRow
     private bool _showQueue = false;
     
     [Connect] private Image _status;
-    [Connect] private Label _queueLabel;
     [Connect] private Spinner _spinner;
     [Connect] private Image _albumArt;
     [Connect] private Label _runtime;
@@ -31,7 +30,7 @@ public partial class TrackRow
 
     public Guid TrackId => _track.Id;
     public int TrackIndex => _track.Index;
-
+    
     public static TrackRow NewWithValues(IPlayerService playerService, IFileService fileService, Track track, PlayerState state, List<RowProperty> properties)
     {
         var obj = NewWithProperties([]);
@@ -101,8 +100,6 @@ public partial class TrackRow
 
     private void LoadingTrack()
     {
-        UpdateQueue();
-        
         _status.SetVisible(false);
         _spinner.SetVisible(true);
         SetTitle($"<b>{Markup.EscapeText(_track.Name ?? string.Empty)}</b>");
@@ -110,8 +107,6 @@ public partial class TrackRow
     
     private void StartTrack()
     {
-        UpdateQueue();
-        
         _spinner.SetVisible(false);
         _status.SetVisible(true);
         _status.SetFromIconName("media-playback-start-symbolic");
@@ -120,8 +115,6 @@ public partial class TrackRow
 
     private void ClearTrack()
     {
-        UpdateQueue();
-        
         _spinner.SetVisible(false);
         _status.SetVisible(true);
         _status.SetFromIconName(null);
@@ -130,31 +123,20 @@ public partial class TrackRow
 
     private void StopTrack()
     {
-        UpdateQueue();
-        
         _spinner.SetVisible(false);
         _status.SetVisible(true);
         _status.SetFromIconName("media-playback-pause-symbolic");
         SetTitle($"<b>{Markup.EscapeText(_track.Name ?? string.Empty)}</b>");
     }
 
-    private void UpdateQueue()
-    {
-        if (_showQueue)
-        {
-            var position = _playerService.GetQueuePosition(_track.Id);
-            _queueLabel.SetVisible(position > 0);
-
-            if (position > 0)
-            {
-                _queueLabel.SetLabel(position.ToString() ?? string.Empty);
-            }
-        }
-    }
-    
     public override void Dispose()
     {
         _albumArt.Clear();
         base.Dispose();
+    }
+
+    public bool IsPlayingTrack()
+    {
+        return _playerService.IsPlayingTrack(_track.Id, _track.Index);
     }
 }

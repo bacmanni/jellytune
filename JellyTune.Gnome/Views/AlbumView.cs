@@ -176,7 +176,7 @@ public partial class AlbumView
         _tracks.RemoveAll();
         foreach (var track in _controller.Tracks)
         {
-            var state = _controller.PlayerService.GetTrackState(track.Id, track.Index);
+            var state = _controller.PlayerService.GetTrackState(track.Id);
             var row = TrackRow.NewWithValues(_controller.PlayerService, _controller.FileService, track, state, [RowProperty.Queue]);
             var swipeRow = SwipeRow.NewWithTrackRow(row, new SwipeProperties()
             {
@@ -209,7 +209,7 @@ public partial class AlbumView
             var row = _tracks.GetRowAtIndex(i) as SwipeRow;
             if (row == null)  continue;
             
-            var state = _controller.PlayerService.GetTrackState(row.TrackRow.TrackId, row.TrackRow.TrackIndex);
+            var state = _controller.PlayerService.GetTrackState(row.TrackRow.TrackId);
             row.TrackRow.UpdateState(state);
         }
     }

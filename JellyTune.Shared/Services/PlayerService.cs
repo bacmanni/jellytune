@@ -40,12 +40,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// Currently selected albums tracks
     /// </summary>
     private ConcurrentBag<Track> Tracks { get; } = [];
-    
-    /// <summary>
-    /// If playlist is customized
-    /// </summary>
-    private bool IsCustomPlaylist { get; set; }
-    
+
     /// <summary>
     /// Album artwork if found
     /// </summary>
@@ -534,6 +529,54 @@ public sealed class PlayerService : IPlayerService, IDisposable
         OnPlayerVolumeChanged?.Invoke(this, new PlayerVolumeArgs { Volume = _player.Volume, IsMuted = _player.Mute });
     }
 
+    private void UpdateIndex(Track[] tracks)
+    {
+        Tracks.Clear();
+        AddTracks(tracks.Select((t, i) => { t.Index = i + 1; return t; }).ToList());
+    }
+    
+    /// <summary>
+    /// Remove 
+    /// </summary>
+    /// <param name="trackId"></param>
+    /// <param name="index"></param>
+    public void RemoveTrack(Guid trackId, int index)
+    {
+        var tracks = Tracks.ToArray();
+        var track = tracks.FirstOrDefault(t => t.Id == trackId && t.Index == index);
+
+        tracks = tracks.Where(x => !ReferenceEquals(x, track)).ToArray();
+        tracks = tracks.Reverse().ToArray();
+        UpdateIndex(tracks);
+    }
+
+    /// <summary>
+    /// Check track state. This will check without index
+    /// </summary>
+    /// <param name="trackId"></param>
+    /// <returns></returns>
+    public PlayerState GetTrackState(Guid trackId)
+    {
+        if (_playingTrack != null && _playingTrack.Id == trackId)
+        {
+            if (IsPlaying())
+                return PlayerState.Playing;
+            return PlayerState.Paused;
+        }
+
+        if (_selectedTrack != null && _selectedTrack.Id == trackId)
+        {
+            return PlayerState.Selected;
+        }
+
+        if (_startingTrack == trackId)
+        {
+            return PlayerState.Starting;
+        }
+        
+        return PlayerState.None;
+    }
+
     /// <summary>
     /// Pause playing track
     /// </summary>
@@ -575,8 +618,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     {
         var tracks = Tracks.ToArray();
         Random.Shared.Shuffle(tracks);
-        Tracks.Clear();
-        AddTracks(tracks.Select((t, i) => { t.Index = i + 1; return t; }).ToList());
+        UpdateIndex(tracks);
     }
 
     /// <summary>
@@ -645,15 +687,6 @@ public sealed class PlayerService : IPlayerService, IDisposable
     }
 
     /// <summary>
-    /// Is custom playlist being used
-    /// </summary>
-    /// <returns></returns>
-    public bool HasCustomPlaylist()
-    {
-        return IsCustomPlaylist;
-    }
-
-    /// <summary>
     /// Check if track is selected or is selected with input guid
     /// </summary>
     /// <param name="trackId">Id of the track</param>
@@ -708,7 +741,6 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <param name="track"></param>
     public void AddTrack(Track track)
     {
-        IsCustomPlaylist = true;
         track.Index = Tracks.Count;
         Tracks.Add(track);
         OnPlayerStateChanged?.Invoke(this, new PlayerStateArgs(PlayerState.LoadedInfo, Album, Tracks.ToList(), _selectedTrack));
@@ -720,7 +752,6 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <param name="tracks"></param>
     public void AddTracks(List<Track> tracks)
     {
-        IsCustomPlaylist = false;
         foreach (var track in tracks)
             Tracks.Add(track);
     }
@@ -731,7 +762,6 @@ public sealed class PlayerService : IPlayerService, IDisposable
     public void ClearTracks()
     {
         Tracks.Clear();
-        IsCustomPlaylist = false;
     }
 
     /// <summary>
@@ -804,33 +834,6 @@ public sealed class PlayerService : IPlayerService, IDisposable
         }
         
         return false;
-    }
-
-    /// <summary>
-    /// Get number where track is in queue
-    /// </summary>
-    /// <param name="trackId"></param>
-    /// <returns></returns>
-    public int? GetQueuePosition(Guid trackId)
-    {
-        if (!IsCustomPlaylist) return null;
-
-        if (Tracks.Any(t => t.Id == trackId))
-        {
-            var tracks = Tracks.ToList();
-            tracks.Reverse();
-            
-            var currentIndex = tracks.FindIndex(t => t.Id == _selectedTrack?.Id);
-            var thisIndex = tracks.FindIndex(t => t.Id == trackId);
-
-            if (currentIndex < 0)
-                return thisIndex;
-
-            var updatedIndex = thisIndex - currentIndex;
-            return updatedIndex < 0 ? null : updatedIndex;
-        }
-        
-        return null;
     }
     
     /// <summary>

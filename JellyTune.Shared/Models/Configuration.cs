@@ -56,11 +56,6 @@ public class Configuration
     public bool ShowAlbumAsBackground {  get; set; } = false;
     
     /// <summary>
-    /// Show custom playlist marker on tracks
-    /// </summary>
-    public bool ShowCustomPlaylistMarker {  get; set; } = false;
-    
-    /// <summary>
     /// Highlight currently playing lyric if data available
     /// </summary>
     public bool ShowLyricHighlight {  get; set; } = false;

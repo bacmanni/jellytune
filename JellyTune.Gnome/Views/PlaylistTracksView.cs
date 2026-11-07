@@ -52,12 +52,6 @@ public partial class PlaylistTracksView
             clickGesture.SetState(EventSequenceState.Claimed);
             if (_playlistTracksList.GetRowAtY((int)args.Y) is TrackRow row)
             {
-                if (!_controller.PlayerService.HasCustomPlaylist())
-                {
-                    _controller.PlayerService.StopTrack();
-                    _controller.PlayerService.ClearTracks();
-                }
-                    
                 _controller.AddTrackToPlaylist(row.TrackId, row.TrackIndex);
                 if (_controller.PlayerService.IsPlaying())
                 {
@@ -68,7 +62,7 @@ public partial class PlaylistTracksView
             }
         };
         
-        _playlistTracksList.AddController(clickGesture);
+        //_playlistTracksList.AddController(clickGesture);
     }
 
     private void PlaylistTracksListOnRowActivated(ListBox sender, ListBox.RowActivatedSignalArgs args)
@@ -115,6 +109,18 @@ public partial class PlaylistTracksView
                     RightTitle = "Add track to queue",
                 });
                 
+                swipeRow.OnSwipedLeft += trackRow =>
+                {
+                    _controller.AddTrackToPlaylist(trackRow.TrackId, trackRow.TrackIndex);
+                    UpdateTrackState();
+                };
+
+                swipeRow.OnSwipedRight += trackRow =>
+                {
+                    _controller.AddTrackToPlaylist(trackRow.TrackId, trackRow.TrackIndex);
+                    UpdateTrackState();
+                };
+                
                 _playlistTracksList.Append(swipeRow);
             }
         });
@@ -127,11 +133,11 @@ public partial class PlaylistTracksView
     {
         for (var i = 0; i < _controller.Tracks.Count; i++)
         {
-            var row = _playlistTracksList.GetRowAtIndex(i) as TrackRow;
+            var row = _playlistTracksList.GetRowAtIndex(i) as SwipeRow;
             if (row == null)  continue;
             
-            var state = _controller.PlayerService.GetTrackState(row.TrackId, row.TrackIndex);
-            row.UpdateState(state);
+            var state = _controller.PlayerService.GetTrackState(row.TrackRow.TrackId, row.TrackRow.TrackIndex);
+            row.TrackRow.UpdateState(state);
         }
     }
     

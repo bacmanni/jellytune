@@ -44,11 +44,11 @@ public partial class QueueListView
 
     private void QueueListOnRowActivated(ListBox sender, ListBox.RowActivatedSignalArgs args)
     {
-        var row = args.Row as TrackRow;
+        var row = args.Row as SwipeRow;
         if (row is null)
             return;
                 
-        _controller.PlayerService.StartTrackAsync(row.TrackId, row.TrackIndex);
+        _controller.PlayerService.StartTrackAsync(row.TrackRow.TrackId, row.TrackRow.TrackIndex);
     }
 
     private void ControllerOnQueueUpdated(object? sender, QueueArgs e)
@@ -68,7 +68,20 @@ public partial class QueueListView
                     LeftTitle = "Remove from queue",
                     RightStyle = "swipe-remove-active",
                     RightTitle = "Remove from queue",
+                    CheckPlayStatus = true
                 });
+                
+                swipeRow.OnSwipedLeft += trackRow =>
+                {
+                    _controller.RemoveTrack(trackRow.TrackId, trackRow.TrackIndex);
+                    UpdateRowState();
+                };
+
+                swipeRow.OnSwipedRight += trackRow =>
+                {
+                    _controller.RemoveTrack(trackRow.TrackId, trackRow.TrackIndex);
+                    UpdateRowState();
+                };
                 
                 _queueList.Append(swipeRow);
             } 
@@ -81,11 +94,11 @@ public partial class QueueListView
         {
             for (var i = 0; i < _controller.Tracks.Count; i++)
             {
-                var row = _queueList.GetRowAtIndex(i) as TrackRow;
+                var row = _queueList.GetRowAtIndex(i) as SwipeRow;
                 if (row == null)  continue;
 
-                var state = _controller.PlayerService.GetTrackState(row.TrackId, row.TrackIndex);
-                row.UpdateState(state);
+                var state = _controller.PlayerService.GetTrackState(row.TrackRow.TrackId, row.TrackRow.TrackIndex);
+                row.TrackRow.UpdateState(state);
             }
         });
     }

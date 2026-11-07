@@ -22,16 +22,15 @@ public sealed class QueueListController : IDisposable
     }
 
     /// <summary>
-    /// Open current queue. Data is fetched from playerservice
+    /// Update current queue. Data is fetched from playerservice
     /// </summary>
-    public void Open()
+    public void Update()
     {
         Tracks.Clear();
         var tracks = _playerService.GetTracks();
         tracks.Reverse();
         Tracks.AddRange(tracks);
-
-        OnQueueUpdated?.Invoke(this, new QueueArgs());
+        OnQueueUpdated?.Invoke(this, new QueueArgs() { Count = tracks.Count });
     }
     
     
@@ -46,6 +45,12 @@ public sealed class QueueListController : IDisposable
     public void ShuffleTracks()
     {
         _playerService.ShuffleTracks();
-        Open();
+        Update();
+    }
+
+    public void RemoveTrack(Guid trackId, int index)
+    {
+        _playerService.RemoveTrack(trackId, index);
+        Update();
     }
 }

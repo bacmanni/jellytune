@@ -9,6 +9,7 @@ using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
+using JellyTune.Shared.Models;
 using AboutDialog = Adw.AboutDialog;
 using Application = Adw.Application;
 using ApplicationWindow = Adw.ApplicationWindow;
@@ -682,6 +683,10 @@ public partial class MainWindow
             _playlistTracksFooter.SetVisible(false);
             _playerPosition.SetVisible(false);
 
+            // This state is only ran when song stops. Queue should close too
+            if (_rootView.VisiblePage == _queueList)
+                ResetNavigationView();
+            
             UpdateHeader(false);
         }
     }
@@ -708,7 +713,6 @@ public partial class MainWindow
         }
         else
         {
-
             var selectedType = _searchTypeAction.GetState()?.GetString(out var length);
             var type = selectedType is "All" or null ? (SearchType?)null : Enum.Parse<SearchType>(selectedType);
             _ = _searchController.SearchAlbumsAsync(value, type, cancellationToken);
@@ -761,7 +765,7 @@ public partial class MainWindow
     private void PlayerControllerOnShowPlaylistClicked(object? sender, AlbumArgs e)
     {
         ResetNavigationView();
-        _queueListController.Open();
+        _queueListController.Update();
         _rootView.Push(_queueList);
     }
 

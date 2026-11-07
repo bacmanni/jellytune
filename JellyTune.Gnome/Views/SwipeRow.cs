@@ -19,6 +19,8 @@ public partial class SwipeRow
     [Connect] private Label _rightLabel;
     [Connect] private Label _leftLabel;
     
+    private bool _checkPlayStatus;
+    
     private string? _leftStyle;
     private string? _rightStyle;
     
@@ -62,6 +64,7 @@ public partial class SwipeRow
         if(!string.IsNullOrWhiteSpace(properties.RightStyle))
             obj._rightStyle =  properties.RightStyle;
         
+        obj._checkPlayStatus = properties.CheckPlayStatus;
         obj.InitializeSwipe();
         return obj;
     }
@@ -87,6 +90,8 @@ public partial class SwipeRow
 
         _gesture.OnDragUpdate += (_, args) =>
         {
+            return;
+            
             var x = args.OffsetX;
             var y = args.OffsetY;
 

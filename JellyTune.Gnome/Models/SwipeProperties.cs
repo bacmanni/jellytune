@@ -6,4 +6,5 @@ public class SwipeProperties
     public string? LeftTitle { get; set; }
     public string? RightStyle { get; set; }
     public string? RightTitle { get; set; }
+    public bool CheckPlayStatus { get; set; }
 }

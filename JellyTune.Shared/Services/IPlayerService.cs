@@ -23,7 +23,6 @@ public interface IPlayerService
     public bool HasTracks(bool countSelected = true);
     public Task NextTrackAsync();
     public Task PreviousTrackAsync();
-    public bool HasCustomPlaylist();
     public Guid? GetSelectedTrackId();
     public bool IsPlayingTrack(Guid trackId, int index, Guid? albumId = null);
     byte[]? GetArtwork();
@@ -31,7 +30,6 @@ public interface IPlayerService
     public Album? GetSelectedAlbum();
     public List<Track> GetTracks();
     public void AddTrack(Track track);
-    public int? GetQueuePosition(Guid trackId);
     public void AddTracks(List<Track> tracks);
     public void ClearTracks();
     public PlayerState GetTrackState(Guid trackId, int index);
@@ -45,4 +43,6 @@ public interface IPlayerService
     public void SetVolumePercent(double volume);
     public bool IsMuted();
     public void SetMuted(bool muted);
+    public void RemoveTrack(Guid trackId, int index);
+    public PlayerState GetTrackState(Guid trackId);
 }

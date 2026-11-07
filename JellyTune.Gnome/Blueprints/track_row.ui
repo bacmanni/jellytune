@@ -44,27 +44,9 @@
             </object>
         </child>
         <child type="suffix">
-            <object class="GtkOverlay">
-                <property name="hexpand">true</property>
-                <property name="halign">fill</property>
-                <property name="vexpand">true</property>
-                <property name="valign">fill</property>
-                <child>
-                    <object class="GtkLabel" id="_runtime">
-                        <property name="halign">end</property>
-                        <property name="valign">center</property>
-                    </object>
-                </child>
-                <child type="overlay">
-                    <object class="GtkLabel" id="_queueLabel">
-                        <style>
-                            <class name="queue-badge"/>
-                        </style>
-                        <property name="halign">end</property>
-                        <property name="valign">start</property>
-                        <property name="visible">false</property>
-                    </object>
-                </child>
+            <object class="GtkLabel" id="_runtime">
+                <property name="halign">end</property>
+                <property name="valign">center</property>
             </object>
         </child>
     </template>
