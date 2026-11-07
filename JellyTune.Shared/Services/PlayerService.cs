@@ -827,7 +827,6 @@ public sealed class PlayerService : IPlayerService, IDisposable
                 return thisIndex;
 
             var updatedIndex = thisIndex - currentIndex;
-            
             return updatedIndex < 0 ? null : updatedIndex;
         }
         

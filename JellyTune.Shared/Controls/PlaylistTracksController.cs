@@ -98,11 +98,12 @@ public sealed class PlaylistTracksController : IDisposable
     /// Add single track to playlist
     /// </summary>
     /// <param name="trackId"></param>
-    public void AddTrackToPlaylist(Guid trackId)
+    /// <param name="index"></param>
+    public void AddTrackToPlaylist(Guid trackId, int index)
     {
         if (!_playerService.HasCustomPlaylist()) _playerService.ClearTracks();
         
-        var track = Tracks.FirstOrDefault(t => t.Id == trackId);
+        var track = Tracks.FirstOrDefault(t => t.Id == trackId && t.Index == index);
         if (track == null) return;
         
         _playerService.AddTrack(track);

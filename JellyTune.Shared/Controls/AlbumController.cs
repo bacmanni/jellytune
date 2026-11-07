@@ -46,9 +46,10 @@ public sealed class AlbumController : IDisposable
     /// Set track as selected
     /// </summary>
     /// <param name="trackId"></param>
-    public void SelectTrack(Guid trackId)
+    /// <param name="index"></param>
+    public void SelectTrack(Guid trackId, int index)
     {
-        SelectedTrack = Tracks.FirstOrDefault(t => t.Id == trackId);
+        SelectedTrack = Tracks.FirstOrDefault(t => t.Id == trackId && t.Index == index);
     }
 
     public void Dispose()
@@ -128,7 +129,8 @@ public sealed class AlbumController : IDisposable
     /// Add track to playlist
     /// </summary>
     /// <param name="trackId"></param>
-    public void AddTrackToPlaylist(Guid trackId)
+    /// <param name="index"></param>
+    public void AddTrackToPlaylist(Guid trackId, int index)
     {
         if (!_playerService.HasCustomPlaylist())
         {

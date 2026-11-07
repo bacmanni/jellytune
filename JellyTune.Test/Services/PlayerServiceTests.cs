@@ -108,22 +108,22 @@ public class PlayerServiceTests
         var selectedTrack = _playerService.GetSelectedTrack();
         Assert.NotNull(selectedTrack);
         Assert.Equal(_trackId1, selectedTrack.Id);
-        Assert.True(_playerService.IsPlayingTrack(_trackId1, TODO));
+        Assert.True(_playerService.IsPlayingTrack(_trackId1, 0));
 
         Assert.False(_playerService.HasPreviousTrack());
         Assert.True(_playerService.HasNextTrack());
         
         await _playerService.NextTrackAsync();
-        Assert.True(_playerService.IsPlayingTrack(_trackId2, TODO));
+        Assert.True(_playerService.IsPlayingTrack(_trackId2, 1));
         
         Assert.False(_playerService.HasNextTrack());
         Assert.True(_playerService.HasPreviousTrack());
         
         await _playerService.PreviousTrackAsync();
-        Assert.True(_playerService.IsPlayingTrack(_trackId1, TODO));
+        Assert.True(_playerService.IsPlayingTrack(_trackId1, 0));
         
         _playerService.StopTrack();
-        Assert.False(_playerService.IsPlayingTrack(_trackId1, TODO));
+        Assert.False(_playerService.IsPlayingTrack(_trackId1, 0));
     }
 
     [Fact]
@@ -165,7 +165,7 @@ public class PlayerServiceTests
         var selectedTrack = _playerService.GetSelectedTrack();
         Assert.NotNull(selectedTrack);
         Assert.Equal(trackId1, selectedTrack.Id);
-        Assert.True(_playerService.IsPlayingTrack(trackId1, TODO));
+        Assert.True(_playerService.IsPlayingTrack(trackId1, 0));
         
         _playerService.ClearTracks();
         Assert.Equal(0, _playerService.GetTracks() != null ? _playerService.GetTracks().Count : (int?)null);

@@ -3,6 +3,7 @@ using Gdk;
 using GLib;
 using GObject;
 using Gtk;
+using JellyTune.Gnome.Enums;
 using JellyTune.Gnome.Models;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Models;
@@ -38,9 +39,6 @@ public partial class TrackRow
         obj._fileService = fileService;
         obj._track = track;
         obj._startupState = state;
-        obj.Activatable = true;
-        obj.Focusable = true;
-        obj.Selectable = false;
         obj._showQueue = properties.Contains(RowProperty.Queue);
         
         obj._runtime.SetText(obj._track.RunTime.ToString("m\\:ss"));

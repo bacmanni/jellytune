@@ -1,6 +1,7 @@
 using Adw;
 using GObject;
 using Gtk;
+using JellyTune.Gnome.Enums;
 using JellyTune.Gnome.Helpers;
 using JellyTune.Gnome.Models;
 using JellyTune.Shared.Controls;
@@ -57,17 +58,24 @@ public partial class PlaylistTracksView
                     _controller.PlayerService.ClearTracks();
                 }
                     
-                _controller.AddTrackToPlaylist(row.TrackId);
+                _controller.AddTrackToPlaylist(row.TrackId, row.TrackIndex);
+                if (_controller.PlayerService.IsPlaying())
+                {
+                    _controller.PlayerService.StartTrackAsync();
+                }
+                
                 UpdateTrackState();
             }
         };
+        
+        _playlistTracksList.AddController(clickGesture);
     }
 
     private void PlaylistTracksListOnRowActivated(ListBox sender, ListBox.RowActivatedSignalArgs args)
     {
-        if (args.Row is TrackRow row)
+        if (args.Row is SwipeRow row)
         {
-            _ = _controller.PlayOrPauseTrackAsync(row.TrackId, row.TrackIndex);
+            _ = _controller.PlayOrPauseTrackAsync(row.TrackRow.TrackId, row.TrackRow.TrackIndex);
         }
     }
 
@@ -97,7 +105,17 @@ public partial class PlaylistTracksView
             foreach (var track in _controller.Tracks)
             {
                 var state = _controller.PlayerService.GetTrackState(track.Id, track.Index);
-                _playlistTracksList.Append(TrackRow.NewWithValues(_controller.PlayerService, _controller.FileService, track, state, [RowProperty.Extended, RowProperty.Queue]));
+                var row = TrackRow.NewWithValues(_controller.PlayerService, _controller.FileService, track, state,
+                    [RowProperty.Extended, RowProperty.Queue]);
+                var swipeRow = SwipeRow.NewWithTrackRow(row, new SwipeProperties()
+                {
+                    LeftStyle = "swipe-add-active",
+                    LeftTitle = "Add track to queue",
+                    RightStyle = "swipe-add-active",
+                    RightTitle = "Add track to queue",
+                });
+                
+                _playlistTracksList.Append(swipeRow);
             }
         });
         

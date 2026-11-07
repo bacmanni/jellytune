@@ -1,5 +1,6 @@
 using GObject;
 using Gtk;
+using JellyTune.Gnome.Enums;
 using JellyTune.Gnome.Helpers;
 using JellyTune.Gnome.Models;
 using JellyTune.Shared.Controls;
@@ -58,8 +59,18 @@ public partial class QueueListView
             foreach (var track in _controller.Tracks)
             {
                 var state = _controller.PlayerService.GetTrackState(track.Id, track.Index);
-                _queueList.Append(TrackRow.NewWithValues(_controller.PlayerService, _controller.FileService, track, state,
-                    [RowProperty.Extended]));
+
+                var row = TrackRow.NewWithValues(_controller.PlayerService, _controller.FileService, track, state,
+                    [RowProperty.Extended]);
+                var swipeRow = SwipeRow.NewWithTrackRow(row, new SwipeProperties()
+                {
+                    LeftStyle = "swipe-remove-active",
+                    LeftTitle = "Remove from queue",
+                    RightStyle = "swipe-remove-active",
+                    RightTitle = "Remove from queue",
+                });
+                
+                _queueList.Append(swipeRow);
             } 
         });
     }

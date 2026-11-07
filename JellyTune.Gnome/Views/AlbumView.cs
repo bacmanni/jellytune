@@ -3,6 +3,7 @@ using Gdk;
 using GLib;
 using GObject;
 using Gtk;
+using JellyTune.Gnome.Enums;
 using JellyTune.Gnome.Helpers;
 using JellyTune.Gnome.Models;
 using JellyTune.Shared.Controls;
@@ -61,12 +62,14 @@ public partial class AlbumView
             }
 
             clickGesture.SetState(EventSequenceState.Claimed);
-            if (_tracks.GetRowAtY((int)args.Y) is TrackRow row)
+            if (_tracks.GetRowAtY((int)args.Y) is SwipeRow row)
             {
-                _controller.AddTrackToPlaylist(row.TrackId);
+                _controller.AddTrackToPlaylist(row.TrackRow.TrackId, row.TrackRow.TrackIndex);
                 UpdateTrackState();
             }
         };
+        
+        _tracks.AddController(clickGesture);
     }
 
     private void ArtworkOnClicked(Button sender, EventArgs args)
@@ -109,9 +112,9 @@ public partial class AlbumView
 
     private void TracksOnRowActivated(ListBox sender, ListBox.RowActivatedSignalArgs args)
     {
-        if (args.Row is TrackRow row)
+        if (args.Row is SwipeRow row)
         {
-            _ = _controller.PlayOrPauseTrackAsync(row.TrackId, row.TrackIndex);
+            _ = _controller.PlayOrPauseTrackAsync(row.TrackRow.TrackId, row.TrackRow.TrackIndex);
         }
         
         _tracks.UnselectAll();
@@ -119,9 +122,9 @@ public partial class AlbumView
 
     private void TracksOnRowSelected(ListBox sender, ListBox.RowSelectedSignalArgs args)
     {
-        if (args.Row is TrackRow row)
+        if (args.Row is SwipeRow row)
         {
-            _controller.SelectTrack(row.TrackId);
+            _controller.SelectTrack(row.TrackRow.TrackId, row.TrackRow.TrackIndex);
         }
     }
 
@@ -175,7 +178,27 @@ public partial class AlbumView
         {
             var state = _controller.PlayerService.GetTrackState(track.Id, track.Index);
             var row = TrackRow.NewWithValues(_controller.PlayerService, _controller.FileService, track, state, [RowProperty.Queue]);
-            _tracks.Append(row);
+            var swipeRow = SwipeRow.NewWithTrackRow(row, new SwipeProperties()
+            {
+                LeftTitle = "Add track queue",
+                RightTitle = "Add track queue",
+                LeftStyle = "swipe-add-active",
+                RightStyle = "swipe-add-active",
+            });
+
+            swipeRow.OnSwipedLeft += trackRow =>
+            {
+                _controller.AddTrackToPlaylist(trackRow.TrackId, trackRow.TrackIndex);
+                UpdateTrackState();
+            };
+
+            swipeRow.OnSwipedRight += trackRow =>
+            {
+                _controller.AddTrackToPlaylist(trackRow.TrackId, trackRow.TrackIndex);
+                UpdateTrackState();
+            };
+            
+            _tracks.Append(swipeRow);
         }
     }
 
@@ -183,11 +206,11 @@ public partial class AlbumView
     {
         for (var i = 0; i < _controller.Tracks.Count; i++)
         {
-            var row = _tracks.GetRowAtIndex(i) as TrackRow;
+            var row = _tracks.GetRowAtIndex(i) as SwipeRow;
             if (row == null)  continue;
             
-            var state = _controller.PlayerService.GetTrackState(row.TrackId, row.TrackIndex);
-            row.UpdateState(state);
+            var state = _controller.PlayerService.GetTrackState(row.TrackRow.TrackId, row.TrackRow.TrackIndex);
+            row.TrackRow.UpdateState(state);
         }
     }
 

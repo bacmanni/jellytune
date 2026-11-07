@@ -40,6 +40,23 @@
             0 0 2px currentColor,
             0 0 5px currentColor;
 }
+.swipe-row {
+    background-color: transparent;
+    box-shadow: none;
+}
+.swipe-row.swipe-add-active {
+    background-color: var(--accent-bg-color);
+    color: var(--accent-fg-color);
+}
+.swipe-row.swipe-remove-active {
+    background-color: var(--destructive-bg-color);
+    color: var(--destructive-fg-color);
+}
+.swipe-foreground {
+    background-color: transparent;
+    box-shadow: none;
+}
+
 /* Application background related */
 .top-bar, headerbar {
     transition: background-color 500ms ease-in-out;

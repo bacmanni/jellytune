@@ -1,4 +1,4 @@
-namespace JellyTune.Gnome.Models;
+namespace JellyTune.Gnome.Enums;
 
 public enum RowProperty
 {

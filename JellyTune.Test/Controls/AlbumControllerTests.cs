@@ -16,7 +16,7 @@ public class AlbumControllerTests
     
     private readonly Guid _albumId;
     private readonly Guid _trackId;
-    
+    private readonly int _trackIndex = 0;
     public AlbumControllerTests()
     {
         _mockJellyTuneApiService =  new Mock<IJellyTuneApiService>();
@@ -39,6 +39,7 @@ public class AlbumControllerTests
         {
             Id = _trackId,
             AlbumId =  _albumId,
+            Index = 0,
             Name =  "Track 1"
         };
         
@@ -46,6 +47,7 @@ public class AlbumControllerTests
         {
             Id = Guid.NewGuid(),
             AlbumId =  _albumId,
+            Index = 1,
             Name =  "Track 2"
         };
         
@@ -66,7 +68,7 @@ public class AlbumControllerTests
         Assert.NotEmpty(_controller.Tracks);
         
         Assert.Null(_controller.SelectedTrack);
-        _controller.SelectTrack(_trackId);
+        _controller.SelectTrack(_trackId, _trackIndex);
         Assert.NotNull(_controller.SelectedTrack);
     }
 }

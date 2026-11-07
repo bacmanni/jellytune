@@ -94,6 +94,8 @@
       <None Remove="Blueprints\album_art.ui" />
       <EmbeddedResource Include="Blueprints\album_art.ui" />
       <None Remove="nuget-sources.json" />
+      <None Remove="Blueprints\swipe_row.ui" />
+      <EmbeddedResource Include="Blueprints\swipe_row.ui" />
     </ItemGroup>
 
     <ItemGroup>
