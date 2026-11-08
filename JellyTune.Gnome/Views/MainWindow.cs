@@ -189,13 +189,13 @@ public partial class MainWindow
         _refreshAction = SimpleAction.New("refresh", null);
         _refreshAction.OnActivate += ActRefreshOnActivate;
         AddAction(_refreshAction);
-        _application.SetAccelsForAction("win.refresh", new[] { "<Ctrl>F5" });
+        _application.SetAccelsForAction("win.refresh", new[] { "<Primary>r" });
 
         //Preferences Action
         var actPreferences = SimpleAction.New("preferences", null);
         actPreferences.OnActivate += ActPreferencesOnActivate;
         AddAction(actPreferences);
-        _application.SetAccelsForAction("win.preferences", new[] { "<Ctrl>comma" });
+        _application.SetAccelsForAction("win.preferences", new[] { "<Primary>comma" });
         
         //About Action
         var actAbout = SimpleAction.New("about", null);
@@ -205,13 +205,13 @@ public partial class MainWindow
         var actShortcuts = SimpleAction.New("shortcuts", null);
         actShortcuts.OnActivate += ActShortcutOnActivate;
         AddAction(actShortcuts);
-        _application.SetAccelsForAction("win.shortcuts", new[] { "<Ctrl>question" });
+        _application.SetAccelsForAction("win.shortcuts", new[] { "<Primary>question" });
         
         //Search
         var actSearchBar = SimpleAction.New("search", null);
         actSearchBar.OnActivate += ActShowSearchBarOnActivate;
         AddAction(actSearchBar);
-        _application.SetAccelsForAction("win.search", new[] { "<Ctrl>f" });
+        _application.SetAccelsForAction("win.search", new[] { "<Primary>f" });
 
         // Search type
         _searchTypeAction = SimpleAction.NewStateful(
@@ -235,36 +235,41 @@ public partial class MainWindow
         AddAction(_searchTypeAction);
         
         // Basic controls
+        var actNone = SimpleAction.New("no_action", null);
+        actNone.OnActivate += ActNoneOnActivate;
+        AddAction(actNone);
+        _application.SetAccelsForAction("win.no_action", new[] { "<Primary>Return" });
+        
         var actNextTrack = SimpleAction.New("track_next", null);
         actNextTrack.OnActivate += ActNextTrackOnActivate;
         AddAction(actNextTrack);
-        _application.SetAccelsForAction("win.track_next", new[] { "<Ctrl>Right" });
+        _application.SetAccelsForAction("win.track_next", new[] { "<Primary>Right" });
 
         var actPrevious = SimpleAction.New("track_previous", null);
         actPrevious.OnActivate += ActPreviousOnActivate;
         AddAction(actPrevious);
-        _application.SetAccelsForAction("win.track_previous", new[] { "<Ctrl>Left" });
+        _application.SetAccelsForAction("win.track_previous", new[] { "<Primary>Left" });
         
         var actPlayPause = SimpleAction.New("track_play", null);
         actPlayPause.OnActivate += ActPlayPauseOnActivate;
         AddAction(actPlayPause);
-        _application.SetAccelsForAction("win.track_play", new[] { "<Ctrl>space" });
+        _application.SetAccelsForAction("win.track_play", new[] { "<Primary>space" });
 
         var actVolumeUp = SimpleAction.New("volume_up", null);
         actVolumeUp.OnActivate += ActVolumeUpOnActivate;
         AddAction(actVolumeUp);
-        _application.SetAccelsForAction("win.volume_up", new[] { "<Ctrl>Up" });
+        _application.SetAccelsForAction("win.volume_up", new[] { "<Primary>Up" });
         
         var actVolumeDown = SimpleAction.New("volume_down", null);
         actVolumeDown.OnActivate += ActVolumeDownOnActivate;
         AddAction(actVolumeDown);
-        _application.SetAccelsForAction("win.volume_down", new[] { "<Ctrl>Down" });
+        _application.SetAccelsForAction("win.volume_down", new[] { "<Primary>Down" });
         
         // Lyrics
         var actLyrics = SimpleAction.New("track_lyrics", null);
         actLyrics.OnActivate += ActLyricsOnActivate;
         AddAction(actLyrics);
-        _application.SetAccelsForAction("win.track_lyrics", new[] { "<Ctrl>l" });
+        _application.SetAccelsForAction("win.track_lyrics", new[] { "<Primary>l" });
 
         var actOpenAlbum = SimpleAction.New("open_album", VariantType.String);
         actOpenAlbum.OnActivate += ActOpenAlbumOnActivate;
@@ -274,7 +279,7 @@ public partial class MainWindow
         var actQuit = SimpleAction.New("quit", null);
         actQuit.OnActivate += Quit;
         AddAction(actQuit);
-        _application.SetAccelsForAction("win.quit", new[] { "<Ctrl>q" });
+        _application.SetAccelsForAction("win.quit", new[] { "<Primary>q" });
 
         // Event for selected view
         _viewAction = SimpleAction.NewStateful(
@@ -295,8 +300,8 @@ public partial class MainWindow
                 _mainViewStack.SetVisibleChildName(newState);
         };
         AddAction(_viewAction);
-        _application.SetAccelsForAction("win.view('page1')", new[] { "<Ctrl>1" });
-        _application.SetAccelsForAction("win.view('page2')", new[] { "<Ctrl>2" });
+        _application.SetAccelsForAction("win.view('page1')", new[] { "<Primary>1" });
+        _application.SetAccelsForAction("win.view('page2')", new[] { "<Primary>2" });
         
         SetIconName(_controller.ApplicationInfo.Icon);
         SetWindowSize(360, 600);
@@ -329,6 +334,11 @@ public partial class MainWindow
         OnNotify += OnWindowNotify;
         _ = UpdateMainMenu();
         _initialized = true;
+    }
+
+    private void ActNoneOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
+    {
+        // Dont do nothing here. This is only dummy method so shortcuts dialog works
     }
 
     private void ConfigurationServiceOnSaved(object? sender, ConfigurationArgs e)
@@ -486,6 +496,7 @@ public partial class MainWindow
         player.Add(CreateShortcutsItem("Previous Track", "win.track_previous"));
         player.Add(CreateShortcutsItem("Volume Up", "win.volume_up"));
         player.Add(CreateShortcutsItem("Volume Down", "win.volume_down"));
+        player.Add(CreateShortcutsItem("Add/remove from queue", "win.no_action", "Works with mouse click and swipe"));
         player.Add(CreateShortcutsItem("Show Playing Track Lyrics", "win.track_lyrics"));
         shortcuts.Add(player);
         
@@ -493,14 +504,16 @@ public partial class MainWindow
         shortcuts.OnClosed += ShortcutsWindowOnClosed;
     }
 
-    private ShortcutsItem CreateShortcutsItem(string title, string acceleratorName)
+    private ShortcutsItem CreateShortcutsItem(string title, string acceleratorName, string? subtitle = null)
     {
         var accelerators = _application.GetAccelsForAction(acceleratorName);
-
         if (accelerators.Length != 1)
             throw new Exception("Missing or too many accelerators");
             
         var item = ShortcutsItem.New(title, accelerators[0]);
+        if (subtitle != null)
+            item.Subtitle = subtitle;
+        
         return item;
     }
     

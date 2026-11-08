@@ -2,8 +2,7 @@ using System.Diagnostics;
 using GLib;
 using GObject;
 using Gtk;
-using JellyTune.Gnome.Helpers;
-using JellyTune.Gnome.Models;
+using JellyTune.Gnome.Enums;
 
 namespace JellyTune.Gnome.Views;
 
@@ -18,9 +17,7 @@ public partial class SwipeRow
     [Connect] private Box _rightBox;
     [Connect] private Label _rightLabel;
     [Connect] private Label _leftLabel;
-    
-    private bool _checkPlayStatus;
-    
+
     private string? _leftStyle;
     private string? _rightStyle;
     
@@ -44,7 +41,7 @@ public partial class SwipeRow
 
     public TrackRow TrackRow => _trackRow;
     
-    public static SwipeRow NewWithTrackRow(TrackRow trackRow, SwipeProperties properties)
+    public static SwipeRow NewWithTrackRow(TrackRow trackRow, Dictionary<SwipeProperty, object> properties)
     {
         var obj = NewWithProperties([]);
         obj._trackRow = trackRow;
@@ -52,19 +49,18 @@ public partial class SwipeRow
         trackRow.AddCssClass("swipe-foreground");
         obj._foregroundContent.Append(trackRow);
 
-        if (!string.IsNullOrWhiteSpace(properties.RightTitle))
-            obj._rightLabel.SetText(properties.RightTitle);
+        if (properties.ContainsKey(SwipeProperty.RightTitle))
+            obj._rightLabel.SetText(properties[SwipeProperty.RightTitle].ToString());
 
-        if (!string.IsNullOrWhiteSpace(properties.LeftTitle))
-            obj._leftLabel.SetText(properties.LeftTitle);
+        if (properties.ContainsKey(SwipeProperty.LeftTitle))
+            obj._leftLabel.SetText(properties[SwipeProperty.LeftTitle].ToString());
         
-        if(!string.IsNullOrWhiteSpace(properties.LeftStyle))
-            obj._leftStyle =  properties.LeftStyle;
+        if (properties.ContainsKey(SwipeProperty.RightStyle))
+            obj._rightStyle = properties[SwipeProperty.RightStyle].ToString();
         
-        if(!string.IsNullOrWhiteSpace(properties.RightStyle))
-            obj._rightStyle =  properties.RightStyle;
+        if (properties.ContainsKey(SwipeProperty.LeftStyle))
+            obj._leftStyle = properties[SwipeProperty.LeftStyle].ToString();
         
-        obj._checkPlayStatus = properties.CheckPlayStatus;
         obj.InitializeSwipe();
         return obj;
     }
@@ -90,8 +86,6 @@ public partial class SwipeRow
 
         _gesture.OnDragUpdate += (_, args) =>
         {
-            return;
-            
             var x = args.OffsetX;
             var y = args.OffsetY;
 

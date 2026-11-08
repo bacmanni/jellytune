@@ -77,7 +77,7 @@ public sealed class PlaylistTracksController : IDisposable
     public async Task PlayOrPauseTrackAsync(Guid trackId, int index)
     {
         _playerService.ClearTracks();
-        _playerService.AddTracks(Tracks);
+        _playerService.AddTracks(Tracks, PlayerSource.Playlist);
         
         if (_playerService.IsPlaying() && _playerService.IsPlayingTrack(trackId, index))
         {

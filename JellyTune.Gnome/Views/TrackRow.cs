@@ -4,7 +4,6 @@ using GLib;
 using GObject;
 using Gtk;
 using JellyTune.Gnome.Enums;
-using JellyTune.Gnome.Models;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Models;
 using JellyTune.Shared.Services;
@@ -133,10 +132,5 @@ public partial class TrackRow
     {
         _albumArt.Clear();
         base.Dispose();
-    }
-
-    public bool IsPlayingTrack()
-    {
-        return _playerService.IsPlayingTrack(_track.Id, _track.Index);
     }
 }

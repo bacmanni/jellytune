@@ -29,10 +29,10 @@ public interface IPlayerService
     public Track? GetSelectedTrack();
     public Album? GetSelectedAlbum();
     public List<Track> GetTracks();
-    public void AddTrack(Track track);
-    public void AddTracks(List<Track> tracks);
+    public int AddTrack(Track track);
+    public void AddTracks(List<Track> tracks, PlayerSource source);
     public void ClearTracks();
-    public PlayerState GetTrackState(Guid trackId, int index);
+    public PlayerState GetTrackState(Guid trackId, int index, PlayerSource source);
     public bool HasNextTrack();
     public bool HasPreviousTrack();
     public Task StartOrPauseTrackAsync();
@@ -45,4 +45,5 @@ public interface IPlayerService
     public void SetMuted(bool muted);
     public void RemoveTrack(Guid trackId, int index);
     public PlayerState GetTrackState(Guid trackId);
+    public PlayerSource? GetSource();
 }

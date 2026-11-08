@@ -42,6 +42,11 @@ public sealed class PlayerService : IPlayerService, IDisposable
     private ConcurrentBag<Track> Tracks { get; } = [];
 
     /// <summary>
+    /// Play is activated from
+    /// </summary>
+    private PlayerSource? _playerSource;
+    
+    /// <summary>
     /// Album artwork if found
     /// </summary>
     private byte[]? Artwork { get; set; }
@@ -218,7 +223,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
             if (_player != null)
             {
                 // Still same as selected, so we keep playing
-                if (_playingTrack != null && trackId == _playingTrack.Id)
+                if (_playingTrack != null && trackId == _playingTrack.Id && _playingTrack.Index == index)
                 {
                     if (_networkDataProvider != null)
                     {
@@ -239,7 +244,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
 
                 StopPlaying(false);
             }
-
+            
             cancellationToken.ThrowIfCancellationRequested();
             _playingTrack = Tracks.FirstOrDefault(t => t.Id == trackId && t.Index == index);
 
@@ -532,7 +537,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     private void UpdateIndex(Track[] tracks)
     {
         Tracks.Clear();
-        AddTracks(tracks.Select((t, i) => { t.Index = i + 1; return t; }).ToList());
+        AddTracks(tracks.Select((t, i) => { t.Index = i + 1; return t; }).ToList(), PlayerSource.Custom);
     }
     
     /// <summary>
@@ -575,6 +580,15 @@ public sealed class PlayerService : IPlayerService, IDisposable
         }
         
         return PlayerState.None;
+    }
+
+    /// <summary>
+    /// Get source of current play queue
+    /// </summary>
+    /// <returns></returns>
+    public PlayerSource? GetSource()
+    {
+        return _playerSource;
     }
 
     /// <summary>
@@ -739,19 +753,24 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// Add single track to play queue
     /// </summary>
     /// <param name="track"></param>
-    public void AddTrack(Track track)
+    public int AddTrack(Track track)
     {
-        track.Index = Tracks.Count;
-        Tracks.Add(track);
+        var newTrack = track.ShallowCopy();
+        newTrack.Index = Tracks.Count;
+        Tracks.Add(newTrack);
+        _playerSource = PlayerSource.Custom;
         OnPlayerStateChanged?.Invoke(this, new PlayerStateArgs(PlayerState.LoadedInfo, Album, Tracks.ToList(), _selectedTrack));
+        return newTrack.Index;
     }
 
     /// <summary>
     /// Add more tracks to play queue
     /// </summary>
     /// <param name="tracks"></param>
-    public void AddTracks(List<Track> tracks)
+    /// <param name="source"></param>
+    public void AddTracks(List<Track> tracks, PlayerSource source)
     {
+        _playerSource = source;
         foreach (var track in tracks)
             Tracks.Add(track);
     }
@@ -770,7 +789,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// <param name="trackId"></param>
     /// <param name="index"></param>
     /// <returns></returns>
-    public PlayerState GetTrackState(Guid trackId, int index)
+    public PlayerState GetTrackState(Guid trackId, int index, PlayerSource source)
     {
         if (_playingTrack != null && _playingTrack.Id == trackId && _playingTrack.Index == index)
         {

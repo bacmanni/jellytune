@@ -58,19 +58,18 @@ public partial class QueueListView
             _queueList.RemoveAll();
             foreach (var track in _controller.Tracks)
             {
-                var state = _controller.PlayerService.GetTrackState(track.Id, track.Index);
+                var state = _controller.PlayerService.GetTrackState(track.Id, track.Index, PlayerSource.QueueList);
 
                 var row = TrackRow.NewWithValues(_controller.PlayerService, _controller.FileService, track, state,
                     [RowProperty.Extended]);
-                var swipeRow = SwipeRow.NewWithTrackRow(row, new SwipeProperties()
+                var swipeRow = SwipeRow.NewWithTrackRow(row, new Dictionary<SwipeProperty, dynamic>()
                 {
-                    LeftStyle = "swipe-remove-active",
-                    LeftTitle = "Remove from queue",
-                    RightStyle = "swipe-remove-active",
-                    RightTitle = "Remove from queue",
-                    CheckPlayStatus = true
+                    { SwipeProperty.LeftStyle, "swipe-remove-active" },
+                    { SwipeProperty.LeftTitle, "Remove from queue" },
+                    { SwipeProperty.RightStyle, "swipe-remove-active" },
+                    { SwipeProperty.RightTitle, "Remove from queue" }
                 });
-                
+
                 swipeRow.OnSwipedLeft += trackRow =>
                 {
                     _controller.RemoveTrack(trackRow.TrackId, trackRow.TrackIndex);
@@ -97,7 +96,7 @@ public partial class QueueListView
                 var row = _queueList.GetRowAtIndex(i) as SwipeRow;
                 if (row == null)  continue;
 
-                var state = _controller.PlayerService.GetTrackState(row.TrackRow.TrackId, row.TrackRow.TrackIndex);
+                var state = _controller.PlayerService.GetTrackState(row.TrackRow.TrackId, row.TrackRow.TrackIndex, PlayerSource.QueueList);
                 row.TrackRow.UpdateState(state);
             }
         });

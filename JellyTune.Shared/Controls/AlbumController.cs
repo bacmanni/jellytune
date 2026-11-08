@@ -123,16 +123,15 @@ public sealed class AlbumController : IDisposable
     /// Add track to playlist
     /// </summary>
     /// <param name="trackId"></param>
-    /// <param name="index"></param>
-    public void AddTrackToPlaylist(Guid trackId, int index)
+    public void AddTrackToPlaylist(Guid trackId)
     {
         var track = Tracks.FirstOrDefault(t => t.Id == trackId);
         if (track == null) return;
         
-        _playerService.AddTrack(track);
-        if (!_playerService.IsPlaying())
-        {
-            _playerService.StartTrackAsync(track.Id, track.Index);
-        }
+        var index = _playerService.AddTrack(track);
+        if (_playerService.IsPlaying()) return;
+        if(_playerService.IsPaused()) return;
+            
+        _playerService.StartTrackAsync(track.Id, index);
     }
 }

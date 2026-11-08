@@ -156,7 +156,7 @@ public class PlayerServiceTests
             }
         };
 
-        _playerService.AddTracks(tracks);
+        _playerService.AddTracks(tracks, PlayerSource.Album);
         Assert.Equal(tracks.Count, _playerService.GetTracks().Count);
 
         _playerService.StartTrackAsync(trackId1, 0);

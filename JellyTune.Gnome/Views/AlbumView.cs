@@ -64,12 +64,44 @@ public partial class AlbumView
             clickGesture.SetState(EventSequenceState.Claimed);
             if (_tracks.GetRowAtY((int)args.Y) is SwipeRow row)
             {
-                _controller.AddTrackToPlaylist(row.TrackRow.TrackId, row.TrackRow.TrackIndex);
+                _controller.AddTrackToPlaylist(row.TrackRow.TrackId);
                 UpdateTrackState();
             }
         };
         
         _tracks.AddController(clickGesture);
+        
+        var keyController = EventControllerKey.New();
+        keyController.SetPropagationPhase(PropagationPhase.Capture);
+        keyController.OnKeyPressed += (_, args) =>
+        {
+            var state = keyController.GetCurrentEventState();
+            var isCtrlPressed = state.HasFlag(Gdk.ModifierType.ControlMask);
+
+            if (isCtrlPressed)
+            {
+                Console.WriteLine("Pressed");
+            }
+            else
+            {
+                Console.WriteLine("Not Pressed");
+            }
+            
+            if (args.Keyval == Gdk.Constants.KEY_Return && isCtrlPressed)
+            {
+                if (_tracks.GetSelectedRow() is SwipeRow row)
+                {
+                    _controller.AddTrackToPlaylist(row.TrackRow.TrackId);
+                    UpdateTrackState();
+                }
+
+                return true;
+            }
+
+            return false;
+        };
+        
+        _tracks.AddController(keyController);
     }
 
     private void ArtworkOnClicked(Button sender, EventArgs args)
@@ -178,23 +210,23 @@ public partial class AlbumView
         {
             var state = _controller.PlayerService.GetTrackState(track.Id);
             var row = TrackRow.NewWithValues(_controller.PlayerService, _controller.FileService, track, state, [RowProperty.Queue]);
-            var swipeRow = SwipeRow.NewWithTrackRow(row, new SwipeProperties()
+            var swipeRow = SwipeRow.NewWithTrackRow(row, new Dictionary<SwipeProperty, dynamic>()
             {
-                LeftTitle = "Add track queue",
-                RightTitle = "Add track queue",
-                LeftStyle = "swipe-add-active",
-                RightStyle = "swipe-add-active",
+                { SwipeProperty.LeftStyle, "swipe-add-active" },
+                { SwipeProperty.RightStyle, "swipe-add-active" },
+                { SwipeProperty.LeftTitle, "Add track queue" },
+                { SwipeProperty.RightTitle, "Add track queue" },
             });
 
             swipeRow.OnSwipedLeft += trackRow =>
             {
-                _controller.AddTrackToPlaylist(trackRow.TrackId, trackRow.TrackIndex);
+                _controller.AddTrackToPlaylist(trackRow.TrackId);
                 UpdateTrackState();
             };
 
             swipeRow.OnSwipedRight += trackRow =>
             {
-                _controller.AddTrackToPlaylist(trackRow.TrackId, trackRow.TrackIndex);
+                _controller.AddTrackToPlaylist(trackRow.TrackId);
                 UpdateTrackState();
             };
             
