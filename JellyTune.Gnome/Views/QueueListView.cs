@@ -44,11 +44,11 @@ public partial class QueueListView
 
     private void QueueListOnRowActivated(ListBox sender, ListBox.RowActivatedSignalArgs args)
     {
-        var row = args.Row as SwipeRow;
+        var row = args.Row as TrackRow;
         if (row is null)
             return;
                 
-        _controller.PlayerService.StartTrackAsync(row.TrackRow.TrackId, row.TrackRow.TrackIndex);
+        _controller.PlayerService.StartTrackAsync(row.TrackId, row.TrackIndex);
     }
 
     private void ControllerOnQueueUpdated(object? sender, QueueArgs e)
@@ -62,27 +62,7 @@ public partial class QueueListView
 
                 var row = TrackRow.NewWithValues(_controller.PlayerService, _controller.FileService, track, state,
                     [RowProperty.Extended]);
-                var swipeRow = SwipeRow.NewWithTrackRow(row, new Dictionary<SwipeProperty, dynamic>()
-                {
-                    { SwipeProperty.LeftStyle, "swipe-remove-active" },
-                    { SwipeProperty.LeftTitle, "Remove from queue" },
-                    { SwipeProperty.RightStyle, "swipe-remove-active" },
-                    { SwipeProperty.RightTitle, "Remove from queue" }
-                });
-
-                swipeRow.OnSwipedLeft += trackRow =>
-                {
-                    _controller.RemoveTrack(trackRow.TrackId, trackRow.TrackIndex);
-                    UpdateRowState();
-                };
-
-                swipeRow.OnSwipedRight += trackRow =>
-                {
-                    _controller.RemoveTrack(trackRow.TrackId, trackRow.TrackIndex);
-                    UpdateRowState();
-                };
-                
-                _queueList.Append(swipeRow);
+                _queueList.Append(row);
             } 
         });
     }
@@ -93,11 +73,11 @@ public partial class QueueListView
         {
             for (var i = 0; i < _controller.Tracks.Count; i++)
             {
-                var row = _queueList.GetRowAtIndex(i) as SwipeRow;
+                var row = _queueList.GetRowAtIndex(i) as TrackRow;
                 if (row == null)  continue;
 
-                var state = _controller.PlayerService.GetTrackState(row.TrackRow.TrackId, row.TrackRow.TrackIndex, PlayerSource.QueueList);
-                row.TrackRow.UpdateState(state);
+                var state = _controller.PlayerService.GetTrackState(row.TrackId, row.TrackIndex, PlayerSource.QueueList);
+                row.UpdateState(state);
             }
         });
     }

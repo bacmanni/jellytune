@@ -47,61 +47,6 @@ public partial class AlbumView
         _tracks.OnRowSelected += TracksOnRowSelected;
         _tracks.OnRowActivated += TracksOnRowActivated;
         _artwork.OnClicked += ArtworkOnClicked;
-        
-        var clickGesture = GestureClick.New();
-        clickGesture.SetPropagationPhase(Gtk.PropagationPhase.Capture);
-        clickGesture.OnPressed += (sender, args) =>
-        {
-            var state = clickGesture.GetCurrentEventState();
-            var isCtrlPressed = state.HasFlag(Gdk.ModifierType.ControlMask);
-
-            if (!isCtrlPressed)
-            {
-                clickGesture.SetState(EventSequenceState.Denied);
-                return;
-            }
-
-            clickGesture.SetState(EventSequenceState.Claimed);
-            if (_tracks.GetRowAtY((int)args.Y) is SwipeRow row)
-            {
-                _controller.AddTrackToPlaylist(row.TrackRow.TrackId);
-                UpdateTrackState();
-            }
-        };
-        
-        _tracks.AddController(clickGesture);
-        
-        var keyController = EventControllerKey.New();
-        keyController.SetPropagationPhase(PropagationPhase.Capture);
-        keyController.OnKeyPressed += (_, args) =>
-        {
-            var state = keyController.GetCurrentEventState();
-            var isCtrlPressed = state.HasFlag(Gdk.ModifierType.ControlMask);
-
-            if (isCtrlPressed)
-            {
-                Console.WriteLine("Pressed");
-            }
-            else
-            {
-                Console.WriteLine("Not Pressed");
-            }
-            
-            if (args.Keyval == Gdk.Constants.KEY_Return && isCtrlPressed)
-            {
-                if (_tracks.GetSelectedRow() is SwipeRow row)
-                {
-                    _controller.AddTrackToPlaylist(row.TrackRow.TrackId);
-                    UpdateTrackState();
-                }
-
-                return true;
-            }
-
-            return false;
-        };
-        
-        _tracks.AddController(keyController);
     }
 
     private void ArtworkOnClicked(Button sender, EventArgs args)
@@ -144,9 +89,9 @@ public partial class AlbumView
 
     private void TracksOnRowActivated(ListBox sender, ListBox.RowActivatedSignalArgs args)
     {
-        if (args.Row is SwipeRow row)
+        if (args.Row is TrackRow row)
         {
-            _ = _controller.PlayOrPauseTrackAsync(row.TrackRow.TrackId, row.TrackRow.TrackIndex);
+            _ = _controller.PlayOrPauseTrackAsync(row.TrackId, row.TrackIndex);
         }
         
         _tracks.UnselectAll();
@@ -154,9 +99,9 @@ public partial class AlbumView
 
     private void TracksOnRowSelected(ListBox sender, ListBox.RowSelectedSignalArgs args)
     {
-        if (args.Row is SwipeRow row)
+        if (args.Row is TrackRow row)
         {
-            _controller.SelectTrack(row.TrackRow.TrackId, row.TrackRow.TrackIndex);
+            _controller.SelectTrack(row.TrackId, row.TrackIndex);
         }
     }
 
@@ -210,27 +155,7 @@ public partial class AlbumView
         {
             var state = _controller.PlayerService.GetTrackState(track.Id);
             var row = TrackRow.NewWithValues(_controller.PlayerService, _controller.FileService, track, state, [RowProperty.Queue]);
-            var swipeRow = SwipeRow.NewWithTrackRow(row, new Dictionary<SwipeProperty, dynamic>()
-            {
-                { SwipeProperty.LeftStyle, "swipe-add-active" },
-                { SwipeProperty.RightStyle, "swipe-add-active" },
-                { SwipeProperty.LeftTitle, "Add track queue" },
-                { SwipeProperty.RightTitle, "Add track queue" },
-            });
-
-            swipeRow.OnSwipedLeft += trackRow =>
-            {
-                _controller.AddTrackToPlaylist(trackRow.TrackId);
-                UpdateTrackState();
-            };
-
-            swipeRow.OnSwipedRight += trackRow =>
-            {
-                _controller.AddTrackToPlaylist(trackRow.TrackId);
-                UpdateTrackState();
-            };
-            
-            _tracks.Append(swipeRow);
+            _tracks.Append(row);
         }
     }
 
@@ -238,11 +163,11 @@ public partial class AlbumView
     {
         for (var i = 0; i < _controller.Tracks.Count; i++)
         {
-            var row = _tracks.GetRowAtIndex(i) as SwipeRow;
+            var row = _tracks.GetRowAtIndex(i) as TrackRow;
             if (row == null)  continue;
             
-            var state = _controller.PlayerService.GetTrackState(row.TrackRow.TrackId);
-            row.TrackRow.UpdateState(state);
+            var state = _controller.PlayerService.GetTrackState(row.TrackId);
+            row.UpdateState(state);
         }
     }
 

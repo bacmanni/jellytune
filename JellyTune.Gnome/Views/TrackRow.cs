@@ -38,6 +38,9 @@ public partial class TrackRow
         obj._track = track;
         obj._startupState = state;
         obj._showQueue = properties.Contains(RowProperty.Queue);
+        obj.Activatable = true;
+        obj.Focusable = true;
+        obj.Selectable = false;
         
         obj._runtime.SetText(obj._track.RunTime.ToString("m\\:ss"));
 
