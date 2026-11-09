@@ -235,11 +235,6 @@ public partial class MainWindow
         AddAction(_searchTypeAction);
         
         // Basic controls
-        var actNone = SimpleAction.New("no_action", null);
-        actNone.OnActivate += ActNoneOnActivate;
-        AddAction(actNone);
-        _application.SetAccelsForAction("win.no_action", new[] { "<Primary>Return" });
-        
         var actNextTrack = SimpleAction.New("track_next", null);
         actNextTrack.OnActivate += ActNextTrackOnActivate;
         AddAction(actNextTrack);
@@ -334,11 +329,6 @@ public partial class MainWindow
         OnNotify += OnWindowNotify;
         _ = UpdateMainMenu();
         _initialized = true;
-    }
-
-    private void ActNoneOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
-    {
-        // Dont do nothing here. This is only dummy method so shortcuts dialog works
     }
 
     private void ConfigurationServiceOnSaved(object? sender, ConfigurationArgs e)
@@ -496,7 +486,6 @@ public partial class MainWindow
         player.Add(CreateShortcutsItem("Previous Track", "win.track_previous"));
         player.Add(CreateShortcutsItem("Volume Up", "win.volume_up"));
         player.Add(CreateShortcutsItem("Volume Down", "win.volume_down"));
-        player.Add(CreateShortcutsItem("Add/remove from queue", "win.no_action", "Works with mouse click and swipe"));
         player.Add(CreateShortcutsItem("Show Playing Track Lyrics", "win.track_lyrics"));
         shortcuts.Add(player);
         
