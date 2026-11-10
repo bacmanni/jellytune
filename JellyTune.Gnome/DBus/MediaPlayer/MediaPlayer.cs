@@ -68,7 +68,7 @@ public class MediaPlayer : IMediaPlayer2, IPlayer
     public Task RaiseAsync()
     {
         _mainWindow.PresentWithTime(0);
-        return Task.CompletedTask;
+        return Task.FromResult(true);
     }
 
     Task<IDictionary<string, object>> IMediaPlayer2.GetAllAsync()
