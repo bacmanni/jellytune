@@ -75,8 +75,8 @@ public class MediaPlayer : IMediaPlayer2, IPlayer
     {
         return Task.FromResult<IDictionary<string, object>>(new Dictionary<string, object>
         {
-            { "Identity", _applicationInfo.Name != null ? _applicationInfo.Name : string.Empty },
-            { "DesktopEntry", _applicationInfo.Name != null ? _applicationInfo.Name : string.Empty },
+            { "Identity", _applicationInfo.Name ?? string.Empty },
+            { "DesktopEntry", _applicationInfo.Id ?? string.Empty },
             { "CanQuit", false },
             { "CanRaise", true },
             { "HasTrackList", false }
