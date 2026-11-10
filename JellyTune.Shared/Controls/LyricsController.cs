@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Timers;
+using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
 using JellyTune.Shared.Models;
 using JellyTune.Shared.Services;
@@ -7,7 +8,7 @@ using Timer = System.Timers.Timer;
 
 namespace JellyTune.Shared.Controls;
 
-public sealed class LyricsController
+public sealed class LyricsController : IDisposable
 {
     private readonly IJellyTuneApiService _jellyTuneApiService;
     private readonly IPlayerService _playerService;
@@ -16,6 +17,8 @@ public sealed class LyricsController
     public IPlayerService PlayerService => _playerService;
     
     public IConfigurationService ConfigurationService => _configurationService;
+    
+    private bool _isPlaying { get; set; }
     
     /// <summary>
     /// Artist name for the track
@@ -47,6 +50,15 @@ public sealed class LyricsController
         _jellyTuneApiService = jellyTuneApiService;
         _playerService = playerService;
         _configurationService = configurationService;
+        _playerService.OnPlayerStateChanged += PlayerServiceOnPlayerStateChanged;
+    }
+
+    private void PlayerServiceOnPlayerStateChanged(object? sender, PlayerStateArgs e)
+    {
+        if (e.State == PlayerState.SkipNext || e.State == PlayerState.SkipPrevious)
+        {
+            _isPlaying = false;
+        }
     }
 
     public async Task UpdateAsync()
@@ -59,10 +71,11 @@ public sealed class LyricsController
         if (album == null)
             return;
         
+        _isPlaying = true;
         ArtistName = album.Artist ?? string.Empty;
         TrackName  = track.Name ?? string.Empty;
         AlbumArt = _playerService.GetArtwork();
-
+        
         var lyrics = await _jellyTuneApiService.GetTrackLyricsAsync(track.Id);
         lyrics.Reverse();
         Lyrics.Clear();
@@ -72,5 +85,15 @@ public sealed class LyricsController
         }
         
         OnLyricsUpdated?.Invoke(this, EventArgs.Empty);
+    }
+
+    public bool IsPlaying()
+    {
+        return _isPlaying;
+    }
+    
+    public void Dispose()
+    {
+        _playerService.OnPlayerStateChanged -= PlayerServiceOnPlayerStateChanged;
     }
 }

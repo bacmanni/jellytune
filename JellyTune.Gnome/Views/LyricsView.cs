@@ -45,7 +45,7 @@ public partial class LyricsView
     private void InitializeController()
     {
         _controller.PlayerService.OnPlayerPositionChanged += PlayerServiceOnPlayerPositionChanged;
-        _controller.OnLyricsUpdated += ControllerOnOnLyricsUpdated;
+        _controller.OnLyricsUpdated += ControllerOnLyricsUpdated;
         _results.SetVisible(false);
         _spinner.SetVisible(true);
         _hasLyricPositionRevealer.SetRevealChild(false);
@@ -72,6 +72,12 @@ public partial class LyricsView
     private void PlayerServiceOnPlayerPositionChanged(object? sender, PlayerPositionArgs e)
     {
         if(!_controller.ConfigurationService.Get().ShowLyricHighlight) return;
+
+        if (!_controller.IsPlaying())
+        {
+            ResetPosition();
+            return;
+        }
         
         if (_controller.Lyrics.Any() && _controller.Lyrics.First().StartTime.HasValue)
         {
@@ -101,7 +107,17 @@ public partial class LyricsView
         }
     }
 
-    private void ControllerOnOnLyricsUpdated(object? sender, EventArgs e)
+    private void ResetPosition()
+    {
+        var child = _lyricsBox.GetFirstChild();
+        while (child != null)
+        {
+            child.RemoveCssClass("lyrics-current");
+            child = child.GetNextSibling();
+        }
+    }
+    
+    private void ControllerOnLyricsUpdated(object? sender, EventArgs e)
     {
         GtkHelper.GtkDispatch(() =>
         {
@@ -146,7 +162,7 @@ public partial class LyricsView
     public override void Dispose()
     {
         _controller.PlayerService.OnPlayerPositionChanged -= PlayerServiceOnPlayerPositionChanged;
-        _controller.OnLyricsUpdated -= ControllerOnOnLyricsUpdated;
+        _controller.OnLyricsUpdated -= ControllerOnLyricsUpdated;
         base.Dispose();
     }
 }
