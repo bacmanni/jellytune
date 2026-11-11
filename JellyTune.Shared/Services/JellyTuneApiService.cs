@@ -389,7 +389,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// <exception cref="ArgumentException"></exception>
     public async Task<Album> GetAlbumAsync(Guid albumId, CancellationToken token)
     {
-        var baseItem = await _jellyfinApiClient.Items[albumId].GetAsync().ConfigureAwait(false);
+        var baseItem = await _jellyfinApiClient.Items[albumId].GetAsync(cancellationToken: token).ConfigureAwait(false);
 
         if (baseItem == null)
             throw new ArgumentException($"No album found with id {albumId}");
@@ -421,20 +421,21 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
         {
             configuration.QueryParameters.Fields = [ItemFields.SortName];
             configuration.QueryParameters.ParentId = albumId;
-        }).ConfigureAwait(false);
+        }, token).ConfigureAwait(false);
 
-        if (queryResult != null ? queryResult.Items == null : true)
+        if (queryResult?.Items == null)
             return trackResult;
         
         foreach (var baseItem in queryResult.Items)
         {
-            if (baseItem.Id == null || baseItem.Name == null && !baseItem.IndexNumber.HasValue || !baseItem.AlbumId.HasValue)
+            if (baseItem.Id == null || baseItem.Name == null || !baseItem.IndexNumber.HasValue || !baseItem.AlbumId.HasValue)
                 continue;
 
             trackResult.Add(new Track
             {
                 Id = baseItem.Id.GetValueOrDefault(),
                 Number = baseItem.IndexNumber ?? 0,
+                Index = baseItem.IndexNumber.Value, // null is checked
                 Name = baseItem.Name,
                 Artist = baseItem.AlbumArtist ?? string.Empty,
                 Album = baseItem.Album ?? string.Empty,
@@ -468,6 +469,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
         {
             Id = baseItem.Id.GetValueOrDefault(),
             Number = baseItem.IndexNumber ?? 0,
+            Index = baseItem.IndexNumber.Value,
             Name = baseItem.Name,
             Artist = baseItem.AlbumArtist ?? string.Empty,
             Album = baseItem.Album ?? string.Empty,
@@ -516,18 +518,24 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     /// </summary>
     /// <param name="trackId"></param>
     /// <returns></returns>
-    public async Task<string?> GetTrackLyricsAsync(Guid trackId)
+    public async Task<List<LyricItem>> GetTrackLyricsAsync(Guid trackId)
     {
+        var result = new List<LyricItem>();
         var lyrics = await _jellyfinApiClient.Audio[trackId].Lyrics.GetAsync().ConfigureAwait(true);
         
-        if (lyrics == null || lyrics.Lyrics == null)
-            return null;
-
-        var result = "";
+        if (lyrics?.Lyrics == null)
+            return result;
+        
         foreach (var lyricRow in lyrics.Lyrics)
         {
             if (lyricRow.Text != null)
-                result += $"{lyricRow.Text}{Environment.NewLine}";
+            {
+                result.Add(new LyricItem
+                {
+                    StartTime = lyricRow.Start.HasValue ? TimeSpan.FromTicks(lyricRow.Start.Value) : null,
+                    Text = lyricRow.Text,
+                });
+            }
         }
         
         return result;
@@ -584,20 +592,25 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
 
         if (queryResult != null ? queryResult.Items == null : true)
             return trackResult;
-        
-        foreach (var baseItem in queryResult.Items)
+
+        for (var index = 0; index < queryResult.Items.Count; index++)
         {
-            if (baseItem.Id == null || baseItem.Name == null && !baseItem.IndexNumber.HasValue || !baseItem.AlbumId.HasValue)
+            var baseItem = queryResult.Items[index];
+            if (baseItem.Id == null || baseItem.Name == null && !baseItem.IndexNumber.HasValue ||
+                !baseItem.AlbumId.HasValue)
                 continue;
 
             trackResult.Add(new Track
             {
                 Id = baseItem.Id.GetValueOrDefault(),
                 Number = baseItem.IndexNumber ?? 0,
+                Index = index,
                 Name = baseItem.Name,
                 Artist = baseItem.AlbumArtist ?? string.Empty,
                 Album = baseItem.Album ?? string.Empty,
-                RunTime = baseItem.RunTimeTicks.HasValue ? TimeSpan.FromTicks(baseItem.RunTimeTicks.Value) : TimeSpan.Zero,
+                RunTime = baseItem.RunTimeTicks.HasValue
+                    ? TimeSpan.FromTicks(baseItem.RunTimeTicks.Value)
+                    : TimeSpan.Zero,
                 AlbumId = baseItem.AlbumId.Value,
                 HasArtwork = !string.IsNullOrWhiteSpace(baseItem.AlbumPrimaryImageTag),
                 HasLyrics = baseItem.HasLyrics != null && baseItem.HasLyrics.Value,

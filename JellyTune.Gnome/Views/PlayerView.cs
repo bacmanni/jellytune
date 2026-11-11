@@ -70,7 +70,7 @@ public partial class PlayerView
     private void UpdateTrack()
     {
         if (_controller.Album != null)
-            _artist.SetText(_controller.Album.Artist != null ? _controller.Album.Artist : string.Empty);
+            _artist.SetText(_controller.Album.Artist ?? string.Empty);
         
         if (_controller.Artwork != null)
         {
@@ -85,11 +85,12 @@ public partial class PlayerView
         
         if (_controller.SelectedTrack != null)
         {
-            _track.SetText(_controller.SelectedTrack.Name != null ? _controller.SelectedTrack.Name : string.Empty);
+            _track.SetText(_controller.SelectedTrack.Name ?? string.Empty);
             _lyrics.SetSensitive(_controller.SelectedTrack.HasLyrics);
-            _skipForward.SetSensitive(_controller.PlayerService.HasNextTrack());
-            _skipBackward.SetSensitive(_controller.PlayerService.HasPreviousTrack());
         }
+        
+        _skipForward.SetSensitive(_controller.PlayerService.HasNextTrack());
+        _skipBackward.SetSensitive(_controller.PlayerService.HasPreviousTrack());
     }
     
     private void SkipForwardOnClicked(Button sender, EventArgs args)
@@ -142,22 +143,15 @@ public partial class PlayerView
                 case PlayerState.Paused:
                     _play.IconName = "media-playback-start-symbolic";
                     _play.SetTooltipText("Play track");
-                    UpdateTrack();
                     break;
 
                 case PlayerState.Playing:
                     _play.IconName = "media-playback-pause-symbolic";
                     _play.SetTooltipText("Pause track");
-                    UpdateTrack();
-                    break;
-                
-                case PlayerState.LoadedInfo:
-                case PlayerState.LoadedArtwork:
-                case PlayerState.SkipNext:
-                case PlayerState.SkipPrevious:
-                    UpdateTrack();
                     break;
             }
+
+            UpdateTrack();
         });
     }
 

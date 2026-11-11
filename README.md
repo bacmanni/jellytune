@@ -22,6 +22,7 @@ Project is written in C#. It is separated in multiple projects:
 
 ## Thanks
 My thanks for the people who have and are working with these:
+[PupNet](https://github.com/kuiperzone/PupNet-Deploy)
 [Gir.Core](https://github.com/gircore/gir.core),
 [SoundFlow](https://github.com/LSXPrime/SoundFlow),
 [Jellyfin](https://jellyfin.org) and

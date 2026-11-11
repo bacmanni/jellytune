@@ -46,9 +46,10 @@ public sealed class AlbumController : IDisposable
     /// Set track as selected
     /// </summary>
     /// <param name="trackId"></param>
-    public void SelectTrack(Guid trackId)
+    /// <param name="index"></param>
+    public void SelectTrack(Guid trackId, int index)
     {
-        SelectedTrack = Tracks.FirstOrDefault(t => t.Id == trackId);
+        SelectedTrack = Tracks.FirstOrDefault(t => t.Id == trackId && t.Index == index);
     }
 
     public void Dispose()
@@ -105,15 +106,32 @@ public sealed class AlbumController : IDisposable
     /// Play track. If already playing, then pause track
     /// </summary>
     /// <param name="trackId"></param>
-    public async Task PlayOrPauseTrackAsync(Guid trackId)
+    /// <param name="index"></param>
+    public async Task PlayOrPauseTrackAsync(Guid trackId, int index)
     {
-        if (_playerService.IsPlaying() && _playerService.IsPlayingTrack(trackId))
+        if (_playerService.IsPlaying() && _playerService.IsPlayingTrack(trackId, index))
         {
             _playerService.PauseTrack();
         }
         else
         {
-            await _playerService.StartTrackAsync(trackId);
+            await _playerService.StartTrackAsync(trackId, index);
         }
+    }
+
+    /// <summary>
+    /// Add track to playlist
+    /// </summary>
+    /// <param name="trackId"></param>
+    public void AddTrackToPlaylist(Guid trackId)
+    {
+        var track = Tracks.FirstOrDefault(t => t.Id == trackId);
+        if (track == null) return;
+        
+        var index = _playerService.AddTrack(track);
+        if (_playerService.IsPlaying()) return;
+        if(_playerService.IsPaused()) return;
+            
+        _playerService.StartTrackAsync(track.Id, index);
     }
 }

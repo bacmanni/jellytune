@@ -88,11 +88,10 @@ public sealed class AccountController
     /// Open input configuration
     /// </summary>
     /// <param name="configuration"></param>
-    /// <param name="validate">Should validate when opened</param>
-    public void OpenConfiguration(Configuration configuration, bool validate)
+    /// <param name="startupState"></param>
+    public void OpenConfiguration(Configuration configuration, StartupState startupState)
     {
         IsValid = true;
-
         ServerUrl = configuration.ServerUrl;
         Username = configuration.Username;
         Password = configuration.Password;
@@ -103,33 +102,7 @@ public sealed class AccountController
         if (!string.IsNullOrWhiteSpace(configuration.PlaylistCollectionId))
             PlaylistCollectionId = Guid.Parse(configuration.PlaylistCollectionId);
         
-        OnConfigurationLoaded?.Invoke(this, new AccountArgs { Validate = validate });
-    }
-
-    /// <summary>
-    /// Check if account values are changed
-    /// </summary>
-    /// <returns></returns>
-    public bool HasChanges()
-    {
-        var configuration = _configurationService.Get();
-
-        if (configuration.ServerUrl != ServerUrl)
-            return true;
-
-        if (configuration.Username != Username)
-            return true;
-
-        if (configuration.Password != Password)
-            return true;
-        
-        if (configuration.CollectionId != CollectionId?.ToString())
-            return true;
-
-        if (configuration.PlaylistCollectionId != PlaylistCollectionId?.ToString())
-            return true;
-            
-        return false;
+        OnConfigurationLoaded?.Invoke(this, new AccountArgs() { State = startupState} );
     }
 
     /// <summary>
@@ -166,7 +139,7 @@ public sealed class AccountController
     /// Check that required account 
     /// </summary>
     /// <returns></returns>
-    public bool HasRequiedValues()
+    public bool HasRequiredValues()
     {
         return !string.IsNullOrWhiteSpace(ServerUrl) && !string.IsNullOrWhiteSpace(Username) && !string.IsNullOrWhiteSpace(Password);
     }

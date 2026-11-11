@@ -8,7 +8,7 @@ public interface IConfigurationService
 {
     public ApplicationInfo ApplicationInfo { get; }
     public event EventHandler<ConfigurationArgs>? OnSaved;
-    public void Save();
+    public Dictionary<string, (object? Previous, object? Current)> Save();
     public void Load();
     public string? GetConfigurationDirectory();
     public string? GetCacheDirectory();

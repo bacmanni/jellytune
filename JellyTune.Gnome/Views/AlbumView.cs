@@ -3,7 +3,9 @@ using Gdk;
 using GLib;
 using GObject;
 using Gtk;
+using JellyTune.Gnome.Enums;
 using JellyTune.Gnome.Helpers;
+using JellyTune.Gnome.Models;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Events;
 using GestureClick = Gtk.GestureClick;
@@ -88,8 +90,8 @@ public partial class AlbumView
     private void TracksOnRowActivated(ListBox sender, ListBox.RowActivatedSignalArgs args)
     {
         if (args.Row is TrackRow row)
-        { 
-            _ = _controller.PlayOrPauseTrackAsync(row.TrackId);
+        {
+            _ = _controller.PlayOrPauseTrackAsync(row.TrackId, row.TrackIndex);
         }
         
         _tracks.UnselectAll();
@@ -99,7 +101,7 @@ public partial class AlbumView
     {
         if (args.Row is TrackRow row)
         {
-            _controller.SelectTrack(row.TrackId);
+            _controller.SelectTrack(row.TrackId, row.TrackIndex);
         }
     }
 
@@ -124,14 +126,14 @@ public partial class AlbumView
 
         SetSpinner(false);
         
-        _artist.SetText(_controller.Album != null ? _controller.Album.Artist != null ? _controller.Album.Artist : "No artist" : "No artist");
-        _album.SetText(_controller.Album != null ? _controller.Album.Name != null ? _controller.Album.Name : "No album" : "No album");
+        _artist.SetText(_controller.Album != null ? _controller.Album.Artist ?? "No artist" : "No artist");
+        _album.SetText(_controller.Album != null ? _controller.Album.Name ?? "No album" : "No album");
         _trackCount.SetText($"{_controller.Tracks.Count.ToString()} tracks");
         
-        if (_controller.Album != null && _controller.Album.Runtime != null)
+        if (_controller.Album is { Runtime: not null })
             _albumDuration.SetText($"{_controller.Album.Runtime.Value.TotalMinutes:F0}m");
         
-        if (_controller.Album != null && _controller.Album.Year != null)
+        if (_controller.Album is { Year: not null })
             _albumYear.SetText(_controller.Album.Year.Value.ToString());
     }
 
@@ -152,7 +154,7 @@ public partial class AlbumView
         foreach (var track in _controller.Tracks)
         {
             var state = _controller.PlayerService.GetTrackState(track.Id);
-            var row = TrackRow.NewWithValues(_controller.FileService, track, state);
+            var row = TrackRow.NewWithValues(_controller.PlayerService, _controller.FileService, track, state, [RowProperty.Queue]);
             _tracks.Append(row);
         }
     }

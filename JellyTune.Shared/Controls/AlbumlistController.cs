@@ -16,7 +16,6 @@ public class AlbumlistController : ListController, IDisposable
     public AlbumlistController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService, IFileService fileService) : base(configurationService, fileService)
     {
         _jellyTuneApiService = jellyTuneApiService;
-
         OnItemClicked += ListControllerOnItemClicked;
     }
 

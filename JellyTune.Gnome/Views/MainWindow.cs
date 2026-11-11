@@ -1,4 +1,3 @@
-using System.Reflection;
 using Adw;
 using Gdk;
 using Gio;
@@ -10,11 +9,11 @@ using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
+using JellyTune.Shared.Models;
 using AboutDialog = Adw.AboutDialog;
 using Application = Adw.Application;
 using ApplicationWindow = Adw.ApplicationWindow;
 using Dialog = Adw.Dialog;
-using FileType = JellyTune.Shared.Enums.FileType;
 using HeaderBar = Adw.HeaderBar;
 using Object = GObject.Object;
 using ShortcutsSection = Adw.ShortcutsSection;
@@ -67,6 +66,7 @@ public partial class MainWindow
     
     private SimpleAction _refreshAction;
     private SimpleAction _viewAction;
+    private SimpleAction _searchTypeAction;
     
     private Adw.TimedAnimation? _backgroundAnimation;
     private CancellationTokenSource? _menuUpdateCancellationCts;
@@ -79,7 +79,7 @@ public partial class MainWindow
     
     [Connect] private Button _searchButton;
     [Connect] private SearchEntry _searchField;
-    
+    [Connect] private MenuButton _searchType;
     [Connect] private Box _playerPosition;
     
     [Connect] private Box _player;
@@ -136,6 +136,7 @@ public partial class MainWindow
     {
         _controller.OnApplicationBackgroundChanged += ControllerOnApplicationBackgroundChanged;
         _controller.PlayerService.OnPlayerStateChanged += OnPlayerStateChanged;
+        _controller.ConfigurationService.OnSaved += ConfigurationServiceOnSaved;
         
         // Album list
         _albumlistController = new AlbumlistController(_controller.JellyTuneApiService,
@@ -188,13 +189,13 @@ public partial class MainWindow
         _refreshAction = SimpleAction.New("refresh", null);
         _refreshAction.OnActivate += ActRefreshOnActivate;
         AddAction(_refreshAction);
-        _application.SetAccelsForAction("win.refresh", new[] { "<Ctrl>F5" });
+        _application.SetAccelsForAction("win.refresh", new[] { "<Primary>r" });
 
         //Preferences Action
         var actPreferences = SimpleAction.New("preferences", null);
         actPreferences.OnActivate += ActPreferencesOnActivate;
         AddAction(actPreferences);
-        _application.SetAccelsForAction("win.preferences", new[] { "<Ctrl>comma" });
+        _application.SetAccelsForAction("win.preferences", new[] { "<Primary>comma" });
         
         //About Action
         var actAbout = SimpleAction.New("about", null);
@@ -204,45 +205,66 @@ public partial class MainWindow
         var actShortcuts = SimpleAction.New("shortcuts", null);
         actShortcuts.OnActivate += ActShortcutOnActivate;
         AddAction(actShortcuts);
-        _application.SetAccelsForAction("win.shortcuts", new[] { "<Ctrl>question" });
+        _application.SetAccelsForAction("win.shortcuts", new[] { "<Primary>question" });
         
         //Search
         var actSearchBar = SimpleAction.New("search", null);
         actSearchBar.OnActivate += ActShowSearchBarOnActivate;
         AddAction(actSearchBar);
-        _application.SetAccelsForAction("win.search", new[] { "<Ctrl>f" });
+        _application.SetAccelsForAction("win.search", new[] { "<Primary>f" });
 
+        // Search type
+        _searchTypeAction = SimpleAction.NewStateful(
+            "search_type",
+            VariantType.String,
+            Variant.NewString("All")
+        );
+        
+        _searchTypeAction.OnChangeState += (_, args) =>
+        {
+            if (args.Value == null)
+                return;
+                
+            _searchTypeAction.SetState(args.Value);
+            
+            if (!string.IsNullOrEmpty(_searchField.GetText()))
+            {
+                SearchFieldOnSearchChanged(_searchField, EventArgs.Empty);
+            }
+        };
+        AddAction(_searchTypeAction);
+        
         // Basic controls
         var actNextTrack = SimpleAction.New("track_next", null);
         actNextTrack.OnActivate += ActNextTrackOnActivate;
         AddAction(actNextTrack);
-        _application.SetAccelsForAction("win.track_next", new[] { "<Ctrl>Right" });
+        _application.SetAccelsForAction("win.track_next", new[] { "<Primary>Right" });
 
         var actPrevious = SimpleAction.New("track_previous", null);
         actPrevious.OnActivate += ActPreviousOnActivate;
         AddAction(actPrevious);
-        _application.SetAccelsForAction("win.track_previous", new[] { "<Ctrl>Left" });
+        _application.SetAccelsForAction("win.track_previous", new[] { "<Primary>Left" });
         
         var actPlayPause = SimpleAction.New("track_play", null);
         actPlayPause.OnActivate += ActPlayPauseOnActivate;
         AddAction(actPlayPause);
-        _application.SetAccelsForAction("win.track_play", new[] { "<Ctrl>space" });
+        _application.SetAccelsForAction("win.track_play", new[] { "<Primary>space" });
 
         var actVolumeUp = SimpleAction.New("volume_up", null);
         actVolumeUp.OnActivate += ActVolumeUpOnActivate;
         AddAction(actVolumeUp);
-        _application.SetAccelsForAction("win.volume_up", new[] { "<Ctrl>Up" });
+        _application.SetAccelsForAction("win.volume_up", new[] { "<Primary>Up" });
         
         var actVolumeDown = SimpleAction.New("volume_down", null);
         actVolumeDown.OnActivate += ActVolumeDownOnActivate;
         AddAction(actVolumeDown);
-        _application.SetAccelsForAction("win.volume_down", new[] { "<Ctrl>Down" });
+        _application.SetAccelsForAction("win.volume_down", new[] { "<Primary>Down" });
         
         // Lyrics
         var actLyrics = SimpleAction.New("track_lyrics", null);
         actLyrics.OnActivate += ActLyricsOnActivate;
         AddAction(actLyrics);
-        _application.SetAccelsForAction("win.track_lyrics", new[] { "<Ctrl>l" });
+        _application.SetAccelsForAction("win.track_lyrics", new[] { "<Primary>l" });
 
         var actOpenAlbum = SimpleAction.New("open_album", VariantType.String);
         actOpenAlbum.OnActivate += ActOpenAlbumOnActivate;
@@ -252,7 +274,7 @@ public partial class MainWindow
         var actQuit = SimpleAction.New("quit", null);
         actQuit.OnActivate += Quit;
         AddAction(actQuit);
-        _application.SetAccelsForAction("win.quit", new[] { "<Ctrl>q" });
+        _application.SetAccelsForAction("win.quit", new[] { "<Primary>q" });
 
         // Event for selected view
         _viewAction = SimpleAction.NewStateful(
@@ -273,8 +295,8 @@ public partial class MainWindow
                 _mainViewStack.SetVisibleChildName(newState);
         };
         AddAction(_viewAction);
-        _application.SetAccelsForAction("win.view('page1')", new[] { "<Ctrl>1" });
-        _application.SetAccelsForAction("win.view('page2')", new[] { "<Ctrl>2" });
+        _application.SetAccelsForAction("win.view('page1')", new[] { "<Primary>1" });
+        _application.SetAccelsForAction("win.view('page2')", new[] { "<Primary>2" });
         
         SetIconName(_controller.ApplicationInfo.Icon);
         SetWindowSize(360, 600);
@@ -307,6 +329,14 @@ public partial class MainWindow
         OnNotify += OnWindowNotify;
         _ = UpdateMainMenu();
         _initialized = true;
+    }
+
+    private void ConfigurationServiceOnSaved(object? sender, ConfigurationArgs e)
+    {
+        if (e.Changes.ContainsKey("ServerUrl") || e.Changes.ContainsKey("Username") || e.Changes.ContainsKey("Password") || e.Changes.ContainsKey("CollectionId") ||  e.Changes.ContainsKey("PlaylistCollectionId"))
+        {
+            _ = RefreshLists();
+        }
     }
 
     private void ControllerOnApplicationBackgroundChanged(object? sender, EventArgs e)
@@ -463,14 +493,16 @@ public partial class MainWindow
         shortcuts.OnClosed += ShortcutsWindowOnClosed;
     }
 
-    private ShortcutsItem CreateShortcutsItem(string title, string acceleratorName)
+    private ShortcutsItem CreateShortcutsItem(string title, string acceleratorName, string? subtitle = null)
     {
         var accelerators = _application.GetAccelsForAction(acceleratorName);
-
         if (accelerators.Length != 1)
             throw new Exception("Missing or too many accelerators");
             
         var item = ShortcutsItem.New(title, accelerators[0]);
+        if (subtitle != null)
+            item.Subtitle = subtitle;
+        
         return item;
     }
     
@@ -653,6 +685,10 @@ public partial class MainWindow
             _playlistTracksFooter.SetVisible(false);
             _playerPosition.SetVisible(false);
 
+            // This state is only ran when song stops. Queue should close too
+            if (_rootView.VisiblePage == _queueList)
+                ResetNavigationView();
+            
             UpdateHeader(false);
         }
     }
@@ -679,7 +715,9 @@ public partial class MainWindow
         }
         else
         {
-            _ = _searchController.SearchAlbumsAsync(value, cancellationToken);
+            var selectedType = _searchTypeAction.GetState()?.GetString(out var length);
+            var type = selectedType is "All" or null ? (SearchType?)null : Enum.Parse<SearchType>(selectedType);
+            _ = _searchController.SearchAlbumsAsync(value, type, cancellationToken);
         }
     }
     
@@ -713,7 +751,7 @@ public partial class MainWindow
     
     private void PlayerControllerOnShowShowLyricsClicked(object? sender, AlbumArgs e)
     {
-        var controller = new LyricsController(_controller.JellyTuneApiService, _controller.PlayerService);
+        var controller = new LyricsController(_controller.JellyTuneApiService, _controller.PlayerService, _controller.ConfigurationService);
         var lyrics = LyricsView.NewWithValues(controller);
         lyrics.Present(this);
         _ = controller.UpdateAsync();
@@ -729,7 +767,7 @@ public partial class MainWindow
     private void PlayerControllerOnShowPlaylistClicked(object? sender, AlbumArgs e)
     {
         ResetNavigationView();
-        _queueListController.Open();
+        _queueListController.Update();
         _rootView.Push(_queueList);
     }
 
@@ -781,16 +819,16 @@ public partial class MainWindow
     {
         // Pause playing. Playing would break account related stuff
         _controller.PlayerService.StopTrack();
+        _controller.PlayerService.ClearTracks();
         FadeBackgroundTo(null);
         
         var preferences = PreferencesView.NewWithValues(_controller.ConfigurationService, _controller.JellyTuneApiService);
         preferences.Present(this);
-        preferences.OnClosed += async (_, _) =>
+        preferences.OnClosed += (dialog, e) =>
         {
             if (preferences.Refresh)
             {
-                await _startupController.StartAsync(preferences.Password);
-                await RefreshLists();
+                _ = RefreshLists();
             }
         };
     }
@@ -833,6 +871,7 @@ public partial class MainWindow
     public override void Dispose()
     {
         _controller.OnApplicationBackgroundChanged -= ControllerOnApplicationBackgroundChanged;
+        _controller.ConfigurationService.OnSaved -= ConfigurationServiceOnSaved;
         _controller.PlayerService.OnPlayerStateChanged -= OnPlayerStateChanged;
         _searchField.OnSearchChanged -= SearchFieldOnSearchChanged;
         

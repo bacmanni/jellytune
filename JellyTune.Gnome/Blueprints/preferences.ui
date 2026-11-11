@@ -21,6 +21,11 @@
                             </object>
                         </child>
                         <child>
+                            <object class="AdwSwitchRow" id="_showLyricPosition">
+                                <property name="title" translatable="yes">Highlight current lyric position</property>
+                            </object>
+                        </child>
+                        <child>
                             <object class="AdwSwitchRow" id="_cacheList">
                                 <property name="title" translatable="yes">Store list data to device memory</property>
                             </object>

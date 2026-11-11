@@ -3,6 +3,7 @@ using Gdk;
 using GLib;
 using GObject;
 using Gtk;
+using JellyTune.Gnome.Enums;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Models;
 using JellyTune.Shared.Services;
@@ -15,8 +16,10 @@ namespace JellyTune.Gnome.Views;
 public partial class TrackRow
 {
     private IFileService  _fileService;
+    private IPlayerService _playerService;
     private Track _track;
     private PlayerState _startupState;
+    private bool _showQueue = false;
     
     [Connect] private Image _status;
     [Connect] private Spinner _spinner;
@@ -25,25 +28,28 @@ public partial class TrackRow
     [Connect] private Label _number;
 
     public Guid TrackId => _track.Id;
-
-    public static TrackRow NewWithValues(IFileService fileService, Track track, PlayerState state, bool extended = false)
+    public int TrackIndex => _track.Index;
+    
+    public static TrackRow NewWithValues(IPlayerService playerService, IFileService fileService, Track track, PlayerState state, List<RowProperty> properties)
     {
         var obj = NewWithProperties([]);
-        obj._fileService  = fileService;
+        obj._playerService = playerService;
+        obj._fileService = fileService;
         obj._track = track;
         obj._startupState = state;
+        obj._showQueue = properties.Contains(RowProperty.Queue);
         obj.Activatable = true;
         obj.Focusable = true;
         obj.Selectable = false;
         
         obj._runtime.SetText(obj._track.RunTime.ToString("m\\:ss"));
 
-        if (extended)
+        if (properties.Contains(RowProperty.Extended))
         {
             obj._number.SetVisible(false);
             obj._albumArt.SetVisible(true);
             
-            obj.SetSubtitle(Markup.EscapeText(obj._track.Artist != null ? obj._track.Artist : string.Empty));
+            obj.SetSubtitle(Markup.EscapeText(obj._track.Artist ?? string.Empty));
         }
         else
         {
@@ -98,7 +104,7 @@ public partial class TrackRow
     {
         _status.SetVisible(false);
         _spinner.SetVisible(true);
-        SetTitle($"<b>{Markup.EscapeText(_track.Name != null ? _track.Name : string.Empty)}</b>");
+        SetTitle($"<b>{Markup.EscapeText(_track.Name ?? string.Empty)}</b>");
     }
     
     private void StartTrack()
@@ -106,7 +112,7 @@ public partial class TrackRow
         _spinner.SetVisible(false);
         _status.SetVisible(true);
         _status.SetFromIconName("media-playback-start-symbolic");
-        SetTitle($"<b>{Markup.EscapeText(_track.Name != null ? _track.Name : string.Empty)}</b>");
+        SetTitle($"<b>{Markup.EscapeText(_track.Name ?? string.Empty)}</b>");
     }
 
     private void ClearTrack()
@@ -114,7 +120,7 @@ public partial class TrackRow
         _spinner.SetVisible(false);
         _status.SetVisible(true);
         _status.SetFromIconName(null);
-        SetTitle(Markup.EscapeText(_track.Name != null ? _track.Name : string.Empty));
+        SetTitle(Markup.EscapeText(_track.Name ?? string.Empty));
     }
 
     private void StopTrack()
@@ -122,7 +128,7 @@ public partial class TrackRow
         _spinner.SetVisible(false);
         _status.SetVisible(true);
         _status.SetFromIconName("media-playback-pause-symbolic");
-        SetTitle($"<b>{Markup.EscapeText(_track.Name != null ? _track.Name : string.Empty)}</b>");
+        SetTitle($"<b>{Markup.EscapeText(_track.Name ?? string.Empty)}</b>");
     }
 
     public override void Dispose()

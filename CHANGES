@@ -1,4 +1,9 @@
-+ 1.2.3;2026-18-10
++ 1.2.4;2026-10-28
+- Filter search by type
+- Copy lyrics and show position while playing
+- Generic updates
+
++ 1.2.3;2026-10-18
 - Update on account creation
 - Added option to use album art as application background
 - Updated keyboard navigation

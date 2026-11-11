@@ -19,6 +19,44 @@
     background: transparent;
     box-shadow: none;
 }
+.queue-badge {
+    background-color: var(--accent-bg-color);
+    color: var(--accent-fg-color);
+    border-radius: 999px;
+    min-width: 12px;
+    min-height: 12px;
+    padding: 2px;
+    font-size: 8px;
+    font-weight: bold;
+    margin-right: -12px;
+}
+.background-blur .queue-badge {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: var(--window-fg-color);
+}
+.lyrics-current {
+    font-weight: bold;
+    text-shadow:
+            0 0 2px currentColor,
+            0 0 5px currentColor;
+}
+.swipe-row {
+    background-color: transparent;
+    box-shadow: none;
+}
+.swipe-row.swipe-add-active {
+    background-color: var(--accent-bg-color);
+    color: var(--accent-fg-color);
+}
+.swipe-row.swipe-remove-active {
+    background-color: var(--destructive-bg-color);
+    color: var(--destructive-fg-color);
+}
+.swipe-foreground {
+    background-color: transparent;
+    box-shadow: none;
+}
+
 /* Application background related */
 .top-bar, headerbar {
     transition: background-color 500ms ease-in-out;
@@ -89,6 +127,9 @@ gridview > row:hover {
     }
     .background-blur .bottom-bar, headerbar {
         background-color: rgba(255, 255, 255, 0.1);
+    }
+    .background-blur .queue-badge {
+        background-color: rgba(0, 0, 0, 0.2);
     }
 }
 

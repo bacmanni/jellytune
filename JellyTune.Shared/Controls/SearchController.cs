@@ -1,3 +1,4 @@
+using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
 using JellyTune.Shared.Models;
 using JellyTune.Shared.Services;
@@ -48,18 +49,19 @@ public sealed class SearchController : IDisposable
     /// Begin searching for value
     /// </summary>
     /// <param name="value"></param>
+    /// <param name="type"></param>
     /// <param name="cancellationToken"></param>
-    public async Task SearchAlbumsAsync(string value, CancellationToken cancellationToken = default)
+    public async Task SearchAlbumsAsync(string value, SearchType? type = null, CancellationToken cancellationToken = default)
     {
         try
         {
             SearchStateChanged(new SearchStateArgs { Start = true });
         
-            var searchresults = await GetSearchResultsAsync(value, cancellationToken);
+            var searchResults = await GetSearchResultsAsync(value, type, cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
         
             Results.Clear();
-            Results.AddRange(searchresults);
+            Results.AddRange(searchResults);
             SearchStateChanged(new SearchStateArgs { Updated = true });
         }
         catch (OperationCanceledException)
@@ -68,10 +70,30 @@ public sealed class SearchController : IDisposable
         }
     }
 
-    private async Task<List<Search>> GetSearchResultsAsync(string value, CancellationToken token)
+    private async Task<List<Search>> GetSearchResultsAsync(string value, SearchType? type, CancellationToken token)
     {
-        var results = await Task.WhenAll(_jellyTuneApiService.SearchAlbumAsync(value, token), _jellyTuneApiService.SearchArtistAlbumsAsync(value, token), _jellyTuneApiService.SearchTrackAsync(value, token));
-
+        List<Search>[] results;
+        
+        if (type == SearchType.Album)
+        {
+            var albums = await _jellyTuneApiService.SearchAlbumAsync(value, token);
+            results = [albums];
+        }
+        else if (type == SearchType.Artist)
+        {
+            var artists = await _jellyTuneApiService.SearchArtistAlbumsAsync(value, token);
+            results = [artists];
+        }
+        else if (type == SearchType.Track)
+        {
+            var tracks = await _jellyTuneApiService.SearchTrackAsync(value, token);
+            results = [tracks];
+        }
+        else
+        {
+            results = await Task.WhenAll(_jellyTuneApiService.SearchAlbumAsync(value, token), _jellyTuneApiService.SearchArtistAlbumsAsync(value, token), _jellyTuneApiService.SearchTrackAsync(value, token));
+        }
+        
         var sortList = new List<Search>();
         foreach (var result in results)
         {

@@ -1,8 +1,10 @@
 using Adw;
 using GObject;
 using Gtk;
+using JellyTune.Gnome.Enums;
 using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Controls;
+using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
 using ListBox = Gtk.ListBox;
 using Spinner = Adw.Spinner;
@@ -39,7 +41,7 @@ public partial class PlaylistTracksView
     {
         if (args.Row is TrackRow row)
         {
-            _ = _controller.PlayOrPauseTrackAsync(row.TrackId);
+            _ = _controller.PlayOrPauseTrackAsync(row.TrackId, row.TrackIndex);
         }
     }
 
@@ -68,8 +70,10 @@ public partial class PlaylistTracksView
             _playlistTracksList.RemoveAll();
             foreach (var track in _controller.Tracks)
             {
-                var state = _controller.PlayerService.GetTrackState(track.Id);
-                _playlistTracksList.Append(TrackRow.NewWithValues(_controller.FileService, track, state, true));
+                var state = _controller.PlayerService.GetTrackState(track.Id, track.Index, PlayerSource.Playlist);
+                var row = TrackRow.NewWithValues(_controller.PlayerService, _controller.FileService, track, state,
+                    [RowProperty.Extended, RowProperty.Queue]);
+                _playlistTracksList.Append(row);
             }
         });
         
@@ -84,7 +88,7 @@ public partial class PlaylistTracksView
             var row = _playlistTracksList.GetRowAtIndex(i) as TrackRow;
             if (row == null)  continue;
             
-            var state = _controller.PlayerService.GetTrackState(row.TrackId);
+            var state = _controller.PlayerService.GetTrackState(row.TrackId, row.TrackIndex, PlayerSource.Playlist);
             row.UpdateState(state);
         }
     }

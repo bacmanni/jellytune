@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 env:
-  VERSION: 1.2.3
+  VERSION: 1.2.4
 
 jobs:
   build:
@@ -31,7 +31,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: '9.x'
+          dotnet-version: '10.x'
 
       - name: Install dependencies
         run: |
@@ -44,7 +44,7 @@ jobs:
 
       - name: Install PupNet
         run: |
-          dotnet tool update -g KuiperZone.PupNet --version 1.9.0
+          dotnet tool update -g KuiperZone.PupNet --version 1.9.1
           
       - name: Download appimage tool
         run: |

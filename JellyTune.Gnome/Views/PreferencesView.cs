@@ -2,6 +2,7 @@ using Adw;
 using GObject;
 using Gtk;
 using JellyTune.Shared.Controls;
+using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
 using JellyTune.Shared.Services;
 using AlertDialog = Adw.AlertDialog;
@@ -30,9 +31,9 @@ public partial class PreferencesView
     [Connect] private SwitchRow _showVolume;
     [Connect] private SwitchRow _showPlayingAlbum;
     [Connect] private SwitchRow _showLyrics;
+    [Connect] private SwitchRow _showLyricPosition;
     
     public bool Refresh { get; set; }
-    public string? Password { get; set; } = null;
 
     private void CloseAttempt(Dialog sender, EventArgs args)
     {
@@ -48,8 +49,8 @@ public partial class PreferencesView
             configuration.ShowSeek = _showSeek.GetActive();
             configuration.ShowVolume = _showVolume.GetActive();
             configuration.ShowCurrentAlbum = _showPlayingAlbum.GetActive();
-
-            Refresh = _accountController.HasChanges();
+            configuration.ShowLyricHighlight = _showLyricPosition.GetActive();
+            
             configuration.ServerUrl = _accountController.ServerUrl ?? string.Empty;
             configuration.Username = _accountController.Username ?? string.Empty;
             configuration.Password = _accountController.Password;
@@ -95,11 +96,12 @@ public partial class PreferencesView
         _accountController.OnConfigurationLoaded += AccountControllerOnConfigurationLoaded;
         
         var configuration =  _configurationService.Get();
-        _accountController.OpenConfiguration(configuration, true);
+        _accountController.OpenConfiguration(configuration, StartupState.Finished);
         _showPlayingAlbumBackground.SetActive(configuration.ShowAlbumAsBackground);
         _cacheList.SetActive(configuration.CacheListData);
         _cacheArtwork.SetActive(configuration.CacheAlbumArt);
         _showListSeparator.SetActive(configuration.ShowListSeparator);
+        _showLyricPosition.SetActive(configuration.ShowLyricHighlight);
         
         _showLyrics.SetActive(configuration.ShowLyrics);
         _showSeek.SetActive(configuration.ShowSeek);

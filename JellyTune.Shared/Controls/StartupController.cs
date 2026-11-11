@@ -77,16 +77,6 @@ public sealed class StartupController : IDisposable
         return StartupState.SelectCollection;
     }
 
-    /// <summary>
-    /// Save configuration
-    /// </summary>
-    /// <param name="configuration"></param>
-    public void SaveConfiguration(Configuration configuration)
-    {
-        _configurationService.Set(configuration);
-        _configurationService.Save();
-    }
-
     public void Dispose()
     {
 

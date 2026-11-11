@@ -1,6 +1,8 @@
 using GObject;
 using Gtk;
+using JellyTune.Gnome.Enums;
 using JellyTune.Gnome.Helpers;
+using JellyTune.Gnome.Models;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
@@ -46,7 +48,7 @@ public partial class QueueListView
         if (row is null)
             return;
                 
-        _controller.PlayerService.StartTrackAsync(row.TrackId);
+        _controller.PlayerService.StartTrackAsync(row.TrackId, row.TrackIndex);
     }
 
     private void ControllerOnQueueUpdated(object? sender, QueueArgs e)
@@ -56,8 +58,11 @@ public partial class QueueListView
             _queueList.RemoveAll();
             foreach (var track in _controller.Tracks)
             {
-                var state = _controller.PlayerService.GetTrackState(track.Id);
-                _queueList.Append(TrackRow.NewWithValues(_controller.FileService, track, state, true));
+                var state = _controller.PlayerService.GetTrackState(track.Id, track.Index, PlayerSource.QueueList);
+
+                var row = TrackRow.NewWithValues(_controller.PlayerService, _controller.FileService, track, state,
+                    [RowProperty.Extended]);
+                _queueList.Append(row);
             } 
         });
     }
@@ -71,7 +76,7 @@ public partial class QueueListView
                 var row = _queueList.GetRowAtIndex(i) as TrackRow;
                 if (row == null)  continue;
 
-                var state = _controller.PlayerService.GetTrackState(row.TrackId);
+                var state = _controller.PlayerService.GetTrackState(row.TrackId, row.TrackIndex, PlayerSource.QueueList);
                 row.UpdateState(state);
             }
         });

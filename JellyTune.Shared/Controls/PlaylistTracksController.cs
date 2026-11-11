@@ -73,23 +73,37 @@ public sealed class PlaylistTracksController : IDisposable
     /// Start playing track from playlist. Adds playlist to queue if empty
     /// </summary>
     /// <param name="trackId"></param>
-    public async Task PlayOrPauseTrackAsync(Guid trackId)
+    /// <param name="index"></param>
+    public async Task PlayOrPauseTrackAsync(Guid trackId, int index)
     {
         _playerService.ClearTracks();
-        _playerService.AddTracks(Tracks);
+        _playerService.AddTracks(Tracks, PlayerSource.Playlist);
         
-        if (_playerService.IsPlaying() && _playerService.IsPlayingTrack(trackId))
+        if (_playerService.IsPlaying() && _playerService.IsPlayingTrack(trackId, index))
         {
             _playerService.PauseTrack();
         }
         else
         {
-            await _playerService.StartTrackAsync(trackId);
+            await _playerService.StartTrackAsync(trackId, index);
         }
     }
 
     public void Dispose()
     {
         _playerService.OnPlayerStateChanged -= PlayerServiceOnPlayerStateChanged;
+    }
+
+    /// <summary>
+    /// Add single track to playlist
+    /// </summary>
+    /// <param name="trackId"></param>
+    /// <param name="index"></param>
+    public void AddTrackToPlaylist(Guid trackId, int index)
+    {
+        var track = Tracks.FirstOrDefault(t => t.Id == trackId && t.Index == index);
+        if (track == null) return;
+        
+        _playerService.AddTrack(track);
     }
 }

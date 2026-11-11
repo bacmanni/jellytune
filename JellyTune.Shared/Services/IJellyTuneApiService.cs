@@ -13,7 +13,7 @@ public interface IJellyTuneApiService
     public Task<string?> StartPlaybackAsync(Guid trackId);
     public Task<string?> GetPlaybackAsync();
     public Task PausePlaybackAsync(string sessiondId, Guid trackId, int? position);
-    public Task<string?> GetTrackLyricsAsync(Guid trackId);
+    public Task<List<LyricItem>> GetTrackLyricsAsync(Guid trackId);
     public Task<List<Collection>> GetCollectionsAsync(CollectionType type);
     public Task<List<Album>> GetArtistsAndAlbumsAsync();
     public Task<Album> GetAlbumAsync(Guid albumId, CancellationToken cancellationToken = default);

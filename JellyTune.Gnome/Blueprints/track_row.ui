@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <interface>
     <template class="JellyTuneTrackRow">
+        <property name="hexpand">true</property>
+        <property name="halign">fill</property>
+        <property name="valign">fill</property>
         <style>
             <class name="track-row"/>
         </style>
@@ -41,6 +44,8 @@
         </child>
         <child type="suffix">
             <object class="GtkLabel" id="_runtime">
+                <property name="halign">end</property>
+                <property name="valign">center</property>
             </object>
         </child>
     </template>

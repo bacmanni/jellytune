@@ -68,15 +68,15 @@ public class MediaPlayer : IMediaPlayer2, IPlayer
     public Task RaiseAsync()
     {
         _mainWindow.PresentWithTime(0);
-        return Task.CompletedTask;
+        return Task.FromResult(true);
     }
 
     Task<IDictionary<string, object>> IMediaPlayer2.GetAllAsync()
     {
         return Task.FromResult<IDictionary<string, object>>(new Dictionary<string, object>
         {
-            { "Identity", _applicationInfo.Name != null ? _applicationInfo.Name : string.Empty },
-            { "DesktopEntry", _applicationInfo.Name != null ? _applicationInfo.Name : string.Empty },
+            { "Identity", _applicationInfo.Name ?? string.Empty },
+            { "DesktopEntry", _applicationInfo.Id ?? string.Empty },
             { "CanQuit", false },
             { "CanRaise", true },
             { "HasTrackList", false }

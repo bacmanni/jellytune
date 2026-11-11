@@ -56,6 +56,11 @@ public class Configuration
     public bool ShowAlbumAsBackground {  get; set; } = false;
     
     /// <summary>
+    /// Highlight currently playing lyric if data available
+    /// </summary>
+    public bool ShowLyricHighlight {  get; set; } = false;
+    
+    /// <summary>
     /// How many retries request tries if failed
     /// </summary>
     public int RetryCount {  get; set; } = 3;
