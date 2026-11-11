@@ -84,10 +84,10 @@ public class PlayerServiceTests
         _mockJellyTuneApiService.Setup(repo => repo.GetTrackAsync(_trackId1)).ReturnsAsync(track1);
         _mockJellyTuneApiService.Setup(repo => repo.GetTrackAsync(_trackId2)).ReturnsAsync(track2);
         _mockJellyTuneApiService.Setup(repo => repo.GetTrackAsync(_trackId3)).ReturnsAsync(track3);
-        _mockJellyTuneApiService.Setup(repo => repo.GetAlbumAsync(_almumId1, CancellationToken.None)).ReturnsAsync(album1);
-        _mockJellyTuneApiService.Setup(repo => repo.GetAlbumAsync(_almumId2, CancellationToken.None)).ReturnsAsync(album2);
-        _mockJellyTuneApiService.Setup(repo => repo.GetTracksAsync(_almumId1, CancellationToken.None)).ReturnsAsync(new List<Track> { track1, track2 });
-        _mockJellyTuneApiService.Setup(repo => repo.GetTracksAsync(_almumId2, CancellationToken.None)).ReturnsAsync(new List<Track> { track3 });
+        _mockJellyTuneApiService.Setup(repo => repo.GetAlbumAsync(_almumId1, It.IsAny<CancellationToken>())).ReturnsAsync(album1);
+        _mockJellyTuneApiService.Setup(repo => repo.GetAlbumAsync(_almumId2, It.IsAny<CancellationToken>())).ReturnsAsync(album2);
+        _mockJellyTuneApiService.Setup(repo => repo.GetTracksAsync(_almumId1, It.IsAny<CancellationToken>())).ReturnsAsync(new List<Track> { track1, track2 });
+        _mockJellyTuneApiService.Setup(repo => repo.GetTracksAsync(_almumId2, It.IsAny<CancellationToken>())).ReturnsAsync(new List<Track> { track3 });
         _mockJellyTuneApiService.Setup(repo => repo.GetAudioStreamUrl(_sessionId, _trackId1, null)).Returns("http://test");
         _mockJellyTuneApiService.Setup(repo => repo.GetAudioStreamUrl(_sessionId, _trackId2, null)).Returns("http://test");
         _mockJellyTuneApiService.Setup(repo => repo.GetAudioStreamUrl(_sessionId, _trackId3, null)).Returns("http://test");
