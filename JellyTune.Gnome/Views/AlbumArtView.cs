@@ -1,3 +1,4 @@
+using Adw;
 using Gdk;
 using GLib;
 using GObject;
@@ -16,6 +17,7 @@ public partial class AlbumArtView
 {
     private AlbumArtController _controller;
     
+    [Connect] private ToastOverlay _toastOverlay;
     [Connect] private Spinner _spinner;
     [Connect] private Revealer _results;
     
@@ -36,6 +38,26 @@ public partial class AlbumArtView
         _controller.OnAlbumArtChanged += ControllerOnAlbumArtChanged;
         _results.SetRevealChild(false);
         _spinner.SetVisible(true);
+        
+        var clickGesture = GestureClick.New();
+
+        clickGesture.OnPressed += (sender, args) =>
+        {
+            if (_controller.ArtWork is { Length: <= 0 }) return;
+
+            var display = _albumArt.GetDisplay();
+            var clipboard = display.GetClipboard();
+
+            var bytes = Bytes.New(_controller.ArtWork);
+            var provider = ContentProvider.NewForBytes("image/png", bytes);
+
+            clipboard.SetContent(provider);
+            var toast = Toast.New("Copied to clipboard");
+            toast.SetTimeout(2);
+            _toastOverlay.AddToast(toast);
+        };
+
+        _albumArt.AddController(clickGesture);
     }
 
     private void ControllerOnAlbumArtChanged(object? sender, AlbumArtArgs e)
