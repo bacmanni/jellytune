@@ -18,6 +18,11 @@
         <p>My idea is to have native Gnome app for Jellyfin that is also fully supported for mobile devices. Nothing more, nothing less. So simple audio player. That means no massive edit functionality and no video playback. Main focus is on audio. My wish is to use this on my mobile Linux device at some point.</p>
     </description>
 
+    <branding>
+        <color type="primary" scheme_preference="light">#6bb3d1</color>
+        <color type="primary" scheme_preference="dark">#56889d</color>
+    </branding>
+
     <!-- Freedesktop Categories -->
     <categories>
         <category>AudioVideo</category>

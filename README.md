@@ -9,10 +9,10 @@ For now, it only supports one audio and playlist collection. That is the way I u
 Oh, and the whole reason for this all is that I like to buy records and actually own them. I don't use streaming services for music :)
 
 ## Requirements
-JellyTune for Gnome requires **at least Gnome 49 (libAdwaita 1.8 or later)**. This means example Ubuntu 26.04 and newer. x86_64 and aarch64 versions are both supported.
+JellyTune appimage requires **at least Gnome 49 (libAdwaita 1.8 or later)**. This means example Ubuntu 26.04 and newer. x86_64 and aarch64 versions are both supported. Flatpak should work as is.
 
 ## Releases
-There will be couple of ways to get JellyTune. Downloading appimage or flatpak from releases. Flathub install coming at some point
+There will be couple of ways to get JellyTune. Downloading appimage or flatpak from releases. Also [Flathub](https://flathub.org/en/apps/io.github.bacmanni.jellytune) install is available
 
 ## Project
 Project is written in C#. It is separated in multiple projects:
