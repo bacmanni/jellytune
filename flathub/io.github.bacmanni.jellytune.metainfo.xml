@@ -5,6 +5,7 @@
     <name>JellyTune</name>
     <summary>Gnome audio client for Jellyfin</summary>
     <url type="homepage">https://github.com/bacmanni/jellytune</url>
+    <url type="contact">https://github.com/bacmanni/jellytune/discussions</url>
     <project_license>GPL-3.0-or-later</project_license>
     <content_rating type="oars-1.1" />
 
@@ -27,6 +28,18 @@
     <categories>
         <category>AudioVideo</category>
     </categories>
+
+    <!-- Supported input devices -->
+    <supports>
+      <control>keyboard</control>
+      <control>pointing</control>
+      <control>touch</control>
+    </supports>
+
+    <requires>
+      <!-- Mobile/tablet AND desktop supported -->
+      <display_length compare="ge">360</display_length>
+    </requires>
 
     <keywords>
         <keyword translate="no">Jellyfin</keyword>
