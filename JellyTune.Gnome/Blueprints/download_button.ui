@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<interface>
+    <template class="JellyTuneDownloadButton">
+        <style>
+            <class name="flat"/>
+        </style>
+        <child>
+            <object class="GtkBox">
+                <child>
+                    <object class="GtkStack" id="_downloadStack">
+                        <property name="transition-type">crossfade</property>
+                        <property name="transition-duration">250</property>
+                        <child>
+                            <object class="GtkImage" id="_downloadImage">
+                            </object>
+                        </child>
+                        <child>
+                            <object class="AdwSpinner" id="_downloadSpinner">
+                            </object>
+                        </child>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkPopover" id="_downloadPopover">
+                        <property name="position">bottom</property>
+                        <property name="has-arrow">true</property>
+                        <child>
+                            <object class="GtkBox">
+                                <property name="margin-start">6</property>
+                                <property name="margin-end">6</property>
+                                <property name="margin-top">6</property>
+                                <property name="margin-bottom">6</property>
+                                <child>
+                                    <object class="GtkProgressBar" id="_downloadProgress">
+                                        <property name="show-text">true</property>
+                                        <property name="text">Downloading...</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+            </object>
+        </child>
+    </template>
+</interface>

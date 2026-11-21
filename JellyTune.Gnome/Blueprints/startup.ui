@@ -2,7 +2,7 @@
 <interface>
     <template class="JellyTuneStartupView">
         <property name="follows-content-size">true</property>
-        <property name="content-width">360</property>
+        <property name="content-width">350</property>
         <property name="can-close">false</property>
         <property name="child">
             <object class="AdwCarousel" id="_carousel">

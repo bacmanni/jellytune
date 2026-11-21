@@ -20,7 +20,6 @@ public sealed class AlbumController : IDisposable
     public List<Track> Tracks { get; private set; } = [];
     public Track? SelectedTrack { get; private set; }
     public byte[]? Artwork { get; private set; }
-    
     private CancellationTokenSource? _openAlbumCts;
     
     public event EventHandler<AlbumStateArgs>? OnAlbumChanged;
@@ -117,21 +116,5 @@ public sealed class AlbumController : IDisposable
         {
             await _playerService.StartTrackAsync(trackId, index);
         }
-    }
-
-    /// <summary>
-    /// Add track to playlist
-    /// </summary>
-    /// <param name="trackId"></param>
-    public void AddTrackToPlaylist(Guid trackId)
-    {
-        var track = Tracks.FirstOrDefault(t => t.Id == trackId);
-        if (track == null) return;
-        
-        var index = _playerService.AddTrack(track);
-        if (_playerService.IsPlaying()) return;
-        if(_playerService.IsPaused()) return;
-            
-        _playerService.StartTrackAsync(track.Id, index);
     }
 }

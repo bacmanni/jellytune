@@ -443,6 +443,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
                 AlbumId = baseItem.AlbumId.Value,
                 HasArtwork = !string.IsNullOrWhiteSpace(baseItem.AlbumPrimaryImageTag),
                 HasLyrics = baseItem.HasLyrics ?? false,
+                Container =  baseItem.Container ?? "mp3",
             });
         }
         
@@ -477,6 +478,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
             AlbumId = baseItem.AlbumId.Value,
             HasArtwork = !string.IsNullOrWhiteSpace(baseItem.AlbumPrimaryImageTag),
             HasLyrics = baseItem.HasLyrics ?? false,
+            Container =  baseItem.Container ?? "mp3",
         };
         
         return trackResult;
@@ -614,6 +616,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
                 AlbumId = baseItem.AlbumId.Value,
                 HasArtwork = !string.IsNullOrWhiteSpace(baseItem.AlbumPrimaryImageTag),
                 HasLyrics = baseItem.HasLyrics != null && baseItem.HasLyrics.Value,
+                Container =  baseItem.Container ?? "mp3",
             });
         }
 
@@ -891,6 +894,31 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
         return result;
     }
 
+    /// <summary>
+    /// Get download stream for track
+    /// </summary>
+    /// <param name="trackId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    public async Task<byte[]> DownloadTrackAsync(Guid trackId, CancellationToken cancellationToken = default)
+    {
+        var stream = await _jellyfinApiClient.Items[trackId].Download.GetAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+        if (stream == null)
+            throw new ArgumentNullException();
+        
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync(ms, cancellationToken);
+        return ms.ToArray();
+    }
+
+    /// <summary>
+    /// Get artist by using track
+    /// </summary>
+    /// <param name="trackId"></param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
     public async Task<Guid?> GetArtistByTrackIdAsync(Guid trackId, CancellationToken cancellationToken = default)
     {
         var baseItem = await _jellyfinApiClient.Items[trackId].GetAsync(cancellationToken: cancellationToken).ConfigureAwait(false);

@@ -248,6 +248,10 @@
                                       </style>
                                     </object>
                                   </child>
+                                  <child type="end">
+                                    <object class="JellyTuneDownloadButton" id="_downloadAlbumButton">
+                                    </object>
+                                  </child>
                                   <property name="title-widget">
                                     <object class="AdwWindowTitle">
                                     </object>
@@ -279,6 +283,10 @@
                               <property name="bottom-bar-style">raised</property>
                               <child type="top">
                                 <object class="AdwHeaderBar">
+                                  <child type="end">
+                                    <object class="JellyTuneDownloadButton" id="_downloadPlaylistButton">
+                                    </object>
+                                  </child>
                                   <property name="title-widget">
                                     <object class="AdwWindowTitle">
                                     </object>

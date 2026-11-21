@@ -20,8 +20,8 @@
     </description>
 
     <branding>
-        <color type="primary" scheme_preference="light">#6bb3d1</color>
-        <color type="primary" scheme_preference="dark">#56889d</color>
+      <color type="primary" scheme_preference="light">#62a0ea</color>
+      <color type="primary" scheme_preference="dark">#1a5fb4</color>
     </branding>
 
     <!-- Freedesktop Categories -->

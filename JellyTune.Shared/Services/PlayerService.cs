@@ -6,8 +6,11 @@ using JellyTune.Shared.Events;
 using JellyTune.Shared.Models;
 using SoundFlow.Abstracts.Devices;
 using SoundFlow.Backends.MiniAudio;
+using SoundFlow.Codecs.FFMpeg;
 using SoundFlow.Components;
 using SoundFlow.Enums;
+using SoundFlow.Interfaces;
+using SoundFlow.Metadata.Models;
 using SoundFlow.Providers;
 using SoundFlow.Structs;
 using Task = System.Threading.Tasks.Task;
@@ -18,18 +21,23 @@ namespace JellyTune.Shared.Services;
 public sealed class PlayerService : IPlayerService, IDisposable
 {
     private readonly IJellyTuneApiService _jellyTuneApiService;
-    //private readonly Configuration _configuration;
-
+    private readonly IFileService _fileService;
+    private readonly IDownloadService _downloadService;
+    
     private readonly MiniAudioEngine _engine = new();
     private readonly AudioFormat _format = AudioFormat.Dvd;
     private readonly AudioPlaybackDevice? _device;
-    private NetworkDataProvider? _networkDataProvider;
+    private ISoundDataProvider? _dataProvider;
     private SoundPlayer? _player;
-    private string _streamingUrl = string.Empty;
     private bool _networkDisconnected;
     private CancellationTokenSource? _cancellationTokenSource;
     private Timer? _playTimer;
     private double? _playPosition;
+    
+    /// <summary>
+    /// Id of the tracks source
+    /// </summary>
+    private Guid _parentId;
     
     /// <summary>
     /// Currently selected album
@@ -92,10 +100,12 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// </summary>
     public event EventHandler<PlayerVolumeArgs>? OnPlayerVolumeChanged;
 
-    public PlayerService(IJellyTuneApiService jellyTuneApiService)
+    public PlayerService(IJellyTuneApiService jellyTuneApiService, IFileService fileService, IDownloadService downloadService)
     {
         _jellyTuneApiService = jellyTuneApiService;
-
+        _fileService = fileService;
+        _downloadService = downloadService;
+        
         try
         {
             var defaultDevice = _engine.PlaybackDevices.FirstOrDefault(x => x.IsDefault);
@@ -225,9 +235,9 @@ public sealed class PlayerService : IPlayerService, IDisposable
                 // Still same as selected, so we keep playing
                 if (_playingTrack != null && trackId == _playingTrack.Id && _playingTrack.Index == index)
                 {
-                    if (_networkDataProvider != null)
+                    if (_dataProvider != null)
                     {
-                        position = _networkDataProvider.Position;
+                        position = _dataProvider.Position;
                     }
 
                     if (!string.IsNullOrWhiteSpace(_playSessionId))
@@ -249,15 +259,34 @@ public sealed class PlayerService : IPlayerService, IDisposable
             _playingTrack = Tracks.FirstOrDefault(t => t.Id == trackId && t.Index == index);
 
             // Get stream url and start playing
-            _streamingUrl =
-                _jellyTuneApiService.GetAudioStreamUrl(_playSessionId ?? string.Empty, trackId, position) != null
-                    ? _jellyTuneApiService.GetAudioStreamUrl(_playSessionId ?? string.Empty, trackId, position)
-                    : throw new Exception($"Streaming url for track with id {trackId} not found");
-
+            // Check first if we can use local file
             if (_device != null)
             {
-                _networkDataProvider = new NetworkDataProvider(_engine, _format, _streamingUrl);
-                _player = new SoundPlayer(_engine, _device.Format, _networkDataProvider);
+                _dataProvider?.Dispose();
+
+                // Check if we have local copy of track
+                if (_downloadService.HasTrackFile(_parentId, _selectedTrack))
+                {
+                    Console.WriteLine("Streaming track from device");
+                    var stream = _downloadService.GetAudioStream(_parentId, _playingTrack);
+                    
+                    if (position.HasValue)
+                        stream.Seek(position.Value, SeekOrigin.Begin);
+                    
+                    _dataProvider =  new StreamDataProvider(_engine, _format, stream);
+                }
+                else
+                {
+                    Console.WriteLine("Streaming track from server");
+                    var streamingUrl = _jellyTuneApiService.GetAudioStreamUrl(_playSessionId ?? string.Empty, trackId, position);
+                
+                    if (string.IsNullOrWhiteSpace(streamingUrl))
+                        throw new Exception($"Streaming url for track with id {trackId} not found");
+
+                    _dataProvider = new NetworkDataProvider(_engine, _format, streamingUrl);
+                }
+                
+                _player = new SoundPlayer(_engine, _device.Format, _dataProvider);
                 _device.MasterMixer.AddComponent(_player);
                 _player.IsLooping = false;
                 _player.Play();
@@ -281,7 +310,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
             // Playback cancelled. Do cleanup
             _player?.Stop();
             _player?.Dispose();
-            _networkDataProvider?.Dispose();
+            _dataProvider?.Dispose();
         }
     }
 
@@ -319,9 +348,9 @@ public sealed class PlayerService : IPlayerService, IDisposable
                 _device.MasterMixer.RemoveComponent(_player);
             
             _player?.Dispose();
-            _networkDataProvider?.Dispose();
+            _dataProvider?.Dispose();
             _player = null;
-            _networkDataProvider = null;
+            _dataProvider = null;
         }
 
         _playingTrack = null;
@@ -344,7 +373,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
         
         if (_player != null)
         {
-            var position = _networkDataProvider != null ? _networkDataProvider.Position : (int?)null;
+            var position = _dataProvider != null ? _dataProvider.Position : (int?)null;
             
             if (!string.IsNullOrWhiteSpace(_playSessionId))
                 _jellyTuneApiService.PausePlaybackAsync(_playSessionId, trackId, position);
@@ -392,6 +421,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
             {
                 PlayerStateChanged(new PlayerStateArgs(PlayerState.Loading));
                 track = await _jellyTuneApiService.GetTrackAsync(trackId);
+                _parentId = track.AlbumId;
                 await OpenAlbumAsync(track.AlbumId, cancellationToken);
             }
             // Invalid id when trying to start from queue
@@ -537,7 +567,7 @@ public sealed class PlayerService : IPlayerService, IDisposable
     private void UpdateIndex(Track[] tracks)
     {
         Tracks.Clear();
-        AddTracks(tracks.Select((t, i) => { t.Index = i + 1; return t; }).ToList(), PlayerSource.Custom);
+        AddTracks(tracks.Select((t, i) => { t.Index = i + 1; return t; }).ToList(), _parentId);
     }
     
     /// <summary>
@@ -580,15 +610,6 @@ public sealed class PlayerService : IPlayerService, IDisposable
         }
         
         return PlayerState.None;
-    }
-
-    /// <summary>
-    /// Get source of current play queue
-    /// </summary>
-    /// <returns></returns>
-    public PlayerSource? GetSource()
-    {
-        return _playerSource;
     }
 
     /// <summary>
@@ -767,10 +788,10 @@ public sealed class PlayerService : IPlayerService, IDisposable
     /// Add more tracks to play queue
     /// </summary>
     /// <param name="tracks"></param>
-    /// <param name="source"></param>
-    public void AddTracks(List<Track> tracks, PlayerSource source)
+    /// <param name="parentId"></param>
+    public void AddTracks(List<Track> tracks, Guid parentId)
     {
-        _playerSource = source;
+        _parentId = parentId;
         foreach (var track in tracks)
             Tracks.Add(track);
     }

@@ -271,37 +271,7 @@ public class ConfigurationService(IFileSystem fileSystem, ApplicationInfo applic
 
         return default;
     }
-    
-    private List<Change> ParseChanges(string[] changes)
-    {
-        var result =  new List<Change>();
-        
-        foreach (var changeLine in changes)
-        {
-            if (string.IsNullOrWhiteSpace(changeLine)) continue;
-            
-            // Version and date
-            if (changeLine.StartsWith("+"))
-            {
-                var parts = changeLine.TrimStart('+').Split(';', 2);
-                
-                var version = parts[0].Trim();
-                var date = parts.Length > 1 ? DateTime.Parse(parts[1].Trim()) : DateTime.MinValue;
- 
-                result.Add(new Change { Version =  version, Date = date });
-            }
-            else
-            {
-                if (result.Count == 0) continue;
 
-                var change = changeLine.TrimStart('-').Trim();
-                result[result.Count-1].Changes.Add(change);
-            }
-        }
-        
-        return result.OrderBy(x => x.Date).ToList();
-    }
-    
     private void CreateConfigurationFile(string filename)
     {
         try

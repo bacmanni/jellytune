@@ -1,4 +1,5 @@
 using JellyTune.Shared.Enums;
+using JellyTune.Shared.Models;
 
 namespace JellyTune.Shared.Services;
 

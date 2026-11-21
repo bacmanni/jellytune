@@ -73,7 +73,10 @@ class Program
         Module.Initialize();
         Adw.Module.Initialize();
         Gio.Module.Initialize();
-
+        
+        // This initializes template use
+        GirCore.Integration.Initialize();
+        
         var serviceCollection = new ServiceCollection();
         ConfigureServices(ApplicationInfo, serviceCollection);
         _serviceProvider = serviceCollection.BuildServiceProvider();
@@ -82,7 +85,8 @@ class Program
         var playerService = _serviceProvider.GetService<IPlayerService>();
         var fileService = _serviceProvider.GetService<IFileService>();
         var configurationService = _serviceProvider.GetService<IConfigurationService>();
-
+        var downloadService = _serviceProvider.GetService<IDownloadService>();
+        
         if (configurationService == null)
             throw new Exception("Failed to get configuration service");
             
@@ -114,7 +118,7 @@ class Program
             playerService.NetworkAvailabilityChanged(available);
         }
 
-        _mainWindowController = new MainWindowController(apiService, configurationService, playerService, fileService, ApplicationInfo);
+        _mainWindowController = new MainWindowController(apiService, configurationService, playerService, fileService, ApplicationInfo, downloadService);
         
         _application = Application.New(ApplicationInfo.Id, ApplicationFlags.NonUnique);
         _application.OnActivate += ApplicationOnOnActivate;
@@ -188,6 +192,7 @@ class Program
         );
         
         serviceCollection.AddSingleton<IFileSystem, FileSystem>();
+        serviceCollection.AddSingleton<IDownloadService, DownloadService>();
         serviceCollection.AddSingleton<IJellyTuneApiService, JellyTuneApiService>();
         serviceCollection.AddSingleton<IPlayerService, PlayerService>();
         serviceCollection.AddSingleton<IFileService, FileService>();

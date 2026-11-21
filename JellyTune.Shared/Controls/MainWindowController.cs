@@ -11,6 +11,7 @@ public sealed class MainWindowController : IDisposable
     private readonly IConfigurationService _configurationService;
     private readonly IPlayerService _playerService;
     private readonly IFileService _fileService;
+    private readonly IDownloadService _downloadService;
     public readonly ApplicationInfo ApplicationInfo;
 
     /// <summary>
@@ -22,17 +23,20 @@ public sealed class MainWindowController : IDisposable
     public IJellyTuneApiService JellyTuneApiService => _jellyTuneApiService;
     public IPlayerService PlayerService => _playerService;
     public IFileService FileService => _fileService;
+    public IDownloadService DownloadService => _downloadService;
     public event EventHandler<EventArgs>? OnApplicationBackgroundChanged;
-    private CancellationTokenSource? _applicationBackgroundCts;
     
-    public MainWindowController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService, IPlayerService playerService, IFileService fileService, ApplicationInfo applicationInfo)
+    private CancellationTokenSource? _applicationBackgroundCts;
+
+    public MainWindowController(IJellyTuneApiService jellyTuneApiService, IConfigurationService configurationService, IPlayerService playerService, IFileService fileService, ApplicationInfo applicationInfo, IDownloadService downloadService)
     {
         _jellyTuneApiService = jellyTuneApiService;
         _configurationService = configurationService;
         _playerService = playerService;
         _fileService = fileService;
         ApplicationInfo = applicationInfo;
-        
+        _downloadService = downloadService;
+
         _playerService.OnPlayerStateChanged += PlayerServiceOnOnPlayerStateChanged;
     }
 
