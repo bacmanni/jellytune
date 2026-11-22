@@ -99,7 +99,10 @@
       <None Remove="Blueprints\download_button.ui" />
       <EmbeddedResource Include="Blueprints\download_button.ui" />
       <None Remove="Blueprints\download_alert.ui" />
-      <EmbeddedResource Include="Blueprints\download_alert.ui" />
+      <None Remove="Blueprints\download_progress_alert.ui" />
+      <EmbeddedResource Include="Blueprints\download_progress_alert.ui" />
+      <None Remove="Blueprints\download_delete_alert.ui" />
+      <EmbeddedResource Include="Blueprints\download_delete_alert.ui" />
     </ItemGroup>
 
     <ItemGroup>

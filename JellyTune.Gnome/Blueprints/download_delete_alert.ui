@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <interface>
-    <template class="JellyTuneDownloadAlert">
+    <template class="JellyTuneDownloadDeleteAlert">
         <property name="heading" translatable="yes">Delete tracks</property>
         <property name="body" translatable="yes">Are you sure you want to delete tracks on device. Original tracks will still be available on Jellyfin server.</property>
         <property name="default-response">cancel</property>

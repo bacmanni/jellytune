@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.IO.Abstractions;
 using JellyTune.Shared.Events;
 using JellyTune.Shared.Models;
@@ -9,9 +10,10 @@ public class DownloadService : IDownloadService
     private readonly IJellyTuneApiService _jellyTuneApiService;
     private readonly IFileSystem _fileSystem;
     private readonly IConfigurationService _configurationService;
-    
-    private Guid? _DownloadingParentId;
-    
+
+    private bool _downloading;
+    private readonly ConcurrentDictionary<Guid, List<Track>> _downloads = new();
+
     public event EventHandler<DownloadArgs>? OnDownloadProgressChanged;
     
     public DownloadService(IJellyTuneApiService jellyTuneApiService, IFileSystem fileSystem, IConfigurationService configurationService)
@@ -38,9 +40,9 @@ public class DownloadService : IDownloadService
     public bool IsDownloading(Guid? parent)
     {
         if (parent.HasValue)
-            return _DownloadingParentId == parent;
+            return _downloads.ContainsKey(parent.Value);
             
-        return _DownloadingParentId.HasValue;
+        return !_downloads.IsEmpty;
     }
 
     /// <summary>
@@ -152,16 +154,26 @@ public class DownloadService : IDownloadService
     /// <param name="tracks"></param>
     public async Task DownloadTracksAsync(Guid parentId, List<Track> tracks)
     {
-        _DownloadingParentId = parentId;
-        var progress = 1;
-        foreach (var track in tracks)
-        {
-            OnDownloadProgressChanged?.Invoke(this, new DownloadArgs() { ParentId = parentId, TrackNumber = progress, TotalTrackCount = tracks.Count, TrackName =  track.Name });
-            await WriteTrackFileAsync(parentId, track);
-            progress++;
-        }
+        _downloads.TryAdd(parentId, tracks);
+        if (_downloading) return;
 
-        _DownloadingParentId = null;
+        _downloading = true;
+        while (!_downloads.IsEmpty)
+        {
+            var item = _downloads.FirstOrDefault();
+            
+            var progress = 1;
+            foreach (var track in tracks)
+            {
+                var totalCount = _downloads.Sum(d => d.Value.Count);
+                OnDownloadProgressChanged?.Invoke(this, new DownloadArgs() { ParentId = item.Key, TrackNumber = progress, TotalTrackCount = totalCount, TrackName =  track.Name });
+                await WriteTrackFileAsync(item.Key, track);
+                progress++;
+            }
+            _downloads.TryRemove(item);
+        }
+ 
+        _downloading = false;
         OnDownloadProgressChanged?.Invoke(this, new DownloadArgs());
     }
 }

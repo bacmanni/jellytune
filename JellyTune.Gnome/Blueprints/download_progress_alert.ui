@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<interface>
+    <template class="JellyTuneDownloadProgressAlert">
+        <property name="heading" translatable="yes">Download in progress</property>
+        <property name="body">Please wait while background downloads are finished.</property>
+        <property name="extra-child">
+            <object class="GtkProgressBar" id="_downloadProgress">
+                <property name="show-text">true</property>
+            </object>
+        </property>
+    </template>
+</interface>

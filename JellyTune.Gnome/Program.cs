@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Text;
 using Gio;
+using Gtk;
 using Jellyfin.Sdk;
 using JellyTune.Gnome.Helpers;
 using JellyTune.Gnome.Views;
@@ -122,7 +123,19 @@ class Program
         
         _application = Application.New(ApplicationInfo.Id, ApplicationFlags.NonUnique);
         _application.OnActivate += ApplicationOnOnActivate;
-        _application.OnShutdown += ApplicationOnOnShutdown;
+        _application.OnShutdown += ApplicationOnShutdown;
+    }
+
+    private bool MainWindowOnCloseRequest(Window sender, EventArgs args)
+    {
+        if (_mainWindowController.DownloadService.IsDownloading())
+        {
+            var alert = DownloadProgressAlert.NewWithValues(_mainWindowController.DownloadService);
+            alert.Present(_mainWindow);
+            return true;
+        }
+
+        return false;
     }
 
     private async void ApplicationOnOnActivate(Gio.Application sender, EventArgs args)
@@ -134,10 +147,11 @@ class Program
         }
         
         _mainWindow = MainWindow.NewWithValues(_mainWindowController, _application);
+        _mainWindow.OnCloseRequest += MainWindowOnCloseRequest;
         await _mainWindow.StartAsync();
     }
 
-    private void ApplicationOnOnShutdown(Gio.Application sender, EventArgs args)
+    private void ApplicationOnShutdown(Gio.Application sender, EventArgs args)
     {
         if (_mainWindow != null)
         {
@@ -145,6 +159,7 @@ class Program
             _mainWindowController.UpdateWindowSize(screenSize.Item1, screenSize.Item2);
         }
         
+        _mainWindow?.OnCloseRequest -= MainWindowOnCloseRequest;
         _mainWindow?.Dispose();
         _mainWindowController.Dispose();
         

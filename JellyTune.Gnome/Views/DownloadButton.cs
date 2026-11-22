@@ -33,7 +33,7 @@ public partial class DownloadButton
     private void OnButtonClicked(Button sender, EventArgs e)
     {
         // Show popover about progress
-        if (_downloadService.IsDownloading(null))
+        if (_downloadService.IsDownloading(_parentId))
         {
             _downloadPopover.Popup();
             return;
@@ -42,7 +42,7 @@ public partial class DownloadButton
         // Found on device. Ask for remove
         if (_downloadService.HasParent(_parentId))
         {
-            var alert = DownloadAlert.NewWithValues();
+            var alert = DownloadDeleteAlert.NewWithValues();
             alert.Present(this);
             alert.OnResponse += (dialog, args) =>
             {
@@ -60,7 +60,7 @@ public partial class DownloadButton
 
     private void UpdateIcon(int? progress = null, int? totalProgress = null)
     {
-        if (_downloadService.IsDownloading(null))
+        if (_downloadService.IsDownloading(_parentId))
         {
             if (progress.HasValue && totalProgress.HasValue)
             {
@@ -104,10 +104,6 @@ public partial class DownloadButton
     public void SetParent(Guid parent)
     {
         _parentId = parent;
-        
-        if (!_downloadService.IsDownloading(null))
-        {
-            UpdateIcon();
-        }
+        UpdateIcon();
     }
 }
