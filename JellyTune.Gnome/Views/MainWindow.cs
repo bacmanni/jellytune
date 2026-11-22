@@ -873,15 +873,8 @@ public partial class MainWindow
         _controller.PlayerService.ClearTracks();
         FadeBackgroundTo(null);
         
-        var preferences = PreferencesView.NewWithValues(_controller.ConfigurationService, _controller.JellyTuneApiService);
+        var preferences = PreferencesView.NewWithValues(_controller.ConfigurationService, _controller.JellyTuneApiService, _controller.DownloadService);
         preferences.Present(this);
-        preferences.OnClosed += (dialog, e) =>
-        {
-            if (preferences.Refresh)
-            {
-                _ = RefreshLists();
-            }
-        };
     }
     
     private void ActShowSearchBarOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)

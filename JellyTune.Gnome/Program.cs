@@ -128,10 +128,15 @@ class Program
 
     private bool MainWindowOnCloseRequest(Window sender, EventArgs args)
     {
+        // Show alert if there are downloading files in progress
         if (_mainWindowController.DownloadService.IsDownloading())
         {
             var alert = DownloadProgressAlert.NewWithValues(_mainWindowController.DownloadService);
             alert.Present(_mainWindow);
+            alert.OnResponse += (dialog, signalArgs) =>
+            {
+                _application.Quit();
+            };
             return true;
         }
 

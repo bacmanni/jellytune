@@ -17,7 +17,8 @@ public partial class PreferencesView
 {
     private IConfigurationService _configurationService;
     private IJellyTuneApiService _jellyTuneApiService;
-
+    private IDownloadService _downloadService;
+    
     private AccountController  _accountController;
     private AccountView _accountView;
     
@@ -32,8 +33,6 @@ public partial class PreferencesView
     [Connect] private SwitchRow _showPlayingAlbum;
     [Connect] private SwitchRow _showLyrics;
     [Connect] private SwitchRow _showLyricPosition;
-    
-    public bool Refresh { get; set; }
 
     private void CloseAttempt(Dialog sender, EventArgs args)
     {
@@ -78,11 +77,12 @@ public partial class PreferencesView
         }
     }
 
-    public static PreferencesView NewWithValues(IConfigurationService configurationService, IJellyTuneApiService jellyTuneApiService)
+    public static PreferencesView NewWithValues(IConfigurationService configurationService, IJellyTuneApiService jellyTuneApiService, IDownloadService downloadService)
     {
         var obj = NewWithProperties([]);
         obj._configurationService = configurationService;
         obj._jellyTuneApiService = jellyTuneApiService;
+        obj._downloadService = downloadService;
         obj.InitializeController();
         return obj;
     }
@@ -108,7 +108,17 @@ public partial class PreferencesView
         _showVolume.SetActive(configuration.ShowVolume);
         _showPlayingAlbum.SetActive(configuration.ShowCurrentAlbum);
         
+        if (_downloadService.IsDownloading())
+            _accountView.SetSensitive(false);
+            
+        _downloadService.OnDownloadProgressChanged += DownloadServiceOnDownloadProgressChanged;
         OnCloseAttempt += CloseAttempt;
+    }
+
+    private void DownloadServiceOnDownloadProgressChanged(object? sender, DownloadArgs e)
+    {
+        if (!e.ParentId.HasValue)
+            _accountView.SetSensitive(true);
     }
 
     private void AccountControllerOnConfigurationLoaded(object? sender, AccountArgs e)
@@ -119,6 +129,7 @@ public partial class PreferencesView
     public override void Dispose()
     {
         OnCloseAttempt -= CloseAttempt;
+        _downloadService.OnDownloadProgressChanged -= DownloadServiceOnDownloadProgressChanged;
         base.Dispose();
     }
 }
