@@ -649,7 +649,7 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
 
         // PlaySessionId is part of the api, but not updated to library
         var url = _jellyfinApiClient.BuildUri(information);
-        return $"{url}&api_key={_sdkClientSettings.AccessToken}&PlaySessionId={sessionId}";
+        return $"{url}&api_key={_sdkClientSettings.AccessToken}&ApiKey={_sdkClientSettings.AccessToken}&PlaySessionId={sessionId}";
     }
 
     public async Task<string?> GetPlaybackAsync()
