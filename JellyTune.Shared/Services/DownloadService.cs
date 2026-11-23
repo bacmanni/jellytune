@@ -11,7 +11,7 @@ public class DownloadService : IDownloadService
     private readonly IFileSystem _fileSystem;
     private readonly IConfigurationService _configurationService;
 
-    private bool _downloading;
+    private readonly SemaphoreSlim _downloadSemaphore = new(1, 1);
     private readonly ConcurrentDictionary<Guid, List<Track>> _downloads = new();
 
     public event EventHandler<DownloadArgs>? OnDownloadProgressChanged;
@@ -121,19 +121,6 @@ public class DownloadService : IDownloadService
     }
 
     /// <summary>
-    /// Delete stored track audio if exists
-    /// </summary>
-    /// <param name="parent"></param>
-    /// <param name="track"></param>
-    public void DeleteTrackFileAsync(Guid parent, Track track)
-    {
-        var filename = GetTrackFileName(parent, track);
-        if (!_fileSystem.File.Exists(filename)) return;
-        
-        _fileSystem.File.Delete(filename);
-    }
-
-    /// <summary>
     /// Delete everything under parent
     /// </summary>
     /// <param name="parent"></param>
@@ -154,26 +141,37 @@ public class DownloadService : IDownloadService
     /// <param name="tracks"></param>
     public async Task DownloadTracksAsync(Guid parentId, List<Track> tracks)
     {
-        _downloads.TryAdd(parentId, tracks);
-        if (_downloading) return;
+        if (!_downloads.TryAdd(parentId, tracks.ToList()))
+            throw new InvalidOperationException(
+                $"Download already queued for {parentId}");
 
-        _downloading = true;
-        while (!_downloads.IsEmpty)
+        await _downloadSemaphore.WaitAsync();
+
+        try
         {
-            var item = _downloads.FirstOrDefault();
-            
-            var progress = 1;
-            foreach (var track in tracks)
+            while (!_downloads.IsEmpty)
             {
-                var totalCount = _downloads.Sum(d => d.Value.Count);
-                OnDownloadProgressChanged?.Invoke(this, new DownloadArgs() { ParentId = item.Key, TrackNumber = progress, TotalTrackCount = totalCount, TrackName =  track.Name });
-                await WriteTrackFileAsync(item.Key, track);
-                progress++;
+                var item = _downloads.FirstOrDefault();
+                if (item.Value is null)
+                    break;
+                
+                var progress = 1;
+                foreach (var track in item.Value)
+                {
+                    var totalCount = _downloads.Sum(d => d.Value.Count);
+                    OnDownloadProgressChanged?.Invoke(this, new DownloadArgs() { ParentId = item.Key, TrackNumber = progress, TotalTrackCount = totalCount, TrackName =  track.Name });
+                    await WriteTrackFileAsync(item.Key, track);
+                    progress++;
+                }
+                
+                _downloads.TryRemove(item);
             }
-            _downloads.TryRemove(item);
         }
- 
-        _downloading = false;
+        finally
+        {
+            _downloadSemaphore.Release();
+        }
+        
         OnDownloadProgressChanged?.Invoke(this, new DownloadArgs());
     }
 }
