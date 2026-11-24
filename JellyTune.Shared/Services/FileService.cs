@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.IO.Abstractions;
 using System.Text.Json;
 using JellyTune.Shared.Enums;
+using JellyTune.Shared.Models;
 
 namespace JellyTune.Shared.Services;
 

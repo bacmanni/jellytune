@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Text;
 using Gio;
+using Gtk;
 using Jellyfin.Sdk;
 using JellyTune.Gnome.Helpers;
 using JellyTune.Gnome.Views;
@@ -35,9 +36,9 @@ class Program
         Developer = "Joni Bäckström",
         Email = "joni.j.backstrom@gmail.com",
         Name = "JellyTune",
-        Version = "1.2.4",
+        Version = "1.2.5",
         Website = "https://github.com/bacmanni/jellytune",
-        IssueUrl = "https://github.com/bacmanni/jellytune/issues/new",
+        IssueUrl = "https://github.com/bacmanni/jellytune/issues",
         Icon = "jellytune-icon",
         JellyFinVersion = "10.11",
         Artists = [ "Ruut Kiiskilä" ]
@@ -73,7 +74,10 @@ class Program
         Module.Initialize();
         Adw.Module.Initialize();
         Gio.Module.Initialize();
-
+        
+        // This initializes template use
+        GirCore.Integration.Initialize();
+        
         var serviceCollection = new ServiceCollection();
         ConfigureServices(ApplicationInfo, serviceCollection);
         _serviceProvider = serviceCollection.BuildServiceProvider();
@@ -82,7 +86,8 @@ class Program
         var playerService = _serviceProvider.GetService<IPlayerService>();
         var fileService = _serviceProvider.GetService<IFileService>();
         var configurationService = _serviceProvider.GetService<IConfigurationService>();
-
+        var downloadService = _serviceProvider.GetService<IDownloadService>();
+        
         if (configurationService == null)
             throw new Exception("Failed to get configuration service");
             
@@ -114,11 +119,11 @@ class Program
             playerService.NetworkAvailabilityChanged(available);
         }
 
-        _mainWindowController = new MainWindowController(apiService, configurationService, playerService, fileService, ApplicationInfo);
+        _mainWindowController = new MainWindowController(apiService, configurationService, playerService, fileService, ApplicationInfo, downloadService);
         
         _application = Application.New(ApplicationInfo.Id, ApplicationFlags.NonUnique);
         _application.OnActivate += ApplicationOnOnActivate;
-        _application.OnShutdown += ApplicationOnOnShutdown;
+        _application.OnShutdown += ApplicationOnShutdown;
     }
 
     private async void ApplicationOnOnActivate(Gio.Application sender, EventArgs args)
@@ -133,14 +138,14 @@ class Program
         await _mainWindow.StartAsync();
     }
 
-    private void ApplicationOnOnShutdown(Gio.Application sender, EventArgs args)
+    private void ApplicationOnShutdown(Gio.Application sender, EventArgs args)
     {
         if (_mainWindow != null)
         {
             var screenSize = _mainWindow.GetScreenSize();
             _mainWindowController.UpdateWindowSize(screenSize.Item1, screenSize.Item2);
         }
-        
+
         _mainWindow?.Dispose();
         _mainWindowController.Dispose();
         
@@ -188,6 +193,7 @@ class Program
         );
         
         serviceCollection.AddSingleton<IFileSystem, FileSystem>();
+        serviceCollection.AddSingleton<IDownloadService, DownloadService>();
         serviceCollection.AddSingleton<IJellyTuneApiService, JellyTuneApiService>();
         serviceCollection.AddSingleton<IPlayerService, PlayerService>();
         serviceCollection.AddSingleton<IFileService, FileService>();

@@ -96,6 +96,13 @@
       <None Remove="nuget-sources.json" />
       <None Remove="Blueprints\swipe_row.ui" />
       <EmbeddedResource Include="Blueprints\swipe_row.ui" />
+      <None Remove="Blueprints\download_button.ui" />
+      <EmbeddedResource Include="Blueprints\download_button.ui" />
+      <None Remove="Blueprints\download_alert.ui" />
+      <None Remove="Blueprints\download_progress_alert.ui" />
+      <EmbeddedResource Include="Blueprints\download_progress_alert.ui" />
+      <None Remove="Blueprints\download_delete_alert.ui" />
+      <EmbeddedResource Include="Blueprints\download_delete_alert.ui" />
     </ItemGroup>
 
     <ItemGroup>

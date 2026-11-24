@@ -9,6 +9,8 @@ namespace JellyTune.Test.Services;
 public class PlayerServiceTests
 {
     private readonly Mock<IJellyTuneApiService> _mockJellyTuneApiService;
+    private readonly Mock<IFileService> _mockFileService;
+    private readonly Mock<IDownloadService> _mockDownloadService;
     private readonly IPlayerService _playerService;
 
     private readonly Guid _almumId1;
@@ -21,7 +23,9 @@ public class PlayerServiceTests
     public PlayerServiceTests()
     {
         _mockJellyTuneApiService = new Mock<IJellyTuneApiService>();
-        _playerService = new PlayerService(_mockJellyTuneApiService.Object);
+        _mockFileService = new Mock<IFileService>();
+        _mockDownloadService = new Mock<IDownloadService>();
+        _playerService = new PlayerService(_mockJellyTuneApiService.Object, _mockFileService.Object, _mockDownloadService.Object);
         
         _almumId1 = Guid.NewGuid();
         var album1 = new Album
@@ -156,7 +160,7 @@ public class PlayerServiceTests
             }
         };
 
-        _playerService.AddTracks(tracks, PlayerSource.Album);
+        _playerService.AddTracks(tracks, Guid.NewGuid());
         Assert.Equal(tracks.Count, _playerService.GetTracks().Count);
 
         _playerService.StartTrackAsync(trackId1, 0);

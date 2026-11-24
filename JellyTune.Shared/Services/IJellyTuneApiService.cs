@@ -35,5 +35,6 @@ public interface IJellyTuneApiService
     public Task<List<Album>> GetArtistAlbumsAsync(Guid artistId, Guid?[]? excludeAbumIds,
         CancellationToken cancellationToken);
     public Task<Artist?> GetArtistAsync(Guid artistId);
+    public Task<byte[]> DownloadTrackAsync(Guid trackId, CancellationToken cancellationToken = default);
     public Task<Guid?> GetArtistByTrackIdAsync(Guid trackId, CancellationToken cancellationToken = default);
 }

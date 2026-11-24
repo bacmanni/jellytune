@@ -9,7 +9,6 @@ using JellyTune.Gnome.Helpers;
 using JellyTune.Shared.Controls;
 using JellyTune.Shared.Enums;
 using JellyTune.Shared.Events;
-using JellyTune.Shared.Models;
 using AboutDialog = Adw.AboutDialog;
 using Application = Adw.Application;
 using ApplicationWindow = Adw.ApplicationWindow;
@@ -19,6 +18,7 @@ using Object = GObject.Object;
 using ShortcutsSection = Adw.ShortcutsSection;
 using Spinner = Adw.Spinner;
 using Task = System.Threading.Tasks.Task;
+using Window = Gtk.Window;
 
 namespace JellyTune.Gnome.Views;
 
@@ -72,6 +72,9 @@ public partial class MainWindow
     private CancellationTokenSource? _menuUpdateCancellationCts;
     private CancellationTokenSource? _searchAlbumsCts;
 
+    [Connect] private DownloadButton _downloadAlbumButton;
+    [Connect] private DownloadButton _downloadPlaylistButton;
+    
     [Connect] private Stack _applicationBackgroundStack;
     [Connect] private Box _applicationBackgroundTint;
     [Connect] private Picture _applicationBackground1;
@@ -101,10 +104,10 @@ public partial class MainWindow
     [Connect] private ToolbarView _searchToolbarView;
     [Connect] private ToolbarView _queueListToolbarView;
     [Connect] private ToolbarView _playlistTracksToolbarView;
-    
+
     [Connect] private HeaderBar _mainHeaderBar;
     [Connect] private ViewStack _mainViewStack;
-    
+
     [Connect] private Box _mainStackAlbums;
     [Connect] private Box _mainStackPlaylists;
     
@@ -120,7 +123,7 @@ public partial class MainWindow
     [Connect] private Button _queueListShuffleButton;
     [Connect] private Button _queueListAlbumButton;
     [Connect] private Button _queueListArtistAlbumsButton;
-
+    
     private bool _initialized;
     
     public static MainWindow NewWithValues(MainWindowController controller, Application application)
@@ -137,7 +140,7 @@ public partial class MainWindow
         _controller.OnApplicationBackgroundChanged += ControllerOnApplicationBackgroundChanged;
         _controller.PlayerService.OnPlayerStateChanged += OnPlayerStateChanged;
         _controller.ConfigurationService.OnSaved += ConfigurationServiceOnSaved;
-        
+
         // Album list
         _albumlistController = new AlbumlistController(_controller.JellyTuneApiService,
             _controller.ConfigurationService, _controller.FileService);
@@ -184,6 +187,7 @@ public partial class MainWindow
         
         _playlistTracksController = new PlaylistTracksController(_controller.JellyTuneApiService, _controller.PlayerService, _controller.FileService);
         _playlistTracksView = PlaylistTracksView.NewWithValues(_playlistTracksController);
+        _playlistTracksController.OnPlaylistTracksStateChanged += PlaylistTracksControllerOnPlaylistTracksStateChanged;
 
         //Refresh application
         _refreshAction = SimpleAction.New("refresh", null);
@@ -299,7 +303,7 @@ public partial class MainWindow
         _application.SetAccelsForAction("win.view('page2')", new[] { "<Primary>2" });
         
         SetIconName(_controller.ApplicationInfo.Icon);
-        SetWindowSize(360, 600);
+        SetWindowSize(350, 600);
         
         _mainViewStack.OnNotify += (_, args) =>
         {
@@ -309,6 +313,14 @@ public partial class MainWindow
                     _viewAction.ChangeState(Variant.NewString(_mainViewStack.VisibleChildName));
             }
         };
+        
+        _downloadAlbumButton.Initialize(_controller.DownloadService);
+        _downloadAlbumButton.OnDownloadClicked += DownloadAlbumButtonOnDownloadClicked;
+        _downloadAlbumButton.OnDeleteClicked += DownloadAlbumButtonOnDeleteClicked;
+
+        _downloadPlaylistButton.Initialize(_controller.DownloadService);
+        _downloadPlaylistButton.OnDownloadClicked += DownloadPlaylistButtonOnDownloadClicked;
+        _downloadPlaylistButton.OnDeleteClicked += DownloadPlaylistButtonOnDeleteClicked;
 
         _artistAlbumsButton.OnClicked += ShowArtistAlbumsButtonOnClicked;
         _queueListShuffleButton.OnClicked += QueueListShuffleButtonOnClicked;
@@ -327,8 +339,61 @@ public partial class MainWindow
         _mainStackPlaylists.Append(_playlistView);
         _playlistTracksToolbarView.SetContent(_playlistTracksView);
         OnNotify += OnWindowNotify;
+        OnCloseRequest += OnWindowCloseRequest;
         _ = UpdateMainMenu();
         _initialized = true;
+    }
+
+    private bool OnWindowCloseRequest(Window sender, EventArgs args)
+    {
+        // Show alert if there are file downloads in progress
+        if (_controller.DownloadService.IsDownloading())
+        {
+            var alert = DownloadProgressAlert.NewWithValues();
+            alert.Present(this);
+            alert.OnResponse += (dialog, signalArgs) =>
+            {
+                if (signalArgs.Response == "close")
+                {
+                    _controller.DownloadService.CancelDownload();
+                    _application.Quit();
+                }
+            };
+            return true;
+        }
+
+        return false;
+    }
+
+    private void PlaylistTracksControllerOnPlaylistTracksStateChanged(object? sender, PlaylistTracksStateArgs e)
+    {
+        _downloadPlaylistButton.UpdateSensitivity(true);
+    }
+
+    private void DownloadPlaylistButtonOnDeleteClicked(object? sender, DownloadArgs e)
+    {
+        var parent = _playlistTracksController.Playlist?.Id ?? throw new ArgumentNullException();
+        _controller.DownloadService.DeleteParent(parent);
+    }
+
+    private void DownloadAlbumButtonOnDeleteClicked(object? sender, DownloadArgs e)
+    {
+        var parent = _albumController.Album?.Id ?? throw new ArgumentNullException();
+        _controller.DownloadService.DeleteParent(parent);
+    }
+
+    private void DownloadPlaylistButtonOnDownloadClicked(object? sender, DownloadArgs e)
+    {
+        var parent = _playlistTracksController.Playlist?.Id ?? throw new ArgumentNullException();
+        var tracks = _playlistTracksController.Tracks.ToList();
+        _ = _controller.DownloadService.DownloadTracksAsync(parent, tracks);
+    }
+
+    private void DownloadAlbumButtonOnDownloadClicked(object? sender, DownloadArgs e)
+    {
+        var parent = _albumController.Album?.Id ?? throw new ArgumentNullException();
+        var tracks = _albumController.Tracks.ToList();
+        _ = _controller.DownloadService.DownloadTracksAsync(parent, tracks);
     }
 
     private void ConfigurationServiceOnSaved(object? sender, ConfigurationArgs e)
@@ -448,6 +513,7 @@ public partial class MainWindow
         else if (e.UpdateAlbum)
         {
             _artistAlbumsButton.SetSensitive(true);
+            _downloadAlbumButton.UpdateSensitivity(true);
         }
     }
 
@@ -523,6 +589,8 @@ public partial class MainWindow
         if ((_albumController.Album != null && albumId == _albumController.Album.Id) && visibleTag == "album_details") return;
         
         ResetNavigationView();
+        _downloadAlbumButton.UpdateSensitivity(true);
+        _downloadAlbumButton.SetParent(albumId);
         _ = _albumController.OpenAsync(albumId);
         _rootView.Push(_albumDetails);
     }
@@ -575,6 +643,8 @@ public partial class MainWindow
     private void PlaylistControllerOnPlaylistClicked(object? sender, Guid id)
     {
         ResetNavigationView();
+        _downloadAlbumButton.UpdateSensitivity(false);
+        _downloadPlaylistButton.SetParent(id);
         _ = _playlistTracksController.OpenPlaylist(id);
         _rootView.Push(_playlistTracks);
     }
@@ -773,12 +843,16 @@ public partial class MainWindow
 
     private void SearchControllerOnAlbumClicked(object? sender, AlbumArgs args)
     {
+        _downloadAlbumButton.UpdateSensitivity(false);
+        _downloadAlbumButton.SetParent(args.AlbumId);
         _ = _albumController.OpenAsync(args.AlbumId, args.TrackId);
         _rootView.Push(_albumDetails);
     }
 
     private void AlbumListControllerOnAlbumClicked(object? sender, Guid albumId)
     {
+        _downloadAlbumButton.UpdateSensitivity(false);
+        _downloadAlbumButton.SetParent(albumId);
         _ = _albumController.OpenAsync(albumId);
         _rootView.Push(_albumDetails);
     }
@@ -822,15 +896,8 @@ public partial class MainWindow
         _controller.PlayerService.ClearTracks();
         FadeBackgroundTo(null);
         
-        var preferences = PreferencesView.NewWithValues(_controller.ConfigurationService, _controller.JellyTuneApiService);
+        var preferences = PreferencesView.NewWithValues(_controller.ConfigurationService, _controller.JellyTuneApiService, _controller.DownloadService);
         preferences.Present(this);
-        preferences.OnClosed += (dialog, e) =>
-        {
-            if (preferences.Refresh)
-            {
-                _ = RefreshLists();
-            }
-        };
     }
     
     private void ActShowSearchBarOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)

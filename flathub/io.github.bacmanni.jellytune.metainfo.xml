@@ -5,6 +5,7 @@
     <name>JellyTune</name>
     <summary>Gnome audio client for Jellyfin</summary>
     <url type="homepage">https://github.com/bacmanni/jellytune</url>
+    <url type="bugtracker">https://github.com/bacmanni/jellytune/issues</url>
     <project_license>GPL-3.0-or-later</project_license>
     <content_rating type="oars-1.1" />
 
@@ -18,10 +19,27 @@
         <p>My idea is to have native Gnome app for Jellyfin that is also fully supported for mobile devices. Nothing more, nothing less. So simple audio player. That means no massive edit functionality and no video playback. Main focus is on audio. My wish is to use this on my mobile Linux device at some point.</p>
     </description>
 
+    <branding>
+      <color type="primary" scheme_preference="light">#62a0ea</color>
+      <color type="primary" scheme_preference="dark">#1a5fb4</color>
+    </branding>
+
     <!-- Freedesktop Categories -->
     <categories>
         <category>AudioVideo</category>
     </categories>
+
+    <!-- Supported input devices -->
+    <supports>
+      <control>keyboard</control>
+      <control>pointing</control>
+      <control>touch</control>
+    </supports>
+
+    <requires>
+      <!-- Mobile/tablet AND desktop supported -->
+      <display_length compare="ge">360</display_length>
+    </requires>
 
     <keywords>
         <keyword translate="no">Jellyfin</keyword>
@@ -51,6 +69,11 @@
     </screenshots>
 
     <releases>
+    <release version="1.2.5" date="2026-11-24"><description><ul>
+<li>Fixed broken audio with Jellyfin server v12</li>
+<li>Copy album artwork</li>
+<li>Downloading and playing tracks on device</li>
+</ul></description></release>
     <release version="1.2.4" date="2026-10-28"><description><ul>
 <li>Filter search by type</li>
 <li>Copy lyrics and show position while playing</li>
