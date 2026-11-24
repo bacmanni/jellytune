@@ -9,28 +9,9 @@ namespace JellyTune.Gnome.Views;
 [Template<AssemblyResource>("JellyTune.Gnome.Blueprints.download_progress_alert.ui")]
 public partial class DownloadProgressAlert
 {
-    private IDownloadService _downloadService;
-    
-    [Connect] private ProgressBar _downloadProgress;
-    
-    public static DownloadProgressAlert NewWithValues(IDownloadService downloadService)
+    public static DownloadProgressAlert NewWithValues()
     {
         var obj = NewWithProperties([]);
-        obj._downloadService = downloadService;
-        obj._downloadService.OnDownloadProgressChanged += (sender, args) =>
-        {
-            if (!args.ParentId.HasValue)
-                obj.ForceClose();
-                
-            if (!args.TotalTrackCount.HasValue || !args.TrackNumber.HasValue) return;
-
-            var progress = args.TrackNumber.Value;
-            var totalProgress = args.TotalTrackCount.Value;
-            
-            var currentProgress = progress / (double)totalProgress;
-            obj._downloadProgress.SetFraction(currentProgress);
-            obj._downloadProgress.SetText($"Downloading: {progress}/{totalProgress}");
-        };
         return obj;
     }
 }

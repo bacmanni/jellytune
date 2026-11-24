@@ -18,6 +18,7 @@ using Object = GObject.Object;
 using ShortcutsSection = Adw.ShortcutsSection;
 using Spinner = Adw.Spinner;
 using Task = System.Threading.Tasks.Task;
+using Window = Gtk.Window;
 
 namespace JellyTune.Gnome.Views;
 
@@ -338,8 +339,30 @@ public partial class MainWindow
         _mainStackPlaylists.Append(_playlistView);
         _playlistTracksToolbarView.SetContent(_playlistTracksView);
         OnNotify += OnWindowNotify;
+        OnCloseRequest += OnWindowCloseRequest;
         _ = UpdateMainMenu();
         _initialized = true;
+    }
+
+    private bool OnWindowCloseRequest(Window sender, EventArgs args)
+    {
+        // Show alert if there are file downloads in progress
+        if (_controller.DownloadService.IsDownloading())
+        {
+            var alert = DownloadProgressAlert.NewWithValues();
+            alert.Present(this);
+            alert.OnResponse += (dialog, signalArgs) =>
+            {
+                if (signalArgs.Response == "close")
+                {
+                    _controller.DownloadService.CancelDownload();
+                    _application.Quit();
+                }
+            };
+            return true;
+        }
+
+        return false;
     }
 
     private void PlaylistTracksControllerOnPlaylistTracksStateChanged(object? sender, PlaylistTracksStateArgs e)

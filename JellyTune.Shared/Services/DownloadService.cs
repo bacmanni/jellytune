@@ -13,7 +13,9 @@ public class DownloadService : IDownloadService
 
     private readonly SemaphoreSlim _downloadSemaphore = new(1, 1);
     private readonly ConcurrentDictionary<Guid, List<Track>> _downloads = new();
-
+    private readonly CancellationTokenSource _downloadCts = new();
+    private Guid? _downloadingParentId;
+    
     public event EventHandler<DownloadArgs>? OnDownloadProgressChanged;
     
     public DownloadService(IJellyTuneApiService jellyTuneApiService, IFileSystem fileSystem, IConfigurationService configurationService)
@@ -85,6 +87,23 @@ public class DownloadService : IDownloadService
     }
 
     /// <summary>
+    /// Cancel active download if there is any
+    /// </summary>
+    public void CancelDownload()
+    {
+        Console.WriteLine("Cancellation requested");
+        
+        // Cancel downloads
+        _downloadCts?.Cancel();
+
+        if (_downloadingParentId.HasValue)
+        {
+            Console.WriteLine($"Deleted parent: {_downloadingParentId}");
+            DeleteParent(_downloadingParentId.Value);
+        }
+    }
+
+    /// <summary>
     /// Store specific track audio to device cache
     /// </summary>
     /// <param name="parent"></param>
@@ -144,31 +163,46 @@ public class DownloadService : IDownloadService
         if (!_downloads.TryAdd(parentId, tracks.ToList()))
             throw new InvalidOperationException(
                 $"Download already queued for {parentId}");
-
-        await _downloadSemaphore.WaitAsync();
-
+        
+        var token = _downloadCts.Token;
         try
         {
+            await _downloadSemaphore.WaitAsync(token);
+            Console.WriteLine("Download started");
+            
             while (!_downloads.IsEmpty)
             {
+                token.ThrowIfCancellationRequested();
+
                 var item = _downloads.FirstOrDefault();
                 if (item.Value is null)
                     break;
-                
+
+                _downloadingParentId = item.Key;
                 var progress = 1;
                 foreach (var track in item.Value)
                 {
+                    token.ThrowIfCancellationRequested();
+                    
                     var totalCount = _downloads.Sum(d => d.Value.Count);
-                    OnDownloadProgressChanged?.Invoke(this, new DownloadArgs() { ParentId = item.Key, TrackNumber = progress, TotalTrackCount = totalCount, TrackName =  track.Name });
-                    await WriteTrackFileAsync(item.Key, track);
+                    OnDownloadProgressChanged?.Invoke(this,
+                        new DownloadArgs()
+                        {
+                            ParentId = item.Key, TrackNumber = progress, TotalTrackCount = totalCount,
+                            TrackName = track.Name
+                        });
+                    
+                    Console.WriteLine($"Downloading: {track.Name}");
+                    await WriteTrackFileAsync(item.Key, track, token);
                     progress++;
                 }
-                
+
                 _downloads.TryRemove(item);
             }
         }
         finally
         {
+            _downloadingParentId = null;
             _downloadSemaphore.Release();
         }
         

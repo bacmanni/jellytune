@@ -1,3 +1,8 @@
++ 1.2.5;2026-11-24
+- Fixed broken audio with Jellyfin server v12
+- Copy album artwork
+- Downloading and playing tracks on device
+
 + 1.2.4;2026-10-28
 - Filter search by type
 - Copy lyrics and show position while playing

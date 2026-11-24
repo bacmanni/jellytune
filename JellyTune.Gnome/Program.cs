@@ -36,9 +36,9 @@ class Program
         Developer = "Joni Bäckström",
         Email = "joni.j.backstrom@gmail.com",
         Name = "JellyTune",
-        Version = "1.2.4",
+        Version = "1.2.5",
         Website = "https://github.com/bacmanni/jellytune",
-        IssueUrl = "https://github.com/bacmanni/jellytune/issues/new",
+        IssueUrl = "https://github.com/bacmanni/jellytune/issues",
         Icon = "jellytune-icon",
         JellyFinVersion = "10.11",
         Artists = [ "Ruut Kiiskilä" ]
@@ -126,23 +126,6 @@ class Program
         _application.OnShutdown += ApplicationOnShutdown;
     }
 
-    private bool MainWindowOnCloseRequest(Window sender, EventArgs args)
-    {
-        // Show alert if there are downloading files in progress
-        if (_mainWindowController.DownloadService.IsDownloading())
-        {
-            var alert = DownloadProgressAlert.NewWithValues(_mainWindowController.DownloadService);
-            alert.Present(_mainWindow);
-            alert.OnResponse += (dialog, signalArgs) =>
-            {
-                _application.Quit();
-            };
-            return true;
-        }
-
-        return false;
-    }
-
     private async void ApplicationOnOnActivate(Gio.Application sender, EventArgs args)
     {
         if (_mainWindow != null)
@@ -152,7 +135,6 @@ class Program
         }
         
         _mainWindow = MainWindow.NewWithValues(_mainWindowController, _application);
-        _mainWindow.OnCloseRequest += MainWindowOnCloseRequest;
         await _mainWindow.StartAsync();
     }
 
@@ -163,8 +145,7 @@ class Program
             var screenSize = _mainWindow.GetScreenSize();
             _mainWindowController.UpdateWindowSize(screenSize.Item1, screenSize.Item2);
         }
-        
-        _mainWindow?.OnCloseRequest -= MainWindowOnCloseRequest;
+
         _mainWindow?.Dispose();
         _mainWindowController.Dispose();
         

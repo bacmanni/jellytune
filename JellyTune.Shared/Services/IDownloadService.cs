@@ -13,4 +13,5 @@ public interface IDownloadService
     public bool HasParent(Guid parent);
     public bool HasTrackFile(Guid parent, Track track);
     public Stream GetAudioStream(Guid parent, Track track);
+    public void CancelDownload();
 }

@@ -5,7 +5,7 @@
     <name>JellyTune</name>
     <summary>Gnome audio client for Jellyfin</summary>
     <url type="homepage">https://github.com/bacmanni/jellytune</url>
-    <url type="contact">https://github.com/bacmanni/jellytune/discussions</url>
+    <url type="bugtracker">https://github.com/bacmanni/jellytune/issues</url>
     <project_license>GPL-3.0-or-later</project_license>
     <content_rating type="oars-1.1" />
 
@@ -69,6 +69,11 @@
     </screenshots>
 
     <releases>
+    <release version="1.2.5" date="2026-11-24"><description><ul>
+<li>Fixed broken audio with Jellyfin server v12</li>
+<li>Copy album artwork</li>
+<li>Downloading and playing tracks on device</li>
+</ul></description></release>
     <release version="1.2.4" date="2026-10-28"><description><ul>
 <li>Filter search by type</li>
 <li>Copy lyrics and show position while playing</li>
