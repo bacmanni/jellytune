@@ -6,7 +6,7 @@
             <object class="AdwToastOverlay" id="_toastOverlay">
             <child>
                 <object class="AdwClamp">
-                    <property name="maximum-size">350</property>
+                    <property name="maximum-size">340</property>
                     <property name="tightening-threshold">400</property>
                     <child>
                         <object class="AdwToolbarView">
@@ -55,9 +55,9 @@
                                     <property name="max-content-height">360</property>
                                     <child>
                                         <object class="GtkBox">
-                                            <property name="margin-bottom">12</property>
-                                            <property name="margin-start">12</property>
-                                            <property name="margin-end">12</property>
+                                            <property name="margin-bottom">6</property>
+                                            <property name="margin-start">6</property>
+                                            <property name="margin-end">6</property>
                                             <property name="orientation">1</property>
                                             <child>
                                                 <object class="AdwSpinner" id="_spinner">
@@ -81,7 +81,7 @@
                                                                 <class name="icon-dropshadow"/>
                                                                 <class name="album-art-big"/>
                                                             </style>
-                                                            <property name="pixel-size">346</property>
+                                                            <property name="pixel-size">340</property>
                                                         </object>
                                                     </child>
                                                 </object>
