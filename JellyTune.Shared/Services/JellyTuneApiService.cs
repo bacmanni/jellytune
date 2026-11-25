@@ -156,6 +156,15 @@ public class JellyTuneApiService : IJellyTuneApiService, IDisposable
     }
 
     /// <summary>
+    /// Request library rescan from client
+    /// </summary>
+    /// <returns></returns>
+    public async Task RequestLibraryRescanAsync()
+    {
+        await _jellyfinApiClient.Library.Refresh.PostAsync(configuration => { });
+    }
+
+    /// <summary>
     /// Search available albums by search criteria
     /// </summary>
     /// <param name="value"></param>

@@ -270,6 +270,12 @@ public partial class MainWindow
         AddAction(actLyrics);
         _application.SetAccelsForAction("win.track_lyrics", new[] { "<Primary>l" });
 
+        var actPlaylist = SimpleAction.New("playlist", null);
+        actPlaylist.OnActivate += ActPlaylistOnActivate;
+        AddAction(actPlaylist);
+        _application.SetAccelsForAction("win.playlist", new[] { "<Primary>p" });
+        
+        // Open album
         var actOpenAlbum = SimpleAction.New("open_album", VariantType.String);
         actOpenAlbum.OnActivate += ActOpenAlbumOnActivate;
         AddAction(actOpenAlbum);
@@ -342,6 +348,16 @@ public partial class MainWindow
         OnCloseRequest += OnWindowCloseRequest;
         _ = UpdateMainMenu();
         _initialized = true;
+    }
+
+    private void ActPlaylistOnActivate(SimpleAction sender, SimpleAction.ActivateSignalArgs args)
+    {
+        if (_controller.PlayerService.HasTracks())
+        {
+            ResetNavigationView();
+            _queueListController.Update();
+            _rootView.Push(_queueList);
+        }
     }
 
     private bool OnWindowCloseRequest(Window sender, EventArgs args)
@@ -552,6 +568,7 @@ public partial class MainWindow
         player.Add(CreateShortcutsItem("Previous Track", "win.track_previous"));
         player.Add(CreateShortcutsItem("Volume Up", "win.volume_up"));
         player.Add(CreateShortcutsItem("Volume Down", "win.volume_down"));
+        player.Add(CreateShortcutsItem("Show Active Playlist", "win.playlist"));
         player.Add(CreateShortcutsItem("Show Playing Track Lyrics", "win.track_lyrics"));
         shortcuts.Add(player);
         
