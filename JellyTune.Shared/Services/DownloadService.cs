@@ -25,14 +25,19 @@ public class DownloadService : IDownloadService
         _configurationService = configurationService;
     }
 
+    private string GetRootPath()
+    {
+        return $"{_configurationService.GetCacheDirectory()}/jellytune/artists";
+    }
+    
     private string GetParentPath(Guid parent)
     {
-        return $"{_configurationService.GetCacheDirectory()}/jellytune/artists/{parent}/";
+        return $"{GetRootPath()}/{parent}/";
     }
     
     private string GetTrackFileName(Guid parent, Track track)
     {
-        return $"{_configurationService.GetCacheDirectory()}/jellytune/artists/{parent}/{track.Id}.{track.Container}";
+        return $"{GetRootPath()}/{parent}/{track.Id}.{track.Container}";
     }
 
     /// <summary>
@@ -58,6 +63,17 @@ public class DownloadService : IDownloadService
         if (!_fileSystem.Directory.Exists(directory)) return false;
         
         return _fileSystem.Directory.EnumerateFiles(directory).Any();
+    }
+
+    public long GetDownloadedTrackSize()
+    {
+        if (!_fileSystem.Directory.Exists(GetRootPath()))
+            return 0;
+            
+        var size = _fileSystem.Directory
+            .EnumerateFiles(GetRootPath(), "*", SearchOption.AllDirectories)
+            .Sum(file => _fileSystem.FileInfo.New(file).Length);
+        return size;
     }
 
     /// <summary>
@@ -101,6 +117,16 @@ public class DownloadService : IDownloadService
             Console.WriteLine($"Deleted parent: {_downloadingParentId}");
             DeleteParent(_downloadingParentId.Value);
         }
+    }
+
+    /// <summary>
+    /// Delete all downloaded tracks from device
+    /// </summary>
+    public void DeleteAll()
+    {
+        var dir = _fileSystem.Path.GetDirectoryName(GetRootPath());
+        if (_fileSystem.Directory.Exists(dir))
+            _fileSystem.Directory.Delete(dir, true);
     }
 
     /// <summary>

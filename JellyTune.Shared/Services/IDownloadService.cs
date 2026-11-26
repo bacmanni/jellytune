@@ -11,7 +11,9 @@ public interface IDownloadService
     public Task DownloadTracksAsync(Guid parentId, List<Track> tracks);
     public bool IsDownloading(Guid? parentId = null);
     public bool HasParent(Guid parent);
+    public long GetDownloadedTrackSize();
     public bool HasTrackFile(Guid parent, Track track);
     public Stream GetAudioStream(Guid parent, Track track);
     public void CancelDownload();
+    public void DeleteAll();
 }

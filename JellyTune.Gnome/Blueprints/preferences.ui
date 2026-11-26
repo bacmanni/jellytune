@@ -25,16 +25,6 @@
                                 <property name="title" translatable="yes">Highlight current lyric position</property>
                             </object>
                         </child>
-                        <child>
-                            <object class="AdwSwitchRow" id="_cacheList">
-                                <property name="title" translatable="yes">Store list data to device memory</property>
-                            </object>
-                        </child>
-                        <child>
-                            <object class="AdwSwitchRow" id="_cacheArtwork">
-                                <property name="title" translatable="yes">Store artwork to device memory</property>
-                            </object>
-                        </child>
                     </object>
                 </child>
                 <child>
@@ -58,6 +48,35 @@
                         <child>
                             <object class="AdwSwitchRow" id="_showPlayingAlbum">
                                 <property name="title" translatable="yes">Show playing album</property>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+                <child>
+                    <object class="AdwPreferencesGroup">
+                        <property name="title" translatable="yes">Storage</property>
+                        <child>
+                            <object class="AdwSwitchRow" id="_cacheList">
+                                <property name="title" translatable="yes">Store list data to device memory</property>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="AdwSwitchRow" id="_cacheArtwork">
+                                <property name="title" translatable="yes">Store artwork to device memory</property>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="AdwActionRow" id="_downloadedTracks">
+                                <property name="title">Downloaded tracks</property>
+                                <child type="suffix">
+                                    <object class="GtkButton" id="_downloadedTracksClear">
+                                        <style>
+                                            <class name="destructive-action"/>
+                                        </style>
+                                        <property name="label">Delete</property>
+                                        <property name="valign">center</property>
+                                    </object>
+                                </child>
                             </object>
                         </child>
                     </object>

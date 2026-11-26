@@ -34,6 +34,9 @@ public partial class PreferencesView
     [Connect] private SwitchRow _showLyrics;
     [Connect] private SwitchRow _showLyricPosition;
 
+    [Connect] private ActionRow _downloadedTracks;
+    [Connect] private Button _downloadedTracksClear;
+    
     private void CloseAttempt(Dialog sender, EventArgs args)
     {
         // We need to validate account so application won't break
@@ -108,17 +111,50 @@ public partial class PreferencesView
         _showVolume.SetActive(configuration.ShowVolume);
         _showPlayingAlbum.SetActive(configuration.ShowCurrentAlbum);
         
+        CalculateDownloadedTracks();
+        _downloadedTracksClear.OnClicked += DownloadedTracksClearOnClicked;
+        
+        // Download in progress, disable account changes
         if (_downloadService.IsDownloading())
+        {
             _accountView.SetSensitive(false);
+            _downloadedTracksClear.SetSensitive(false);
+        }
             
         _downloadService.OnDownloadProgressChanged += DownloadServiceOnDownloadProgressChanged;
         OnCloseAttempt += CloseAttempt;
     }
 
+    private void DownloadedTracksClearOnClicked(Button sender, EventArgs args)
+    {
+        var alert = DownloadDeleteAlert.NewWithValues();
+        alert.OnResponse += (dialog, signalArgs) =>
+        {
+            if (signalArgs.Response == "delete")
+            {
+                _downloadService.DeleteAll();
+                CalculateDownloadedTracks();
+                dialog.Close();
+            }
+        };
+        alert.Present(this);
+    }
+
+    private void CalculateDownloadedTracks()
+    {
+        var downloadedTrackSize = _downloadService.GetDownloadedTrackSize();
+        _downloadedTracks.SetSubtitle($"{downloadedTrackSize / (1024.0 * 1024.0):F1}MB on the device");
+        _downloadedTracksClear.SetSensitive(downloadedTrackSize > 0);
+    }
+
     private void DownloadServiceOnDownloadProgressChanged(object? sender, DownloadArgs e)
     {
+        // Enables changing account when downloads are in progress
         if (!e.ParentId.HasValue)
+        {
             _accountView.SetSensitive(true);
+            _downloadedTracksClear.SetSensitive(true);
+        }
     }
 
     private void AccountControllerOnConfigurationLoaded(object? sender, AccountArgs e)
