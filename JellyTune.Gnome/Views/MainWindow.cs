@@ -891,6 +891,7 @@ public partial class MainWindow
         about.LicenseType = License.Gpl30;
         about.Designers = _controller.ApplicationInfo.Designers ?? [];
         about.Artists = _controller.ApplicationInfo.Artists ?? [];
+        about.Developers = _controller.ApplicationInfo.Developers ?? [];
         about.Present(this);
         about.OnClosed += AboutOnClosed;
     }

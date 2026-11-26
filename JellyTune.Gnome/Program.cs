@@ -41,7 +41,8 @@ class Program
         IssueUrl = "https://github.com/bacmanni/jellytune/issues",
         Icon = "jellytune-icon",
         JellyFinVersion = "10.11",
-        Artists = [ "Ruut Kiiskilä" ]
+        Artists = [ "Ruut Kiiskilä" ],
+        Developers = [ "Joni Bäckström" ]
     };
     
     public static int Main(string[] args)

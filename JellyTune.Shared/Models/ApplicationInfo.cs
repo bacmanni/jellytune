@@ -11,6 +11,7 @@ public class ApplicationInfo
     public string? IssueUrl { get; set; }
     public string[]? Designers { get; set; }
     public string[]? Artists { get; set; }
+    public string[]? Developers { get; set; }
     public string? Icon { get; set; }
     public string? Email { get; set; }
     public string? JellyFinVersion { get; set; }
